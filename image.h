@@ -39,7 +39,7 @@ namespace TinyDIP
             return;
         }
 
-        Image(const int newWidth, const int newHeight, ElementT initVal)
+        Image(const int newWidth, const int newHeight, const ElementT initVal)
         {
             this->image_data.resize(newHeight);
             for (size_t i = 0; i < newHeight; ++i) {
