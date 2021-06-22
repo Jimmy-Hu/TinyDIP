@@ -181,7 +181,7 @@ namespace TinyDIP
         }
 
         template<class InputT>
-        constexpr auto bicubicPolate(const ElementT* const ndata, const InputT fracx, const InputT fracy)
+        constexpr auto bicubicPolate(const ElementT* const ndata, const InputT& fracx, const InputT& fracy)
         {
             auto x1 = cubicPolate( ndata[0], ndata[1], ndata[2], ndata[3], fracx );
             auto x2 = cubicPolate( ndata[4], ndata[5], ndata[6], ndata[7], fracx );
