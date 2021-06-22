@@ -113,7 +113,7 @@ namespace TinyDIP
             return this->transform([](ElementT element) { return std::to_string(element); });
         }
 
-        constexpr auto bicubicInterpolation(const int newSizeX, const int newSizeY)
+        constexpr auto bicubicInterpolation(const int& newSizeX, const int& newSizeY)
         {
             auto output = Image<ElementT>(newSizeX, newSizeY);
             auto ratiox = (float)this->getSizeX() / (float)newSizeX;
