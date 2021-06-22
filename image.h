@@ -131,9 +131,9 @@ namespace TinyDIP
                     float yMappingToOriginFrac = yMappingToOrigin - yMappingToOriginFloor;
                     
                     ElementT ndata[4 * 4];
-                    for (int ndatay = -1; ndatay < 2; ndatay++)
+                    for (int ndatay = -1; ndatay <= 2; ndatay++)
                     {
-                        for (int ndatax = -1; ndatax < 2; ndatax++)
+                        for (int ndatax = -1; ndatax <= 2; ndatax++)
                         {
                             ndata[(ndatay + 1) * 4 + (ndatax + 1)] = this->get(
                                 clip(xMappingToOriginFloor + ndatax, 0, this->getSizeX() - 1), 
