@@ -147,11 +147,7 @@ namespace TinyDIP
             return output;
         }
 
-        Image<ElementT>& operator=(Image<ElementT> const& input)  //  Copy Assign
-        {
-            this->image_data = input.getData();
-            return *this;
-        }
+        Image<ElementT>& operator=(Image<ElementT> const& input) = default;  //  Copy Assign
 
         Image<ElementT>& operator=(Image<ElementT>&& other)       //  Move Assign
         {
