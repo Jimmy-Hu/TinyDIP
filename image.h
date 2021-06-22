@@ -192,7 +192,7 @@ namespace TinyDIP
         }
 
         template<class InputT1, class InputT2>
-        constexpr auto cubicPolate(const InputT1 v0, const InputT1 v1, const InputT1 v2, const InputT1 v3, const InputT2 frac)
+        constexpr auto cubicPolate(const InputT1& v0, const InputT1& v1, const InputT1& v2, const InputT1& v3, const InputT2& frac)
         {
             auto A = (v3-v2)-(v0-v1);
             auto B = (v0-v1)-A;
