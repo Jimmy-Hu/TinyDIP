@@ -202,7 +202,7 @@ namespace TinyDIP
         }
 
         template<class InputT1, class InputT2, class InputT3>
-        constexpr auto clip(const InputT1 input, const InputT2 lowerbound, const InputT3 upperbound)
+        constexpr auto clip(const InputT1& input, const InputT2& lowerbound, const InputT3& upperbound)
         {
             if (input < lowerbound)
             {
