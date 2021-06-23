@@ -149,12 +149,7 @@ namespace TinyDIP
 
         Image<ElementT>& operator=(Image<ElementT> const& input) = default;  //  Copy Assign
 
-        Image<ElementT>& operator=(Image<ElementT>&& other)       //  Move Assign
-        {
-            this->image_data = std::move(other.image_data);
-            std::cout << "move assigned\n";
-            return *this;
-        }
+        Image<ElementT>& operator=(Image<ElementT>&& other) = default;       //  Move Assign
 
         Image(const Image<ElementT> &input)                      //  Copy Constructor
         {
