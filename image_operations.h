@@ -3,10 +3,39 @@
 
 namespace TinyDIP
 {
-    template<ElementT>
-    Image<ElementT> copyResizeBicubic(Image<ElementT> const& image, int width, int height)
+    template<class ElementT>
+    Image<ElementT> copyResizeBicubic(Image<ElementT> const& image, size_t width, size_t height)
     {
-
+        auto output = Image<ElementT>(width, height);
+        auto ratiox = (float)image.getSizeX() / (float)width;
+        auto ratioy = (float)image.getSizeY() / (float)height;
+        
+        for (size_t y = 0; y < height; y++)
+        {
+            for (size_t x = 0; x < width; x++)
+            {
+                float xMappingToOrigin = (float)x * ratiox;
+                float yMappingToOrigin = (float)y * ratioy;
+                float xMappingToOriginFloor = floor(xMappingToOrigin);
+                float yMappingToOriginFloor = floor(yMappingToOrigin);
+                float xMappingToOriginFrac = xMappingToOrigin - xMappingToOriginFloor;
+                float yMappingToOriginFrac = yMappingToOrigin - yMappingToOriginFloor;
+                
+                ElementT ndata[4 * 4];
+                for (int ndatay = -1; ndatay <= 2; ndatay++)
+                {
+                    for (int ndatax = -1; ndatax <= 2; ndatax++)
+                    {
+                        ndata[(ndatay + 1) * 4 + (ndatax + 1)] = image.get(
+                            clip(xMappingToOriginFloor + ndatax, 0, image.getSizeX() - 1), 
+                            clip(yMappingToOriginFloor + ndatay, 0, image.getSizeY() - 1));
+                    }
+                    
+                }
+                output.set(x, y, bicubicPolate(ndata, xMappingToOriginFrac, yMappingToOriginFrac));
+            }
+        }
+        return output;
     }
 
     template<class ElementT, class InputT>
