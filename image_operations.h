@@ -9,7 +9,7 @@ namespace TinyDIP
 
     }
 
-    template<class InputT>
+    template<class ElementT, class InputT>
     constexpr static auto bicubicPolate(const ElementT* const ndata, const InputT fracx, const InputT fracy)
     {
         auto x1 = cubicPolate( ndata[0], ndata[1], ndata[2], ndata[3], fracx );
