@@ -1,5 +1,10 @@
-#include "base_types.h"
+/* Develop by Jimmy Hu */
 
+#ifndef ImageOperations_H
+#define ImageOperations_H
+
+#include "base_types.h"
+#include "image.h"
 
 namespace TinyDIP
 {
@@ -52,4 +57,30 @@ namespace TinyDIP
 
         return clip(cubicPolate( x1, x2, x3, x4, fracy ), 0.0, 255.0);
     }
+
+    template<class InputT1, class InputT2>
+    constexpr static auto cubicPolate(const InputT1 v0, const InputT1 v1, const InputT1 v2, const InputT1 v3, const InputT2 frac)
+    {
+        auto A = (v3-v2)-(v0-v1);
+        auto B = (v0-v1)-A;
+        auto C = v2-v0;
+        auto D = v1;
+        return D + frac * (C + frac * (B + frac * A));
+    }
+
+    template<class InputT1, class InputT2, class InputT3>
+    constexpr static auto clip(const InputT1 input, const InputT2 lowerbound, const InputT3 upperbound)
+    {
+        if (input < lowerbound)
+        {
+            return static_cast<InputT1>(lowerbound);
+        }
+        if (input > upperbound)
+        {
+            return static_cast<InputT1>(upperbound);
+        }
+        return input;
+    }
 }
+
+#endif
