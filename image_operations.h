@@ -3,6 +3,10 @@
 
 namespace TinyDIP
 {
+    // Forward Declaration class Image
+    template <typename ElementT>
+    class Image;
+
     template<class ElementT>
     Image<ElementT> copyResizeBicubic(Image<ElementT> const& image, size_t width, size_t height)
     {
