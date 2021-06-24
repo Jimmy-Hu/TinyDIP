@@ -89,12 +89,12 @@ namespace TinyDIP
 
         void print()
         {
-            auto print_strings = this->toString();
-            for (size_t y = 0; y < print_strings.getHeight(); y++)
+            for (size_t y = 0; y < this->height; y++)
             {
-                for (size_t x = 0; x < print_strings.getWidth(); x++)
+                for (size_t x = 0; x < this->width; x++)
                 {
-                    std::cout << print_strings.at(x, y) << "\t";
+                    //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
+                    std::cout << +this->at(x, y) << "\t";
                 }
                 std::cout << "\n";
             }
