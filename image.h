@@ -47,6 +47,13 @@ namespace TinyDIP
             return;
         }
 
+        Image(const std::vector<ElementT>& input, size_t newWidth, size_t newHeight)
+        {
+            this->width = newWidth;
+            this->height = newHeight;
+            this->image_data = recursive_transform<1>(input, [](ElementT element) { return element; });   //  Deep copy
+        }
+
         Image(const std::vector<std::vector<ElementT>>& input)
         {
             for (auto& rows : input)
