@@ -100,40 +100,6 @@ namespace TinyDIP
             return this->transform([](ElementT element) { return std::to_string(element); });
         }
 
-        constexpr auto bicubicInterpolation(const int& newSizeX, const int& newSizeY)
-        {
-            auto output = Image<ElementT>(newSizeX, newSizeY);
-            auto ratiox = (float)this->getSizeX() / (float)newSizeX;
-            auto ratioy = (float)this->getSizeY() / (float)newSizeY;
-            
-            for (size_t y = 0; y < newSizeY; y++)
-            {
-                for (size_t x = 0; x < newSizeX; x++)
-                {
-                    float xMappingToOrigin = (float)x * ratiox;
-                    float yMappingToOrigin = (float)y * ratioy;
-                    float xMappingToOriginFloor = floor(xMappingToOrigin);
-                    float yMappingToOriginFloor = floor(yMappingToOrigin);
-                    float xMappingToOriginFrac = xMappingToOrigin - xMappingToOriginFloor;
-                    float yMappingToOriginFrac = yMappingToOrigin - yMappingToOriginFloor;
-                    
-                    ElementT ndata[4 * 4];
-                    for (int ndatay = -1; ndatay <= 2; ndatay++)
-                    {
-                        for (int ndatax = -1; ndatax <= 2; ndatax++)
-                        {
-                            ndata[(ndatay + 1) * 4 + (ndatax + 1)] = this->get(
-                                clip(xMappingToOriginFloor + ndatax, 0, this->getSizeX() - 1), 
-                                clip(yMappingToOriginFloor + ndatay, 0, this->getSizeY() - 1));
-                        }
-                        
-                    }
-                    output.set(x, y, bicubicPolate(ndata, xMappingToOriginFrac, yMappingToOriginFrac));
-                }
-            }
-            return output;
-        }
-
         Image<ElementT>& operator=(Image<ElementT> const& input) = default;  //  Copy Assign
 
         Image<ElementT>& operator=(Image<ElementT>&& other) = default;       //  Move Assign
