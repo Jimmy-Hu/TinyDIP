@@ -107,12 +107,6 @@ namespace TinyDIP
         size_t height;
         std::vector<ElementT> image_data;
 
-        template<class F>
-        constexpr auto transform(const F& f)
-        {
-            return recursive_transform<2>(this->image_data, f);
-        }
-
         void setImageDataToBlack()
         {
             
