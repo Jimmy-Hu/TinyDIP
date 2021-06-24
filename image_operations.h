@@ -16,8 +16,8 @@ namespace TinyDIP
     Image<ElementT> copyResizeBicubic(Image<ElementT> const& image, size_t width, size_t height)
     {
         auto output = Image<ElementT>(width, height);
-        auto ratiox = (float)image.getSizeX() / (float)width;
-        auto ratioy = (float)image.getSizeY() / (float)height;
+        auto ratiox = (float)image.getWidth() / (float)width;
+        auto ratioy = (float)image.getHeight() / (float)height;
         
         for (size_t y = 0; y < height; y++)
         {
@@ -35,13 +35,13 @@ namespace TinyDIP
                 {
                     for (int ndatax = -1; ndatax <= 2; ndatax++)
                     {
-                        ndata[(ndatay + 1) * 4 + (ndatax + 1)] = image.get(
-                            clip(xMappingToOriginFloor + ndatax, 0, image.getSizeX() - 1), 
-                            clip(yMappingToOriginFloor + ndatay, 0, image.getSizeY() - 1));
+                        ndata[(ndatay + 1) * 4 + (ndatax + 1)] = image.at(
+                            clip(xMappingToOriginFloor + ndatax, 0, image.getWidth() - 1), 
+                            clip(yMappingToOriginFloor + ndatay, 0, image.getHeight() - 1));
                     }
                     
                 }
-                output.set(x, y, bicubicPolate(ndata, xMappingToOriginFrac, yMappingToOriginFrac));
+                output.at(x, y) = bicubicPolate(ndata, xMappingToOriginFrac, yMappingToOriginFrac);
             }
         }
         return output;
