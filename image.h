@@ -104,10 +104,7 @@ namespace TinyDIP
 
         Image<ElementT>& operator=(Image<ElementT>&& other) = default;       //  Move Assign
 
-        Image(const Image<ElementT> &input)                      //  Copy Constructor
-        {
-            this->image_data = input.getData();
-        }
+        Image(const Image<ElementT> &input) = default;                      //  Copy Constructor
 
         /*    Move Constructor
          */
