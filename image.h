@@ -112,7 +112,9 @@ namespace TinyDIP
         Image(Image<ElementT> &&input) = default;                            //  Move Constructor
         
     private:
-        std::vector<std::vector<ElementT>> image_data;
+        size_t width;
+        size_t height;
+        std::vector<ElementT> image_data;
 
         template<class F>
         constexpr auto transform(const F& f)
