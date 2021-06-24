@@ -18,6 +18,7 @@
 #include <variant>
 #include <vector>
 #include "basic_functions.h"
+#include "image_operations.h"
 
 namespace TinyDIP
 {
