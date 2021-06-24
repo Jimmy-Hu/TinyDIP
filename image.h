@@ -104,7 +104,7 @@ namespace TinyDIP
 
         constexpr auto toString()
         {
-            return this->transform([](ElementT element) { return std::to_string(element); });
+            return TinyDIP::Image(this->transform([](ElementT element) { return std::to_string(element); }), this->width, this->height);
         }
 
         Image<ElementT>& operator=(Image<ElementT> const& input) = default;  //  Copy Assign
