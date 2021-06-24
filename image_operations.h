@@ -77,6 +77,11 @@ namespace TinyDIP
     {
         return exp(-x * x / (2 * standard_deviation * standard_deviation));
     }
+
+    long double normalDistribution1D(const long double x, const long double standard_deviation)
+    {
+        return expl(-x * x / (2 * standard_deviation * standard_deviation));
+    }
 }
 
 #endif
