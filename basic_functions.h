@@ -387,6 +387,34 @@ namespace TinyDIP
         }
     }
 
+    //  recursive_transform implementation (the version with unwrap_level, with execution policy)
+    template<std::size_t unwrap_level = 1, class ExPo, class T, class F>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr auto recursive_transform(ExPo execution_policy, const T& input, const F& f)
+    {
+        if constexpr (unwrap_level > 0)
+        {
+            recursive_invoke_result_t<F, T> output{};
+            std::mutex mutex;
+
+            //  Reference: https://en.cppreference.com/w/cpp/algorithm/for_each
+            std::for_each(execution_policy, input.cbegin(), input.cend(),
+                [&](auto&& element)
+                {
+                    auto result = recursive_transform<unwrap_level - 1>(execution_policy, element, f);
+                    std::lock_guard lock(mutex);
+                    output.emplace_back(std::move(result));
+                }
+            );
+            
+            return output;
+        }
+        else
+        {
+            return f(input);
+        }
+    }
+
     //  recursive_copy_if function 
     template <std::ranges::input_range Range, std::invocable<std::ranges::range_value_t<Range>> UnaryPredicate>
     constexpr auto recursive_copy_if(const Range& input, const UnaryPredicate& unary_predicate)
