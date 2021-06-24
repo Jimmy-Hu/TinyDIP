@@ -62,16 +62,9 @@ namespace TinyDIP
             return this->transform([](ElementT element) { return static_cast<OutputT>(element); });
         }
 
-        constexpr auto get(const unsigned int locationx, const unsigned int locationy)
-        {
-            return this->image_data[locationy][locationx];
-        }
+        constexpr ElementT& at(const unsigned int x, const unsigned int y) { return this->image_data[y * width + x]; }
 
-        constexpr auto set(const unsigned int locationx, const unsigned int locationy, const ElementT& element)
-        {
-            this->image_data[locationy][locationx] = element;
-            return *this;
-        }
+        constexpr ElementT const& at(const unsigned int x, const unsigned int y) const { return this->image_data[y * width + x]; }
 
         template<class InputT>
         constexpr auto set(const unsigned int locationx, const unsigned int locationy, const InputT& element)
