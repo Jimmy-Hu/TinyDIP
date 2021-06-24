@@ -56,6 +56,9 @@ namespace TinyDIP
 
         Image(const std::vector<std::vector<ElementT>>& input)
         {
+            this->height = input.size();
+            this->width = input[0].size();
+            
             for (auto& rows : input)
             {
                 this->image_data.insert(this->image_data.end(), std::begin(input), std::end(input));
