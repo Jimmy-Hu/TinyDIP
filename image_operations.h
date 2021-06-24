@@ -36,8 +36,8 @@ namespace TinyDIP
                     for (int ndatax = -1; ndatax <= 2; ndatax++)
                     {
                         ndata[(ndatay + 1) * 4 + (ndatax + 1)] = image.at(
-                            clip(xMappingToOriginFloor + ndatax, 0, image.getWidth() - 1), 
-                            clip(yMappingToOriginFloor + ndatay, 0, image.getHeight() - 1));
+                            std::clamp(xMappingToOriginFloor + ndatax, 0.0f, image.getWidth() - 1.0f), 
+                            std::clamp(yMappingToOriginFloor + ndatay, 0.0f, image.getHeight() - 1.0f));
                     }
                     
                 }
