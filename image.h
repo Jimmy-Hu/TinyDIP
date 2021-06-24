@@ -71,14 +71,9 @@ namespace TinyDIP
             return this->width;
         }
 
-        constexpr auto getSizeX()
+        constexpr size_t getHeight()
         {
-            return this->image_data[0].size();
-        }
-
-        constexpr auto getSizeY()
-        {
-            return this->image_data.size();
+            return this->height;
         }
 
         constexpr auto getData()
