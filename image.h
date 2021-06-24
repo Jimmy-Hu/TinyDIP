@@ -62,12 +62,6 @@ namespace TinyDIP
             return;
         }
 
-        template<class OutputT>
-        constexpr auto cast()
-        {
-            return this->transform([](ElementT element) { return static_cast<OutputT>(element); });
-        }
-
         constexpr ElementT& at(const unsigned int x, const unsigned int y) { return this->image_data[y * width + x]; }
 
         constexpr ElementT const& at(const unsigned int x, const unsigned int y) const { return this->image_data[y * width + x]; }
