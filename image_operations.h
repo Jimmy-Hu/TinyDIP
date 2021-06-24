@@ -55,7 +55,7 @@ namespace TinyDIP
         auto x3 = cubicPolate( ndata[8], ndata[9], ndata[10], ndata[11], fracx );
         auto x4 = cubicPolate( ndata[12], ndata[13], ndata[14], ndata[15], fracx );
 
-        return clip(cubicPolate( x1, x2, x3, x4, fracy ), 0.0, 255.0);
+        return std::clamp(cubicPolate( x1, x2, x3, x4, fracy ), 0.0f, 255.0f);
     }
 
     template<class InputT1, class InputT2>
