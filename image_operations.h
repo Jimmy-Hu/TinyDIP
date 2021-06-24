@@ -98,6 +98,14 @@ namespace TinyDIP
         return output;
     }
 
+    //  multiple standard deviations with correlation
+    //  0 <= correlation <= 1
+    static Image<double> gaussianFigure2D3(
+        const size_t xsize, const size_t ysize, 
+        const size_t centerx, const size_t centery,
+        const double standard_deviation_x, const double standard_deviation_y,
+        const double correlation, const double normalize_factor = 1.0);
+
     float normalDistribution1D(const float x, const float standard_deviation)
     {
         return expf(-x * x / (2 * standard_deviation * standard_deviation));
