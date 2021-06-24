@@ -67,20 +67,6 @@ namespace TinyDIP
         auto D = v1;
         return D + frac * (C + frac * (B + frac * A));
     }
-
-    template<class InputT1, class InputT2, class InputT3>
-    constexpr static auto clip(const InputT1 input, const InputT2 lowerbound, const InputT3 upperbound)
-    {
-        if (input < lowerbound)
-        {
-            return static_cast<InputT1>(lowerbound);
-        }
-        if (input > upperbound)
-        {
-            return static_cast<InputT1>(upperbound);
-        }
-        return input;
-    }
 }
 
 #endif
