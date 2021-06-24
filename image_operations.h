@@ -68,6 +68,25 @@ namespace TinyDIP
         return D + frac * (C + frac * (B + frac * A));
     }
 
+    template<class InputT>
+    constexpr static Image<InputT> gaussianFigure2D(
+        const size_t xsize, const size_t ysize, 
+        const size_t centerx, const size_t centery,
+        const InputT standard_deviation_x, const InputT standard_deviation_y)
+    {
+        auto output = TinyDIP::Image<InputT>(xsize, ysize);
+        for (size_t y = 0; y < ysize; y++)
+        {
+            for (size_t x = 0; x < xsize; x++)
+            {
+                output.at(x, y) = 
+                    normalDistribution1D(static_cast<InputT>(x) - static_cast<InputT>(centerx), standard_deviation_x) * 
+                    normalDistribution1D(static_cast<InputT>(y) - static_cast<InputT>(centery), standard_deviation_y);
+            }
+        }
+        return output;
+    }
+
     float normalDistribution1D(const float x, const float standard_deviation)
     {
         return expf(-x * x / (2 * standard_deviation * standard_deviation));
