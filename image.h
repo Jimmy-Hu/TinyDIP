@@ -77,11 +77,6 @@ namespace TinyDIP
             return this->height;
         }
 
-        constexpr auto getData()
-        {
-            return this->transform([](ElementT element) { return element; });   //  Deep copy
-        }
-
         std::vector<ElementT> const& getImageData() const { return this->image_data; }      //  expose the internal data
 
         void print()
