@@ -123,20 +123,6 @@ namespace TinyDIP
             return recursive_transform<2>(this->image_data, f);
         }
 
-        template<class InputT1, class InputT2, class InputT3>
-        constexpr auto clip(const InputT1& input, const InputT2& lowerbound, const InputT3& upperbound)
-        {
-            if (input < lowerbound)
-            {
-                return static_cast<InputT1>(lowerbound);
-            }
-            if (input > upperbound)
-            {
-                return static_cast<InputT1>(upperbound);
-            }
-            return input;
-        }
-
         void setImageDataToBlack()
         {
             
