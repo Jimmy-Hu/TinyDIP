@@ -34,11 +34,11 @@ namespace TinyDIP
             height(height),
             image_data(width * height) { }
 
-        Image(const int newWidth, const int newHeight, const ElementT initVal)
+        Image(const int width, const int height, const ElementT initVal):
+            width(width),
+            height(height),
+            image_data(width * height)
         {
-            this->width = newWidth;
-            this->height = newHeight;
-            this->image_data.resize(this->height * this->width);
             this->image_data = recursive_transform<1>(this->image_data, [initVal](ElementT element) { return initVal; });
             return;
         }
