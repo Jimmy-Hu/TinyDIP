@@ -49,7 +49,10 @@ namespace TinyDIP
 
         Image(const std::vector<std::vector<ElementT>>& input)
         {
-            this->image_data = recursive_transform<2>(input, [](ElementT element) {return element; } ); //  Deep copy
+            for (auto& rows : input)
+            {
+                this->image_data.insert(this->image_data.end(), std::begin(input), std::end(input));
+            }
             return;
         }
 
