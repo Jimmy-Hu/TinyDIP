@@ -113,11 +113,7 @@ namespace TinyDIP
 
         Image(const Image<ElementT> &input) = default;                       //  Copy Constructor
 
-        /*    Move Constructor
-         */
-        Image(Image<ElementT> &&input) : image_data(std::move(input.image_data))
-        {
-        }
+        Image(Image<ElementT> &&input) = default;                            //  Move Constructor
         
     private:
         std::vector<std::vector<ElementT>> image_data;
