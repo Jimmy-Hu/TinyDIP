@@ -123,16 +123,6 @@ namespace TinyDIP
             return recursive_transform<2>(this->image_data, f);
         }
 
-        template<class InputT1, class InputT2>
-        constexpr auto cubicPolate(const InputT1& v0, const InputT1& v1, const InputT1& v2, const InputT1& v3, const InputT2& frac)
-        {
-            auto A = (v3-v2)-(v0-v1);
-            auto B = (v0-v1)-A;
-            auto C = v2-v0;
-            auto D = v1;
-            return D + frac * (C + frac * (B + frac * A));
-        }
-
         template<class InputT1, class InputT2, class InputT3>
         constexpr auto clip(const InputT1& input, const InputT2& lowerbound, const InputT3& upperbound)
         {
