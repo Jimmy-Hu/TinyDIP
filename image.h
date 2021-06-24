@@ -89,11 +89,12 @@ namespace TinyDIP
 
         void print()
         {
-            for (auto& row_element : this->toString())
+            auto print_strings = this->toString();
+            for (size_t y = 0; y < print_strings.getHeight(); y++)
             {
-                for (auto& element : row_element)
+                for (size_t x = 0; x < print_strings.getWidth(); x++)
                 {
-                    std::cout << element << "\t";
+                    std::cout << print_strings.at(x, y) << "\t";
                 }
                 std::cout << "\n";
             }
