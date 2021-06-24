@@ -67,6 +67,11 @@ namespace TinyDIP
         auto D = v1;
         return D + frac * (C + frac * (B + frac * A));
     }
+
+    float normalDistribution1D(const float x, const float standard_deviation)
+    {
+        return expf(-x * x / (2 * standard_deviation * standard_deviation));
+    }
 }
 
 #endif
