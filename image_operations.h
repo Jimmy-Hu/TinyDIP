@@ -68,8 +68,19 @@ namespace TinyDIP
         return D + frac * (C + frac * (B + frac * A));
     }
 
+    //  single standard deviation
     template<class InputT>
     constexpr static Image<InputT> gaussianFigure2D(
+        const size_t xsize, const size_t ysize,
+        const size_t centerx, const size_t centery,
+        const InputT standard_deviation)
+    {
+        return gaussianFigure2D2(xsize, ysize, centerx, centery, standard_deviation, standard_deviation);
+    }
+
+    //  multiple standard deviations
+    template<class InputT>
+    constexpr static Image<InputT> gaussianFigure2D2(
         const size_t xsize, const size_t ysize, 
         const size_t centerx, const size_t centery,
         const InputT standard_deviation_x, const InputT standard_deviation_y)
