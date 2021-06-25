@@ -25,6 +25,6 @@ void bicubicInterpolationTest()
     image1 = image1.set(1, 1, 100);
     image1.print();
 
-    auto image2 = image1.bicubicInterpolation(12, 12);
+    auto image2 = TinyDIP::copyResizeBicubic(image1, 12, 12);
     image2.print();
 }
