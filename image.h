@@ -106,6 +106,18 @@ namespace TinyDIP
             return *this;
         }
 
+        Image<ElementT>& operator-=(const Image<ElementT>& rhs)
+        {
+            for (size_t y = 0; y < this->height; y++)
+            {
+                for (size_t x = 0; x < this->width; x++)
+                {
+                    this->at(x, y) -= rhs.at(x, y);
+                }
+            }
+            return *this;
+        }
+
         Image<ElementT>& operator=(Image<ElementT> const& input) = default;  //  Copy Assign
 
         Image<ElementT>& operator=(Image<ElementT>&& other) = default;       //  Move Assign
