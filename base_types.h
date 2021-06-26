@@ -12,9 +12,6 @@
 #define MAX_PATH 256
 #define FILE_ROOT_PATH "./"
 
-#define True true
-#define False false
-
 typedef unsigned char BYTE;
 
 typedef struct RGB
