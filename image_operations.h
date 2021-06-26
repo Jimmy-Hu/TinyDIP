@@ -135,6 +135,11 @@ namespace TinyDIP
     {
         return expf(-(xlocation * xlocation + ylocation * ylocation) / (2 * standard_deviation * standard_deviation)) / (2 * M_PI * standard_deviation * standard_deviation);
     }
+
+    double normalDistribution2D(const double xlocation, const double ylocation, const double standard_deviation)
+    {
+        return exp(-(xlocation * xlocation + ylocation * ylocation) / (2 * standard_deviation * standard_deviation)) / (2 * M_PI * standard_deviation * standard_deviation);
+    }
 }
 
 #endif
