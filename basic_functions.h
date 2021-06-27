@@ -1,4 +1,4 @@
-/* Develop by Jimmy Hu */
+/* Developed by Jimmy Hu */
 
 #ifndef BasicFunctions_H
 #define BasicFunctions_H
