@@ -1,4 +1,4 @@
-/* Develop by Jimmy Hu */
+/* Developed by Jimmy Hu */
 
 #ifndef BASE_H
 #define BASE_H
