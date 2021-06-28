@@ -68,19 +68,9 @@ namespace TinyDIP
         return D + frac * (C + frac * (B + frac * A));
     }
 
-    //  single standard deviation
-    template<class InputT>
-    constexpr static Image<InputT> gaussianFigure2D(
-        const size_t xsize, const size_t ysize,
-        const size_t centerx, const size_t centery,
-        const InputT standard_deviation)
-    {
-        return gaussianFigure2D2(xsize, ysize, centerx, centery, standard_deviation, standard_deviation);
-    }
-
     //  multiple standard deviations
     template<class InputT>
-    constexpr static Image<InputT> gaussianFigure2D2(
+    constexpr static Image<InputT> gaussianFigure2D(
         const size_t xsize, const size_t ysize, 
         const size_t centerx, const size_t centery,
         const InputT standard_deviation_x, const InputT standard_deviation_y)
@@ -110,11 +100,22 @@ namespace TinyDIP
 
     //  multiple standard deviations with correlation
     //  0 <= correlation <= 1
-    static Image<double> gaussianFigure2D3(
+    template<class InputT>
+    constexpr static Image<double> gaussianFigure2D(
         const size_t xsize, const size_t ysize, 
         const size_t centerx, const size_t centery,
         const double standard_deviation_x, const double standard_deviation_y,
         const double correlation, const double normalize_factor = 1.0);
+
+    //  single standard deviation
+    template<class InputT>
+    constexpr static Image<InputT> gaussianFigure2D(
+        const size_t xsize, const size_t ysize,
+        const size_t centerx, const size_t centery,
+        const InputT standard_deviation)
+    {
+        return gaussianFigure2D(xsize, ysize, centerx, centery, standard_deviation, standard_deviation);
+    }
 
     float normalDistribution1D(const float x, const float standard_deviation)
     {
