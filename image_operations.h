@@ -1,4 +1,4 @@
-/* Develop by Jimmy Hu */
+/* Developed by Jimmy Hu */
 
 #ifndef ImageOperations_H
 #define ImageOperations_H
