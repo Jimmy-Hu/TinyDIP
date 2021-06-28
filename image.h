@@ -1,4 +1,4 @@
-/* Develop by Jimmy Hu */
+/* Developed by Jimmy Hu */
 
 #ifndef Image_H
 #define Image_H
