@@ -17,13 +17,13 @@ typedef unsigned char BYTE;
 typedef struct RGB
 {
     unsigned char channels[3];
-} RGB;
+};
 
 typedef BYTE GrayScale;
 
 typedef struct HSV
 {
     long double channels[3];    //  Range: 0 <= H < 360, 0 <= S <= 1, 0 <= V <= 255
-}HSV;
+};
 
 #endif
