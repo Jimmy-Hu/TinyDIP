@@ -1,4 +1,4 @@
-/* Develop by Jimmy Hu */
+/* Developed by Jimmy Hu */
 
 #ifndef Cube_H
 #define Cube_H
