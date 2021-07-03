@@ -63,7 +63,11 @@ namespace TinyDIP
             return this->image_data[y * width + x];
         }
 
-        constexpr ElementT const& at(const unsigned int x, const unsigned int y) const { return this->image_data[y * width + x]; }
+        constexpr ElementT const& at(const unsigned int x, const unsigned int y) const
+        {
+            checkBoundary(x, y);
+            return this->image_data[y * width + x];
+        }
 
         constexpr size_t getWidth()
         {
