@@ -52,7 +52,7 @@ namespace TinyDIP
             
             for (auto& rows : input)
             {
-                this->image_data.insert(this->image_data.end(), std::begin(input), std::end(input));
+                this->image_data.insert(this->image_data.end(), std::begin(input), std::end(input));    //  flatten
             }
             return;
         }
