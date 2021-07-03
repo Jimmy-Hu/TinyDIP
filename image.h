@@ -157,9 +157,10 @@ namespace TinyDIP
         size_t height;
         std::vector<ElementT> image_data;
 
-        void setImageDataToBlack()
+        void checkBoundary(const size_t x, const size_t y)
         {
-            
+            assert(x < width);
+            assert(y < height);
         }
     };
 }
