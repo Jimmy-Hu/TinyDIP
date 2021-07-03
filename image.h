@@ -42,7 +42,7 @@ namespace TinyDIP
             width(newWidth),
             height(newHeight)
         {
-            assert(input.size() == newWidth * newHeight)
+            assert(input.size() == newWidth * newHeight);
             this->image_data = input;   //  Deep copy
         }
 
