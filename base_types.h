@@ -3,25 +3,26 @@
 #ifndef BASE_H
 #define BASE_H
 
-#include <cmath>
-#include <cstdbool>
-#include <cstdio>
-#include <cstdlib>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string>
 
-#define MAX_PATH 256
+constexpr int MAX_PATH = 256;
 #define FILE_ROOT_PATH "./"
+
+using BYTE = unsigned char;
 
 struct RGB
 {
     unsigned char channels[3];
 };
 
-using GrayScale = unsigned char;
+using GrayScale = BYTE;
 
 struct HSV
 {
-    long double channels[3];    //  Range: 0 <= H < 360, 0 <= S <= 1, 0 <= V <= 255
+    double channels[3];    //  Range: 0 <= H < 360, 0 <= S <= 1, 0 <= V <= 255
 };
 
 #endif
