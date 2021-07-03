@@ -98,9 +98,11 @@ namespace TinyDIP
 
         Image<ElementT>& operator+=(const Image<ElementT>& rhs)
         {
-            for (size_t y = 0; y < this->height; y++)
+            assert(rhs.width == this->width);
+            assert(rhs.height == this->height);
+            for (size_t y = 0; y < this->height; ++y)
             {
-                for (size_t x = 0; x < this->width; x++)
+                for (size_t x = 0; x < this->width; ++x)
                 {
                     this->at(x, y) += rhs.at(x, y);
                 }
