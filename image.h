@@ -38,10 +38,11 @@ namespace TinyDIP
             height(height),
             image_data(width * height, initVal) {}
 
-        Image(const std::vector<ElementT>& input, size_t newWidth, size_t newHeight)
+        Image(const std::vector<ElementT>& input, size_t newWidth, size_t newHeight):
+            width(newWidth),
+            height(newHeight)
         {
-            this->width = newWidth;
-            this->height = newHeight;
+            assert(input.size() == newWidth * newHeight)
             this->image_data = input;   //  Deep copy
         }
 
