@@ -26,9 +26,7 @@ namespace TinyDIP
     class Image
     {
     public:
-        Image()
-        {
-        }
+        Image() = default;
 
         Image(const size_t width, const size_t height):
             width(width),
