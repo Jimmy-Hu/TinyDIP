@@ -353,6 +353,12 @@ namespace TinyDIP
     template<typename T, std::invocable<T> F>
     struct recursive_invoke_result<F, T> { using type = std::invoke_result_t<F, T>; };
 
+    template<typename, typename, typename>
+    struct recursive_invoke_result2 { };
+    
+    template<typename T1, typename T2, std::invocable<T1, T2> F>
+    struct recursive_invoke_result2<F, T1, T2> { using type = std::invoke_result_t<F, T1, T2>; };
+
     template<typename F, template<typename...> typename Container, typename... Ts>
     requires (
         !std::invocable<F, Container<Ts...>>&&
@@ -361,6 +367,17 @@ namespace TinyDIP
         struct recursive_invoke_result<F, Container<Ts...>>
     {
         using type = Container<typename recursive_invoke_result<F, std::ranges::range_value_t<Container<Ts...>>>::type>;
+    };
+
+    template<typename F, class...Ts1, class...Ts2, template<class...>class Container1, template<class...>class Container2>
+    requires (
+        !std::invocable<F, Container1<Ts1...>, Container2<Ts2...>>&&
+        std::ranges::input_range<Container1<Ts1...>>&&
+        std::ranges::input_range<Container2<Ts2...>>&&
+        requires { typename recursive_invoke_result2<F, std::ranges::range_value_t<Container1<Ts1...>>, std::ranges::range_value_t<Container2<Ts2...>>>::type; })
+        struct recursive_invoke_result2<F, Container1<Ts1...>, Container2<Ts2...>>
+    {
+        using type = Container1<typename recursive_invoke_result2<F, std::ranges::range_value_t<Container1<Ts1...>>, std::ranges::range_value_t<Container2<Ts2...>>>::type>;
     };
 
     template<typename F, typename T>
