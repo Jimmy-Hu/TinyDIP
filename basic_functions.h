@@ -383,6 +383,9 @@ namespace TinyDIP
     template<typename F, typename T>
     using recursive_invoke_result_t = typename recursive_invoke_result<F, T>::type;
 
+    template<typename F, typename T1, typename T2>
+    using recursive_invoke_result_t2 = typename recursive_invoke_result2<F, T1, T2>::type;
+
     //  recursive_transform implementation (the version with unwrap_level)
     template<std::size_t unwrap_level = 1, class T, class F>
     constexpr auto recursive_transform(const T& input, const F& f)
@@ -429,6 +432,28 @@ namespace TinyDIP
         else
         {
             return f(input);
+        }
+    }
+
+    //  recursive_transform for the binary operation cases
+    template<std::size_t unwrap_level = 1, class T1, class T2, class F>
+    constexpr auto recursive_transform(const T1& input1, const T2& input2, const F& f)
+    {
+        if constexpr (unwrap_level > 0)
+        {
+            recursive_invoke_result_t2<F, T1, T2> output{};
+            std::transform(
+                std::ranges::cbegin(input1),
+                std::ranges::cend(input1),
+                std::ranges::cbegin(input2),
+                std::inserter(output, std::ranges::end(output)),
+                [&f](auto&& element1, auto&& element2) { return recursive_transform<unwrap_level - 1>(element1, element2, f); }
+            );
+            return output;
+        }
+        else
+        {
+            return f(input1, input2);
         }
     }
 
