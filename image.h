@@ -102,13 +102,8 @@ namespace TinyDIP
         {
             assert(rhs.width == this->width);
             assert(rhs.height == this->height);
-            for (size_t y = 0; y < this->height; ++y)
-            {
-                for (size_t x = 0; x < this->width; ++x)
-                {
-                    this->at(x, y) += rhs.at(x, y);
-                }
-            }
+            std::transform(image_data.cbegin(), image_data.cend(), rhs.image_data.cbegin(),
+                   image_data.begin(), std::plus<>{});
             return *this;
         }
 
