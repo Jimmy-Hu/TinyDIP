@@ -15,14 +15,18 @@ int main()
     std::cout << a.at(1) << std::endl;
     std::cout << a.at(2) << std::endl;
     */
-    auto result = TinyDIP::recursive_transform<1>(a, b, [](int element1, int element2) { return element1 * element2; });
+    auto result = TinyDIP::recursive_transform<1>(
+        [](int element1, int element2) { return element1 * element2; },
+        a, b);
     for (size_t i = 0; i < result.size(); i++)
     {
         std::cout << result.at(i) << std::endl;
     }
 
     std::vector<decltype(a)> c{a, a, a}, d{b, b, b};
-    auto result2 = TinyDIP::recursive_transform<2>(c, d, [](int element1, int element2) { return element1 * element2; });
+    auto result2 = TinyDIP::recursive_transform<2>(
+        [](int element1, int element2) { return element1 * element2; },
+        c, d);
     TinyDIP::recursive_print(result2);
     
     return 0;
