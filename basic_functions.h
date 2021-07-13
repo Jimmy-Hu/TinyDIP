@@ -364,27 +364,6 @@ namespace TinyDIP
     template<std::size_t unwrap_level, typename F, typename T>
     using recursive_invoke_result_t = typename recursive_invoke_result<unwrap_level, F, T>::type;
 
-    //  recursive_transform implementation (the version with unwrap_level)
-    template<std::size_t unwrap_level = 1, class T, class F>
-    constexpr auto recursive_transform(const F& f, const T& input)
-    {
-        if constexpr (unwrap_level > 0)
-        {
-            recursive_invoke_result_t<unwrap_level, F, T> output{};
-            std::ranges::transform(
-                std::ranges::cbegin(input),
-                std::ranges::cend(input),
-                std::inserter(output, std::ranges::end(output)),
-                [&f](auto&& element) { return recursive_transform<unwrap_level - 1>(f, element); }
-            );
-            return output;
-        }
-        else
-        {
-            return f(input);
-        }
-    }
-
     //  recursive_variadic_invoke_result_t implementation
     template<std::size_t, typename, typename, typename...>
     struct recursive_variadic_invoke_result { };
