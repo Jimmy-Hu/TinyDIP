@@ -9,6 +9,7 @@
 
 int main()
 {
+    test();
     std::vector<int> a{1, 2, 3}, b{4, 5, 6};
     /*
     std::cout << a.at(0) << std::endl;
