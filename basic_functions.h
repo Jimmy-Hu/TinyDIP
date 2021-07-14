@@ -255,33 +255,19 @@ namespace TinyDIP
     }
 
     //  recursive_print implementation
-    template<std::ranges::input_range Range>
-    constexpr auto recursive_print(const Range& input, const int level = 0)
+    template<typename T>
+    constexpr void recursive_print(const T& input, const int level = 0)
     {
-        auto output = input;
-        std::cout << std::string(level, ' ') << "Level " << level << ":" << std::endl;
-        std::ranges::transform(std::ranges::cbegin(input), std::ranges::cend(input), std::ranges::begin(output),
-            [level](auto&& x)
-            {
-                std::cout << std::string(level, ' ') << x << std::endl;
-                return x;
-            }
-        );
-        return output;
+        std::cout << std::string(level, ' ') << input << '\n';
     }
 
-    template<std::ranges::input_range Range> requires (std::ranges::input_range<std::ranges::range_value_t<Range>>)
-    constexpr auto recursive_print(const Range& input, const int level = 0)
+    template<std::ranges::input_range Range>
+    constexpr void recursive_print(const Range& input, const int level = 0)
     {
-        auto output = input;
         std::cout << std::string(level, ' ') << "Level " << level << ":" << std::endl;
-        std::ranges::transform(std::ranges::cbegin(input), std::ranges::cend(input), std::ranges::begin(output),
-            [level](auto&& element)
-            {
-                return recursive_print(element, level + 1);
-            }
-        );
-        return output;
+        std::ranges::for_each(input, [level](auto&& element) {
+            recursive_print(element, level + 1);
+        });
     }
 
     //  recursive_size implementation
