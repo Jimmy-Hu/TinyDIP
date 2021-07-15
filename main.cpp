@@ -32,3 +32,23 @@ int main()
     
     return 0;
 }
+
+void test()
+{
+    constexpr int dims = 5;
+    std::vector<std::string> test_vector1{ "1", "4", "7" };
+    auto test1 = TinyDIP::n_dim_vector_generator<dims>(test_vector1, 3);
+    std::vector<std::string> test_vector2{ "2", "5", "8" };
+    auto test2 = TinyDIP::n_dim_vector_generator<dims>(test_vector2, 3);
+    std::vector<std::string> test_vector3{ "3", "6", "9" };
+    auto test3 = TinyDIP::n_dim_vector_generator<dims>(test_vector3, 3);
+    std::vector<std::string> test_vector4{ "a", "b", "c" };
+    auto test4 = TinyDIP::n_dim_vector_generator<dims>(test_vector4, 3);
+    auto output = TinyDIP::recursive_transform<dims + 1>(
+        [](auto element1, auto element2, auto element3, auto element4) { return element1 + element2 + element3 + element4; },
+        test1, test2, test3, test4);
+    std::cout << typeid(output).name() << std::endl;
+    TinyDIP::recursive_print(output
+    .at(0).at(0).at(0).at(0).at(0));
+    
+}
