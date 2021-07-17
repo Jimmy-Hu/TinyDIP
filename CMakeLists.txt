@@ -1,3 +1,4 @@
+# Reference: https://cmake.org/cmake/help/latest/guide/tutorial/index.html
 cmake_minimum_required(VERSION 3.10)
 
 # set the project name and version
@@ -23,3 +24,15 @@ target_link_libraries(TinyDIP -lm)
 #target_link_libraries(TinyDIP -lomp)
 target_link_libraries(TinyDIP -lpthread)
 #target_link_libraries(TinyDIP -L/usr/local/Cellar/llvm/10.0.0_3/lib/)
+
+# Add boost library
+set(Boost_USE_STATIC_LIBS ON) 
+set(Boost_USE_MULTITHREADED ON)  
+set(Boost_USE_STATIC_RUNTIME ON) 
+find_package(Boost 1.76.0 REQUIRED COMPONENTS filesystem iterator ranges) 
+
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS}) 
+    target_link_libraries(TinyDIP ${Boost_LIBRARIES})
+endif()
+
