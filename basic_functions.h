@@ -447,6 +447,46 @@ namespace TinyDIP
         }
     }
 
+    #ifdef USE_BOOST_ITERATOR
+    #include <boost/iterator/zip_iterator.hpp>
+
+    //  recursive_transform for the binary operation cases (the version with unwrap_level, with execution policy)
+    template<std::size_t unwrap_level = 1, class ExPo, class T1, class T2, class F>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr auto recursive_transform(ExPo execution_policy, const F& f, const T1& input1, const T2& input2)
+    {
+        if constexpr (unwrap_level > 0)
+        {
+            recursive_variadic_invoke_result_t<unwrap_level, F, T1, T2> output{};
+            assert(input1.size() == input2.size());
+            std::mutex mutex;
+
+            //  Reference: https://stackoverflow.com/a/10457201/6667035
+            //  Reference: https://www.boost.org/doc/libs/1_76_0/libs/iterator/doc/zip_iterator.html
+            std::for_each(execution_policy,
+                boost::make_zip_iterator(
+                    boost::make_tuple(std::ranges::cbegin(input1), std::ranges::cbegin(input2))
+                ),
+                boost::make_zip_iterator(
+                    boost::make_tuple(std::ranges::cend(input1), std::ranges::cend(input2))
+                ),
+                [&](auto&& elements)
+                {
+                    auto result = recursive_transform<unwrap_level - 1>(execution_policy, f, boost::get<0>(elements), boost::get<1>(elements));
+                    std::lock_guard lock(mutex);
+                    output.emplace_back(std::move(result));
+                }
+            );
+
+            return output;
+        }
+        else
+        {
+            return f(input1, input2);
+        }
+    }
+    #endif
+
     //  recursive_copy_if function 
     template <std::ranges::input_range Range, std::invocable<std::ranges::range_value_t<Range>> UnaryPredicate>
     constexpr auto recursive_copy_if(const Range& input, const UnaryPredicate& unary_predicate)
