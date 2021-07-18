@@ -129,11 +129,13 @@ namespace TinyDIP
         return gaussianFigure2D(xsize, ysize, centerx, centery, standard_deviation, standard_deviation);
     }
 
-    static Image<RGB> subtract(Image<RGB> input1, Image<RGB> input2)
+    template<class InputT = RGB>
+    requires (std::same_as<InputT, RGB>)
+    constexpr static Image<InputT> subtract(Image<InputT> input1, Image<InputT> input2)
     {
         assert(input1.getWidth() == input2.getWidth());
         assert(input1.getHeight() == input2.getHeight());
-        Image<RGB> output(input1.getWidth(), input1.getHeight());
+        Image<InputT> output(input1.getWidth(), input1.getHeight());
         for (std::size_t y = 0; y < input1.getHeight(); ++y)
         {
             for (std::size_t x = 0; x < input1.getWidth(); ++x)
