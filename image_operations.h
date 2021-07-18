@@ -25,7 +25,7 @@ namespace TinyDIP
     }
 
     template<class FloatingType = float, class ElementT>
-    Image<ElementT> copyResizeBicubic(Image<ElementT> const& image, size_t width, size_t height)
+    Image<ElementT> copyResizeBicubic(Image<ElementT>& image, size_t width, size_t height)
     {
         auto output = Image<ElementT>(width, height);
         //  get used to the C++ way of casting
@@ -49,8 +49,8 @@ namespace TinyDIP
                     for (int ndatax = -1; ndatax <= 2; ndatax++)
                     {
                         ndata[(ndatay + 1) * 4 + (ndatax + 1)] = image.at(
-                            std::clamp(xMappingToOriginFloor + ndatax, 0.0f, image.getWidth() - 1.0f), 
-                            std::clamp(yMappingToOriginFloor + ndatay, 0.0f, image.getHeight() - 1.0f));
+                            std::clamp(xMappingToOriginFloor + ndatax, static_cast<FloatingType>(0), image.getWidth() - static_cast<FloatingType>(1)), 
+                            std::clamp(yMappingToOriginFloor + ndatay, static_cast<FloatingType>(0), image.getHeight() - static_cast<FloatingType>(1)));
                     }
                     
                 }
