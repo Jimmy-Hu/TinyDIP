@@ -133,13 +133,10 @@ namespace TinyDIP
         return gaussianFigure2D(xsize, ysize, centerx, centery, standard_deviation, standard_deviation);
     }
 
-    template<class InputT, typename Op>
-    constexpr static Image<InputT> pixelwiseOperation(Op op, Image<InputT>& input1, Image<InputT>& input2)
+    template<typename Op, class InputT, class... Args>
+    requires( std::is_member_function_pointer<decltype(&Args::getImageData)...>::value)
+    constexpr static Image<InputT> pixelwiseOperation(Op op, Image<InputT>& input1, Args&... inputs)
     {
-        assert(input1.getWidth() == input2.getWidth());
-        assert(input1.getHeight() == input2.getHeight());
-        auto image_data1 = input1.getImageData();
-        auto image_data2 = input2.getImageData();
         Image<InputT> output(
             recursive_transform<1>(
                 [&](auto&& element1, auto&&... elements) 
@@ -150,8 +147,8 @@ namespace TinyDIP
                             static_cast<decltype(result)>(std::numeric_limits<InputT>::min()),
                             static_cast<decltype(result)>(std::numeric_limits<InputT>::max())));
                     },
-                image_data1,
-                image_data2),
+                getImageData(input1),
+                getImageData(inputs)...),
             input1.getWidth(),
             input1.getHeight());
         return output;
