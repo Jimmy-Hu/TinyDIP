@@ -142,9 +142,9 @@ namespace TinyDIP
         auto image_data2 = input2.getImageData();
         Image<InputT> output(
             recursive_transform<1>(
-                [&](InputT element1, InputT element2) 
+                [&](auto&& element1, auto&&... elements) 
                     {
-                        auto result = op(element1, element2);
+                        auto result = op(element1, elements...);
                         return static_cast<InputT>(std::clamp(
                             result,
                             static_cast<decltype(result)>(std::numeric_limits<InputT>::min()),
