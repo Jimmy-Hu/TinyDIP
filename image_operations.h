@@ -147,8 +147,8 @@ namespace TinyDIP
                             static_cast<decltype(result)>(std::numeric_limits<InputT>::min()),
                             static_cast<decltype(result)>(std::numeric_limits<InputT>::max())));
                     },
-                getImageData(input1),
-                getImageData(inputs)...),
+                (input1.getImageData()),
+                (inputs.getImageData())...),
             input1.getWidth(),
             input1.getHeight());
         return output;
