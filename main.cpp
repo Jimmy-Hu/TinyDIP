@@ -9,14 +9,27 @@
 
 int main()
 {
-    test();
+    bicubicInterpolationTest();
+    
+    auto bmp1 = TinyDIP::bmp_read("2", false);
+    auto bmp2 = TinyDIP::bmp_read("DerainOutput5_Data2_frame23", false);
+    bmp1 = TinyDIP::subtract(bmp1, bmp2);
+    TinyDIP::bmp_write("test", bmp1);
+
+    std::cout << "*********\n";
+    auto img1 = TinyDIP::Image<GrayScale>(10, 10, 1);
+    auto img2 = TinyDIP::Image<GrayScale>(10, 10, 2);
+    auto img3 = TinyDIP::Image<GrayScale>(10, 10, 3);
+    auto img4 = TinyDIP::Image<GrayScale>(10, 10, 4);
+    TinyDIP::subtract(TinyDIP::plus(img1, img2, img3, img4), img4).print();
+    return 0;
+    
+    
+    
+    #ifdef USE_BOOST_ITERATOR
     std::vector<int> a{1, 2, 3}, b{4, 5, 6};
-    /*
-    std::cout << a.at(0) << std::endl;
-    std::cout << a.at(1) << std::endl;
-    std::cout << a.at(2) << std::endl;
-    */
     auto result = TinyDIP::recursive_transform<1>(
+        std::execution::par,
         [](int element1, int element2) { return element1 * element2; },
         a, b);
     for (size_t i = 0; i < result.size(); i++)
@@ -26,9 +39,11 @@ int main()
 
     std::vector<decltype(a)> c{a, a, a}, d{b, b, b};
     auto result2 = TinyDIP::recursive_transform<2>(
+        std::execution::par,
         [](int element1, int element2) { return element1 * element2; },
         c, d);
     TinyDIP::recursive_print(result2);
+    #endif
     
     return 0;
 }
