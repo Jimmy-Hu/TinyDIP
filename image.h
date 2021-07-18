@@ -29,17 +29,17 @@ namespace TinyDIP
     public:
         Image() = default;
 
-        Image(const size_t width, const size_t height):
+        Image(const std::size_t width, const std::size_t height):
             width(width),
             height(height),
             image_data(width * height) { }
 
-        Image(const int width, const int height, const ElementT initVal):
+        Image(const std::size_t width, const std::size_t height, const ElementT initVal):
             width(width),
             height(height),
             image_data(width * height, initVal) {}
 
-        Image(const std::vector<ElementT>& input, size_t newWidth, size_t newHeight):
+        Image(const std::vector<ElementT>& input, std::size_t newWidth, std::size_t newHeight):
             width(newWidth),
             height(newHeight)
         {
