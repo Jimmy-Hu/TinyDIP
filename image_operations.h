@@ -131,7 +131,7 @@ namespace TinyDIP
 
     template<class InputT = RGB>
     requires (std::same_as<InputT, RGB>)
-    constexpr static Image<InputT> subtract(Image<InputT> input1, Image<InputT> input2)
+    constexpr static Image<InputT> subtract(Image<InputT>& input1, Image<InputT>& input2)
     {
         assert(input1.getWidth() == input2.getWidth());
         assert(input1.getHeight() == input2.getHeight());
