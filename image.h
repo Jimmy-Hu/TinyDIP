@@ -71,7 +71,7 @@ namespace TinyDIP
             return this->image_data[y * width + x];
         }
 
-        constexpr size_t getWidth()
+        constexpr std::size_t getWidth() const
         {
             return this->width;
         }
