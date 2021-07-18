@@ -113,7 +113,7 @@ namespace TinyDIP
     BMPIMAGE bmp_file_read(const char * const filename, const bool extension)
     {
         BMPIMAGE output;
-        stpcpy(output.FILENAME, "");
+        strcpy(output.FILENAME, "");
         output.XSIZE = 0;
         output.YSIZE = 0;
         output.IMAGE_DATA = NULL;
@@ -138,7 +138,7 @@ namespace TinyDIP
             std::cerr << "Fail to read file!\n";
             return output;
         }             
-        stpcpy(output.FILENAME, fname_bmp);
+        strcpy(output.FILENAME, fname_bmp);
         int OriginSizeX = bmp_read_x_size(output.FILENAME,true);
         int OriginSizeY = bmp_read_y_size(output.FILENAME,true);
         if( (OriginSizeX == -1) || (OriginSizeY == -1) )
