@@ -50,5 +50,5 @@ void test()
     std::cout << typeid(output).name() << std::endl;
     TinyDIP::recursive_print(output
     .at(0).at(0).at(0).at(0).at(0));
-    
+    return;   
 }
