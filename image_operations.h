@@ -136,26 +136,7 @@ namespace TinyDIP
     template<class InputT>
     constexpr static Image<InputT> subtract(Image<InputT>& input1, Image<InputT>& input2)
     {
-        assert(input1.getWidth() == input2.getWidth());
-        assert(input1.getHeight() == input2.getHeight());
-        auto image_data1 = input1.getImageData();
-        auto image_data2 = input2.getImageData();
-        Image<InputT> output(
-            std::ranges::transform(
-                std::ranges::cbegin(image_data1),
-                std::ranges::cend(image_data1),
-                std::ranges::cbegin(image_data2),
-                [](InputT element1, InputT element2) 
-                    { 
-                        return std::clamp(
-                            element1 - element2,
-                            std::numeric_limits<InputT>::min(),
-                            std::numeric_limits<InputT>::max());
-                    }
-                ),
-            input1.getWidth(),
-            input1.getHeight());
-        return output;
+        return TinyDIP::pixelwiseOperation(std::minus<>{}, input1, input2);
     }
 
     template<class InputT = RGB>
