@@ -15,7 +15,7 @@ set(CMAKE_C_COMPILER "/usr/local/bin/gcc")
 set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-11")
 
 # add the executable
-add_executable(TinyDIP main.cpp)
+add_executable(TinyDIP main.cpp image_io.cpp)
 
 target_include_directories(TinyDIP PRIVATE ${LLVM_INCLUDE_DIRS})
 
@@ -26,10 +26,10 @@ target_link_libraries(TinyDIP -lpthread)
 #target_link_libraries(TinyDIP -L/usr/local/Cellar/llvm/10.0.0_3/lib/)
 
 # Add boost library
-set(Boost_USE_STATIC_LIBS ON) 
-set(Boost_USE_MULTITHREADED ON)  
-set(Boost_USE_STATIC_RUNTIME ON) 
-find_package(Boost 1.76.0 REQUIRED COMPONENTS filesystem iterator ranges) 
+set(Boost_USE_STATIC_LIBS OFF) 
+set(Boost_USE_MULTITHREADED OFF)  
+set(Boost_USE_STATIC_RUNTIME OFF) 
+#find_package(Boost 1.76.0 REQUIRED COMPONENTS filesystem iterator ranges) 
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS}) 
