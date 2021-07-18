@@ -355,12 +355,6 @@ namespace TinyDIP
     struct recursive_variadic_invoke_result { };
 
     template<typename F, class...Ts1, template<class...>class Container1, typename... Ts>
-    struct recursive_variadic_invoke_result<0, F, Container1<Ts1...>, Ts...>
-    {
-        using type = std::invoke_result_t<F, Container1<Ts1...>, Ts...>;
-    };
-
-    template<typename F, class...Ts1, template<class...>class Container1, typename... Ts>
     struct recursive_variadic_invoke_result<1, F, Container1<Ts1...>, Ts...>
     {
         using type = Container1<std::invoke_result_t<F,
