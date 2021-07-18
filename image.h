@@ -85,9 +85,9 @@ namespace TinyDIP
 
         void print()
         {
-            for (size_t y = 0; y < this->height; ++y)
+            for (std::size_t y = 0; y < this->height; ++y)
             {
-                for (size_t x = 0; x < this->width; ++x)
+                for (std::size_t x = 0; x < this->width; ++x)
                 {
                     //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
                     std::cout << +this->at(x, y) << "\t";
