@@ -24,6 +24,18 @@ namespace TinyDIP
         return std::exp(-(xlocation * xlocation + ylocation * ylocation) / (2 * standard_deviation * standard_deviation)) / (2 * M_PI * standard_deviation * standard_deviation);
     }
 
+    template<class InputT1, class InputT2>
+    constexpr static auto cubicPolate(const InputT1 v0, const InputT1 v1, const InputT1 v2, const InputT1 v3, const InputT2 frac)
+    {
+        auto A = (v3-v2)-(v0-v1);
+        auto B = (v0-v1)-A;
+        auto C = v2-v0;
+        auto D = v1;
+        return D + frac * (C + frac * (B + frac * A));
+    }
+
+
+
     template<class FloatingType = float, class ElementT>
     Image<ElementT> copyResizeBicubic(Image<ElementT>& image, size_t width, size_t height)
     {
@@ -69,16 +81,6 @@ namespace TinyDIP
         auto x4 = cubicPolate( ndata[12], ndata[13], ndata[14], ndata[15], fracx );
 
         return std::clamp(cubicPolate( x1, x2, x3, x4, fracy ), 0.0f, 255.0f);
-    }
-
-    template<class InputT1, class InputT2>
-    constexpr static auto cubicPolate(const InputT1 v0, const InputT1 v1, const InputT1 v2, const InputT1 v3, const InputT2 frac)
-    {
-        auto A = (v3-v2)-(v0-v1);
-        auto B = (v0-v1)-A;
-        auto C = v2-v0;
-        auto D = v1;
-        return D + frac * (C + frac * (B + frac * A));
     }
 
     //  multiple standard deviations
