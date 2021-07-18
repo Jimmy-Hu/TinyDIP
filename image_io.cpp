@@ -207,7 +207,7 @@ namespace TinyDIP
         output.IMAGE_DATA = static_cast<unsigned char *>(malloc(sizeof *output.IMAGE_DATA * (output.XSIZE * 3 + output.FILLINGBYTE) * output.YSIZE));
         if (output.IMAGE_DATA == NULL)
         { 
-            printf("Memory allocation error!");
+            std::cerr << "Memory allocation error!";
             return output;
         }     
         for(int i = 0; i < ((output.XSIZE * 3 + output.FILLINGBYTE) * output.YSIZE);i++)
