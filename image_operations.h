@@ -166,8 +166,11 @@ namespace TinyDIP
                 for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
                 {
                     output.at(x, y).channels[channel_index] = 
+                    std::clamp(
                         input1.at(x, y).channels[channel_index] - 
-                        input2.at(x, y).channels[channel_index];
+                        input2.at(x, y).channels[channel_index],
+                        0,
+                        255);
                 }
             }
         }
