@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <utility>
 
 constexpr int MAX_PATH = 256;
 #define FILE_ROOT_PATH "./"
@@ -25,4 +26,13 @@ struct HSV
     double channels[3];    //  Range: 0 <= H < 360, 0 <= S <= 1, 0 <= V <= 255
 };
 
+struct BMPIMAGE
+{
+    char FILENAME[MAX_PATH];
+    
+    unsigned int XSIZE;
+    unsigned int YSIZE;
+    unsigned char FILLINGBYTE;
+    unsigned char *IMAGE_DATA;
+};
 #endif
