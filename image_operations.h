@@ -24,23 +24,24 @@ namespace TinyDIP
         return std::exp(-(xlocation * xlocation + ylocation * ylocation) / (2 * standard_deviation * standard_deviation)) / (2 * M_PI * standard_deviation * standard_deviation);
     }
 
-    template<class ElementT>
+    template<class FloatingType = float, class ElementT>
     Image<ElementT> copyResizeBicubic(Image<ElementT> const& image, size_t width, size_t height)
     {
         auto output = Image<ElementT>(width, height);
-        auto ratiox = (float)image.getWidth() / (float)width;
-        auto ratioy = (float)image.getHeight() / (float)height;
+        //  get used to the C++ way of casting
+        auto ratiox = static_cast<FloatingType>(image.getWidth()) / static_cast<FloatingType>(width);
+        auto ratioy = static_cast<FloatingType>(image.getHeight()) / static_cast<FloatingType>(height);
         
-        for (size_t y = 0; y < height; y++)
+        for (size_t y = 0; y < height; ++y)
         {
-            for (size_t x = 0; x < width; x++)
+            for (size_t x = 0; x < width; ++x)
             {
-                float xMappingToOrigin = (float)x * ratiox;
-                float yMappingToOrigin = (float)y * ratioy;
-                float xMappingToOriginFloor = floor(xMappingToOrigin);
-                float yMappingToOriginFloor = floor(yMappingToOrigin);
-                float xMappingToOriginFrac = xMappingToOrigin - xMappingToOriginFloor;
-                float yMappingToOriginFrac = yMappingToOrigin - yMappingToOriginFloor;
+                FloatingType xMappingToOrigin = static_cast<FloatingType>(x) * ratiox;
+                FloatingType yMappingToOrigin = static_cast<FloatingType>(y) * ratioy;
+                FloatingType xMappingToOriginFloor = std::floor(xMappingToOrigin);
+                FloatingType yMappingToOriginFloor = std::floor(yMappingToOrigin);
+                FloatingType xMappingToOriginFrac = xMappingToOrigin - xMappingToOriginFloor;
+                FloatingType yMappingToOriginFrac = yMappingToOrigin - yMappingToOriginFloor;
                 
                 ElementT ndata[4 * 4];
                 for (int ndatay = -1; ndatay <= 2; ndatay++)
