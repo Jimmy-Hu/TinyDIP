@@ -12,19 +12,10 @@ namespace TinyDIP
     template <typename ElementT>
     class Image;
 
-    float normalDistribution1D(const float x, const float standard_deviation)
+    template<typename T>
+    T normalDistribution1D(const T x, const T standard_deviation)
     {
-        return expf(-x * x / (2 * standard_deviation * standard_deviation));
-    }
-
-    double normalDistribution1D(const double x, const double standard_deviation)
-    {
-        return exp(-x * x / (2 * standard_deviation * standard_deviation));
-    }
-
-    long double normalDistribution1D(const long double x, const long double standard_deviation)
-    {
-        return expl(-x * x / (2 * standard_deviation * standard_deviation));
+        return std::exp(-x * x / (2 * standard_deviation * standard_deviation));
     }
 
     float normalDistribution2D(const float xlocation, const float ylocation, const float standard_deviation)
