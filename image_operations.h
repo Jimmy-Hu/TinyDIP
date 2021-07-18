@@ -145,7 +145,13 @@ namespace TinyDIP
                 std::ranges::cbegin(image_data1),
                 std::ranges::cend(image_data1),
                 std::ranges::cbegin(image_data2),
-                [](InputT element1, InputT element2) {element1 - element2;}
+                [](InputT element1, InputT element2) 
+                    { 
+                        return std::clamp(
+                            element1 - element2,
+                            std::numeric_limits<InputT>::min(),
+                            std::numeric_limits<InputT>::max());
+                    }
                 ),
             input1.getWidth(),
             input1.getHeight());
