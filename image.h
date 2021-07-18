@@ -76,7 +76,7 @@ namespace TinyDIP
             return this->width;
         }
 
-        constexpr size_t getHeight()
+        constexpr std::size_t getHeight() const
         {
             return this->height;
         }
