@@ -141,6 +141,26 @@ namespace TinyDIP
     {
         return gaussianFigure2D(xsize, ysize, centerx, centery, standard_deviation, standard_deviation);
     }
+
+    static Image<RGB> subtract(Image<RGB> input1, Image<RGB> input2)
+    {
+        assert(input1.getWidth() == input2.getWidth());
+        assert(input1.getHeight() == input2.getHeight());
+        Image<RGB> output(input1.getWidth(), input1.getHeight());
+        for (std::size_t y = 0; y < input1.getHeight(); ++y)
+        {
+            for (std::size_t x = 0; x < input1.getWidth(); ++x)
+            {
+                for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
+                {
+                    output.at(x, y).channels[channel_index] = 
+                        input1.at(x, y).channels[channel_index] - 
+                        input2.at(x, y).channels[channel_index];
+                }
+            }
+        }
+        return output;
+    }
 }
 
 #endif
