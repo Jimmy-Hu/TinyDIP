@@ -155,6 +155,12 @@ namespace TinyDIP
     }
 
     template<class InputT>
+    constexpr static Image<InputT> plus(const Image<InputT>& input1)
+    {
+        return input1;
+    }
+
+    template<class InputT>
     constexpr static Image<InputT> subtract(Image<InputT>& input1, Image<InputT>& input2)
     {
         return TinyDIP::pixelwiseOperation(std::minus<>{}, input1, input2);
