@@ -98,6 +98,27 @@ namespace TinyDIP
             return;
         }
 
+        //  Enable this function if ElementT = RGB
+        void print() requires(std::same_as<ElementT, RGB>)
+        {
+            for (std::size_t y = 0; y < this->height; ++y)
+            {
+                for (std::size_t x = 0; x < this->width; ++x)
+                {
+                    std::cout << "( ";
+                    for (std::size_t channel_index = 0; channel_index < 3; ++channel_index)
+                    {
+                        //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
+                        std::cout << +this->at(x, y).channels[channel_index] << "\t";
+                    }
+                    std::cout << ")\t";
+                }
+                std::cout << "\n";
+            }
+            std::cout << "\n";
+            return;
+        }
+
         Image<ElementT>& operator+=(const Image<ElementT>& rhs)
         {
             assert(rhs.width == this->width);
