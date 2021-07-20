@@ -134,7 +134,6 @@ namespace TinyDIP
     }
 
     template<typename Op, class InputT, class... Args>
-    requires( std::is_member_function_pointer<decltype(&Args::getImageData)...>::value)
     constexpr static Image<InputT> pixelwiseOperation(Op op, const Image<InputT>& input1, const Args&... inputs)
     {
         Image<InputT> output(
