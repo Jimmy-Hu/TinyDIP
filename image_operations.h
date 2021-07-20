@@ -196,6 +196,12 @@ namespace TinyDIP
         }
         return output;
     }
+
+    template<class InputT>
+    constexpr static Image<InputT> multiplies(const Image<InputT>& input1, const Image<InputT>& input2)
+    {
+        return TinyDIP::pixelwiseOperation(std::multiplies<>{}, input1, input2);
+    }
 }
 
 #endif
