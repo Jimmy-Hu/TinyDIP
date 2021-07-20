@@ -208,6 +208,12 @@ namespace TinyDIP
     {
         return TinyDIP::pixelwiseOperation(std::multiplies<>{}, input1, multiplies(inputs...));
     }
+
+    template<class InputT>
+    constexpr static Image<InputT> divides(const Image<InputT>& input1, const Image<InputT>& input2)
+    {
+        return TinyDIP::pixelwiseOperation(std::divides<>{}, input1, input2);
+    }
 }
 
 #endif
