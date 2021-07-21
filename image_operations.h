@@ -14,6 +14,16 @@ namespace TinyDIP
     template <typename ElementT>
     class Image;
 
+    template<class T = GrayScale>
+    requires (std::same_as<T, GrayScale>)
+    constexpr static auto constructRGB(Image<T> r, Image<T> g, Image<T> b)
+    {
+        is_size_same(r, g);
+        is_size_same(g, b);
+        is_size_same(r, b);
+        return;
+    }
+
     template<typename T>
     T normalDistribution1D(const T x, const T standard_deviation)
     {
