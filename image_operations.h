@@ -221,6 +221,12 @@ namespace TinyDIP
     {
         return TinyDIP::pixelwiseOperation(std::modulus<>{}, input1, input2);
     }
+
+    template<class InputT>
+    constexpr static Image<InputT> negate(const Image<InputT>& input1, const Image<InputT>& input2)
+    {
+        return TinyDIP::pixelwiseOperation(std::negate<>{}, input1);
+    }
 }
 
 #endif
