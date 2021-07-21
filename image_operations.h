@@ -6,6 +6,8 @@
 #include "base_types.h"
 #include "image.h"
 
+#define is_size_same(x, y) {assert(x.getWidth() == y.getWidth()); assert(x.getHeight() == y.getHeight());}
+
 namespace TinyDIP
 {
     // Forward Declaration class Image
