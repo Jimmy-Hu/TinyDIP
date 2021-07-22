@@ -80,6 +80,11 @@ namespace TinyDIP
             return this->height;
         }
 
+        constexpr auto getSize()
+        {
+            return std::make_tuple(this->width, this->height);
+        }
+
         std::vector<ElementT> const& getImageData() const { return this->image_data; }      //  expose the internal data
 
         void print()
