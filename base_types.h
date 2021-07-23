@@ -9,8 +9,6 @@
 #include <string>
 #include <utility>
 
-constexpr int MAX_PATH = 256;
-#define FILE_ROOT_PATH "./"
 
 using BYTE = unsigned char;
 
