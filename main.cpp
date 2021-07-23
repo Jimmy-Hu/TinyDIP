@@ -21,7 +21,17 @@ int main()
     auto img2 = TinyDIP::Image<GrayScale>(10, 10, 2);
     auto img3 = TinyDIP::Image<GrayScale>(10, 10, 3);
     auto img4 = TinyDIP::Image<GrayScale>(10, 10, 4);
-    TinyDIP::subtract(TinyDIP::plus(img1, img2, img3, img4), img4).print();
+
+
+    auto tmp = TinyDIP::pixelwiseOperation(
+        [](auto&& element1, auto&& element2, auto&& element3)
+        {
+            return element1 + element2 + element3;
+        },
+        img1, img2, img3
+    );
+    tmp.print();
+    TinyDIP::modulus(TinyDIP::plus(img1, img2, img3, img4), img4).print();
     return 0;
     
     
