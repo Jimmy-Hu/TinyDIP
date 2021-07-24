@@ -77,3 +77,16 @@ void test()
     .at(0).at(0).at(0).at(0).at(0));
     return;   
 }
+
+void bicubicInterpolationTest()
+{
+    TinyDIP::Image<GrayScale> image1(3, 3, 1);
+    std::cout << "Width: " + std::to_string(image1.getWidth()) + "\n";
+    std::cout << "Height: " + std::to_string(image1.getHeight()) + "\n";
+    image1.at(1, 1) = 100;
+    image1.print();
+
+    auto image2 = TinyDIP::copyResizeBicubic(image1, 12, 12);
+    image2.print();
+}
+
