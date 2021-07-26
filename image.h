@@ -168,8 +168,8 @@ namespace TinyDIP
         Image(Image<ElementT> &&input) = default;                            //  Move Constructor
         
     private:
-        size_t width;
-        size_t height;
+        std::size_t width;
+        std::size_t height;
         std::vector<ElementT> image_data;
 
         void checkBoundary(const size_t x, const size_t y)
