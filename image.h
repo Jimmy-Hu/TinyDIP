@@ -103,7 +103,7 @@ namespace TinyDIP
         }
 
         //  Enable this function if ElementT = RGB
-        void print() requires(std::same_as<ElementT, RGB>)
+        void print(std::string separator = "\t") requires(std::same_as<ElementT, RGB>)
         {
             for (std::size_t y = 0; y < this->height; ++y)
             {
@@ -113,9 +113,9 @@ namespace TinyDIP
                     for (std::size_t channel_index = 0; channel_index < 3; ++channel_index)
                     {
                         //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                        std::cout << +this->at(x, y).channels[channel_index] << "\t";
+                        std::cout << +this->at(x, y).channels[channel_index] << separator;
                     }
-                    std::cout << ")\t";
+                    std::cout << ")" << separator;
                 }
                 std::cout << "\n";
             }
