@@ -87,14 +87,14 @@ namespace TinyDIP
 
         std::vector<ElementT> const& getImageData() const { return this->image_data; }      //  expose the internal data
 
-        void print()
+        void print(std::string separator = "\t")
         {
             for (std::size_t y = 0; y < this->height; ++y)
             {
                 for (std::size_t x = 0; x < this->width; ++x)
                 {
                     //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                    std::cout << +this->at(x, y) << "\t";
+                    std::cout << +this->at(x, y) << separator;
                 }
                 std::cout << "\n";
             }
