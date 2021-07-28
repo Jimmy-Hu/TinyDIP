@@ -22,20 +22,20 @@ namespace TinyDIP
         return output;
     }
 
-    //----bmp_read_x_size function----
+    //----bmp_read_x_size function definition----
     unsigned long bmp_read_x_size(const char *filename, const bool extension)
     {
-        char fname_bmp[MAX_PATH];
+        std::filesystem::path fname_bmp;
         if(extension == false)
         {    
-            std::sprintf(fname_bmp, "%s.bmp", filename);
+            fname_bmp = std::string(filename) + ".bmp";
         }        
         else
         {    
-            std::strcpy(fname_bmp,filename);
+            fname_bmp = filename;
         }    
         FILE *fp;
-        fp = fopen(fname_bmp, "rb");
+        fp = fopen(fname_bmp.string().c_str(), "rb");
         if (fp == NULL) 
         {     
             printf("Fail to read file!\n");
