@@ -32,7 +32,7 @@ namespace TinyDIP
         }        
         else
         {    
-            fname_bmp = filename;
+            fname_bmp = std::string(filename);
         }    
         FILE *fp;
         fp = fopen(fname_bmp.string().c_str(), "rb");
