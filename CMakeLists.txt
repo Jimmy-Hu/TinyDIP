@@ -26,13 +26,12 @@ target_link_libraries(TinyDIP -lpthread)
 #target_link_libraries(TinyDIP -L/usr/local/Cellar/llvm/10.0.0_3/lib/)
 
 # Add boost library
-set(Boost_USE_STATIC_LIBS OFF) 
-set(Boost_USE_MULTITHREADED OFF)  
-set(Boost_USE_STATIC_RUNTIME OFF) 
-#find_package(Boost 1.76.0 REQUIRED COMPONENTS filesystem iterator ranges) 
+# Reference: https://github.com/Microsoft/vcpkg/issues/4188
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED OFF)
+set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(BOOST 76.0 REQUIRED COMPONENTS test)
+find_path(BOOST_INCLUDE_DIR boost)
+include_directories(${BOOST_INCLUDE_DIR})
 
-if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS}) 
-    target_link_libraries(TinyDIP ${Boost_LIBRARIES})
-endif()
-
+target_link_libraries(TinyDIP ${BOOST_LIBRARIES})
