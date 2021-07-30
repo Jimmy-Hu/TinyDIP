@@ -3,6 +3,7 @@
 #ifndef BASE_H
 #define BASE_H
 
+#include <filesystem>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +27,7 @@ struct HSV
 
 struct BMPIMAGE
 {
-    char FILENAME[MAX_PATH];
+    std::filesystem::path FILENAME;
     
     unsigned int XSIZE;
     unsigned int YSIZE;
