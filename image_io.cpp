@@ -85,19 +85,19 @@ namespace TinyDIP
     //---- bmp_file_read function ---- 
     char bmp_read_detail(unsigned char * const image, const int xsize, const int ysize, const char * const filename, const bool extension)
     {
-        char fname_bmp[MAX_PATH];
+        std::filesystem::path fname_bmp;
         if(extension == false)
         {    
-            sprintf(fname_bmp, "%s.bmp", filename);
-        }        
+            fname_bmp = std::string(filename) + ".bmp";
+        }
         else
         {    
-            strcpy(fname_bmp,filename);
+            fname_bmp = std::string(filename);
         }    
         unsigned char filling_bytes;
         filling_bytes = bmp_filling_byte_calc(xsize);
         FILE *fp;
-        fp = fopen(fname_bmp, "rb");
+        fp = fopen(fname_bmp.string().c_str(), "rb");
         if (fp == NULL)
         {     
             printf("Fail to read file!\n");
