@@ -113,7 +113,6 @@ namespace TinyDIP
     BMPIMAGE bmp_file_read(const char * const filename, const bool extension)
     {
         BMPIMAGE output;
-        strcpy(output.FILENAME, "");
         output.XSIZE = 0;
         output.YSIZE = 0;
         output.IMAGE_DATA = NULL;
@@ -122,25 +121,25 @@ namespace TinyDIP
             std::cerr << "Path is null\n";
             return output;
         }
-        char fname_bmp[MAX_PATH];
+        std::filesystem::path fname_bmp;
         if(extension == false)
         {
-            sprintf(fname_bmp, "%s.bmp", filename);
+            fname_bmp = std::string(filename) + ".bmp";
         }
         else
         {    
-            strcpy(fname_bmp,filename);
+            fname_bmp = std::string(filename);
         }    
         FILE *fp;
-        fp = fopen(fname_bmp, "rb");
+        fp = fopen(fname_bmp.string().c_str(), "rb");
         if (fp == NULL)
         {     
             std::cerr << "Fail to read file!\n";
             return output;
         }             
-        strcpy(output.FILENAME, fname_bmp);
-        int OriginSizeX = bmp_read_x_size(output.FILENAME,true);
-        int OriginSizeY = bmp_read_y_size(output.FILENAME,true);
+        output.FILENAME = fname_bmp;
+        int OriginSizeX = bmp_read_x_size(output.FILENAME.string().c_str(),true);
+        int OriginSizeY = bmp_read_y_size(output.FILENAME.string().c_str(),true);
         if( (OriginSizeX == -1) || (OriginSizeY == -1) )
         {     
             std::cerr << "Fail to fetch information of image!";
@@ -173,7 +172,7 @@ namespace TinyDIP
             {
                 OriginImageData[i] = 255;
             }
-            bmp_read_detail(OriginImageData, output.XSIZE, output.YSIZE, output.FILENAME, true);
+            bmp_read_detail(OriginImageData, output.XSIZE, output.YSIZE, output.FILENAME.string().c_str(), true);
             for (size_t loop = 0; loop < (output.XSIZE * 3 + output.FILLINGBYTE) * output.YSIZE; loop++)
             {
                 printf("%d\n", OriginImageData[loop]);
@@ -214,7 +213,7 @@ namespace TinyDIP
         {
             output.IMAGE_DATA[i] = 255;
         }
-        bmp_read_detail(output.IMAGE_DATA, output.XSIZE, output.YSIZE, output.FILENAME, true);
+        bmp_read_detail(output.IMAGE_DATA, output.XSIZE, output.YSIZE, output.FILENAME.string().c_str(), true);
         return output;
     }
 
