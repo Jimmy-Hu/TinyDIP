@@ -33,3 +33,6 @@
 
 # Build output
 build/
+
+# other ignored files
+ignored_files/ 
