@@ -34,5 +34,8 @@
 # Build output
 build/
 
+# VS code folder
+.vscode/
+
 # other ignored files
 ignored_files/ 
