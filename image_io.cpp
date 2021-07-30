@@ -55,17 +55,17 @@ namespace TinyDIP
     //---- bmp_read_y_size function ----
     unsigned long bmp_read_y_size(const char * const filename, const bool extension)
     {
-        char fname_bmp[MAX_PATH];
+        std::filesystem::path fname_bmp;
         if(extension == false)
         {    
-            sprintf(fname_bmp, "%s.bmp", filename);
+            fname_bmp = std::string(filename) + ".bmp";
         }        
         else
         {    
-            strcpy(fname_bmp,filename);
+            fname_bmp = std::string(filename);
         }    
         FILE *fp;
-        fp = fopen(fname_bmp, "rb");
+        fp = fopen(fname_bmp.string().c_str(), "rb");
         if (fp == NULL)
         {
             printf("Fail to read file!\n");
