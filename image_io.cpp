@@ -249,7 +249,7 @@ namespace TinyDIP
         };                                
         unsigned long file_size = (long)xsize * (long)ysize * 3 + 54;
         unsigned long width, height;
-        char fname_bmp[MAX_PATH];
+        std::filesystem::path fname_bmp;
         header[2] = (unsigned char)(file_size &0x000000ff);
         header[3] = (file_size >> 8) & 0x000000ff;        
         header[4] = (file_size >> 16) & 0x000000ff;        
@@ -266,9 +266,9 @@ namespace TinyDIP
         header[23] = (height >> 8) &0x000000ff;
         header[24] = (height >> 16) &0x000000ff;
         header[25] = (height >> 24) &0x000000ff;
-        sprintf(fname_bmp, "%s.bmp", filename);
+        fname_bmp = std::string(filename) + ".bmp";
         FILE *fp; 
-        if (!(fp = fopen(fname_bmp, "wb")))
+        if (!(fp = fopen(fname_bmp.string().c_str(), "wb")))
         {    
             return -1;
         }        
