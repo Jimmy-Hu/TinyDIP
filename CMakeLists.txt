@@ -12,8 +12,10 @@ set(CMAKE_BUILD_TYPE debug)
 # Reference: https://superuser.com/a/1424303/1147141
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -std=c++20 -Xpreprocessor -fopenmp -O3")
 ## Reference: https://stackoverflow.com/a/45934279/6667035
-set(CMAKE_C_COMPILER "/usr/local/bin/gcc")
-set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-11")
+if(APPLE)           # Reference: https://stackoverflow.com/a/40152725/6667035
+    set(CMAKE_C_COMPILER "/usr/local/bin/gcc")
+    set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-11")
+endif()
 
 # add the executable
 add_executable(TinyDIP main.cpp image_io.cpp)
@@ -35,4 +37,4 @@ find_package(BOOST 76.0 REQUIRED COMPONENTS serialization test)
 find_path(BOOST_INCLUDE_DIR boost)
 include_directories(${BOOST_INCLUDE_DIR})
 
-target_link_libraries(TinyDIP ${BOOST_LIBRARIES})
+target_link_libraries(TinyDIP Boost::boost ${BOOST_LIBRARIES})
