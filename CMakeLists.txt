@@ -52,3 +52,15 @@ find_path(BOOST_INCLUDE_DIR boost)
 include_directories(${BOOST_INCLUDE_DIR})
 
 target_link_libraries(TinyDIP Boost::boost ${BOOST_LIBRARIES})
+
+# Reference: https://stackoverflow.com/a/31390758/6667035
+macro(print_all_variables)
+    message(STATUS "print_all_variables------------------------------------------{")
+    get_cmake_property(_variableNames VARIABLES)
+    foreach (_variableName ${_variableNames})
+        message(STATUS "${_variableName}=${${_variableName}}")
+    endforeach()
+    message(STATUS "print_all_variables------------------------------------------}")
+endmacro()
+
+
