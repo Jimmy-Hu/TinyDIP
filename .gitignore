@@ -34,6 +34,9 @@
 # Build output
 build/
 
+# VS folder
+.vs/
+
 # VS code folder
 .vscode/
 
