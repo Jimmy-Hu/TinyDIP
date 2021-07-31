@@ -30,7 +30,7 @@ target_link_libraries(TinyDIP -lpthread)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED OFF)
 set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(BOOST 76.0 REQUIRED COMPONENTS test)
+find_package(BOOST 76.0 REQUIRED COMPONENTS test serialization)
 find_path(BOOST_INCLUDE_DIR boost)
 include_directories(${BOOST_INCLUDE_DIR})
 
