@@ -17,6 +17,7 @@ if(APPLE)           # Reference: https://stackoverflow.com/a/40152725/6667035
 endif()
 
 # Using different command for compiling
+# Reference: https://stackoverflow.com/a/10055571/6667035
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -46,7 +47,7 @@ target_link_libraries(TinyDIP -lpthread)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED OFF)
 set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(BOOST 76.0 REQUIRED COMPONENTS serialization test)
+find_package(BOOST 76.0 REQUIRED COMPONENTS iterator serialization test)
 find_path(BOOST_INCLUDE_DIR boost)
 include_directories(${BOOST_INCLUDE_DIR})
 
