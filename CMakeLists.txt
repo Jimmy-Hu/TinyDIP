@@ -9,12 +9,25 @@ project(TinyDIP VERSION 1.0)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_BUILD_TYPE debug)
-# Reference: https://superuser.com/a/1424303/1147141
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -std=c++20 -Xpreprocessor -fopenmp -O3")
+
 ## Reference: https://stackoverflow.com/a/45934279/6667035
 if(APPLE)           # Reference: https://stackoverflow.com/a/40152725/6667035
     set(CMAKE_C_COMPILER "/usr/local/bin/gcc")
     set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-11")
+endif()
+
+# Using different command for compiling
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  # using Clang
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  # using GCC
+  # Reference: https://superuser.com/a/1424303/1147141
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -std=c++20 -Xpreprocessor -fopenmp -O3")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+  # using Intel C++
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  # using Visual Studio C++
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -Xpreprocessor -fopenmp -O3")
 endif()
 
 # add the executable
