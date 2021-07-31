@@ -172,7 +172,7 @@ namespace TinyDIP
         std::size_t height;
         std::vector<ElementT> image_data;
 
-        void checkBoundary(const size_t x, const size_t y)
+        void checkBoundary(const size_t x, const size_t y) const
         {
             assert(x < width);
             assert(y < height);
