@@ -9,7 +9,8 @@ project(TinyDIP VERSION 1.0)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_BUILD_TYPE debug)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -Xpreprocessor -fopenmp -O3")
+# Reference: https://superuser.com/a/1424303/1147141
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -std=c++20 -Xpreprocessor -fopenmp -O3")
 ## Reference: https://stackoverflow.com/a/45934279/6667035
 set(CMAKE_C_COMPILER "/usr/local/bin/gcc")
 set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-11")
@@ -30,7 +31,7 @@ target_link_libraries(TinyDIP -lpthread)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED OFF)
 set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(BOOST 76.0 REQUIRED COMPONENTS test serialization)
+find_package(BOOST 76.0 REQUIRED COMPONENTS serialization test)
 find_path(BOOST_INCLUDE_DIR boost)
 include_directories(${BOOST_INCLUDE_DIR})
 
