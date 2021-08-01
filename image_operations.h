@@ -3,6 +3,8 @@
 #ifndef ImageOperations_H
 #define ImageOperations_H
 
+#include <numbers>
+#include <string>
 #include "base_types.h"
 #include "image.h"
 
