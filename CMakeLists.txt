@@ -63,4 +63,5 @@ macro(print_all_variables)
     message(STATUS "print_all_variables------------------------------------------}")
 endmacro()
 
+cmake_language(CALL print_all_variables)
 
