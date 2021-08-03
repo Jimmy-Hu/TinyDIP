@@ -107,20 +107,20 @@ namespace TinyDIP
     {
         auto output = TinyDIP::Image<InputT>(xsize, ysize);
         auto row_vector_x = TinyDIP::Image<InputT>(xsize, 1);
-        for (size_t x = 0; x < xsize; x++)
+        for (size_t x = 0; x < xsize; ++x)
         {
             row_vector_x.at(x, 0) = normalDistribution1D(static_cast<InputT>(x) - static_cast<InputT>(centerx), standard_deviation_x);
         }
 
         auto row_vector_y = TinyDIP::Image<InputT>(ysize, 1);
-        for (size_t y = 0; y < ysize; y++)
+        for (size_t y = 0; y < ysize; ++y)
         {
             row_vector_y.at(y, 0) = normalDistribution1D(static_cast<InputT>(y) - static_cast<InputT>(centery), standard_deviation_y);
         }
         
-        for (size_t y = 0; y < ysize; y++)
+        for (size_t y = 0; y < ysize; ++y)
         {
-            for (size_t x = 0; x < xsize; x++)
+            for (size_t x = 0; x < xsize; ++x)
             {
                 output.at(x, y) = row_vector_x.at(x, 0) * row_vector_y.at(y, 0);
             }
