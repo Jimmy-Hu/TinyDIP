@@ -182,8 +182,7 @@ namespace TinyDIP
     template<class InputT>
     constexpr static Image<InputT> subtract(const Image<InputT>& input1, const Image<InputT>& input2)
     {
-        assert(input1.getWidth() == input2.getWidth());
-        assert(input1.getHeight() == input2.getHeight());
+        is_size_same(input1, input2);
         return TinyDIP::pixelwiseOperation(std::minus<>{}, input1, input2);
     }
 
