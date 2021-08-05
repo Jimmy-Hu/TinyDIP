@@ -190,8 +190,7 @@ namespace TinyDIP
     requires (std::same_as<InputT, RGB>)
     constexpr static Image<InputT> subtract(Image<InputT>& input1, Image<InputT>& input2)
     {
-        assert(input1.getWidth() == input2.getWidth());
-        assert(input1.getHeight() == input2.getHeight());
+        is_size_same(input1, input2);
         Image<InputT> output(input1.getWidth(), input1.getHeight());
         for (std::size_t y = 0; y < input1.getHeight(); ++y)
         {
