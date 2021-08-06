@@ -139,6 +139,22 @@ namespace TinyDIP
             return;
         }
 
+        friend std::ostream& operator<<(std::ostream& os, const Image<ElementT>& rhs)
+        {
+            const std::string separator = "\t";
+            for (std::size_t y = 0; y < rhs.height; ++y)
+            {
+                for (std::size_t x = 0; x < rhs.width; ++x)
+                {
+                    //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
+                    os << +rhs.at(x, y) << separator;
+                }
+                os << "\n";
+            }
+            os << "\n";
+            return os;
+        }
+
         Image<ElementT>& operator+=(const Image<ElementT>& rhs)
         {
             assert(rhs.width == this->width);
