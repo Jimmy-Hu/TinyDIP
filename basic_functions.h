@@ -141,7 +141,7 @@ namespace TinyDIP
 
     //  recursive_count_if implementation (the version with unwrap_level)
     template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred>
-    auto recursive_count_if(const T& input, const Pred& predicate)
+    constexpr auto recursive_count_if(const T& input, const Pred& predicate)
     {
         if constexpr (unwrap_level > 1)
         {
