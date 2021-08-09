@@ -157,83 +157,20 @@ namespace TinyDIP
 
     //  batch_recursive_count_if implementation (the version with unwrap_level)
     template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred1>
-    auto batch_recursive_count_if(const T& input, const Pred1& predicate1)
+    constexpr auto batch_recursive_count_if(const T& input, const Pred1& predicate1)
     {
         std::vector<decltype(recursive_count_if<unwrap_level>(input, predicate1))> output;
         output.push_back(recursive_count_if<unwrap_level>(input, predicate1));
         return output;
     }
 
-    template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred1, class Pred2>
-    auto batch_recursive_count_if(const T& input, const Pred1& predicate1, const Pred2& predicate2)
+    template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred1, class... Preds>
+    constexpr auto batch_recursive_count_if(const T& input, const Pred1& predicate1, const Preds&... predicates)
     {
-        auto output = batch_recursive_count_if<unwrap_level>(input, predicate1);
-        output.push_back(recursive_count_if<unwrap_level>(input, predicate2));
-        return output;
-    }
-
-    template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred1, class Pred2, class Pred3>
-    auto batch_recursive_count_if(const T& input, const Pred1& predicate1, const Pred2& predicate2, const Pred3& predicate3)
-    {
-        auto output = batch_recursive_count_if<unwrap_level>(input, predicate1, predicate2);
-        output.push_back(recursive_count_if<unwrap_level>(input, predicate3));
-        return output;
-    }
-
-    template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred1, class Pred2, class Pred3, class Pred4>
-    auto batch_recursive_count_if(const T& input, const Pred1& predicate1, const Pred2& predicate2, const Pred3& predicate3, const Pred4& predicate4)
-    {
-        auto output = batch_recursive_count_if<unwrap_level>(input, predicate1, predicate2, predicate3);
-        output.push_back(recursive_count_if<unwrap_level>(input, predicate4));
-        return output;
-    }
-
-    template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred1, class Pred2, class Pred3, class Pred4, class Pred5>
-    auto batch_recursive_count_if(const T& input, const Pred1& predicate1, const Pred2& predicate2, const Pred3& predicate3, const Pred4& predicate4, const Pred5& predicate5)
-    {
-        auto output = batch_recursive_count_if<unwrap_level>(input, predicate1, predicate2, predicate3, predicate4);
-        output.push_back(recursive_count_if<unwrap_level>(input, predicate5));
-        return output;
-    }
-
-    template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred1, class Pred2, class Pred3, class Pred4, class Pred5, class Pred6>
-    auto batch_recursive_count_if(const T& input, const Pred1& predicate1, const Pred2& predicate2, const Pred3& predicate3, const Pred4& predicate4, const Pred5& predicate5, const Pred6& predicate6)
-    {
-        auto output = batch_recursive_count_if<unwrap_level>(input, predicate1, predicate2, predicate3, predicate4, predicate5);
-        output.push_back(recursive_count_if<unwrap_level>(input, predicate6));
-        return output;
-    }
-
-    template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred1, class Pred2, class Pred3, class Pred4, class Pred5, class Pred6, class Pred7>
-    auto batch_recursive_count_if(const T& input, const Pred1& predicate1, const Pred2& predicate2, const Pred3& predicate3, const Pred4& predicate4, const Pred5& predicate5, const Pred6& predicate6, const Pred7& predicate7)
-    {
-        auto output = batch_recursive_count_if<unwrap_level>(input, predicate1, predicate2, predicate3, predicate4, predicate5, predicate6);
-        output.push_back(recursive_count_if<unwrap_level>(input, predicate7));
-        return output;
-    }
-
-    template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred1, class Pred2, class Pred3, class Pred4, class Pred5, class Pred6, class Pred7, class Pred8>
-    auto batch_recursive_count_if(const T& input, const Pred1& predicate1, const Pred2& predicate2, const Pred3& predicate3, const Pred4& predicate4, const Pred5& predicate5, const Pred6& predicate6, const Pred7& predicate7, const Pred8& predicate8)
-    {
-        auto output = batch_recursive_count_if<unwrap_level>(input, predicate1, predicate2, predicate3, predicate4, predicate5, predicate6, predicate7);
-        output.push_back(recursive_count_if<unwrap_level>(input, predicate8));
-        return output;
-    }
-
-    template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred1, class Pred2, class Pred3, class Pred4, class Pred5, class Pred6, class Pred7, class Pred8, class Pred9>
-    auto batch_recursive_count_if(const T& input, const Pred1& predicate1, const Pred2& predicate2, const Pred3& predicate3, const Pred4& predicate4, const Pred5& predicate5, const Pred6& predicate6, const Pred7& predicate7, const Pred8& predicate8, const Pred9& predicate9)
-    {
-        auto output = batch_recursive_count_if<unwrap_level>(input, predicate1, predicate2, predicate3, predicate4, predicate5, predicate6, predicate7, predicate8);
-        output.push_back(recursive_count_if<unwrap_level>(input, predicate9));
-        return output;
-    }
-
-    template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred1, class Pred2, class Pred3, class Pred4, class Pred5, class Pred6, class Pred7, class Pred8, class Pred9, class Pred10>
-    auto batch_recursive_count_if(const T& input, const Pred1& predicate1, const Pred2& predicate2, const Pred3& predicate3, const Pred4& predicate4, const Pred5& predicate5, const Pred6& predicate6, const Pred7& predicate7, const Pred8& predicate8, const Pred9& predicate9, const Pred10& predicate10)
-    {
-        auto output = batch_recursive_count_if<unwrap_level>(input, predicate1, predicate2, predicate3, predicate4, predicate5, predicate6, predicate7, predicate8, predicate9);
-        output.push_back(recursive_count_if<unwrap_level>(input, predicate10));
-        return output;
+        auto output1 = batch_recursive_count_if<unwrap_level>(input, predicate1);
+        auto output2 = batch_recursive_count_if<unwrap_level>(input, predicates...);
+        output1.insert(std::ranges::cend(output1), std::ranges::cbegin(output2), std::ranges::cend(output2));
+        return output1;
     }
 
     //  recursive_max implementation
