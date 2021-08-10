@@ -90,3 +90,15 @@ void bicubicInterpolationTest()
     image2.print();
 }
 
+void addLeadingZeros(std::string input_path, std::string output_path)
+{
+    for (std::size_t i = 1; i <= 96; ++i)
+    {
+        std::string filename = input_path + std::to_string(i) + ".bmp";
+        std::cout << filename << "\n";
+        auto bmpimage = TinyDIP::bmp_read(filename.c_str(), true);
+        char buff[100];
+        snprintf(buff, sizeof(buff), "%s%05d", output_path, i);
+        TinyDIP::bmp_write(buff, bmpimage);
+    }
+}
