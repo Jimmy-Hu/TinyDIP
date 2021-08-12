@@ -225,6 +225,11 @@ namespace TinyDIP
         return output;
     }
 
+    Image<RGB> bmp_read(std::string filename, const bool extension = true)
+    {
+        return bmp_read(filename.c_str(), extension);
+    }
+
     //----bmp_write function---- 
     int bmp_write(const char *filename, Image<RGB> input)
     {
