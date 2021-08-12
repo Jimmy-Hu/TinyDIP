@@ -217,7 +217,7 @@ namespace TinyDIP
         return output;
     }
 
-    Image<RGB> bmp_read(const char* filename, const bool extension)
+    Image<RGB> bmp_read(const char* filename, const bool extension = true)
     {
         auto image = bmp_file_read(filename, extension);
         auto output = TinyDIP::raw_image_to_array(image.XSIZE, image.YSIZE, image.IMAGE_DATA);
