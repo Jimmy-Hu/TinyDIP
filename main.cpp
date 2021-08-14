@@ -7,6 +7,59 @@
 
 #include "basic_functions.h"
 
+#ifdef BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
+#else
+#include <boost/test/included/unit_test.hpp>
+#endif // BOOST_TEST_DYN_LINK
+
+#include <boost/mpl/list.hpp>
+#include <boost/mpl/vector.hpp>
+#include <tao/tuple/tuple.hpp>
+
+typedef boost::mpl::list<
+    byte, char, int, short, long, long long int,
+    unsigned int, unsigned short int, unsigned long int, unsigned long long int,
+    float, double, long double> test_types;
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_add_test, T, test_types)
+{
+    T initVal = 10;
+    T increment = 1;
+    auto test = TinyDIP::Image<T>(10, 10, initVal);
+    test += TinyDIP::Image<T>(10, 10, increment);
+    BOOST_TEST(test == TinyDIP::Image<T>(10, 10, initVal + increment));
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_minus_test, T, test_types)
+{
+    T initVal = 10;
+    T difference = 1;
+    auto test = TinyDIP::Image<T>(10, 10, initVal);
+    test -= TinyDIP::Image<T>(10, 10, difference);
+    BOOST_TEST(test == TinyDIP::Image<T>(10, 10, initVal - difference));
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_multiplies_test, T, test_types)
+{
+    T initVal = 10;
+    T multiplier = 2;
+    auto test = TinyDIP::Image<T>(10, 10, initVal);
+    test *= TinyDIP::Image<T>(10, 10, multiplier);
+    BOOST_TEST(test == TinyDIP::Image<T>(10, 10, initVal * multiplier));
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_divides_test, T, test_types)
+{
+    T initVal = 10;
+    T divider = 2;
+    auto test = TinyDIP::Image<T>(10, 10, initVal);
+    test /= TinyDIP::Image<T>(10, 10, divider);
+    BOOST_TEST(test == TinyDIP::Image<T>(10, 10, initVal / divider));
+}
+#endif
+
+#ifndef BOOST_TEST_MODULE
 int main()
 {
     bicubicInterpolationTest();
