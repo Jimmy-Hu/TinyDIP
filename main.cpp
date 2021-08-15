@@ -57,11 +57,13 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_multiplies_test, T, test_types)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_divides_test, T, test_types)
 {
+    std::size_t size_x = 10;
+    std::size_t size_y = 10;
     T initVal = 10;
     T divider = 2;
-    auto test = TinyDIP::Image<T>(10, 10, initVal);
-    test /= TinyDIP::Image<T>(10, 10, divider);
-    BOOST_TEST(test == TinyDIP::Image<T>(10, 10, initVal / divider));
+    auto test = TinyDIP::Image<T>(size_x, size_y, initVal);
+    test /= TinyDIP::Image<T>(size_x, size_y, divider);
+    BOOST_TEST(test == TinyDIP::Image<T>(size_x, size_y, initVal / divider));
 }
 #endif
 
