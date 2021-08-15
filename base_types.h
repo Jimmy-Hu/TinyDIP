@@ -15,7 +15,7 @@ using BYTE = unsigned char;
 
 struct RGB
 {
-    unsigned char channels[3];
+    BYTE channels[3];
 };
 
 using GrayScale = BYTE;
