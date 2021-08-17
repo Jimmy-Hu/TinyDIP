@@ -66,6 +66,28 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_minus_test, T, test_types)
     BOOST_TEST(test == TinyDIP::Image<T>(size_x, size_y, initVal - difference));
 }
 
+BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_minus_test_zero_dimensions, T, test_types)
+{
+    std::size_t size_x = 0;                         //  Test images with both of the dimensions having size zero.
+    std::size_t size_y = 0;                         //  Test images with both of the dimensions having size zero.
+    T initVal = 10;
+    T difference = 1;
+    auto test = TinyDIP::Image<T>(size_x, size_y, initVal);
+    test -= TinyDIP::Image<T>(size_x, size_y, difference);
+    BOOST_TEST(test == TinyDIP::Image<T>(size_x, size_y, initVal - difference));
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_minus_test_large_dimensions, T, test_types)
+{
+    std::size_t size_x = 18446744073709551615;       //  Test images with very large dimensions (std::numeric_limits<std::size_t>::max()).
+    std::size_t size_y = 18446744073709551615;       //  Test images with very large dimensions (std::numeric_limits<std::size_t>::max()).
+    T initVal = 10;
+    T difference = 1;
+    auto test = TinyDIP::Image<T>(size_x, size_y, initVal);
+    test -= TinyDIP::Image<T>(size_x, size_y, difference);
+    BOOST_TEST(test == TinyDIP::Image<T>(size_x, size_y, initVal - difference));
+}
+
 BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_multiplies_test, T, test_types)
 {
     std::size_t size_x = 10;
