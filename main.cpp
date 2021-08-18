@@ -131,6 +131,40 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_divides_test, T, test_types)
     test /= TinyDIP::Image<T>(size_x, size_y, divider);
     BOOST_TEST(test == TinyDIP::Image<T>(size_x, size_y, initVal / divider));
 }
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_divides_test_zero_dimensions, T, test_types)
+{
+    std::size_t size_x = 0;                         //  Test images with both of the dimensions having size zero.
+    std::size_t size_y = 0;                         //  Test images with both of the dimensions having size zero.
+    T initVal = 10;
+    T divider = 2;
+    auto test = TinyDIP::Image<T>(size_x, size_y, initVal);
+    test /= TinyDIP::Image<T>(size_x, size_y, divider);
+    BOOST_TEST(test == TinyDIP::Image<T>(size_x, size_y, initVal / divider));
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_divides_test_large_dimensions, T, test_types)
+{
+    std::size_t size_x = 18446744073709551615;       //  Test images with very large dimensions (std::numeric_limits<std::size_t>::max()).
+    std::size_t size_y = 18446744073709551615;       //  Test images with very large dimensions (std::numeric_limits<std::size_t>::max()).
+    T initVal = 10;
+    T divider = 2;
+    auto test = TinyDIP::Image<T>(size_x, size_y, initVal);
+    test /= TinyDIP::Image<T>(size_x, size_y, divider);
+    BOOST_TEST(test == TinyDIP::Image<T>(size_x, size_y, initVal / divider));
+}
+/*
+BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_divides_zero_test, T, test_types)
+{
+    std::size_t size_x = 10;
+    std::size_t size_y = 10;
+    T initVal = 10;
+    T divider = 0;
+    auto test = TinyDIP::Image<T>(size_x, size_y, initVal);
+    test /= TinyDIP::Image<T>(size_x, size_y, divider);
+    BOOST_TEST(test == TinyDIP::Image<T>(size_x, size_y, initVal / divider));       //  dividing by zero test
+}
+*/
 #endif
 
 #ifndef BOOST_TEST_MODULE
