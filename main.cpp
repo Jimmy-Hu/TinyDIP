@@ -168,6 +168,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_divides_zero_test, T, test_types
 #endif
 
 #ifndef BOOST_TEST_MODULE
+void addLeadingZeros(std::string input_path, std::string output_path);
 int main()
 {
     bicubicInterpolationTest();
