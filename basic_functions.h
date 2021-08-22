@@ -193,7 +193,7 @@ namespace TinyDIP
 
     //  recursive_print implementation
     template<typename T>
-    constexpr void recursive_print(const T& input, const int level = 0)
+    constexpr void recursive_print(const T& input, const std::size_t level = 0)
     {
         std::cout << std::string(level, ' ') << input << '\n';
     }
