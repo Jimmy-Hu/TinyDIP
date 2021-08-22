@@ -199,7 +199,7 @@ namespace TinyDIP
     }
 
     template<std::ranges::input_range Range>
-    constexpr void recursive_print(const Range& input, const int level = 0)
+    constexpr void recursive_print(const Range& input, const std::size_t level = 0)
     {
         std::cout << std::string(level, ' ') << "Level " << level << ":" << std::endl;
         std::ranges::for_each(input, [level](auto&& element) {
