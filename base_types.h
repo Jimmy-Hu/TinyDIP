@@ -10,7 +10,6 @@
 #include <string>
 #include <utility>
 
-
 using BYTE = unsigned char;
 
 struct RGB
@@ -31,7 +30,7 @@ struct BMPIMAGE
     
     unsigned int XSIZE;
     unsigned int YSIZE;
-    unsigned char FILLINGBYTE;
-    unsigned char *IMAGE_DATA;
+    BYTE FILLINGBYTE;
+    BYTE *IMAGE_DATA;
 };
 #endif
