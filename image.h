@@ -191,6 +191,17 @@ namespace TinyDIP
             return *this;
         }
 
+        bool operator==(const Image<ElementT>& rhs) const
+        {
+            /* do actual comparison */
+            if (rhs.width != this->width ||
+                rhs.height != this->height)
+            {
+                return false;
+            }
+            return rhs.image_data == this->image_data;
+        }
+
         Image<ElementT>& operator=(Image<ElementT> const& input) = default;  //  Copy Assign
 
         Image<ElementT>& operator=(Image<ElementT>&& other) = default;       //  Move Assign
