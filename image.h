@@ -202,6 +202,11 @@ namespace TinyDIP
             return rhs.image_data == this->image_data;
         }
 
+        bool operator!=(const Image<ElementT>& rhs) const
+        {
+            return !(this == rhs);
+        }
+
         Image<ElementT>& operator=(Image<ElementT> const& input) = default;  //  Copy Assign
 
         Image<ElementT>& operator=(Image<ElementT>&& other) = default;       //  Move Assign
