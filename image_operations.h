@@ -23,7 +23,17 @@ namespace TinyDIP
         is_size_same(r, g);
         is_size_same(g, b);
         is_size_same(r, b);
-        return;
+        Image<RGB> output(r.getWidth(), r.getHeight());
+        for (std::size_t y = 0; y < r.getHeight(); y++)
+        {
+            for (std::size_t x = 0; x < r.getWidth(); x++)
+            {
+                output.at(x, y).channels[0] = r.at(x, y);
+                output.at(x, y).channels[1] = g.at(x, y);
+                output.at(x, y).channels[2] = b.at(x, y);
+            }
+        }
+        return output;
     }
 
     template<typename T>
