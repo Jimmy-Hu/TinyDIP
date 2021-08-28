@@ -36,6 +36,20 @@ namespace TinyDIP
         return output;
     }
 
+    template<class InputT = RGB, class OutputT = GrayScale>
+    constexpr static auto getPlane(Image<InputT> input, std::size_t index)
+    {
+        Image<OutputT> output(input.getWidth(), input.getHeight());
+        for (std::size_t y = 0; y < input.getHeight(); y++)
+        {
+            for (std::size_t x = 0; x < input.getWidth(); x++)
+            {
+                output.at(x, y) = input.at(x, y).channels[index];
+            }
+        }
+        return output;
+    }
+
     template<typename T>
     T normalDistribution1D(const T x, const T standard_deviation)
     {
