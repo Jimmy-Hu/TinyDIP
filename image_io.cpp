@@ -134,7 +134,7 @@ namespace TinyDIP
         fp = fopen(fname_bmp.string().c_str(), "rb");
         if (fp == NULL)
         {     
-            std::cerr << "Fail to read file!\n";
+            std::cerr << "Fail to read file: " << fname_bmp.string() << "!\n";
             return output;
         }             
         output.FILENAME = fname_bmp;
