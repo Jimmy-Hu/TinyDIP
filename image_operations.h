@@ -57,6 +57,13 @@ namespace TinyDIP
         return getPlane(input, 0);
     }
 
+    template<class T = RGB>
+    requires (std::same_as<T, RGB>)
+    constexpr static auto getGplane(Image<T> input)
+    {
+        return getPlane(input, 1);
+    }
+
     template<typename T>
     T normalDistribution1D(const T x, const T standard_deviation)
     {
