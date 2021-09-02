@@ -215,6 +215,21 @@ namespace TinyDIP
 
         Image(Image<ElementT> &&input) = default;                            //  Move Constructor
         
+#ifdef USE_BOOST_SERIALIZATION
+
+        void Save(std::string filename)
+        {
+            const std::string filename_with_extension = filename + ".dat";
+            //	Reference: https://stackoverflow.com/questions/523872/how-do-you-serialize-an-object-in-c
+            std::ofstream ofs(filename_with_extension, std::ios::binary);
+            boost::archive::binary_oarchive ArchiveOut(ofs);
+            //	write class instance to archive
+            ArchiveOut << *this;
+            //	archive and stream closed when destructors are called
+            ofs.close();
+        }
+        
+#endif
     private:
         std::size_t width;
         std::size_t height;
