@@ -240,6 +240,31 @@ namespace TinyDIP
             assert(x < width);
             assert(y < height);
         }
+
+#ifdef USE_BOOST_SERIALIZATION
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& width;
+            ar& height;
+            ar& image_data;
+        }
+        /*
+        static bool is_file_exist(const char* file_name)
+        {
+            if (access(file_name, F_OK) != -1)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        */
+#endif
+
     };
 }
 
