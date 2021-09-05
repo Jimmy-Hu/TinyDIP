@@ -75,7 +75,20 @@ namespace TinyDIP
     requires (std::same_as<T, RGB>)
     constexpr static void print_with_latex(Image<T> input)
     {
+        std::cout << "\\begin{tikzpicture}[x=1cm,y=0.4cm]\n";
+        for (size_t y = 0; y < input.getHeight(); y++)
+        {
+            for (size_t x = 0; x < input.getWidth(); x++)
+            {
+                auto R = input.at(x, y).channels[0];
+                auto G = input.at(x, y).channels[1];
+                auto B = input.at(x, y).channels[2];
 
+                std::cout << "\\draw (" << x << "," << y << 
+                    ") node[anchor=south,fill={rgb:red," << +R << ";green," << +G << ";blue," << +B << "}] {};\n";
+            }
+        }
+        std::cout << "\\end{tikzpicture}\n";
     }
 
     template<typename T>
