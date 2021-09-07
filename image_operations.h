@@ -91,6 +91,30 @@ namespace TinyDIP
         std::cout << "\\end{tikzpicture}\n";
     }
 
+    template<class T = RGB>
+    requires (std::same_as<T, RGB>)
+    constexpr static void print_with_latex_to_file(Image<T> input, std::string filename)
+    {
+        std::ofstream newfile;
+        newfile.open(filename);
+        newfile << "\\begin{tikzpicture}[x=1cm,y=0.4cm]\n";
+        for (size_t y = 0; y < input.getHeight(); y++)
+        {
+            for (size_t x = 0; x < input.getWidth(); x++)
+            {
+                auto R = input.at(x, y).channels[0];
+                auto G = input.at(x, y).channels[1];
+                auto B = input.at(x, y).channels[2];
+
+                newfile << "\\draw (" << x << "," << y <<
+                    ") node[anchor=south,fill={rgb:red," << +R << ";green," << +G << ";blue," << +B << "}] {};\n";
+            }
+        }
+        newfile << "\\end{tikzpicture}\n";
+        newfile.close();
+        return;
+    }
+
     template<typename T>
     T normalDistribution1D(const T x, const T standard_deviation)
     {
