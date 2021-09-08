@@ -1,5 +1,6 @@
 /* Developed by Jimmy Hu */
 
+#include <string.h>
 #include "image_io.h"
 
 namespace TinyDIP
