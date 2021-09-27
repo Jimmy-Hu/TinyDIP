@@ -1,5 +1,7 @@
 ### Code Review
 
+- A non-nested test_vectors_generator Function for arithmetic_mean Function Testing in C++ (Posted on Dec. 1, 2020 @ GMT+8, https://codereview.stackexchange.com/q/252870/231235)
+
 - An arithmetic_mean Function For Various Type Arbitrary Nested Iterable Implementation in C++ (Posted on Nov. 27, 2020 @ GMT+8, https://codereview.stackexchange.com/q/252732/231235)
 
 - std::deque and std::list Type Arbitrary Nested Iterable Generator Functions Implementation in C++ (Asked at Nov. 25, 2020 @ GMT+8, https://codereview.stackexchange.com/q/252605/231235)
