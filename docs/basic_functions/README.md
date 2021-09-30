@@ -1,5 +1,7 @@
 ### Code Review
 
+- A population_variance Function For Various Type Arbitrary Nested Iterable Implementation in C++ (Posted on Dec. 6, 2020 @ GMT+8, https://codereview.stackexchange.com/q/253131/231235)
+
 - Various Container Type Arbitrary Nested Iterable Generator Function Implementation in C++ (Posted on Dec. 4, 2020 @ GMT+8, https://codereview.stackexchange.com/q/253032/231235)
 
 - Non-nested std::deques and std::lists Generator Function for arithmetic_mean Function Testing in C++ (Posted on Dec. 2, 2020 @ GMT+8, https://codereview.stackexchange.com/q/252930/231235)
