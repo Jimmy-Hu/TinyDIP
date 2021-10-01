@@ -1,5 +1,7 @@
 ### Code Review
 
+- A recursive_transform_reduce Function for Various Type Arbitrary Nested Iterable Implementation in C++ (Posted on Dec. 10, 2020 @ GMT+8, https://codereview.stackexchange.com/q/253272/231235)
+
 - A population_variance Function For Various Type Arbitrary Nested Iterable Implementation in C++ (Posted on Dec. 6, 2020 @ GMT+8, https://codereview.stackexchange.com/q/253131/231235)
 
 - Various Container Type Arbitrary Nested Iterable Generator Function Implementation in C++ (Posted on Dec. 4, 2020 @ GMT+8, https://codereview.stackexchange.com/q/253032/231235)
