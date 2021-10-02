@@ -1,5 +1,7 @@
 ### Code Review
 
+- Avoiding requires clause if possible on a series recursive function in C++ (Posted on Dec. 12, 2020 @ GMT+8, https://codereview.stackexchange.com/q/253373/231235)
+
 - A recursive_transform_reduce Function for Various Type Arbitrary Nested Iterable Implementation in C++ (Posted on Dec. 10, 2020 @ GMT+8, https://codereview.stackexchange.com/q/253272/231235)
 
 - A population_variance Function For Various Type Arbitrary Nested Iterable Implementation in C++ (Posted on Dec. 6, 2020 @ GMT+8, https://codereview.stackexchange.com/q/253131/231235)
