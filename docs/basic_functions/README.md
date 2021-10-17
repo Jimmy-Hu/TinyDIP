@@ -42,11 +42,11 @@
 
 - An arithmetic_mean Function For Various Type Arbitrary Nested Iterable Implementation in C++ (Posted on Nov. 27, 2020 @ GMT+8, https://codereview.stackexchange.com/q/252732/231235)
 
-- std::deque and std::list Type Arbitrary Nested Iterable Generator Functions Implementation in C++ (Asked at Nov. 25, 2020 @ GMT+8, https://codereview.stackexchange.com/q/252605/231235)
+- std::deque and std::list Type Arbitrary Nested Iterable Generator Functions Implementation in C++ (Posted on Nov. 25, 2020 @ GMT+8, https://codereview.stackexchange.com/q/252605/231235)
 
-- std::array and std::vector Type Arbitrary Nested Iterable Generator Functions Implementation in C++ (Asked at Nov. 23, 2020 @ GMT+8, https://codereview.stackexchange.com/q/252488/231235)
+- std::array and std::vector Type Arbitrary Nested Iterable Generator Functions Implementation in C++ (Posted on Nov. 23, 2020 @ GMT+8, https://codereview.stackexchange.com/q/252488/231235)
 
-- A recursive_count_if Function with Unwrap Level for Various Type Arbitrary Nested Iterable Implementation in C++ (Asked at Nov. 20, 2020 @ GMT+8, https://codereview.stackexchange.com/q/252404/231235)
+- A recursive_count_if Function with Unwrap Level for Various Type Arbitrary Nested Iterable Implementation in C++ (Posted on Nov. 20, 2020 @ GMT+8, https://codereview.stackexchange.com/q/252404/231235)
 
 - A recursive_count_if Function with Automatic Type Deducing from Lambda for Various Type Arbitrary Nested Iterable Implementation in C++ (Asked at Nov. 18, 2020 @ GMT+8, https://codereview.stackexchange.com/q/252325/231235)
 
