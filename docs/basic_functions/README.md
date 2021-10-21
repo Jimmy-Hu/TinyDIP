@@ -62,9 +62,9 @@
 
 - A recursive_print Function For Various Type Arbitrary Nested Iterable Implementation in C++ (Posted on Oct. 27, 2020, https://codereview.stackexchange.com/q/251208/231235)
 
-- A recursive_transform for std::array with various return type (Asked at Oct. 26, 2020, https://codereview.stackexchange.com/q/251171/231235)
+- A recursive_transform for std::array with various return type (Posted on Oct. 26, 2020, https://codereview.stackexchange.com/q/251171/231235)
 
-- A recursive_transform for std::vector with various return type (Asked at Oct. 25, 2020, https://codereview.stackexchange.com/q/251132/231235)
+- A recursive_transform for std::vector with various return type (Posted on Oct. 25, 2020, https://codereview.stackexchange.com/q/251132/231235)
   
 - A recursive_transform Function For Various Type Nested Iterable With std::variant Implementation in C++ (Asked at Oct. 23, 2020, https://codereview.stackexchange.com/q/251060/231235)
 
