@@ -77,7 +77,7 @@ namespace TinyDIP
     template<std::ranges::input_range Range, typename T>
     constexpr auto recursive_count(const Range& input, const T& target)
     {
-        return std::count(std::ranges::cbegin(input), std::ranges::cend(input), target);
+        return std::ranges::count(input, target);
     }
 
     //  transform_reduce version
