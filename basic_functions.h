@@ -90,6 +90,29 @@ namespace TinyDIP
             });
     }
 
+    //  recursive_count implementation (the version with unwrap_level)
+    template<std::size_t unwrap_level, class T, typename ValueType>
+    constexpr auto recursive_count(const T& input, const ValueType& target)
+    {
+        if constexpr (unwrap_level > 0)
+        {
+            return std::transform_reduce(std::ranges::cbegin(input), std::ranges::cend(input), std::size_t{}, std::plus<std::size_t>(), [&target](auto&& element) {
+                return recursive_count<unwrap_level - 1>(element, target);
+                });
+        }
+        else
+        {
+            if (input == target)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+    }
+
     //  recursive_count implementation (with execution policy)
     template<class ExPo, std::ranges::input_range Range, typename T>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
