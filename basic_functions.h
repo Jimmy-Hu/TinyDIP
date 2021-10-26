@@ -73,6 +73,13 @@ namespace TinyDIP
         std::pow(x1, x2);
     };
 
+    //  recursive_depth function implementation
+    template<typename T>
+    constexpr std::size_t recursive_depth()
+    {
+        return 0;
+    }
+
     //  recursive_count implementation
     template<std::ranges::input_range Range, typename T>
     constexpr auto recursive_count(const Range& input, const T& target)
