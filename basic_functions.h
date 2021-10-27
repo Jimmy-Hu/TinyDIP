@@ -80,6 +80,12 @@ namespace TinyDIP
         return 0;
     }
 
+    template<std::ranges::input_range Range>
+    constexpr std::size_t recursive_depth()
+    {
+        return recursive_depth<std::ranges::range_value_t<Range>>() + 1;
+    }
+
     //  recursive_count implementation
     template<std::ranges::input_range Range, typename T>
     constexpr auto recursive_count(const Range& input, const T& target)
