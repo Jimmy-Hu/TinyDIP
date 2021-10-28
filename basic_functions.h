@@ -103,12 +103,16 @@ namespace TinyDIP
             });
     }
 
+    //  recursive_count implementation
+
     //  recursive_count implementation (the version with unwrap_level)
-    template<std::size_t unwrap_level, class T, typename ValueType>
-    constexpr auto recursive_count(const T& input, const ValueType& target)
+    template<std::size_t unwrap_level, class T>
+    constexpr auto recursive_count(const T& input, const auto& target)
     {
         if constexpr (unwrap_level > 0)
         {
+            static_assert(unwrap_level <= recursive_depth<T>(),
+                "unwrap level higher than recursion depth of input");
             return std::transform_reduce(std::ranges::cbegin(input), std::ranges::cend(input), std::size_t{}, std::plus<std::size_t>(), [&target](auto&& element) {
                 return recursive_count<unwrap_level - 1>(element, target);
                 });
@@ -126,21 +130,11 @@ namespace TinyDIP
         }
     }
 
-    //  recursive_count implementation (with execution policy)
-    template<class ExPo, std::ranges::input_range Range, typename T>
-    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr auto recursive_count(ExPo execution_policy, const Range& input, const T& target)
+    //  recursive_count implementation (the version without unwrap_level)
+    template<std::ranges::input_range Range>
+    constexpr auto recursive_count(const Range& input, const auto& target)
     {
-        return std::count(execution_policy, std::ranges::cbegin(input), std::ranges::cend(input), target);
-    }
-
-    template<class ExPo, std::ranges::input_range Range, typename T>
-    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>) && (std::ranges::input_range<std::ranges::range_value_t<Range>>)
-    constexpr auto recursive_count(ExPo execution_policy, const Range& input, const T& target)
-    {
-        return std::transform_reduce(execution_policy, std::ranges::cbegin(input), std::ranges::cend(input), std::size_t{}, std::plus<std::size_t>(), [execution_policy, target](auto&& element) {
-            return recursive_count(execution_policy, element, target);
-            });
+        return recursive_count<recursive_depth<Range>()>(input, target);
     }
 
     //  recursive_count_if implementation
