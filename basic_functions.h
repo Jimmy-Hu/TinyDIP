@@ -87,23 +87,6 @@ namespace TinyDIP
     }
 
     //  recursive_count implementation
-    template<std::ranges::input_range Range, typename T>
-    constexpr auto recursive_count(const Range& input, const T& target)
-    {
-        return std::ranges::count(input, target);
-    }
-
-    //  transform_reduce version
-    template<std::ranges::input_range Range, typename T>
-    requires std::ranges::input_range<std::ranges::range_value_t<Range>>
-    constexpr auto recursive_count(const Range& input, const T& target)
-    {
-        return std::transform_reduce(std::ranges::cbegin(input), std::ranges::cend(input), std::size_t{}, std::plus<std::size_t>(), [target](auto&& element) {
-            return recursive_count(element, target);
-            });
-    }
-
-    //  recursive_count implementation
 
     //  recursive_count implementation (the version with unwrap_level)
     template<std::size_t unwrap_level, class T>
