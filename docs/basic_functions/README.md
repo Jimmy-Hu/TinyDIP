@@ -1,6 +1,6 @@
 ### Code Review
 
-- 
+- A recursive_depth function for calculating depth of nested types implementation in C++ (Posted on Oct. 26, 2021 @ GMT+8, https://codereview.stackexchange.com/q/269376/231235)
 
 - A recursive_transform template function for the multiple parameters cases in C++ (Posted on Jul. 12, 2021 @ GMT+8, https://codereview.stackexchange.com/q/263956/231235)
 
