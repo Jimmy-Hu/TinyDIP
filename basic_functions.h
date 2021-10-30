@@ -348,6 +348,8 @@ namespace TinyDIP
     {
         if constexpr (unwrap_level > 0)
         {
+            static_assert(unwrap_level <= recursive_depth<Arg1>(),
+                "unwrap level higher than recursion depth of input");
             recursive_variadic_invoke_result_t<unwrap_level, F, Arg1, Args...> output{};
             transform(
                 std::inserter(output, std::ranges::end(output)),
