@@ -102,14 +102,7 @@ namespace TinyDIP
         }
         else
         {
-            if (input == target)
-            {
-                return 1;
-            }
-            else
-            {
-                return 0;
-            }
+            return (input == target) ? 1 : 0;
         }
     }
 
