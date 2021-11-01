@@ -121,6 +121,15 @@ namespace TinyDIP
         return std::count(execution_policy, std::ranges::cbegin(input), std::ranges::cend(input), target);
     }
 
+    template<class ExPo, std::ranges::input_range Range, typename T>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>) && (std::ranges::input_range<std::ranges::range_value_t<Range>>)
+    constexpr auto recursive_count(ExPo execution_policy, const Range& input, const T& target)
+    {
+        return std::transform_reduce(execution_policy, std::ranges::cbegin(input), std::ranges::cend(input), std::size_t{}, std::plus<std::size_t>(), [execution_policy, target](auto&& element) {
+            return recursive_count(execution_policy, element, target);
+            });
+    }
+
     //  recursive_count_if implementation
     template<class T, std::invocable<T> Pred>
     constexpr std::size_t recursive_count_if(const T& input, const Pred& predicate)
