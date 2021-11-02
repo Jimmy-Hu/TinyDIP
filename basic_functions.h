@@ -383,6 +383,8 @@ namespace TinyDIP
     {
         if constexpr (unwrap_level > 0)
         {
+            static_assert(unwrap_level <= recursive_depth<T>(),
+                "unwrap level higher than recursion depth of input");
             recursive_invoke_result_t<unwrap_level, F, T> output{};
             std::mutex mutex;
 
