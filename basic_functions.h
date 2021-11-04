@@ -169,6 +169,8 @@ namespace TinyDIP
     {
         if constexpr (unwrap_level > 1)
         {
+            static_assert(unwrap_level <= recursive_depth<T>(),
+                "unwrap level higher than recursion depth of input");
             return std::transform_reduce(std::ranges::cbegin(input), std::ranges::cend(input), std::size_t{}, std::plus<std::size_t>(), [predicate](auto&& element) {
                 return recursive_count_if<unwrap_level - 1>(element, predicate);
                 });
