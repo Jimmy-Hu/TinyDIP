@@ -195,6 +195,8 @@ namespace TinyDIP
     template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred1, class... Preds>
     constexpr auto batch_recursive_count_if(const T& input, const Pred1& predicate1, const Preds&... predicates)
     {
+        static_assert(unwrap_level <= recursive_depth<T>(),
+            "unwrap level higher than recursion depth of input");
         auto output1 = batch_recursive_count_if<unwrap_level>(input, predicate1);
         auto output2 = batch_recursive_count_if<unwrap_level>(input, predicates...);
         output1.insert(std::ranges::cend(output1), std::ranges::cbegin(output2), std::ranges::cend(output2));
