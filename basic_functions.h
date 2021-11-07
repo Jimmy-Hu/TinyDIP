@@ -422,6 +422,8 @@ namespace TinyDIP
     {
         if constexpr (unwrap_level > 0)
         {
+            static_assert(unwrap_level <= recursive_depth<T>(),
+                "unwrap level higher than recursion depth of input");
             recursive_variadic_invoke_result_t<unwrap_level, F, T1, T2> output{};
             assert(input1.size() == input2.size());
             std::mutex mutex;
