@@ -167,6 +167,13 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_divides_zero_test, T, test_types
 */
 #endif
 
+void difference_and_enhancement(std::string input_path1, std::string input_path2, double enhancement_times)
+{
+    std::filesystem::path input1 = input_path1;
+    std::filesystem::path input2 = input_path2;
+    
+}
+
 #ifndef BOOST_TEST_MODULE
 void addLeadingZeros(std::string input_path, std::string output_path);
 int main()
