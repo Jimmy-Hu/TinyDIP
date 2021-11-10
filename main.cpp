@@ -178,7 +178,14 @@ void difference_and_enhancement(std::string input_path1, std::string input_path2
 void addLeadingZeros(std::string input_path, std::string output_path);
 int main()
 {
-    bicubicInterpolationTest();
+    //  non-nested input test, lambda function applied on input directly
+    int test_number = 3;
+    std::cout << TinyDIP::recursive_transform<0>([](auto&& element) { return element + 1; }, test_number) << std::endl;
+
+    //  nested input test, lambda function applied on input directly
+    std::vector<int> test_vector = {
+        1, 2, 3
+    };
     
     auto bmp1 = TinyDIP::bmp_read("2", false);
     auto bmp2 = TinyDIP::bmp_read("DerainOutput5_Data2_frame23", false);
