@@ -187,9 +187,13 @@ int main()
         1, 2, 3
     };
     
-    auto bmp1 = TinyDIP::bmp_read("2", false);
-    auto bmp2 = TinyDIP::bmp_read("DerainOutput5_Data2_frame23", false);
-    bmp1 = TinyDIP::subtract(bmp1, bmp2);
+    return 0;
+    //addLeadingZeros("../../../InputImages/", "../../../OutputImages/");
+    //bicubicInterpolationTest();
+    
+    auto bmp1 = TinyDIP::bmp_read("../../../InputImages/1", false);
+    bmp1 = TinyDIP::apply_each(bmp1, [](auto&& element) { return TinyDIP::copyResizeBicubic(element, 480, 320); });
+    TinyDIP::print_with_latex_to_file(bmp1, "test.txt");
     TinyDIP::bmp_write("test", bmp1);
 
     std::cout << "*********\n";
