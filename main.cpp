@@ -202,10 +202,13 @@ int main()
     TinyDIP::bmp_write("test", bmp1);
 
     std::cout << "*********\n";
-    auto img1 = TinyDIP::Image<GrayScale>(10, 10, 1);
-    auto img2 = TinyDIP::Image<GrayScale>(10, 10, 2);
-    auto img3 = TinyDIP::Image<GrayScale>(10, 10, 3);
-    auto img4 = TinyDIP::Image<GrayScale>(10, 10, 4);
+    std::size_t size = 10;
+    auto img1 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(3));
+    img1.print(",");
+    return 0;
+#ifdef USE_BOOST_SERIALIZATION
+    img1.Save("img1");
+#endif // USE_BOOST_SERIALIZATION
 
 
     auto tmp = TinyDIP::pixelwiseOperation(
