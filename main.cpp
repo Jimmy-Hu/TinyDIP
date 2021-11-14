@@ -200,7 +200,13 @@ int main()
     bmp1 = TinyDIP::apply_each(bmp1, [](auto&& element) { return TinyDIP::copyResizeBicubic(element, 480, 320); });
     TinyDIP::print_with_latex_to_file(bmp1, "test.txt");
     TinyDIP::bmp_write("test", bmp1);
-
+    auto blank = TinyDIP::Image<GrayScale>(bmp1.getWidth(), bmp1.getHeight());
+    TinyDIP::bmp_write("test", TinyDIP::constructRGB(
+        TinyDIP::getRplane(bmp1),
+        TinyDIP::Image<GrayScale>(bmp1.getWidth(), bmp1.getHeight()),
+        TinyDIP::Image<GrayScale>(bmp1.getWidth(), bmp1.getHeight())
+    ));
+    
     std::cout << "*********\n";
     std::size_t size = 10;
     auto img1 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(3));
