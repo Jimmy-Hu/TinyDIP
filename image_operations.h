@@ -13,6 +13,41 @@
 
 namespace TinyDIP
 {
+    static auto rgb2hsv(RGB input)
+    {
+        HSV output{};
+        BYTE Red = input.channels[0], Green = input.channels[1], Blue = input.channels[2];
+        std::vector<BYTE> v{ Red, Green, Blue };
+        std::ranges::sort(v);
+        BYTE Max = v[2], Mid = v[1], Min = v[0];
+
+        auto H1 = std::acos(0.5 * ((Red - Green) + (Red - Blue)) /
+            std::sqrt(((std::pow((Red - Green), 2.0)) +
+                (Red - Blue) * (Green - Blue)))) * (180.0 / std::numbers::pi);
+        if (Max == Min)
+        {
+            output.channels[0] = 0.0;
+        }
+        else if (Blue <= Green)
+        {
+            output.channels[0] = H1;
+        }
+        else
+        {
+            output.channels[0] = 360.0 - H1;
+        }
+        if (Max == 0)
+        {
+            output.channels[1] = 0.0;
+        }
+        else
+        {
+            output.channels[1] = 1.0 - (static_cast<double>(Min) / static_cast<double>(Max));
+        }
+        output.channels[2] = Max;
+        return output;
+    }
+    
     // Forward Declaration class Image
     template <typename ElementT>
     class Image;
