@@ -33,6 +33,7 @@ endif()
 
 # add the executable
 add_executable(TinyDIP main.cpp image_io.cpp)
+add_executable(bicubicInterpolationTest test/bicubicInterpolationTest.cpp image_io.cpp)
 
 target_include_directories(TinyDIP PRIVATE ${LLVM_INCLUDE_DIRS})
 
