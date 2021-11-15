@@ -21,9 +21,9 @@ int main()
 void bicubicInterpolationTest()
 {
     TinyDIP::Image<GrayScale> image1(3, 3, 1);
-    std::cout << "Width: " + std::to_string(image1.getSizeX()) + "\n";
-    std::cout << "Height: " + std::to_string(image1.getSizeY()) + "\n";
-    image1 = image1.set(1, 1, 100);
+    std::cout << "Width: " + std::to_string(image1.getWidth()) + "\n";
+    std::cout << "Height: " + std::to_string(image1.getHeight()) + "\n";
+    image1.at(1, 1) = 100;
     image1.print();
 
     auto image2 = TinyDIP::copyResizeBicubic(image1, 12, 12);
