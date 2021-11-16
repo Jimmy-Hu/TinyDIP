@@ -39,6 +39,7 @@ add_executable(rgb2hsvTest test/rgb2hsvTest.cpp image_io.cpp)
 add_executable(increaseIntensityTest test/increaseIntensityTest.cpp image_io.cpp)
 add_executable(concatHorizontalTest test/concatHorizontalTest.cpp image_io.cpp)
 add_executable(concatVerticalTest test/concatVerticalTest.cpp image_io.cpp)
+add_executable(concatTest test/concatTest.cpp image_io.cpp)
 
 target_include_directories(TinyDIP PRIVATE ${LLVM_INCLUDE_DIRS})
 
