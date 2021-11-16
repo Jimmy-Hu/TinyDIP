@@ -416,7 +416,7 @@ namespace TinyDIP
             std::for_each(execution_policy, input.cbegin(), input.cend(),
                 [&](auto&& element)
                 {
-                    auto result = recursive_transform<unwrap_level - 1>(execution_policy, element, f);
+                    auto result = recursive_transform<unwrap_level - 1>(execution_policy, f, element);
                     std::lock_guard lock(mutex);
                     output.emplace_back(std::move(result));
                 }
