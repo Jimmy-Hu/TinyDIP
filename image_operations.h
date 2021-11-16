@@ -47,7 +47,56 @@ namespace TinyDIP
         output.channels[2] = Max;
         return output;
     }
-    
+
+    static auto hsv2rgb(HSV input)
+    {
+        RGB output{};
+        long double H = input.channels[0], S = input.channels[1], Max = input.channels[2];
+        BYTE hi = static_cast<BYTE>(floor(H / 60.0));
+        long double f = (H / 60.0) - hi;
+        long double Min, q, t;
+        Min = Max * (1.0 - S);
+        q = Max * (1.0 - f * S);
+        t = Max * (1.0 - (1.0 - f) * S);
+        if (hi == 0)
+        {
+            output.channels[0] = static_cast<BYTE>(Max);
+            output.channels[1] = static_cast<BYTE>(t);
+            output.channels[2] = static_cast<BYTE>(Min);
+        }
+        else if (hi == 1)
+        {
+            output.channels[0] = static_cast<BYTE>(q);
+            output.channels[1] = static_cast<BYTE>(Max);
+            output.channels[2] = static_cast<BYTE>(Min);
+        }
+        else if (hi == 2)
+        {
+            output.channels[0] = static_cast<BYTE>(Min);
+            output.channels[1] = static_cast<BYTE>(Max);
+            output.channels[2] = static_cast<BYTE>(t);
+        }
+        else if (hi == 3)
+        {
+            output.channels[0] = static_cast<BYTE>(Min);
+            output.channels[1] = static_cast<BYTE>(q);
+            output.channels[2] = static_cast<BYTE>(Max);
+        }
+        else if (hi == 4)
+        {
+            output.channels[0] = static_cast<BYTE>(t);
+            output.channels[1] = static_cast<BYTE>(Min);
+            output.channels[2] = static_cast<BYTE>(Max);
+        }
+        else if (hi == 5)
+        {
+            output.channels[0] = static_cast<BYTE>(Max);
+            output.channels[1] = static_cast<BYTE>(Min);
+            output.channels[2] = static_cast<BYTE>(q);
+        }
+        return output;
+    }
+
     // Forward Declaration class Image
     template <typename ElementT>
     class Image;
