@@ -121,6 +121,26 @@ namespace TinyDIP
         return output;
     }
 
+    template<class T = double>
+    requires (std::same_as<T, double>)
+    constexpr static auto constructHSV(Image<T> h, Image<T> s, Image<T> v)
+    {
+        is_size_same(h, s);
+        is_size_same(s, v);
+        is_size_same(h, v);
+        Image<HSV> output(h.getWidth(), h.getHeight());
+        for (std::size_t y = 0; y < h.getHeight(); y++)
+        {
+            for (std::size_t x = 0; x < h.getWidth(); x++)
+            {
+                output.at(x, y).channels[0] = h.at(x, y);
+                output.at(x, y).channels[1] = s.at(x, y);
+                output.at(x, y).channels[2] = v.at(x, y);
+            }
+        }
+        return output;
+    }
+
     template<class ElementT>
     requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, HSV>))
     constexpr static auto getPlane(Image<ElementT> input, std::size_t index)
