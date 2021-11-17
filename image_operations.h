@@ -251,6 +251,24 @@ namespace TinyDIP
         return apply_each(input, [width, height, xcenter, ycenter](auto&& planes) { return subimage(planes, width, height, xcenter, ycenter); });
     }
 
+    template<typename ElementT>
+    constexpr static auto subimage2(const Image<ElementT>& input, std::size_t startx, std::size_t endx, std::size_t starty, std::size_t endy)
+    {
+        assert(startx <= endx);
+        assert(starty <= endy);
+        auto output = Image<ElementT>(endx - startx + 1, endy - starty + 1);
+        for (std::size_t y = 0; y < output.getHeight(); ++y)
+        {
+            for (std::size_t x = 0; x < output.getWidth(); ++x)
+            {
+                output.at(x, y) = input.at(startx + x, starty + y);
+            }
+        }
+        return output;
+    }
+
+    
+
     template<typename T>
     T normalDistribution1D(const T x, const T standard_deviation)
     {
