@@ -492,6 +492,44 @@ namespace TinyDIP
     {
         return TinyDIP::pixelwiseOperation(std::negate<>{}, input1);
     }
+
+    template<typename ElementT = double, typename OutputT = double>
+    constexpr static Image<ElementT> dct3_detail(std::vector<Image<ElementT>> input, int plane_index)
+    {
+        std::size_t N3 = input.size();
+        OutputT alpha1 = (plane_index == 0) ? (static_cast<OutputT>(1.0) / static_cast<OutputT>(std::sqrt(2))) : (static_cast<OutputT>(1.0));
+        auto output = TinyDIP::Image<OutputT>(input[plane_index].getWidth(), input[plane_index].getHeight());
+        for (std::size_t y = 0; y < output.getHeight(); y++)
+        {
+            OutputT alpha2 = (y == 0) ? (static_cast<OutputT>(1.0) / static_cast<OutputT>(std::sqrt(2))) : (static_cast<OutputT>(1.0));
+            for (std::size_t x = 0; x < output.getWidth(); x++)
+            {
+                OutputT sum = 0.0;
+                OutputT alpha3 = (x == 0) ? (static_cast<OutputT>(1.0) / static_cast<OutputT>(std::sqrt(2))) : (static_cast<OutputT>(1.0));
+                for (std::size_t inner_z = 0; inner_z < N3; inner_z++)
+                {
+                    auto plane = input[inner_z];
+                    auto N1 = static_cast<OutputT>(plane.getWidth());
+                    auto N2 = static_cast<OutputT>(plane.getHeight());
+                    for (std::size_t inner_y = 0; inner_y < plane.getHeight(); inner_y++)
+                    {
+                        for (std::size_t inner_x = 0; inner_x < plane.getWidth(); inner_x++)
+                        {
+                            auto l1 = (std::numbers::pi / (2 * N1) * (2 * static_cast<OutputT>(inner_x) + 1) * x);
+                            auto l2 = (std::numbers::pi / (2 * N2) * (2 * static_cast<OutputT>(inner_y) + 1) * y);
+                            auto l3 = (std::numbers::pi / (2 * static_cast<OutputT>(N3)) * (2 * static_cast<OutputT>(inner_z) + 1) * static_cast<OutputT>(plane_index));
+                            sum += static_cast<OutputT>(plane.at(inner_x, inner_y)) *
+                                std::cos(l1) * std::cos(l2) * std::cos(l3);
+                        }
+                    }
+                }
+                auto N1 = static_cast<OutputT>(input[0].getWidth());
+                auto N2 = static_cast<OutputT>(input[0].getHeight());
+                output.at(x, y) = 8 * alpha1 * alpha2 * alpha3 * sum / (N1 * N2 * N3);
+            }
+        }
+        return output;
+    }
 }
 
 #endif
