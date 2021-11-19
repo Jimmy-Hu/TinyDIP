@@ -1,0 +1,44 @@
+#include "../base_types.h"
+#include "../basic_functions.h"
+#include "../image.h"
+#include "../image_operations.h"
+
+void recursiveTransformTest();
+
+template<typename ElementT>
+void print3(std::vector<TinyDIP::Image<ElementT>> input)
+{
+	for (std::size_t i = 0; i < input.size(); i++)
+	{
+		input[i].print();
+		std::cout << "*******************\n";
+	}
+}
+
+int main()
+{
+	recursiveTransformTest();
+	return 0;
+}
+
+void recursiveTransformTest()
+{
+	std::size_t N1 = 2, N2 = 2, N3 = 2;
+	auto test_vector = TinyDIP::n_dim_vector_generator<3>(0, 2);
+
+	for (std::size_t z = 1; z <= N3; z++)
+	{
+		for (std::size_t y = 1; y <= N2; y++)
+		{
+			for (std::size_t x = 1; x <= N1; x++)
+			{
+				test_vector.at(z - 1).at(y - 1).at(x - 1) = x * 100 + y * 10 + z;
+			}
+		}
+	}
+	TinyDIP::recursive_print(test_vector);
+	std::cout << "--------------------------------------------------\n";
+	test_vector = TinyDIP::recursive_transform<3>(std::execution::par, [](auto&& element) {return element + 1; }, test_vector);
+	TinyDIP::recursive_print(test_vector);
+	//print3(TinyDIP::recursive_transform<1>([](std::vector<std::vector<int>> element) { return TinyDIP::Image<int>(element); }, test_vector));
+}
