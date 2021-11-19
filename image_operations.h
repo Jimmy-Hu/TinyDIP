@@ -542,7 +542,7 @@ namespace TinyDIP
         return output;
     }
 
-    template<typename ElementT = double, typename OutputT = double>
+    template<arithmetic ElementT = double, arithmetic OutputT = double>
     constexpr static Image<ElementT> idct3_detail(std::vector<Image<ElementT>> input, int plane_index)
     {
         std::size_t N3 = input.size();
