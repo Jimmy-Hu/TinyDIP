@@ -323,6 +323,31 @@ namespace TinyDIP
         return (recursive_reduce(input, T{})) / (recursive_size(input));
     }
 
+    //  recursive_for_each function implementation
+    template<std::size_t unwrap_level = 1, typename Range, class UnaryFunction>
+    constexpr UnaryFunction recursive_for_each(Range& input, UnaryFunction op)
+    {
+        if constexpr (unwrap_level > 1)
+        {
+            static_assert(unwrap_level <= recursive_depth<Range>(),
+                "unwrap level higher than recursion depth of input");
+            std::for_each(
+                std::ranges::begin(input),
+                std::ranges::end(input),
+                [&](auto&& element) { return recursive_for_each<unwrap_level - 1>(element, op); }
+            );
+            return op;
+        }
+        else
+        {
+            std::for_each(
+                std::ranges::cbegin(input),
+                std::ranges::cend(input),
+                op);
+            return op;
+        }
+    }
+
     //  recursive_invoke_result_t implementation
     template<std::size_t, typename, typename>
     struct recursive_invoke_result { };
