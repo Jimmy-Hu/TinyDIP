@@ -183,14 +183,15 @@ void difference_and_enhancement(std::string input_path1, std::string input_path2
 void addLeadingZeros(std::string input_path, std::string output_path);
 int main()
 {
-    //  non-nested input test, lambda function applied on input directly
-    int test_number = 3;
-    std::cout << TinyDIP::recursive_transform<0>([](auto&& element) { return element + 1; }, test_number) << std::endl;
+    auto bmp1 = TinyDIP::bmp_read("../../../InputImages/1", false);
+    bmp1 = TinyDIP::concat(TinyDIP::recursive_transform<2>(
+        std::execution::par,
+        [](auto&& element) { return element; },
+        TinyDIP::split(bmp1, 8, 8)));
+    auto output_img = TinyDIP::subimage2(bmp1, 0, bmp1.getWidth() - 1, 0, bmp1.getHeight() - 1);
+    std::cout << "Size of output_img:" << std::get<0>(output_img.getSize()) << '\n';
+    TinyDIP::bmp_write("test", output_img);
 
-    //  nested input test, lambda function applied on input directly
-    std::vector<int> test_vector = {
-        1, 2, 3
-    };
     
     return 0;
     //addLeadingZeros("../../../InputImages/", "../../../OutputImages/");
