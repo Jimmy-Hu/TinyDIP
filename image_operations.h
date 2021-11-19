@@ -530,6 +530,21 @@ namespace TinyDIP
         }
         return output;
     }
+
+    template<typename ElementT = double, typename OutputT = double>
+    constexpr static Image<ElementT> idct3_detail(std::vector<Image<ElementT>> input, int plane_index)
+    {
+        std::size_t N3 = input.size();
+        auto output = TinyDIP::Image<OutputT>(input[plane_index].getWidth(), input[plane_index].getHeight());
+        for (std::size_t y = 0; y < output.getHeight(); y++)
+        {
+            for (std::size_t x = 0; x < output.getWidth(); x++)
+            {
+
+            }
+        }
+        return output;
+    }
 }
 
 #endif
