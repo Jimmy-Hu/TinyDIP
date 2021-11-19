@@ -191,6 +191,13 @@ namespace TinyDIP
         return constructRGB(operation(getRplane(input), args...), operation(getGplane(input), args...), operation(getBplane(input), args...));
     }
 
+    template<class T = HSV, class F, class... Args>
+    requires (std::same_as<T, HSV>)
+    constexpr static auto apply_each(Image<T> input, F operation, Args&&... args)
+    {
+        return constructHSV(operation(getHplane(input), args...), operation(getSplane(input), args...), operation(getVplane(input), args...));
+    }
+
     template<class T = RGB>
     requires (std::same_as<T, RGB>)
     constexpr static void print_with_latex(Image<T> input)
