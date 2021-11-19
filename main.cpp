@@ -185,11 +185,20 @@ int main()
 {
     auto bmp1 = TinyDIP::bmp_read("../../../InputImages/1", false);
     bmp1 = TinyDIP::concat(TinyDIP::recursive_transform<2>(
-        std::execution::par,
-        [](auto&& element) { return element; },
-        TinyDIP::split(bmp1, 8, 8)));
+        //std::execution::par,
+        [](auto&& element)
+        {
+            auto hsv_block = TinyDIP::rgb2hsv(element);
+            auto v_block = TinyDIP::getVplane(hsv_block);
+            auto v_block_dct = TinyDIP::dct2(v_block);
+            return TinyDIP::hsv2rgb(TinyDIP::constructHSV(
+                TinyDIP::getHplane(hsv_block),
+                TinyDIP::getSplane(hsv_block),
+                TinyDIP::idct2(v_block_dct)
+            ));
+        },
+        TinyDIP::split(bmp1, 240, 135)));
     auto output_img = TinyDIP::subimage2(bmp1, 0, bmp1.getWidth() - 1, 0, bmp1.getHeight() - 1);
-    std::cout << "Size of output_img:" << std::get<0>(output_img.getSize()) << '\n';
     TinyDIP::bmp_write("test", output_img);
 
     
