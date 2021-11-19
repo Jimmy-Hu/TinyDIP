@@ -15,11 +15,13 @@ void concatTest()
 {
     TinyDIP::Image<GrayScale> image1(3, 3, 10);
     image1.at(2, 2) = 1;
+    std::cout << "Width: " + std::to_string(image1.getWidth()) + "\n";
+    std::cout << "Height: " + std::to_string(image1.getHeight()) + "\n";
     auto image2 = TinyDIP::copyResizeBicubic(image1, 12, 12);
-    image2 = TinyDIP::subimage(image2, 3, 3, 1, 1);
-    std::vector<decltype(image2)> v1{ image2, image2 };
-    std::vector<decltype(v1)> v2{ v1, v1 };
-
-    TinyDIP::concat(v2).print();
+    std::cout << "Width: " + std::to_string(image2.getWidth()) + "\n";
+    std::cout << "Height: " + std::to_string(image2.getHeight()) + "\n";
+    image2.print();
+    auto test_output = TinyDIP::concat(TinyDIP::split(image2, 2, 2));
+    test_output.print();
     return;
 }
