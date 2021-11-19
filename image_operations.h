@@ -551,7 +551,28 @@ namespace TinyDIP
         {
             for (std::size_t x = 0; x < output.getWidth(); x++)
             {
-
+                OutputT sum{};
+                for (std::size_t inner_z = 0; inner_z < N3; inner_z++)
+                {
+                    auto plane = input[inner_z];
+                    auto N1 = static_cast<OutputT>(plane.getWidth());
+                    auto N2 = static_cast<OutputT>(plane.getHeight());
+                    for (std::size_t inner_y = 0; inner_y < plane.getHeight(); inner_y++)
+                    {
+                        for (std::size_t inner_x = 0; inner_x < plane.getWidth(); inner_x++)
+                        {
+                            auto l1 = (std::numbers::pi / (2 * N1) * (2 * x + 1) * static_cast<OutputT>(inner_x));
+                            auto l2 = (std::numbers::pi / (2 * N2) * (2 * y + 1) * static_cast<OutputT>(inner_y));
+                            auto l3 = (std::numbers::pi / (2 * static_cast<OutputT>(N3)) * (2 * static_cast<OutputT>(plane_index) + 1) * static_cast<OutputT>(inner_z));
+                            OutputT alpha1 = (inner_x == 0) ? (static_cast<OutputT>(1.0) / static_cast<OutputT>(std::sqrt(2))) : (static_cast<OutputT>(1.0));
+                            OutputT alpha2 = (inner_y == 0) ? (static_cast<OutputT>(1.0) / static_cast<OutputT>(std::sqrt(2))) : (static_cast<OutputT>(1.0));
+                            OutputT alpha3 = (inner_z == 0) ? (static_cast<OutputT>(1.0) / static_cast<OutputT>(std::sqrt(2))) : (static_cast<OutputT>(1.0));
+                            sum += alpha1 * alpha2 * alpha3 * static_cast<OutputT>(plane.at(inner_x, inner_y)) *
+                                std::cos(l1) * std::cos(l2) * std::cos(l3);
+                        }
+                    }
+                }
+                output.at(x, y) = sum;
             }
         }
         return output;
