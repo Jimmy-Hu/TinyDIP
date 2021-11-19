@@ -4,14 +4,6 @@
 #include "../image_operations.h"
 
 void dct3DetailTest();
-void print3();
-
-int main()
-{
-	dct3DetailTest();
-	return 0;
-}
-
 template<typename ElementT>
 void print3(std::vector<TinyDIP::Image<ElementT>> input)
 {
@@ -20,6 +12,12 @@ void print3(std::vector<TinyDIP::Image<ElementT>> input)
 		input[i].print();
 		std::cout << "*******************\n";
 	}
+}
+
+int main()
+{
+	dct3DetailTest();
+	return 0;
 }
 
 void dct3DetailTest()
