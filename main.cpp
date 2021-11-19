@@ -184,6 +184,10 @@ void addLeadingZeros(std::string input_path, std::string output_path);
 int main()
 {
     auto bmp1 = TinyDIP::bmp_read("../../../InputImages/1", false);
+    std::size_t N1 = 8, N2 = 8;
+    auto block_count_x = bmp1.getWidth() / N1;
+    auto block_count_y = bmp1.getHeight() / N2;
+
     bmp1 = TinyDIP::concat(TinyDIP::recursive_transform<2>(
         //std::execution::par,
         [](auto&& element)
@@ -197,7 +201,7 @@ int main()
                 TinyDIP::idct2(v_block_dct)
             ));
         },
-        TinyDIP::split(bmp1, 240, 135)));
+        TinyDIP::split(bmp1, block_count_x, block_count_y)));
     auto output_img = TinyDIP::subimage2(bmp1, 0, bmp1.getWidth() - 1, 0, bmp1.getHeight() - 1);
     TinyDIP::bmp_write("test", output_img);
 
