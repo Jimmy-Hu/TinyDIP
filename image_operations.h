@@ -532,6 +532,17 @@ namespace TinyDIP
     }
 
     template<typename ElementT = double, typename OutputT = double>
+    constexpr static std::vector<Image<ElementT>> dct3(std::vector<Image<ElementT>> input)
+    {
+        std::vector<Image<ElementT>> output;
+        for (std::size_t i = 0; i < input.size(); i++)
+        {
+            output.push_back(dct3_detail(input, i));
+        }
+        return output;
+    }
+
+    template<typename ElementT = double, typename OutputT = double>
     constexpr static Image<ElementT> idct3_detail(std::vector<Image<ElementT>> input, int plane_index)
     {
         std::size_t N3 = input.size();
