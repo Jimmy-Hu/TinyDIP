@@ -51,6 +51,8 @@ add_executable(concatHorizontalTest test/concatHorizontalTest.cpp image_io.cpp)
 add_executable(concatVerticalTest test/concatVerticalTest.cpp image_io.cpp)
 add_executable(concatTest test/concatTest.cpp image_io.cpp)
 add_executable(dct3DetailTest test/dct3DetailTest.cpp image_io.cpp)
+add_executable(dct3Test test/dct3Test.cpp image_io.cpp)
+add_executable(idct3DetailTest test/idct3DetailTest.cpp image_io.cpp)
 
 target_include_directories(TinyDIP PRIVATE ${LLVM_INCLUDE_DIRS})
 
