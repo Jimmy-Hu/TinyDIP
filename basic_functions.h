@@ -73,6 +73,12 @@ namespace TinyDIP
         std::pow(x1, x2);
     };
 
+    template<typename T>
+    constexpr bool is_integer()
+    {
+        return false;
+    }
+
     //  recursive_depth function implementation
     template<typename T>
     constexpr std::size_t recursive_depth()
