@@ -23,22 +23,25 @@ int main()
 
 void recursiveTransformTest()
 {
-	std::size_t N1 = 2, N2 = 2, N3 = 2;
-	auto test_vector = TinyDIP::n_dim_vector_generator<3>(0, 2);
-
-	for (std::size_t z = 1; z <= N3; z++)
+	for (std::size_t N = 1; N < 10; N++)
 	{
-		for (std::size_t y = 1; y <= N2; y++)
+		std::size_t N1 = N, N2 = N, N3 = N;
+		auto test_vector = TinyDIP::n_dim_vector_generator<3>(0, 10);
+
+		for (std::size_t z = 1; z <= N3; z++)
 		{
-			for (std::size_t x = 1; x <= N1; x++)
+			for (std::size_t y = 1; y <= N2; y++)
 			{
-				test_vector.at(z - 1).at(y - 1).at(x - 1) = x * 100 + y * 10 + z;
+				for (std::size_t x = 1; x <= N1; x++)
+				{
+					test_vector.at(z - 1).at(y - 1).at(x - 1) = x * 100 + y * 10 + z;
+				}
 			}
 		}
+		auto expected = TinyDIP::recursive_transform<3>([](auto&& element) {return element + 1; }, test_vector);
+		auto actual = TinyDIP::recursive_transform<3>(std::execution::par, [](auto&& element) {return element + 1; }, test_vector);
+		std::cout << "N = " << N << ": " << std::to_string(actual == expected) << '\n';
 	}
-	TinyDIP::recursive_print(test_vector);
-	std::cout << "--------------------------------------------------\n";
-	test_vector = TinyDIP::recursive_transform<3>(std::execution::par, [](auto&& element) {return element + 1; }, test_vector);
-	TinyDIP::recursive_print(test_vector);
+	
 	//print3(TinyDIP::recursive_transform<1>([](std::vector<std::vector<int>> element) { return TinyDIP::Image<int>(element); }, test_vector));
 }
