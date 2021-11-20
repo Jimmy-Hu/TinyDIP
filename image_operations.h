@@ -102,7 +102,7 @@ namespace TinyDIP
     template <typename ElementT>
     class Image;
 
-    template<arithmetic T = GrayScale, typename OutputT = RGB>
+    template<TinyDIP::arithmetic T = GrayScale, typename OutputT = RGB>
     requires (std::same_as<T, GrayScale>)
     constexpr static auto constructRGB(Image<T> r, Image<T> g, Image<T> b)
     {
@@ -122,7 +122,7 @@ namespace TinyDIP
         return output;
     }
 
-    template<arithmetic T = double, typename OutputT = HSV>
+    template<TinyDIP::arithmetic T = double, typename OutputT = HSV>
     requires (std::same_as<T, double>)
     constexpr static auto constructHSV(Image<T> h, Image<T> s, Image<T> v)
     {
@@ -638,7 +638,7 @@ namespace TinyDIP
         return TinyDIP::pixelwiseOperation(std::negate<>{}, input1);
     }
 
-    template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
+    template<TinyDIP::arithmetic ElementT = double, TinyDIP::arithmetic OutputT = ElementT>
     constexpr static Image<ElementT> dct3_detail(std::vector<Image<ElementT>> input, int plane_index)
     {
         std::size_t N3 = input.size();
@@ -676,7 +676,7 @@ namespace TinyDIP
         return output;
     }
 
-    template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
+    template<TinyDIP::arithmetic ElementT = double, TinyDIP::arithmetic OutputT = ElementT>
     constexpr static std::vector<Image<ElementT>> dct3(std::vector<Image<ElementT>> input)
     {
         std::vector<Image<ElementT>> output;
@@ -687,7 +687,7 @@ namespace TinyDIP
         return output;
     }
 
-    template<arithmetic ElementT = double, arithmetic OutputT = double>
+    template<TinyDIP::arithmetic ElementT = double, TinyDIP::arithmetic OutputT = ElementT>
     constexpr static Image<ElementT> idct3_detail(std::vector<Image<ElementT>> input, int plane_index)
     {
         std::size_t N3 = input.size();
@@ -723,7 +723,7 @@ namespace TinyDIP
         return output;
     }
 
-    template<arithmetic ElementT = double, arithmetic OutputT = double>
+    template<TinyDIP::arithmetic ElementT = double, TinyDIP::arithmetic OutputT = ElementT>
     constexpr static std::vector<Image<ElementT>> idct3(std::vector<Image<ElementT>> input)
     {
         std::vector<Image<ElementT>> output;
@@ -734,7 +734,7 @@ namespace TinyDIP
         return output;
     }
 
-    template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
+    template<TinyDIP::arithmetic ElementT = double, TinyDIP::arithmetic OutputT = ElementT>
     constexpr static Image<ElementT> dct2(Image<ElementT> input)
     {
         Image<ElementT> output;
@@ -743,7 +743,7 @@ namespace TinyDIP
         return output;
     }
 
-    template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
+    template<TinyDIP::arithmetic ElementT = double, TinyDIP::arithmetic OutputT = ElementT>
     constexpr static Image<ElementT> idct2(Image<ElementT> input)
     {
         Image<ElementT> output;
