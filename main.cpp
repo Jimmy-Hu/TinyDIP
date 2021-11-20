@@ -5,7 +5,24 @@
 //  https://stackoverflow.com/a/61821729/6667035
 //  clear && rm -rf ./main && g++-11 -std=c++20 -O4 -ffast-math -funsafe-math-optimizations -std=c++20 -fpermissive -H --verbose -Wall main.cpp -o main 
 
+
+//#define USE_BOOST_ITERATOR
+//#define USE_BOOST_SERIALIZATION
+
+#include <filesystem>
+#include <execution>
 #include "basic_functions.h"
+#include "image_io.h"
+#include "image_operations.h"
+
+
+//#define BOOST_TEST_DYN_LINK
+
+//#define BOOST_TEST_MODULE image_elementwise_tests
+
+#ifdef BOOST_TEST_MODULE
+#include <boost/test/included/unit_test.hpp>
+
 
 #ifdef BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
