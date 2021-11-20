@@ -321,6 +321,19 @@ namespace TinyDIP
         return output;
     }
 
+    template<typename ElementT>
+    requires (std::same_as<ElementT, RGB>)
+    constexpr static auto rgb2hsv(const Image<ElementT>& input)
+    {
+        auto output = Image<HSV>(
+            recursive_transform<1>([](RGB input) { return rgb2hsv(input); }, input.getImageData()),
+            input.getWidth(),
+            input.getHeight());
+        return output;
+    }
+
+    
+
     template<typename T>
     T normalDistribution1D(const T x, const T standard_deviation)
     {
