@@ -377,6 +377,28 @@ namespace TinyDIP
         return output;
     }
 
+    template<typename ElementT>
+    constexpr static auto concat_vertical(Image<ElementT> input1, Image<ElementT> input2)
+    {
+        assert(input1.getWidth() == input2.getWidth());
+        Image<ElementT> output(input1.getWidth(), input1.getHeight() + input2.getHeight());
+        for (std::size_t y = 0; y < input1.getHeight(); ++y)
+        {
+            for (std::size_t x = 0; x < input1.getWidth(); ++x)
+            {
+                output.at(x, y) = input1.at(x, y);
+            }
+        }
+        for (std::size_t y = 0; y < input2.getHeight(); ++y)
+        {
+            for (std::size_t x = 0; x < input2.getWidth(); ++x)
+            {
+                output.at(x, input1.getHeight() + y) = input2.at(x, y);
+            }
+        }
+        return output;
+    }
+
     template<typename T>
     T normalDistribution1D(const T x, const T standard_deviation)
     {
