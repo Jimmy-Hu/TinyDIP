@@ -1,5 +1,5 @@
 # Reference: https://cmake.org/cmake/help/latest/guide/tutorial/index.html
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.12)
 
 # set the project name and version
 # Reference: https://stackoverflow.com/a/41651622/6667035
