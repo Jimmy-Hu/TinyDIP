@@ -6,7 +6,14 @@ project(TinyDIP VERSION 1.0)
 
 # specify the C++ standard
 # Reference: https://stackoverflow.com/q/60348039/6667035
-set(CMAKE_CXX_STANDARD 20)
+# Reference: https://stackoverflow.com/a/53657598/6667035
+IF (CMAKE_VERSION VERSION_LESS "3.8")
+    SET(CMAKE_CXX_STANDARD 14)
+ELSEIF (CMAKE_VERSION VERSION_LESS "3.11")
+    SET(CMAKE_CXX_STANDARD 17)
+ELSE()
+    SET(CMAKE_CXX_STANDARD 20)
+ENDIF()
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_BUILD_TYPE debug)
 
