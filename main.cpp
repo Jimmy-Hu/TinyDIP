@@ -266,6 +266,9 @@ int main()
     return 0;
 }
 
+#endif
+
+
 void test()
 {
     constexpr int dims = 5;
