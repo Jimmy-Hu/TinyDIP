@@ -8,6 +8,7 @@
 #include <numbers>
 #include <string>
 #include "base_types.h"
+#include "basic_functions.h"
 #include "image.h"
 
 #define is_size_same(x, y) {assert(x.getWidth() == y.getWidth()); assert(x.getHeight() == y.getHeight());}
