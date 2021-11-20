@@ -3,6 +3,7 @@
 #ifndef ImageOperations_H
 #define ImageOperations_H
 
+#include <execution>
 #include <fstream>
 #include <numbers>
 #include <string>
