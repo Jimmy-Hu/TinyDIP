@@ -526,14 +526,14 @@ namespace TinyDIP
 
     //  multiple standard deviations with correlation
     //  0 <= correlation <= 1
-    template<class InputT>
-    constexpr static Image<double> gaussianFigure2D(
+    template<class InputT, class OutputT>
+    constexpr static auto gaussianFigure2D(
         const size_t xsize, const size_t ysize,
         const size_t centerx, const size_t centery,
         const double standard_deviation_x, const double standard_deviation_y,
         const double correlation, const double normalize_factor = 1.0)
     {
-
+        return 0;
     }
 
     //  single standard deviation
