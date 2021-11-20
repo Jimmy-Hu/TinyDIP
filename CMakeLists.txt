@@ -2,7 +2,8 @@
 cmake_minimum_required(VERSION 3.10)
 
 # set the project name and version
-project(TinyDIP VERSION 1.0)
+# Reference: https://stackoverflow.com/a/41651622/6667035
+project(TinyDIP VERSION 1.0 LANGUAGES C CXX)
 
 # specify the C++ standard
 # Reference: https://stackoverflow.com/q/60348039/6667035
