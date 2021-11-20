@@ -22,6 +22,8 @@ namespace TinyDIP
 
     Image<RGB> bmp_read(const char* filename, const bool extension);
 
+    int bmp_write(std::string filename, Image<RGB> input);
+
     int bmp_write(const char *filename, Image<RGB> input);
 
     int bmp_write(const char *filename, const int xsize, const int ysize, const unsigned char *image);
