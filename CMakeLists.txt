@@ -5,6 +5,10 @@ cmake_minimum_required(VERSION 3.10)
 # Reference: https://stackoverflow.com/a/41651622/6667035
 project(TinyDIP VERSION 1.0 LANGUAGES C CXX)
 
+# print compile/link commands
+# Reference: https://stackoverflow.com/a/3379246/6667035
+set(CMAKE_VERBOSE_MAKEFILE on)
+
 # specify the C++ standard
 # Reference: https://stackoverflow.com/q/60348039/6667035
 # Reference: https://stackoverflow.com/a/53657598/6667035
