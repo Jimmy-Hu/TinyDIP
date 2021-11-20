@@ -191,6 +191,13 @@ namespace TinyDIP
         return getPlane(input, 1);
     }
 
+    template<class T = HSV>
+    requires (std::same_as<T, HSV>)
+    constexpr static auto getVplane(Image<T> input)
+    {
+        return getPlane(input, 2);
+    }
+
     template<class T = RGB, class F, class... Args>
     requires (std::same_as<T, RGB>)
     constexpr static auto apply_each(Image<T> input, F operation, Args&&... args)
