@@ -295,7 +295,31 @@ namespace TinyDIP
         return output;
     }
 
-    
+    /*  split function
+    *   xsegments is a number for the block count in x axis
+    *   ysegments is a number for the block count in y axis
+    */
+    template<typename ElementT>
+    constexpr static auto split(const Image<ElementT>& input, std::size_t xsegments, std::size_t ysegments)
+    {
+        std::vector<std::vector<Image<ElementT>>> output;
+        std::size_t block_size_x = input.getWidth() / xsegments;
+        std::size_t block_size_y = input.getHeight() / ysegments;
+        for (std::size_t y = 0; y < ysegments; y++)
+        {
+            std::vector<Image<ElementT>> output2;
+            for (std::size_t x = 0; x < xsegments; x ++)
+            {
+                output2.push_back(subimage2(input,
+                    x * block_size_x,
+                    (x + 1) * block_size_x - 1,
+                    y * block_size_y,
+                    (y + 1) * block_size_y - 1));
+            }
+            output.push_back(output2);
+        }
+        return output;
+    }
 
     template<typename T>
     T normalDistribution1D(const T x, const T standard_deviation)
