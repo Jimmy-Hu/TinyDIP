@@ -627,7 +627,7 @@ namespace TinyDIP
         return TinyDIP::pixelwiseOperation(std::negate<>{}, input1);
     }
 
-    template<arithmetic ElementT = double, arithmetic OutputT = double>
+    template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
     constexpr static Image<ElementT> dct3_detail(std::vector<Image<ElementT>> input, int plane_index)
     {
         std::size_t N3 = input.size();
