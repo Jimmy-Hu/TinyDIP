@@ -232,6 +232,11 @@ namespace TinyDIP
     }
 
     //----bmp_write function---- 
+    int bmp_write(std::string filename, Image<RGB> input)
+    {
+        return bmp_write(filename.c_str(), input);
+    }
+
     int bmp_write(const char *filename, Image<RGB> input)
     {
         auto image_data = TinyDIP::array_to_raw_image(input);
