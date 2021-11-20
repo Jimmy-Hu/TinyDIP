@@ -73,6 +73,10 @@ namespace TinyDIP
         std::pow(x1, x2);
     };
 
+    //  Reference: https://stackoverflow.com/a/58067611/6667035
+    template <typename T>
+    concept arithmetic = std::is_arithmetic_v<T>;
+
     template<typename T>
     constexpr bool is_integer()
     {
