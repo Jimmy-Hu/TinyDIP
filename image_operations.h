@@ -410,6 +410,16 @@ namespace TinyDIP
         return output;
     }
 
+    template<typename ElementT>
+    constexpr static auto concat(std::vector<std::vector<Image<ElementT>>> input)
+    {
+        auto result1 = TinyDIP::recursive_transform<1>(
+            //std::execution::par,
+            [](std::vector<Image<ElementT>> input) { return concat_horizontal(input); },
+            input);
+        return concat_vertical(result1);
+    }
+
     template<typename T>
     T normalDistribution1D(const T x, const T standard_deviation)
     {
