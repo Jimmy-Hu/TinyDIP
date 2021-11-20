@@ -365,6 +365,18 @@ namespace TinyDIP
         return output;
     }
 
+    template<typename ElementT>
+    constexpr static auto concat_horizontal(std::vector<Image<ElementT>> input)
+    {
+        //return TinyDIP::recursive_reduce(input, TinyDIP::Image<ElementT>(0, input[0].getHeight()), [](Image<ElementT> element1, Image<ElementT> element2) { return TinyDIP::concat_horizontal(element1, element2); });
+        auto output = input[0];
+        for (std::size_t i = 1; i < input.size(); i++)
+        {
+            output = concat_horizontal(output, input[i]);
+        }
+        return output;
+    }
+
     template<typename T>
     T normalDistribution1D(const T x, const T standard_deviation)
     {
