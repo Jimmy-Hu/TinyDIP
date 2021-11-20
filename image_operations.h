@@ -332,6 +332,17 @@ namespace TinyDIP
         return output;
     }
 
+    template<typename ElementT>
+    requires (std::same_as<ElementT, HSV>)
+    constexpr static auto hsv2rgb(const Image<ElementT>& input)
+    {
+        auto output = Image<RGB>(
+            recursive_transform<1>([](HSV input) { return hsv2rgb(input); }, input.getImageData()),
+            input.getWidth(),
+            input.getHeight());
+        return output;
+    }
+
     
 
     template<typename T>
