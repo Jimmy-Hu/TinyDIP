@@ -399,6 +399,17 @@ namespace TinyDIP
         return output;
     }
 
+    template<typename ElementT>
+    constexpr static auto concat_vertical(std::vector<Image<ElementT>> input)
+    {
+        auto output = input[0];
+        for (std::size_t i = 1; i < input.size(); i++)
+        {
+            output = concat_vertical(output, input[i]);
+        }
+        return output;
+    }
+
     template<typename T>
     T normalDistribution1D(const T x, const T standard_deviation)
     {
