@@ -227,7 +227,8 @@ int main()
     //addLeadingZeros("../../../InputImages/", "../../../OutputImages/");
     //bicubicInterpolationTest();
     
-    auto bmp1 = TinyDIP::bmp_read("../../../InputImages/1", false);
+    
+    //bmp1 = TinyDIP::hsv2rgb(TinyDIP::rgb2hsv(bmp1));
     bmp1 = TinyDIP::apply_each(bmp1, [](auto&& element) { return TinyDIP::copyResizeBicubic(element, 480, 320); });
     TinyDIP::print_with_latex_to_file(bmp1, "test.txt");
     TinyDIP::bmp_write("test", bmp1);
