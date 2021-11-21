@@ -78,7 +78,9 @@ endif()
 target_link_libraries(TinyDIP -lm)
 #target_link_libraries(TinyDIP -lomp)
 target_link_libraries(TinyDIP -lpthread)
-#target_link_libraries(TinyDIP -L/usr/local/Cellar/llvm/10.0.0_3/lib/)
+if(APPLE)
+    target_link_libraries(TinyDIP -L/usr/local/Cellar/llvm/10.0.0_3/lib/)
+endif()
 
 # Add boost library
 # Reference: https://github.com/Microsoft/vcpkg/issues/4188
