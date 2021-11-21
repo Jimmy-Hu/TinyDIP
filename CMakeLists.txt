@@ -74,6 +74,7 @@ if(APPLE)
     target_include_directories(TinyDIP PRIVATE ${LLVM_INCLUDE_DIRS})
 endif()
 
+# target_link_libraries
 # Reference: https://stackoverflow.com/a/39600062/6667035
 target_link_libraries(TinyDIP -lm)
 #target_link_libraries(TinyDIP -lomp)
