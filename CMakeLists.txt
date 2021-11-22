@@ -76,6 +76,17 @@ endif()
 
 # target_link_libraries
 # Reference: https://stackoverflow.com/a/39600062/6667035
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  # using Clang
+  target_link_libraries(TinyDIP stdc++fs)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  # using GCC
+  target_link_libraries(TinyDIP stdc++fs)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+  # using Intel C++
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  # using Visual Studio C++
+endif()
 target_link_libraries(TinyDIP -lm)
 #target_link_libraries(TinyDIP -lomp)
 target_link_libraries(TinyDIP -lpthread)
