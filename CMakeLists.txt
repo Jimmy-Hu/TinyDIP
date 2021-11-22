@@ -95,15 +95,18 @@ if(APPLE)
 endif()
 
 # Add boost library
-# Reference: https://github.com/Microsoft/vcpkg/issues/4188
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED OFF)
-set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(BOOST 76.0 REQUIRED COMPONENTS iterator serialization test)
-find_path(BOOST_INCLUDE_DIR boost)
-include_directories(${BOOST_INCLUDE_DIR})
+if  (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # Reference: https://github.com/Microsoft/vcpkg/issues/4188
+    set(Boost_USE_STATIC_LIBS ON)
+    set(Boost_USE_MULTITHREADED OFF)
+    set(Boost_USE_STATIC_RUNTIME OFF)
+    find_package(BOOST 76.0 REQUIRED COMPONENTS iterator serialization test)
+    find_path(BOOST_INCLUDE_DIR boost)
+    include_directories(${BOOST_INCLUDE_DIR})
 
-target_link_libraries(TinyDIP Boost::boost ${BOOST_LIBRARIES})
+    target_link_libraries(TinyDIP Boost::boost ${BOOST_LIBRARIES})
+endif()
+
 
 # Reference: https://stackoverflow.com/a/31390758/6667035
 macro(print_all_variables)
