@@ -200,7 +200,8 @@ void difference_and_enhancement(std::string input_path1, std::string input_path2
 void addLeadingZeros(std::string input_path, std::string output_path);
 int main()
 {
-    auto bmp1 = TinyDIP::bmp_read("../../../InputImages/1", false);
+    std::string file_path = "../../../InputImages/1";
+    auto bmp1 = TinyDIP::bmp_read(file_path.c_str(), false);
     std::size_t N1 = 8, N2 = 8;
     auto block_count_x = bmp1.getWidth() / N1;
     auto block_count_y = bmp1.getHeight() / N2;
