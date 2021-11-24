@@ -40,6 +40,8 @@ namespace TinyDIP
         int write(const char* filename, const int xsize, const int ysize, const double* image);
 
         int write(const char* filename, Image<double> input);
+
+        TinyDIP::Image<double> read(const char* const filename, const bool extension);
     }
 }
 
