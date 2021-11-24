@@ -8,8 +8,7 @@ namespace TinyDIP
     Image<RGB> raw_image_to_array(const int xsize, const int ysize, const unsigned char * const image)
     {
         auto output = Image<RGB>(xsize, ysize);  
-        unsigned char FillingByte;
-        FillingByte = bmp_filling_byte_calc(xsize);
+        unsigned char FillingByte = bmp_filling_byte_calc(xsize);
         for(int y = 0; y < ysize; y++)
         {
             for(int x = 0; x < xsize; x++)
