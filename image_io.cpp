@@ -449,6 +449,7 @@ namespace TinyDIP
                         image[(y * OriginSizeX + x) + y * FillingByte];
                 }
             }
+            free(image);
             fclose(fp);
             return output;
         }
