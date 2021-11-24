@@ -44,11 +44,11 @@ namespace TinyDIP
         TinyDIP::Image<double> read(const char* const filename, const bool extension);
 
         double* array_to_raw_image(Image<HSV> input);
-
-        int write(const char* filename, Image<HSV> input);
     }
 
     int hsv_write_detail(const char* const filename, const int xsize, const int ysize, const double* const image);
+
+    int hsv_write(const char* filename, Image<HSV> input);
 }
 
 #endif
