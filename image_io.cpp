@@ -521,4 +521,14 @@ namespace TinyDIP
         fclose(fp);
         return 0;
     }
+
+    int hsv_write(const char* const filename, Image<HSV> input)
+    {
+        auto image_data = TinyDIP::double_image::array_to_raw_image(input);
+        auto sizex = input.getWidth();
+        auto sizey = input.getHeight();
+        auto result = TinyDIP::hsv_write_detail(filename, sizex, sizey, image_data);
+        free(image_data);
+        return result;
+    }
 }
