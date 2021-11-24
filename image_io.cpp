@@ -447,5 +447,31 @@ namespace TinyDIP
             fclose(fp);
             return output;
         }
+
+        double* array_to_raw_image(Image<HSV> input)
+        {
+            std::size_t xsize = input.getWidth();
+            std::size_t ysize = input.getHeight();
+            unsigned char FillingByte;
+            FillingByte = bmp_filling_byte_calc(xsize, 8);
+            double* output;
+            output = static_cast<double*>(malloc(sizeof * output * (xsize * 3 + FillingByte) * ysize));
+            if (output == NULL)
+            {
+                std::cerr << "Memory allocation error!";
+                return NULL;
+            }
+            for (int y = 0; y < ysize; y++)
+            {
+                for (int x = 0; x < xsize; x++)
+                {
+                    for (int channel_index = 0; channel_index < 3; channel_index++) {
+                        output[3 * (y * xsize + x) + y * FillingByte + (2 - channel_index)]
+                            = input.at(x, y).channels[channel_index];
+                    }
+                }
+            }
+            return output;
+        }
     }
 }
