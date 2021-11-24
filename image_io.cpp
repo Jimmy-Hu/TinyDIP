@@ -398,7 +398,12 @@ namespace TinyDIP
 
         int write(const char* filename, Image<double> input)
         {
-            return write(filename, input.getWidth(), input.getHeight(), array_to_raw_image(input));
+            auto image_data = TinyDIP::double_image::array_to_raw_image(input);
+            auto sizex = input.getWidth();
+            auto sizey = input.getHeight();
+            auto result = TinyDIP::double_image::write(filename, sizex, sizey, image_data);
+            free(image_data);
+            return result;
         }
 
         TinyDIP::Image<double> read(const char* const filename, const bool extension)
