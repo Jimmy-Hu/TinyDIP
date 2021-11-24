@@ -322,10 +322,10 @@ namespace TinyDIP
         return output;
     }
 
-    unsigned char bmp_filling_byte_calc(const unsigned int xsize)
+    unsigned char bmp_filling_byte_calc(const unsigned int xsize, const int mod_num)
     {
         unsigned char filling_bytes;
-        filling_bytes = (xsize % 4);
+        filling_bytes = (xsize % mod_num);
         return filling_bytes;
     }
 
