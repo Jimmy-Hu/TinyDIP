@@ -43,6 +43,8 @@ namespace TinyDIP
 
         TinyDIP::Image<double> read(const char* const filename, const bool extension);
 
+        double* array_to_raw_image(Image<HSV> input);
+
         int write(const char* filename, Image<HSV> input);
     }
 }
