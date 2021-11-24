@@ -531,4 +531,54 @@ namespace TinyDIP
         free(image_data);
         return result;
     }
+
+    Image<HSV> hsv_read(const char* const filename, const bool extension)
+    {
+        std::filesystem::path target_path;
+        if (extension == false)
+        {
+            target_path = std::string(filename) + ".hsv";
+        }
+        else
+        {
+            target_path = std::string(filename);
+        }
+        FILE* fp;
+        fp = fopen(target_path.string().c_str(), "rb");
+        if (fp == NULL)
+        {
+            std::cerr << "Fail to read file: " << target_path.string() << "!\n";
+            return Image<HSV>(0, 0);
+        }
+        int OriginSizeX = bmp_read_x_size(target_path.string().c_str(), true);
+        int OriginSizeY = bmp_read_y_size(target_path.string().c_str(), true);
+        if ((OriginSizeX == -1) || (OriginSizeY == -1))
+        {
+            std::cerr << "Fail to fetch information of image!";
+            return Image<HSV>(0, 0);
+        }
+        printf("Width of the input image: %d\n", OriginSizeX);
+        printf("Height of the input image: %d\n", OriginSizeY);
+        printf("Size of the input image: %d\n", (size_t)OriginSizeX * OriginSizeY * 3);
+        unsigned char header[54];
+        fread(header, sizeof(unsigned char), 54, fp);
+        double* image;
+        unsigned char filling_bytes = bmp_filling_byte_calc(OriginSizeX, 8);
+        image = static_cast<double*>(malloc(sizeof * image * (OriginSizeX * 3 + filling_bytes) * OriginSizeY));
+        fread(image, sizeof(double), (size_t)(long)(OriginSizeX * 3 + filling_bytes) * OriginSizeY, fp);
+        fclose(fp);
+        auto output = Image<HSV>(OriginSizeX, OriginSizeY);
+        for (int y = 0; y < OriginSizeY; y++)
+        {
+            for (int x = 0; x < OriginSizeX; x++)
+            {
+                for (int channel_index = 0; channel_index < 3; channel_index++) {
+                    output.at(x, y).channels[channel_index] =
+                        image[3 * (y * OriginSizeX + x) + y * filling_bytes + (2 - channel_index)];
+                }
+            }
+        }
+        free(image);
+        return output;
+    }
 }
