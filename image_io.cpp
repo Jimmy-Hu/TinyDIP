@@ -328,6 +328,30 @@ namespace TinyDIP
         return filling_bytes;
     }
 
+    namespace double_image
+    {
+        double* array_to_raw_image(Image<double> input)
+        {
+            std::size_t xsize = input.getWidth();
+            std::size_t ysize = input.getHeight();
+            unsigned char FillingByte;
+            FillingByte = bmp_filling_byte_calc(xsize, 8);
+            double* output;
+            output = static_cast<double*>(malloc(sizeof * output * (xsize + FillingByte) * ysize));
+            if (output == NULL)
+            {
+                std::cerr << "Memory allocation error!";
+                return NULL;
+            }
+            for (int y = 0; y < ysize; y++)
+            {
+                for (int x = 0; x < xsize; x++)
+                {
+                    output[(y * xsize + x) + y * FillingByte]
+                        = input.at(x, y);
+                }
+            }
+            return output;
+        }
+    }
 }
-
-
