@@ -32,6 +32,11 @@ namespace TinyDIP
     unsigned char *array_to_raw_image(Image<RGB> input);
 
     unsigned char bmp_filling_byte_calc(const unsigned int xsize, const int mod_num = 4);
+
+    namespace double_image
+    {
+        double* array_to_raw_image(Image<double> input);
+    }
 }
 
 #endif
