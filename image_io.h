@@ -42,6 +42,8 @@ namespace TinyDIP
         int write(const char* filename, Image<double> input);
 
         TinyDIP::Image<double> read(const char* const filename, const bool extension);
+
+        int write(const char* filename, Image<HSV> input);
     }
 }
 
