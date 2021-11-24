@@ -400,5 +400,52 @@ namespace TinyDIP
         {
             return write(filename, input.getWidth(), input.getHeight(), array_to_raw_image(input));
         }
+
+        TinyDIP::Image<double> read(const char* const filename, const bool extension)
+        {
+            std::filesystem::path target_path;
+            if (extension == false)
+            {
+                target_path = std::string(filename) + ".dbmp";
+            }
+            else
+            {
+                target_path = std::string(filename);
+            }
+            FILE* fp;
+            fp = fopen(target_path.string().c_str(), "rb");
+            if (fp == NULL)
+            {
+                std::cerr << "Fail to read file: " << target_path.string() << "!\n";
+                return TinyDIP::Image<double>(0, 0);
+            }
+            int OriginSizeX = bmp_read_x_size(target_path.string().c_str(), true);
+            int OriginSizeY = bmp_read_y_size(target_path.string().c_str(), true);
+            if ((OriginSizeX == -1) || (OriginSizeY == -1))
+            {
+                std::cerr << "Fail to fetch information of image!";
+                return TinyDIP::Image<double>(0, 0);
+            }
+            printf("Width of the input image: %d\n", OriginSizeX);
+            printf("Height of the input image: %d\n", OriginSizeY);
+            printf("Size of the input image: %d\n", (size_t)OriginSizeX * OriginSizeY);
+            unsigned char header[54];
+            fread(header, sizeof(unsigned char), 54, fp);
+            double* image;
+            unsigned char FillingByte = bmp_filling_byte_calc(OriginSizeX, 8);
+            image = static_cast<double*>(malloc(sizeof * image * (OriginSizeX + FillingByte) * OriginSizeY));
+            fread(image, sizeof(double), (size_t)(double)(OriginSizeX + FillingByte) * OriginSizeY, fp);
+            TinyDIP::Image<double> output(OriginSizeX, OriginSizeY);
+            for (int y = 0; y < OriginSizeY; y++)
+            {
+                for (int x = 0; x < OriginSizeX; x++)
+                {
+                    output.at(x, y) =
+                        image[(y * OriginSizeX + x) + y * FillingByte];
+                }
+            }
+            fclose(fp);
+            return output;
+        }
     }
 }
