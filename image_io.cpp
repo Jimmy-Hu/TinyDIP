@@ -483,8 +483,7 @@ namespace TinyDIP
 
     int hsv_write_detail(const char* const filename, const int xsize, const int ysize, const double* const image)
     {
-        unsigned char FillingByte;
-        FillingByte = bmp_filling_byte_calc(xsize, 8);
+        unsigned char FillingByte = bmp_filling_byte_calc(xsize, 8);
         unsigned char header[54] =
         {
         0x42, 0x4d, 0, 0, 0, 0, 0, 0, 0, 0,
