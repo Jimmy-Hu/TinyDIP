@@ -395,5 +395,10 @@ namespace TinyDIP
             fclose(fp);
             return 0;
         }
+
+        int write(const char* filename, Image<double> input)
+        {
+            return write(filename, input.getWidth(), input.getHeight(), array_to_raw_image(input));
+        }
     }
 }
