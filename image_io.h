@@ -36,6 +36,8 @@ namespace TinyDIP
     namespace double_image
     {
         double* array_to_raw_image(Image<double> input);
+
+        int write(const char* filename, const int xsize, const int ysize, const double* image);
     }
 }
 
