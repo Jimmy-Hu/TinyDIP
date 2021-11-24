@@ -49,6 +49,8 @@ namespace TinyDIP
     int hsv_write_detail(const char* const filename, const int xsize, const int ysize, const double* const image);
 
     int hsv_write(const char* const filename, Image<HSV> input);
+
+    Image<HSV> hsv_read(const char* const filename, const bool extension);
 }
 
 #endif
