@@ -479,4 +479,46 @@ namespace TinyDIP
             return output;
         }
     }
+
+    int hsv_write_detail(const char* const filename, const int xsize, const int ysize, const double* const image)
+    {
+        unsigned char FillingByte;
+        FillingByte = bmp_filling_byte_calc(xsize, 8);
+        unsigned char header[54] =
+        {
+        0x42, 0x4d, 0, 0, 0, 0, 0, 0, 0, 0,
+        54, 0, 0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 24, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0
+        };
+        unsigned long file_size = (long)xsize * (long)ysize * 3 + 54;
+        unsigned long width, height;
+        std::filesystem::path fname_bmp;
+        header[2] = (unsigned char)(file_size & 0x000000ff);
+        header[3] = (file_size >> 8) & 0x000000ff;
+        header[4] = (file_size >> 16) & 0x000000ff;
+        header[5] = (file_size >> 24) & 0x000000ff;
+
+        width = xsize;
+        header[18] = width & 0x000000ff;
+        header[19] = (width >> 8) & 0x000000ff;
+        header[20] = (width >> 16) & 0x000000ff;
+        header[21] = (width >> 24) & 0x000000ff;
+
+        height = ysize;
+        header[22] = height & 0x000000ff;
+        header[23] = (height >> 8) & 0x000000ff;
+        header[24] = (height >> 16) & 0x000000ff;
+        header[25] = (height >> 24) & 0x000000ff;
+        fname_bmp = std::string(filename) + ".hsv";
+        FILE* fp;
+        if (!(fp = fopen(fname_bmp.string().c_str(), "wb")))
+        {
+            return -1;
+        }
+        fwrite(header, sizeof(unsigned char), 54, fp);
+        fwrite(image, sizeof(double), (size_t)(long)(xsize * 3 + FillingByte) * ysize, fp);
+        fclose(fp);
+        return 0;
+    }
 }
