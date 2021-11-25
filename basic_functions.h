@@ -448,7 +448,7 @@ namespace TinyDIP
             std::mutex mutex;
 
             //  Reference: https://en.cppreference.com/w/cpp/algorithm/for_each
-            std::for_each(execution_policy, input.cbegin(), input.cend(),
+            std::for_each(execution_policy, std::ranges::cbegin(input), std::ranges::cend(input),
                 [&](auto&& element)
                 {
                     auto result = recursive_transform<unwrap_level - 1>(execution_policy, f, element);
