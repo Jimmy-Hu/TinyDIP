@@ -335,6 +335,18 @@ namespace TinyDIP
         return output;
     }
 
+    template<class ExPo, typename ElementT, typename OutputT = HSV>
+    requires (std::same_as<ElementT, RGB>) && 
+    (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static auto rgb2hsv(ExPo execution_policy, const Image<ElementT>& input)
+    {
+        auto output = Image<OutputT>(
+            recursive_transform<1>(execution_policy, [](RGB input) { return rgb2hsv(input); }, input.getImageData()),
+            input.getWidth(),
+            input.getHeight());
+        return output;
+    }
+
     template<typename ElementT, typename OutputT = RGB>
     requires (std::same_as<ElementT, HSV>)
     constexpr static auto hsv2rgb(const Image<ElementT>& input)
