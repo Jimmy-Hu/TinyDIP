@@ -340,6 +340,23 @@ namespace TinyDIP
         return output;
     }
 
+    template<class ExPo, typename Op, class InputT, std::size_t unwrap_level = 1>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static auto pixelwiseOperation(ExPo execution_policy, Op op, const Image<InputT>& input1)
+    {
+        auto output = TinyDIP::Image(
+            recursive_transform<unwrap_level>(
+                execution_policy,
+                [&](auto&& element1) 
+                    {
+                        return op(element1);
+                    },
+                (input1.getImageData())),
+            input1.getWidth(),
+            input1.getHeight());
+        return output;
+    }
+
     template<typename ElementT, typename OutputT = HSV>
     requires (std::same_as<ElementT, RGB>)
     constexpr static auto rgb2hsv(const Image<ElementT>& input)
