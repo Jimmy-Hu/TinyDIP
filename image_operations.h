@@ -324,6 +324,26 @@ namespace TinyDIP
         return output;
     }
 
+    template<typename Op, class InputT, class... Args, std::size_t unwrap_level = 1>
+    constexpr static auto pixelwiseOperation(Op op, const Image<InputT>& input1, const Args&... inputs)
+    {
+        auto output = TinyDIP::Image(
+            recursive_transform<unwrap_level>(
+                [&](auto&& element1, auto&&... elements) 
+                    {
+                        auto result = op(element1, elements...);
+                        return static_cast<InputT>(std::clamp(
+                            result,
+                            static_cast<decltype(result)>(std::numeric_limits<InputT>::min()),
+                            static_cast<decltype(result)>(std::numeric_limits<InputT>::max())));
+                    },
+                (input1.getImageData()),
+                (inputs.getImageData())...),
+            input1.getWidth(),
+            input1.getHeight());
+        return output;
+    }
+
     template<typename ElementT, typename OutputT = HSV>
     requires (std::same_as<ElementT, RGB>)
     constexpr static auto rgb2hsv(const Image<ElementT>& input)
@@ -557,26 +577,6 @@ namespace TinyDIP
         const InputT standard_deviation)
     {
         return gaussianFigure2D(xsize, ysize, centerx, centery, standard_deviation, standard_deviation);
-    }
-
-    template<typename Op, class InputT, class... Args>
-    constexpr static Image<InputT> pixelwiseOperation(Op op, const Image<InputT>& input1, const Args&... inputs)
-    {
-        Image<InputT> output(
-            recursive_transform<1>(
-                [&](auto&& element1, auto&&... elements) 
-                    {
-                        auto result = op(element1, elements...);
-                        return static_cast<InputT>(std::clamp(
-                            result,
-                            static_cast<decltype(result)>(std::numeric_limits<InputT>::min()),
-                            static_cast<decltype(result)>(std::numeric_limits<InputT>::max())));
-                    },
-                (input1.getImageData()),
-                (inputs.getImageData())...),
-            input1.getWidth(),
-            input1.getHeight());
-        return output;
     }
 
     template<class InputT>
