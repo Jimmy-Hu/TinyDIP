@@ -331,11 +331,7 @@ namespace TinyDIP
             recursive_transform<unwrap_level>(
                 [&](auto&& element1, auto&&... elements) 
                     {
-                        auto result = op(element1, elements...);
-                        return static_cast<InputT>(std::clamp(
-                            result,
-                            static_cast<decltype(result)>(std::numeric_limits<InputT>::min()),
-                            static_cast<decltype(result)>(std::numeric_limits<InputT>::max())));
+                        return op(element1, elements...);
                     },
                 (input1.getImageData()),
                 (inputs.getImageData())...),
