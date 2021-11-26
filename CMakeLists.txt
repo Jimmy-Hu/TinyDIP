@@ -71,6 +71,7 @@ add_executable(idct3DetailTest test/idct3DetailTest.cpp image_io.cpp)
 add_executable(isIntegerTest test/isIntegerTest.cpp image_io.cpp)
 add_executable(recursiveForeachTest test/recursiveForeachTest.cpp image_io.cpp)
 add_executable(recursiveSizeTest test/recursiveSizeTest.cpp image_io.cpp)
+add_executable(dct2Test test/dct2Test.cpp image_io.cpp)
 
 # target_include_directories
 if(APPLE)
