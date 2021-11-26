@@ -344,11 +344,7 @@ namespace TinyDIP
     requires (std::same_as<ElementT, RGB>)
     constexpr static auto rgb2hsv(const Image<ElementT>& input)
     {
-        auto output = Image<OutputT>(
-            recursive_transform<1>([](RGB input) { return rgb2hsv(input); }, input.getImageData()),
-            input.getWidth(),
-            input.getHeight());
-        return output;
+        return pixelwiseOperation([](RGB input) { return rgb2hsv(input); }, input);
     }
 
     template<class ExPo, typename ElementT, typename OutputT = HSV>
