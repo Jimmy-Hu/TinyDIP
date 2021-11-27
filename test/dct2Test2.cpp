@@ -13,5 +13,6 @@ int main()
 
 void dct2Test2()
 {
+	std::cout << "dct2Test2 program..." << '\n';
 
 }
