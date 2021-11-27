@@ -298,15 +298,6 @@ namespace TinyDIP
         return output;
     }
 
-    template<typename ElementT>
-    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, HSV>))
-    constexpr static auto subimage2(const Image<ElementT>& input, std::size_t startx, std::size_t endx, std::size_t starty, std::size_t endy)
-    {
-        assert(startx <= endx);
-        assert(starty <= endy);
-        return apply_each(input, [startx, endx, starty, endy](auto&& planes) { return subimage2(planes, startx, endx, starty, endy); });
-    }
-
     /*  split function
     *   xsegments is a number for the block count in x axis
     *   ysegments is a number for the block count in y axis
