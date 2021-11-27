@@ -781,7 +781,12 @@ namespace TinyDIP
         return TinyDIP::pixelwiseOperation([](auto&& element) { return std::abs(element); }, input);
     }
 
-
+    template<TinyDIP::arithmetic ElementT = double>
+    constexpr static ElementT manhattan_distance(const Image<ElementT>& input1, const Image<ElementT>& input2)
+    {
+        is_size_same(input1, input2);
+        return TinyDIP::recursive_reduce(TinyDIP::abs(TinyDIP::subtract(input1, input2)).getImageData(), 0);
+    }
 }
 
 #endif
