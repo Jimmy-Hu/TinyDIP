@@ -8,15 +8,16 @@
 template<class ElementT>
 constexpr static auto get_offset( TinyDIP::Image<ElementT>& input,
 	                              std::vector<TinyDIP::Image<double>>& dictionary_x,
-	                              std::vector<TinyDIP::Image<double>>& dictionary_y)
+	                              std::vector<TinyDIP::Image<double>>& dictionary_y,
+	                              const double sigma)
 {
 	return input;
 }
 
-void each_image( std::string input_path, std::string output_path,
+void each_image( const std::string input_path, const std::string output_path,
 	             std::vector<TinyDIP::Image<double>>& dictionary_x,
 	             std::vector<TinyDIP::Image<double>>& dictionary_y,
-	             std::size_t N1 = 8, std::size_t N2 = 8)
+	             const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 1.0)
 {
 	auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
 	auto input_hsv = TinyDIP::rgb2hsv(input_img);
@@ -31,7 +32,7 @@ void each_image( std::string input_path, std::string output_path,
 
 	auto output_dct_blocks = TinyDIP::recursive_transform<2>(
 		std::execution::par,
-		[&](auto&& element) { return get_offset(element, dictionary_x, dictionary_y); },
+		[&](auto&& element) { return get_offset(element, dictionary_x, dictionary_y, sigma); },
 		input_dct_blocks
 		);
 	std::cout << "Save output to " << output_path << '\n';
@@ -49,9 +50,9 @@ void each_image( std::string input_path, std::string output_path,
 
 void dct2Test3( std::string input_folder, std::string output_folder,
 	            std::string dictionary_path,
-	            std::size_t start_index = 1, std::size_t end_index = 1,
-	            std::size_t dic_start_index = 50, std::size_t dic_end_index = 100,
-	            std::size_t N1 = 8, std::size_t N2 = 8)
+	            const std::size_t start_index = 1, const std::size_t end_index = 1,
+	            const std::size_t dic_start_index = 50, const std::size_t dic_end_index = 100,
+	            const std::size_t N1 = 8, const std::size_t N2 = 8)
 {
 	std::cout << "dct2Test3 program..." << '\n';
 	//***Load dictionary***
