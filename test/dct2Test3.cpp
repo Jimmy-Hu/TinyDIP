@@ -6,7 +6,8 @@
 #include "../image_operations.h"
 
 void each_image( std::string input_path, std::string output_path,
-	             std::string dictionary_path,
+	             std::vector<TinyDIP::Image<double>>& dictionary_x,
+	             std::vector<TinyDIP::Image<double>>& dictionary_y,
 	             std::size_t N1 = 8, std::size_t N2 = 8)
 {
 	auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
@@ -36,13 +37,13 @@ void dct2Test3( std::string input_folder, std::string output_folder,
 		auto dct_block_y = TinyDIP::split(input_dbmp_gt, input_dbmp_gt.getWidth() / N1, input_dbmp_gt.getHeight() / N2);
 		TinyDIP::recursive_for_each<2>(dct_block_y, [&](auto&& element) { y.push_back(element); });
 	}
-	
 	std::cout << "x count: " << x.size() << "\ty count: " << y.size() << '\n';
+	
 	for (std::size_t i = start_index; i < end_index; i++)
 	{
 		std::string fullpath = input_folder + "/" + std::to_string(i);
 		std::cout << "fullpath: " << fullpath << '\n';
-		each_image(fullpath, output_folder, dictionary_path);
+		each_image(fullpath, output_folder, x, y);
 
 	}
 }
