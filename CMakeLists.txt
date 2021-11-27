@@ -61,6 +61,7 @@ add_executable(bicubicInterpolationTest test/bicubicInterpolationTest.cpp image_
 add_executable(doubleImageIOTest test/doubleImageIOTest.cpp image_io.cpp)
 add_executable(manhattanDistanceTest test/manhattanDistanceTest.cpp image_io.cpp)
 add_executable(powTest test/powTest.cpp image_io.cpp)
+add_executable(powParallelTest test/powParallelTest.cpp image_io.cpp)
 add_executable(subimageTest test/subimageTest.cpp image_io.cpp)
 add_executable(subimage2Test test/subimage2Test.cpp image_io.cpp)
 add_executable(rgb2hsvTest test/rgb2hsvTest.cpp image_io.cpp)
