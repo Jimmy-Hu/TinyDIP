@@ -11,7 +11,8 @@ constexpr static auto get_offset( TinyDIP::Image<ElementT>& input,
 	                              std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
 	                              const ElementT sigma)
 {
-	return input;
+	auto output = TinyDIP::Image(input.getWidth(), input.getHeight(), ElementT{});
+	return output;
 }
 
 void each_image( const std::string input_path, const std::string output_path,
@@ -32,7 +33,7 @@ void each_image( const std::string input_path, const std::string output_path,
 
 	auto output_dct_blocks = TinyDIP::recursive_transform<2>(
 		std::execution::par,
-		[&](auto&& element) { return get_offset(element, dictionary_x, dictionary_y, sigma); },
+		[&](auto&& element) { return TinyDIP::plus(element, get_offset(element, dictionary_x, dictionary_y, sigma)); },
 		input_dct_blocks
 		);
 	std::cout << "Save output to " << output_path << '\n';
@@ -56,7 +57,7 @@ void dct2Test3( std::string input_folder, std::string output_folder,
 {
 	std::cout << "dct2Test3 program..." << '\n';
 	//***Load dictionary***
-	std::vector<TinyDIP::Image<double>> x, y;
+	std::vector<TinyDIP::Image<double>> x, y, xy_diff;
 	for (std::size_t i = dic_start_index; i <= dic_end_index; i++)
 	{
 		std::string fullpath = dictionary_path + "/" + std::to_string(i);
@@ -70,14 +71,15 @@ void dct2Test3( std::string input_folder, std::string output_folder,
 		auto dct_block_y = TinyDIP::split(input_dbmp_gt, input_dbmp_gt.getWidth() / N1, input_dbmp_gt.getHeight() / N2);
 		TinyDIP::recursive_for_each<2>(dct_block_y, [&](auto&& element) { y.push_back(element); });
 	}
-	std::cout << "x count: " << x.size() << "\ty count: " << y.size() << '\n';
+	xy_diff = TinyDIP::recursive_transform([&](auto&& element1, auto&& element2) { return TinyDIP::subtract(element2, element1); }, x, y);
+	std::cout << "x count: " << x.size() << "\txy_diff count: " << xy_diff.size() << '\n';
 	
 	for (std::size_t i = start_index; i <= end_index; i++)
 	{
 		std::string fullpath = input_folder + "/" + std::to_string(i);
 		std::cout << "fullpath: " << fullpath << '\n';
 		std::string output_path = output_folder + "/" + std::to_string(i);
-		each_image(fullpath, output_path, x, y);
+		each_image(fullpath, output_path, x, xy_diff);
 	}
 	return;
 }
