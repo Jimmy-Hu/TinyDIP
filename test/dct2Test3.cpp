@@ -5,6 +5,14 @@
 #include "../image_io.h"
 #include "../image_operations.h"
 
+template<class ElementT>
+constexpr static auto get_offset( TinyDIP::Image<ElementT>& input,
+	                              std::vector<TinyDIP::Image<double>>& dictionary_x,
+	                              std::vector<TinyDIP::Image<double>>& dictionary_y)
+{
+	return input;
+}
+
 void each_image( std::string input_path, std::string output_path,
 	             std::vector<TinyDIP::Image<double>>& dictionary_x,
 	             std::vector<TinyDIP::Image<double>>& dictionary_y,
@@ -21,7 +29,11 @@ void each_image( std::string input_path, std::string output_path,
 		TinyDIP::split(v_plane, v_plane.getWidth() / N1, v_plane.getHeight() / N2)
 		);
 
-
+	auto output_dct_blocks = TinyDIP::recursive_transform<2>(
+		std::execution::par,
+		[&](auto&& element) { return get_offset(element, dictionary_x, dictionary_y); },
+		input_dct_blocks
+		);
 	auto output_img = TinyDIP::hsv2rgb(TinyDIP::constructHSV(
 		h_plane,
 		s_plane,
@@ -29,7 +41,7 @@ void each_image( std::string input_path, std::string output_path,
 			TinyDIP::recursive_transform<2>(
 				std::execution::par,
 				[](auto&& element) { return TinyDIP::dct2(element); },
-				input_dct_blocks))
+				output_dct_blocks))
 	));
 	TinyDIP::bmp_write(output_path.c_str(), output_img);
 }
