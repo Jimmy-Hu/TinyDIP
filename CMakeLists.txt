@@ -103,7 +103,7 @@ target_link_libraries(TinyDIP -lm)
 #target_link_libraries(TinyDIP -lomp)
 target_link_libraries(TinyDIP -lpthread)
 if(APPLE)
-    target_link_libraries(TinyDIP -L/usr/local/Cellar/llvm/10.0.0_3/lib/)
+    #target_link_libraries(TinyDIP -L/usr/local/Cellar/llvm/10.0.0_3/lib/)
 endif()
 
 # Add boost library
