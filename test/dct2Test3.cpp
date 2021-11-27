@@ -15,7 +15,22 @@ void each_image( std::string input_path, std::string output_path,
 	auto h_plane = TinyDIP::getHplane(input_hsv);
 	auto s_plane = TinyDIP::getSplane(input_hsv);
 	auto v_plane = TinyDIP::getVplane(input_hsv);
-	auto output_img = TinyDIP::hsv2rgb(TinyDIP::constructHSV(h_plane, s_plane, v_plane));
+	auto input_dct_blocks = TinyDIP::recursive_transform<2>(
+		std::execution::par,
+		[](auto&& element) { return TinyDIP::dct2(element); },
+		TinyDIP::split(v_plane, v_plane.getWidth() / N1, v_plane.getHeight() / N2)
+		);
+
+
+	auto output_img = TinyDIP::hsv2rgb(TinyDIP::constructHSV(
+		h_plane,
+		s_plane,
+		TinyDIP::concat(
+			TinyDIP::recursive_transform<2>(
+				std::execution::par,
+				[](auto&& element) { return TinyDIP::dct2(element); },
+				input_dct_blocks))
+	));
 	TinyDIP::bmp_write(output_path.c_str(), output_img);
 }
 
