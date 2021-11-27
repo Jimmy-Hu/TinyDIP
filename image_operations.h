@@ -778,6 +778,12 @@ namespace TinyDIP
     }
 
     template<TinyDIP::arithmetic ElementT = double>
+    constexpr static auto difference(const Image<ElementT>& input1, const Image<ElementT>& input2)
+    {
+        return TinyDIP::abs(TinyDIP::subtract(input1, input2));
+    }
+
+    template<TinyDIP::arithmetic ElementT = double>
     constexpr static ElementT manhattan_distance(const Image<ElementT>& input1, const Image<ElementT>& input2)
     {
         is_size_same(input1, input2);
