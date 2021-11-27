@@ -58,6 +58,8 @@ endif()
 add_executable(TinyDIP main.cpp image_io.cpp)
 add_executable(absTest test/absTest.cpp image_io.cpp)
 add_executable(bicubicInterpolationTest test/bicubicInterpolationTest.cpp image_io.cpp)
+add_executable(dct2Test test/dct2Test.cpp image_io.cpp)
+add_executable(dct2Test2 test/dct2Test2.cpp image_io.cpp)
 add_executable(doubleImageIOTest test/doubleImageIOTest.cpp image_io.cpp)
 add_executable(manhattanDistanceTest test/manhattanDistanceTest.cpp image_io.cpp)
 add_executable(powTest test/powTest.cpp image_io.cpp)
@@ -77,7 +79,6 @@ add_executable(pixelwiseOperationTest test/pixelwiseOperationTest.cpp image_io.c
 add_executable(pixelwiseOperationParallelTest test/pixelwiseOperationParallelTest.cpp image_io.cpp)
 add_executable(recursiveForeachTest test/recursiveForeachTest.cpp image_io.cpp)
 add_executable(recursiveSizeTest test/recursiveSizeTest.cpp image_io.cpp)
-add_executable(dct2Test test/dct2Test.cpp image_io.cpp)
 add_executable(idct2Test test/idct2Test.cpp image_io.cpp)
 
 # target_include_directories
