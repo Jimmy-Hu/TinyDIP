@@ -34,6 +34,7 @@ void each_image( std::string input_path, std::string output_path,
 		[&](auto&& element) { return get_offset(element, dictionary_x, dictionary_y); },
 		input_dct_blocks
 		);
+	std::cout << "Save output to " << output_path << '\n';
 	auto output_img = TinyDIP::hsv2rgb(TinyDIP::constructHSV(
 		h_plane,
 		s_plane,
@@ -70,7 +71,7 @@ void dct2Test3( std::string input_folder, std::string output_folder,
 	}
 	std::cout << "x count: " << x.size() << "\ty count: " << y.size() << '\n';
 	
-	for (std::size_t i = start_index; i < end_index; i++)
+	for (std::size_t i = start_index; i <= end_index; i++)
 	{
 		std::string fullpath = input_folder + "/" + std::to_string(i);
 		std::cout << "fullpath: " << fullpath << '\n';
