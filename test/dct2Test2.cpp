@@ -5,8 +5,9 @@
 #include "../image_io.h"
 #include "../image_operations.h"
 
-void dct2Test2(	std::string arg1, std::string arg2,
-				std::size_t N1 = 8, std::size_t N2 = 8)
+void dct2Test2( std::string arg1, std::string arg2,
+                std::string arg3,
+                std::size_t N1 = 8, std::size_t N2 = 8)
 {
 	std::cout << "dct2Test2 program..." << '\n';
 	std::cout << arg1 << '\n';
@@ -22,6 +23,8 @@ void dct2Test2(	std::string arg1, std::string arg2,
 			[](auto&& element) { return TinyDIP::dct2(element); },
 			TinyDIP::split(TinyDIP::getVplane(TinyDIP::rgb2hsv(input_img)), input_img.getWidth() / N1, input_img.getHeight() / N2)
 			);
+		auto dct2_combined = TinyDIP::concat(dct2_results);
+		TinyDIP::double_image::write(arg3.c_str(), dct2_combined);
 	}
 	return;
 }
@@ -30,7 +33,8 @@ int main(int argc, char* argv[])
 {
 	auto arg1 = std::string(argv[1]);
 	auto arg2 = std::string(argv[2]);
-	dct2Test2(arg1, arg2);
+	auto arg3 = std::string(argv[3]);
+	dct2Test2(arg1, arg2, arg3);
 	return 0;
 }
 
