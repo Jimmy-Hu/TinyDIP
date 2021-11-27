@@ -53,7 +53,7 @@ void dct2Test3( std::string input_folder, std::string output_folder,
 	            std::string dictionary_path,
 	            const std::size_t start_index = 1, const std::size_t end_index = 1,
 	            const std::size_t dic_start_index = 50, const std::size_t dic_end_index = 100,
-	            const std::size_t N1 = 8, const std::size_t N2 = 8)
+	            const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 1.0)
 {
 	std::cout << "dct2Test3 program..." << '\n';
 	//***Load dictionary***
@@ -79,7 +79,7 @@ void dct2Test3( std::string input_folder, std::string output_folder,
 		std::string fullpath = input_folder + "/" + std::to_string(i);
 		std::cout << "fullpath: " << fullpath << '\n';
 		std::string output_path = output_folder + "/" + std::to_string(i);
-		each_image(fullpath, output_path, x, xy_diff);
+		each_image(fullpath, output_path, x, xy_diff, N1, N2, sigma);
 	}
 	return;
 }
