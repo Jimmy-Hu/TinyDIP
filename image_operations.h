@@ -795,6 +795,13 @@ namespace TinyDIP
     {
         return TinyDIP::pixelwiseOperation([&](auto&& element) { return std::pow(element, exp); }, input);
     }
+
+    template<class ExPo, TinyDIP::arithmetic ElementT = double, TinyDIP::arithmetic ExpT = double>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static auto pow(ExPo execution_policy, const Image<ElementT>& input, ExpT exp)
+    {
+        return TinyDIP::pixelwiseOperation(execution_policy, [&](auto&& element) { return std::pow(element, exp); }, input);
+    }
 }
 
 #endif
