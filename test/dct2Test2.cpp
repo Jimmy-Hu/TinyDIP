@@ -8,6 +8,13 @@ void dct2Test2(std::string arg1, std::string arg2)
 	std::cout << "dct2Test2 program..." << '\n';
 	std::cout << arg1 << '\n';
 	std::cout << arg2 << '\n';
+	std::size_t start_index = 50, end_index = 100;
+	for (std::size_t i = start_index; i < end_index; i++)
+	{
+		std::string fullpath = arg1 + "/" + std::to_string(i);
+		std::cout << fullpath << '\n';
+	}
+	return;
 }
 
 int main(int argc, char* argv[])
