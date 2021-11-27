@@ -150,7 +150,7 @@ namespace TinyDIP
         {
             std::cout << "Deal with the negative height\n";
             output.XSIZE = OriginSizeX;
-            output.YSIZE = abs(OriginSizeY);
+            output.YSIZE = std::abs(OriginSizeY);
             printf("Width of the input image: %d\n", output.XSIZE);
             printf("Height of the input image: %d\n", output.YSIZE);
             printf("Size of the input image(Byte): %d\n", (size_t)output.XSIZE * output.YSIZE * 3);
