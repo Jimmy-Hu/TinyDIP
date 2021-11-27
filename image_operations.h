@@ -787,7 +787,7 @@ namespace TinyDIP
     constexpr static ElementT manhattan_distance(const Image<ElementT>& input1, const Image<ElementT>& input2)
     {
         is_size_same(input1, input2);
-        return TinyDIP::recursive_reduce(TinyDIP::abs(TinyDIP::subtract(input1, input2)).getImageData(), 0);
+        return TinyDIP::recursive_reduce(TinyDIP::difference(input1, input2).getImageData(), 0);
     }
 
     template<TinyDIP::arithmetic ElementT = double, TinyDIP::arithmetic ExpT = double>
