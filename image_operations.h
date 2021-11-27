@@ -774,6 +774,14 @@ namespace TinyDIP
         output = idct3_detail(v, 0);
         return output;
     }
+
+    template<TinyDIP::arithmetic ElementT = double>
+    constexpr static auto abs(Image<ElementT> input)
+    {
+        return TinyDIP::pixelwiseOperation([](auto&& element) { return std::abs(element); }, input);
+    }
+
+
 }
 
 #endif
