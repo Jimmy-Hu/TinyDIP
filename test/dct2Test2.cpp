@@ -5,7 +5,8 @@
 #include "../image_io.h"
 #include "../image_operations.h"
 
-void each_image(std::string input_path, std::string output_path)
+void each_image( std::string input_path, std::string output_path,
+                 std::size_t N1 = 8, std::size_t N2 = 8)
 {
 	auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
 	auto dct2_results = TinyDIP::recursive_transform<2>(
@@ -30,10 +31,10 @@ void dct2Test2( std::string arg1, std::string arg2,
 		std::string fullpath = arg1 + "/" + std::to_string(i);
 		std::cout << fullpath << '\n';
 		auto output_path = arg3 + "/" + std::to_string(i);
-		each_image(fullpath, output_path);
+		each_image(fullpath, output_path, N1, N2);
 	}
 	auto output_path = arg3 + "/GT";
-	each_image(arg2, output_path);
+	each_image(arg2, output_path, N1, N2);
 	return;
 }
 
