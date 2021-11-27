@@ -24,7 +24,8 @@ void dct2Test2( std::string arg1, std::string arg2,
 			TinyDIP::split(TinyDIP::getVplane(TinyDIP::rgb2hsv(input_img)), input_img.getWidth() / N1, input_img.getHeight() / N2)
 			);
 		auto dct2_combined = TinyDIP::concat(dct2_results);
-		TinyDIP::double_image::write(arg3.c_str(), dct2_combined);
+		auto output_path = arg3 + "/" + std::to_string(i);
+		TinyDIP::double_image::write(output_path.c_str(), dct2_combined);
 	}
 	return;
 }
