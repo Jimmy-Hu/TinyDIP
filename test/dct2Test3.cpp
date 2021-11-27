@@ -7,9 +7,9 @@
 
 template<class ElementT>
 constexpr static auto get_offset( TinyDIP::Image<ElementT>& input,
-	                              std::vector<TinyDIP::Image<double>>& dictionary_x,
-	                              std::vector<TinyDIP::Image<double>>& dictionary_y,
-	                              const double sigma)
+	                              std::vector<TinyDIP::Image<ElementT>>& dictionary_x,
+	                              std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
+	                              const ElementT sigma)
 {
 	return input;
 }
