@@ -7,26 +7,33 @@
 
 void each_image( std::string input_path, std::string output_path,
 	             std::string dictionary_path,
-	             std::size_t start_index = 50, std::size_t end_index = 100,
 	             std::size_t N1 = 8, std::size_t N2 = 8)
 {
 	auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
-	//***Load dictionary***
-	for (std::size_t i = start_index; i <= end_index; i++)
-	{
-		std::string fullpath = dictionary_path + "/" + std::to_string(i);
-		std::cout << "Dictionary path: " << fullpath << '\n';
-		auto input_dbmp = TinyDIP::double_image::read(fullpath.c_str(), false);
-
-	}
+	
 
 }
 
 void dct2Test3( std::string input_folder, std::string output_folder,
 	            std::string dictionary_path,
 	            std::size_t start_index = 1, std::size_t end_index = 1,
+	            std::size_t dic_start_index = 50, std::size_t dic_end_index = 100,
 	            std::size_t N1 = 8, std::size_t N2 = 8)
 {
+	std::cout << "dct2Test3 program..." << '\n';
+	//***Load dictionary***
+	for (std::size_t i = dic_start_index; i <= dic_end_index; i++)
+	{
+		std::string fullpath = dictionary_path + "/" + std::to_string(i);
+		std::cout << "Dictionary path: " << fullpath << '\n';
+		auto input_dbmp = TinyDIP::double_image::read(fullpath.c_str(), false);
+		auto dct_block_x = TinyDIP::split(input_dbmp, input_dbmp.getWidth() / N1, input_dbmp.getHeight() / N2);
+
+	}
+	std::string fullpath = dictionary_path + "/GT";
+	auto input_dbmp = TinyDIP::double_image::read(fullpath.c_str(), false);
+	auto dct_block_y = TinyDIP::split(input_dbmp, input_dbmp.getWidth() / N1, input_dbmp.getHeight() / N2);
+
 	for (std::size_t i = start_index; i < end_index; i++)
 	{
 		std::string fullpath = input_folder + "/" + std::to_string(i);
