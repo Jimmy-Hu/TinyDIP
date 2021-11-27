@@ -44,7 +44,7 @@ void each_image( const std::string input_path, const std::string output_path,
 		TinyDIP::concat(
 			TinyDIP::recursive_transform<2>(
 				std::execution::par,
-				[](auto&& element) { return TinyDIP::dct2(element); },
+				[](auto&& element) { return TinyDIP::idct2(element); },
 				output_dct_blocks))
 	));
 	TinyDIP::bmp_write(output_path.c_str(), output_img);
