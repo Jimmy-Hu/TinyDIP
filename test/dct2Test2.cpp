@@ -1,6 +1,7 @@
 #include "../base_types.h"
 #include "../basic_functions.h"
 #include "../image.h"
+#include "../image_io.h"
 #include "../image_operations.h"
 
 void dct2Test2(std::string arg1, std::string arg2)
@@ -13,6 +14,7 @@ void dct2Test2(std::string arg1, std::string arg2)
 	{
 		std::string fullpath = arg1 + "/" + std::to_string(i);
 		std::cout << fullpath << '\n';
+		TinyDIP::bmp_read(fullpath.c_str(), false);
 	}
 	return;
 }
