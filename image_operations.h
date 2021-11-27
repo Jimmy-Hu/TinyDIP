@@ -783,6 +783,12 @@ namespace TinyDIP
         is_size_same(input1, input2);
         return TinyDIP::recursive_reduce(TinyDIP::abs(TinyDIP::subtract(input1, input2)).getImageData(), 0);
     }
+
+    template<TinyDIP::arithmetic ElementT = double, TinyDIP::arithmetic ExpT = double>
+    constexpr static auto pow(const Image<ElementT>& input, ExpT exp)
+    {
+        return TinyDIP::pixelwiseOperation([&](auto&& element) { return std::pow(element, exp); }, input);
+    }
 }
 
 #endif
