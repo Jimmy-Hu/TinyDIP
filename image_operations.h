@@ -369,11 +369,7 @@ namespace TinyDIP
     (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto rgb2hsv(ExPo execution_policy, const Image<ElementT>& input)
     {
-        auto output = Image<OutputT>(
-            recursive_transform<1>(execution_policy, [](RGB input) { return rgb2hsv(input); }, input.getImageData()),
-            input.getWidth(),
-            input.getHeight());
-        return output;
+        return pixelwiseOperation(execution_policy, [](RGB input) { return rgb2hsv(input); }, input);
     }
 
     template<typename ElementT, typename OutputT = RGB>
