@@ -6,9 +6,9 @@
 #include "../image_operations.h"
 
 template<class ElementT>
-constexpr static auto get_offset( TinyDIP::Image<ElementT>& input,
-	                              std::vector<TinyDIP::Image<ElementT>>& dictionary_x,
-	                              std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
+constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
+	                              const std::vector<TinyDIP::Image<ElementT>>& dictionary_x,
+	                              const std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
 	                              const ElementT sigma)
 {
 	auto output = TinyDIP::Image(input.getWidth(), input.getHeight(), ElementT{});
