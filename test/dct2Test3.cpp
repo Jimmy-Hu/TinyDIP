@@ -12,7 +12,11 @@ void each_image( std::string input_path, std::string output_path,
 {
 	auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
 	auto input_hsv = TinyDIP::rgb2hsv(input_img);
-
+	auto h_plane = TinyDIP::getHplane(input_hsv);
+	auto s_plane = TinyDIP::getSplane(input_hsv);
+	auto v_plane = TinyDIP::getVplane(input_hsv);
+	auto output_img = TinyDIP::hsv2rgb(TinyDIP::constructHSV(h_plane, s_plane, v_plane));
+	TinyDIP::bmp_write(output_path.c_str(), output_img);
 }
 
 void dct2Test3( std::string input_folder, std::string output_folder,
@@ -43,9 +47,10 @@ void dct2Test3( std::string input_folder, std::string output_folder,
 	{
 		std::string fullpath = input_folder + "/" + std::to_string(i);
 		std::cout << "fullpath: " << fullpath << '\n';
-		each_image(fullpath, output_folder, x, y);
-
+		std::string output_path = output_folder + "/" + std::to_string(i);
+		each_image(fullpath, output_path, x, y);
 	}
+	return;
 }
 
 int main(int argc, char* argv[])
