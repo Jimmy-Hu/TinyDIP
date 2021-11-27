@@ -11,7 +11,7 @@ void each_image( std::string input_path, std::string output_path,
 	             std::size_t N1 = 8, std::size_t N2 = 8)
 {
 	auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
-	
+	auto input_hsv = TinyDIP::rgb2hsv(input_img);
 
 }
 
