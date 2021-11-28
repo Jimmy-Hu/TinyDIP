@@ -31,6 +31,7 @@ void each_image( const std::string input_path, const std::string output_path,
 	             const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 1.0)
 {
 	auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
+	input_img = TinyDIP::subimage2(input_img, 1, 100, 1, 100);
 	auto input_hsv = TinyDIP::rgb2hsv(input_img);
 	auto h_plane = TinyDIP::getHplane(input_hsv);
 	auto s_plane = TinyDIP::getSplane(input_hsv);
