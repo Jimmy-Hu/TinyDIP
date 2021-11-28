@@ -119,7 +119,8 @@ namespace TinyDIP
         }
 
         //  Enable this function if ElementT = RGB
-        void print(std::string separator = "\t", std::ostream& os = std::cout) requires(std::same_as<ElementT, RGB>)
+        void print(std::string separator = "\t", std::ostream& os = std::cout) const
+        requires(std::same_as<ElementT, RGB>)
         {
             for (std::size_t y = 0; y < this->height; ++y)
             {
