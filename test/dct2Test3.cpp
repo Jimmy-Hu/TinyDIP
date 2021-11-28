@@ -1,5 +1,6 @@
 #include <chrono>
 #include <execution>
+#include <sstream>
 #include "../base_types.h"
 #include "../basic_functions.h"
 #include "../image.h"
@@ -47,7 +48,6 @@ void each_image( const std::string input_path, const std::string output_path,
 	             const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 1.0)
 {
 	auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
-	input_img = TinyDIP::subimage2(input_img, 295, 766, 133, 412);
 	auto input_hsv = TinyDIP::rgb2hsv(input_img);
 	auto h_plane = TinyDIP::getHplane(input_hsv);
 	auto s_plane = TinyDIP::getSplane(input_hsv);
@@ -82,7 +82,7 @@ void each_image( const std::string input_path, const std::string output_path,
 
 void dct2Test3( std::string input_folder, std::string output_folder,
 	            std::string dictionary_path,
-	            const std::size_t start_index = 2, const std::size_t end_index = 2,
+	            const std::size_t start_index = 1, const std::size_t end_index = 1,
 	            const std::size_t dic_start_index = 80, const std::size_t dic_end_index = 100,
 	            const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 1.0)
 {
@@ -129,7 +129,15 @@ int main(int argc, char* argv[])
 	auto arg1 = std::string(argv[1]);
 	auto arg2 = std::string(argv[2]);
 	auto arg3 = std::string(argv[3]);
-	dct2Test3(arg1, arg2, arg3);
+	auto arg4 = std::string(argv[4]);
+	std::stringstream start_index_ss(arg4);
+	std::size_t start_index;
+	start_index_ss >> start_index;
+	auto arg5 = std::string(argv[5]);
+	std::stringstream end_index_ss(arg5);
+	std::size_t end_index;
+	end_index_ss >> end_index;
+	dct2Test3(arg1, arg2, arg3, start_index, end_index);
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
 	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
