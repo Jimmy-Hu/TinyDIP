@@ -22,7 +22,7 @@ constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
 		{
 			return TinyDIP::multiplies(input1, TinyDIP::Image(input1.getWidth(), input1.getHeight(), input2));
 		}, dictionary_y, weights);
-	return TinyDIP::recursive_reduce(outputs, output);
+	return TinyDIP::recursive_reduce(outputs, output, [](auto&& input1, auto&& input2) { return TinyDIP::plus(input1, input2); });
 }
 
 void each_image( const std::string input_path, const std::string output_path,
