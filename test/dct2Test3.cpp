@@ -42,7 +42,7 @@ void each_image( const std::string input_path, const std::string output_path,
 	auto input_hsv = TinyDIP::rgb2hsv(input_img);
 	auto h_plane = TinyDIP::getHplane(input_hsv);
 	auto s_plane = TinyDIP::getSplane(input_hsv);
-	auto v_plane = TinyDIP::getVplane(input_hsv);
+	auto v_plane = TinyDIP::divides(TinyDIP::getVplane(input_hsv), TinyDIP::Image<double>(input_img.getWidth(), input_img.getHeight(), 255));
 
 	std::cout << "Call dct2 function..." << '\n';
 	auto input_dct_blocks = TinyDIP::recursive_transform<2>(
@@ -60,11 +60,13 @@ void each_image( const std::string input_path, const std::string output_path,
 	auto output_img = TinyDIP::hsv2rgb(TinyDIP::constructHSV(
 		h_plane,
 		s_plane,
-		TinyDIP::concat(
-			TinyDIP::recursive_transform<2>(
-				std::execution::par,
-				[](auto&& element) { return TinyDIP::idct2(element); },
-				output_dct_blocks))
+		TinyDIP::multiplies(
+			TinyDIP::concat(
+				TinyDIP::recursive_transform<2>(
+					std::execution::par,
+					[](auto&& element) { return TinyDIP::idct2(element); },
+					output_dct_blocks)),
+			TinyDIP::Image<double>(input_img.getWidth(), input_img.getHeight(), 255))
 	));
 	TinyDIP::bmp_write(output_path.c_str(), output_img);
 }
