@@ -18,7 +18,6 @@ constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
 		{ 
 			return TinyDIP::normalDistribution1D(TinyDIP::manhattan_distance(input, element), sigma);
 		}, dictionary_x);
-	dictionary_x[0].print();
 	auto sum_of_weights = TinyDIP::recursive_reduce(weights, ElementT{});
 	std::cout << "sum_of_weights: " << std::to_string(sum_of_weights) << '\n';
 	if (sum_of_weights < threshold)
@@ -73,7 +72,7 @@ void each_image( const std::string input_path, const std::string output_path,
 void dct2Test3( std::string input_folder, std::string output_folder,
 	            std::string dictionary_path,
 	            const std::size_t start_index = 1, const std::size_t end_index = 1,
-	            const std::size_t dic_start_index = 50, const std::size_t dic_end_index = 100,
+	            const std::size_t dic_start_index = 80, const std::size_t dic_end_index = 100,
 	            const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 1.0)
 {
 	std::cout << "dct2Test3 program..." << '\n';
