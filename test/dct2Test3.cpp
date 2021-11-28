@@ -126,6 +126,7 @@ void dct2Test3( std::string input_folder, std::string output_folder,
 int main(int argc, char* argv[])
 {
 	auto start = std::chrono::system_clock::now();
+	std::cout << std::to_string(argc) << '\n';
 	auto arg1 = std::string(argv[1]);
 	auto arg2 = std::string(argv[2]);
 	auto arg3 = std::string(argv[3]);
