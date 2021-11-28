@@ -127,18 +127,26 @@ int main(int argc, char* argv[])
 {
 	auto start = std::chrono::system_clock::now();
 	std::cout << std::to_string(argc) << '\n';
-	auto arg1 = std::string(argv[1]);
-	auto arg2 = std::string(argv[2]);
-	auto arg3 = std::string(argv[3]);
-	auto arg4 = std::string(argv[4]);
-	std::stringstream start_index_ss(arg4);
-	std::size_t start_index;
-	start_index_ss >> start_index;
-	auto arg5 = std::string(argv[5]);
-	std::stringstream end_index_ss(arg5);
-	std::size_t end_index;
-	end_index_ss >> end_index;
-	dct2Test3(arg1, arg2, arg3, start_index, end_index);
+	if (argc == 6)
+	{
+		auto arg1 = std::string(argv[1]);
+		auto arg2 = std::string(argv[2]);
+		auto arg3 = std::string(argv[3]);
+		auto arg4 = std::string(argv[4]);
+		std::stringstream start_index_ss(arg4);
+		std::size_t start_index;
+		start_index_ss >> start_index;
+		auto arg5 = std::string(argv[5]);
+		std::stringstream end_index_ss(arg5);
+		std::size_t end_index;
+		end_index_ss >> end_index;
+		dct2Test3(arg1, arg2, arg3, start_index, end_index);
+	}
+	else
+	{
+
+	}
+	
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
 	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
