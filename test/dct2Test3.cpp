@@ -24,12 +24,13 @@ constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
 	{
 		return output;
 	}
-	std::cout << "#weights: " << std::to_string(weights.size()) << "\t#dictionary_y: " << std::to_string(dictionary_y.size()) << '\n';
+	//std::cout << "#weights: " << std::to_string(weights.size()) << "\t#dictionary_y: " << std::to_string(dictionary_y.size()) << '\n';
 	auto outputs = TinyDIP::recursive_transform<1>(
 		[&](auto&& input1, auto&& input2)
 		{
 			return TinyDIP::multiplies(input1, TinyDIP::Image(input1.getWidth(), input1.getHeight(), input2));
 		}, dictionary_y, weights);
+	outputs[0].print();
 	return TinyDIP::recursive_reduce(outputs, output, [](auto&& input1, auto&& input2) { return TinyDIP::plus(input1, input2); });
 }
 
