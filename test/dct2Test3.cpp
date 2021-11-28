@@ -30,8 +30,13 @@ constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
 		{
 			return TinyDIP::multiplies(input1, TinyDIP::Image(input1.getWidth(), input1.getHeight(), input2));
 		}, dictionary_y, weights);
-	outputs[0].print();
-	return TinyDIP::recursive_reduce(outputs, output, [](auto&& input1, auto&& input2) { return TinyDIP::plus(input1, input2); });
+	//return TinyDIP::recursive_reduce(outputs, output, [](auto&& input1, auto&& input2) { return TinyDIP::plus(input1, input2); })
+	for (std::size_t i = 0; i < outputs.size(); i++)
+	{
+		output = TinyDIP::plus(output, outputs[i]);
+		output.print();
+	}
+	return output;
 }
 
 void each_image( const std::string input_path, const std::string output_path,
