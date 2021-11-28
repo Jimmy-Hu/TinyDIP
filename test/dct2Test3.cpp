@@ -1,3 +1,4 @@
+#include <chrono>
 #include <execution>
 #include "../base_types.h"
 #include "../basic_functions.h"
@@ -124,9 +125,14 @@ void dct2Test3( std::string input_folder, std::string output_folder,
 
 int main(int argc, char* argv[])
 {
+	auto start = std::chrono::system_clock::now();
 	auto arg1 = std::string(argv[1]);
 	auto arg2 = std::string(argv[2]);
 	auto arg3 = std::string(argv[3]);
 	dct2Test3(arg1, arg2, arg3);
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> elapsed_seconds = end - start;
+	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
 	return 0;
 }
