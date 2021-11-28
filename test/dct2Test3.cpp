@@ -9,7 +9,7 @@ template<class ElementT>
 constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
 	                              const std::vector<TinyDIP::Image<ElementT>>& dictionary_x,
 	                              const std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
-	                              const ElementT sigma)
+	                              const ElementT sigma, const ElementT threshold)
 {
 	auto output = TinyDIP::Image(input.getWidth(), input.getHeight(), ElementT{});
 	auto weights = TinyDIP::recursive_transform<1>(
@@ -21,8 +21,10 @@ constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
 	dictionary_x[0].print();
 	auto sum_of_weights = TinyDIP::recursive_reduce(weights, ElementT{});
 	std::cout << "sum_of_weights: " << std::to_string(sum_of_weights) << '\n';
-	//TinyDIP::recursive_print(weights);
-	return output;
+	if (sum_of_weights < threshold)
+	{
+		return output;
+	}
 	auto outputs = TinyDIP::recursive_transform<1>(
 		[&](auto&& input1, auto&& input2)
 		{
@@ -52,7 +54,7 @@ void each_image( const std::string input_path, const std::string output_path,
 
 	auto output_dct_blocks = TinyDIP::recursive_transform<2>(
 		std::execution::par,
-		[&](auto&& element) { return TinyDIP::plus(element, get_offset(element, dictionary_x, dictionary_y, sigma)); },
+		[&](auto&& element) { return TinyDIP::plus(element, get_offset(element, dictionary_x, dictionary_y, sigma, std::pow(10, -30))); },
 		input_dct_blocks
 		);
 	std::cout << "Save output to " << output_path << '\n';
