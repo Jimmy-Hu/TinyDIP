@@ -13,11 +13,14 @@ constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
 {
 	auto output = TinyDIP::Image(input.getWidth(), input.getHeight(), ElementT{});
 	auto weights = TinyDIP::recursive_transform<1>(
+		std::execution::par,
 		[&](auto&& element) 
 		{ 
 			return TinyDIP::normalDistribution1D(TinyDIP::manhattan_distance(input, element), sigma);
 		}, dictionary_x);
 	dictionary_x[0].print();
+	auto sum_of_weights = TinyDIP::recursive_reduce(weights, ElementT{});
+	std::cout << "sum_of_weights: " << std::to_string(sum_of_weights) << '\n';
 	//TinyDIP::recursive_print(weights);
 	return output;
 	auto outputs = TinyDIP::recursive_transform<1>(
