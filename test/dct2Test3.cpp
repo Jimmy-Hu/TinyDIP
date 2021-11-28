@@ -36,6 +36,8 @@ void each_image( const std::string input_path, const std::string output_path,
 	auto h_plane = TinyDIP::getHplane(input_hsv);
 	auto s_plane = TinyDIP::getSplane(input_hsv);
 	auto v_plane = TinyDIP::getVplane(input_hsv);
+
+	std::cout << "Call dct2 function..." << '\n';
 	auto input_dct_blocks = TinyDIP::recursive_transform<2>(
 		std::execution::par,
 		[](auto&& element) { return TinyDIP::dct2(element); },
