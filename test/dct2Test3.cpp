@@ -36,6 +36,7 @@ constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
 		output = TinyDIP::plus(output, outputs[i]);
 		//output.print();
 	}
+	output = TinyDIP::divides(output, TinyDIP::Image(output.getWidth(), output.getHeight(), sum_of_weights));
 	return output;
 }
 
