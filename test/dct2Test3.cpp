@@ -34,7 +34,7 @@ constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
 	for (std::size_t i = 0; i < outputs.size(); i++)
 	{
 		output = TinyDIP::plus(output, outputs[i]);
-		output.print();
+		//output.print();
 	}
 	return output;
 }
