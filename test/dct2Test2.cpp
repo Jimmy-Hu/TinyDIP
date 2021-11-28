@@ -12,7 +12,10 @@ void each_image( std::string input_path, std::string output_path,
 	auto dct2_results = TinyDIP::recursive_transform<2>(
 		std::execution::par,
 		[](auto&& element) { return TinyDIP::dct2(element); },
-		TinyDIP::split(TinyDIP::getVplane(TinyDIP::rgb2hsv(input_img)), input_img.getWidth() / N1, input_img.getHeight() / N2)
+		TinyDIP::split(
+			TinyDIP::divides(TinyDIP::getVplane(TinyDIP::rgb2hsv(input_img)), TinyDIP::Image<double>(input_img.getWidth(), input_img.getHeight(), 255)),
+			input_img.getWidth() / N1,
+			input_img.getHeight() / N2)
 		);
 	auto dct2_combined = TinyDIP::concat(dct2_results);
 	TinyDIP::double_image::write(output_path.c_str(), dct2_combined);
