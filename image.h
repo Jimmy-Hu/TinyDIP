@@ -103,7 +103,7 @@ namespace TinyDIP
 
         std::vector<ElementT> const& getImageData() const { return this->image_data; }      //  expose the internal data
 
-        void print(std::string separator = "\t", std::ostream& os = std::cout)
+        void print(std::string separator = "\t", std::ostream& os = std::cout) const
         {
             for (std::size_t y = 0; y < this->height; ++y)
             {
