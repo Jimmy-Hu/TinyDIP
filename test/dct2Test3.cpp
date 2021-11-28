@@ -14,7 +14,7 @@ constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
 	auto output = TinyDIP::Image(input.getWidth(), input.getHeight(), ElementT{});
 	auto weights = TinyDIP::recursive_transform<1>(
 		std::execution::par,
-		[&](auto&& element) 
+		[&](auto&& element)
 		{ 
 			return TinyDIP::normalDistribution1D(TinyDIP::manhattan_distance(input, element), sigma);
 		}, dictionary_x);
@@ -24,6 +24,7 @@ constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
 	{
 		return output;
 	}
+	std::cout << "#weights: " << std::to_string(weights.size()) << "\t#dictionary_y: " << std::to_string(dictionary_y.size()) << '\n';
 	auto outputs = TinyDIP::recursive_transform<1>(
 		[&](auto&& input1, auto&& input2)
 		{
