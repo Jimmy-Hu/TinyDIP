@@ -33,6 +33,7 @@ void manhattanDistanceTest()
 int main()
 {
 	manhattanDistanceTest<int>();
+	manhattanDistanceTest<long>();
 	manhattanDistanceTest<float>();
 	manhattanDistanceTest<double>();
 	return 0;
