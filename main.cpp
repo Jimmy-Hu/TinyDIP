@@ -11,6 +11,7 @@
 
 #include <filesystem>
 #include <execution>
+#include <valarray>
 #include "basic_functions.h"
 #include "image_io.h"
 #include "image_operations.h"
