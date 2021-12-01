@@ -140,7 +140,24 @@ int main(int argc, char* argv[])
 		std::stringstream end_index_ss(arg5);
 		std::size_t end_index;
 		end_index_ss >> end_index;
-		dct2Test3(arg1, arg2, arg3, start_index, end_index);
+		double sigma = 0.1;
+		dct2Test3(arg1, arg2, arg3, start_index, end_index, 80Ui64, 100Ui64, 8Ui64, 8Ui64, sigma);
+	}
+	else if (argc == 7)
+	{
+		auto arg1 = std::string(argv[1]);
+		auto arg2 = std::string(argv[2]);
+		auto arg3 = std::string(argv[3]);
+		auto arg4 = std::string(argv[4]);
+		std::stringstream start_index_ss(arg4);
+		std::size_t start_index;
+		start_index_ss >> start_index;
+		auto arg5 = std::string(argv[5]);
+		std::stringstream end_index_ss(arg5);
+		std::size_t end_index;
+		end_index_ss >> end_index;
+		double sigma = std::stod(std::string(argv[6]));
+		dct2Test3(arg1, arg2, arg3, start_index, end_index, 80, 100, 8, 8, sigma);
 	}
 	else
 	{
