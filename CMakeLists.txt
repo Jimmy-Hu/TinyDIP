@@ -32,6 +32,7 @@ endif()
 # Reference: https://stackoverflow.com/a/10055571/6667035
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math -std=c++2a -fopenmp")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # using GCC
   # Reference: https://superuser.com/a/1424303/1147141
