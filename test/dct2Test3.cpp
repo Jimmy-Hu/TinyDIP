@@ -87,6 +87,7 @@ void dct2Test3( std::string input_folder, std::string output_folder,
 	            const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 0.1)
 {
 	std::cout << "dct2Test3 program..." << '\n';
+	std::cout << "sigma = " << std::to_string(sigma) << '\n';
 	//***Load dictionary***
 	std::vector<TinyDIP::Image<double>> x, y;
 	for (std::size_t i = dic_start_index; i <= dic_end_index; i++)
