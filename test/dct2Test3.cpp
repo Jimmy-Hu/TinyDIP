@@ -142,7 +142,8 @@ int main(int argc, char* argv[])
 		std::size_t end_index;
 		end_index_ss >> end_index;
 		double sigma = 0.1;
-		dct2Test3(arg1, arg2, arg3, start_index, end_index, 80Ui64, 100Ui64, 8Ui64, 8Ui64, sigma);
+		dct2Test3(arg1, arg2, arg3, start_index, end_index,
+		 static_cast<std::size_t>(80), static_cast<std::size_t>(100), static_cast<std::size_t>(8), static_cast<std::size_t>(8), sigma);
 	}
 	else if (argc == 7)
 	{
