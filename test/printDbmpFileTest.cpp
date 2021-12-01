@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 	if (argc == 2)
 	{
 		auto arg1 = std::string(argv[1]);
-		
+		print_dbmp(arg1);
 	}
 	else
 	{
