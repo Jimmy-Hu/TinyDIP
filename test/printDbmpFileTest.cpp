@@ -5,7 +5,7 @@
 #include "../image_io.h"
 #include "../image_operations.h"
 
-constexpr static void print_dbmp(std::string path)
+static void print_dbmp(std::string path)
 {
     auto dbmp_input = TinyDIP::double_image::read(path.c_str(), false);
     dbmp_input.print();
