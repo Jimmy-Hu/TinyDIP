@@ -45,7 +45,7 @@ constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
 void each_image( const std::string input_path, const std::string output_path,
 	             std::vector<TinyDIP::Image<double>>& dictionary_x,
 	             std::vector<TinyDIP::Image<double>>& dictionary_y,
-	             const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 1.0)
+	             const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 0.1)
 {
 	auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
 	auto input_hsv = TinyDIP::rgb2hsv(input_img);
@@ -84,7 +84,7 @@ void dct2Test3( std::string input_folder, std::string output_folder,
 	            std::string dictionary_path,
 	            const std::size_t start_index = 1, const std::size_t end_index = 1,
 	            const std::size_t dic_start_index = 80, const std::size_t dic_end_index = 100,
-	            const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 1.0)
+	            const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 0.1)
 {
 	std::cout << "dct2Test3 program..." << '\n';
 	//***Load dictionary***
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-
+		dct2Test3("../../../InputImages/RainVideos/16", "../../../OutputImages/16", "../../../Dictionary", 1, 1);
 	}
 	
 	auto end = std::chrono::system_clock::now();
