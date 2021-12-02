@@ -11,6 +11,6 @@ Tiny Digital Image Processing Library is a C++ library designed with C++20 synta
   
   https://codereview.stackexchange.com/q/263289/231235
   
-
+- Some further details about "basic_functions" please check "docs/basic_functions/README.md"
 
 
