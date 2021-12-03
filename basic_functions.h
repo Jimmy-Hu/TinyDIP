@@ -461,18 +461,14 @@ namespace TinyDIP
             static_assert(unwrap_level <= recursive_depth<T>(),
                 "unwrap level higher than recursion depth of input");
             recursive_invoke_result_t<unwrap_level, F, T> output{};
+            output.resize(input.size());
             std::mutex mutex;
-
-            //  Reference: https://en.cppreference.com/w/cpp/algorithm/for_each
-            std::for_each(execution_policy, std::ranges::cbegin(input), std::ranges::cend(input),
+            std::transform(execution_policy, std::ranges::cbegin(input), std::ranges::cend(input), std::ranges::begin(output),
                 [&](auto&& element)
                 {
-                    auto result = recursive_transform<unwrap_level - 1>(execution_policy, f, element);
                     std::lock_guard lock(mutex);
-                    output.emplace_back(std::move(result));
-                }
-            );
-            
+                    return recursive_transform<unwrap_level - 1>(execution_policy, f, element);
+                });
             return output;
         }
         else
