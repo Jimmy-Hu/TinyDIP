@@ -4,10 +4,8 @@
 #include "../image_operations.h"
 
 template<typename T>
-void pixelwiseOperationTest()
+void pixelwiseOperationTest(const size_t size = 10)
 {
-    constexpr std::size_t size = 10;
-    
     auto img1 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<T>(3));
 	auto img2 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<T>(3));
 	auto img3 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<T>(3));
