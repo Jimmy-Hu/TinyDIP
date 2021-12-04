@@ -1,5 +1,7 @@
 ### Code Review
 
+- Order guaranteed recursive_transform template function implementation with execution policy in C++ (Posted on Dec. 2, 2021 @ GMT+8, https://codereview.stackexchange.com/q/270615/231235)
+
 - A recursive_count function with recursive_depth for unwrap_level checking in C++ (Posted on Oct. 29, 2021 @ GMT+8, https://codereview.stackexchange.com/q/269479/231235)
 
 - A recursive_depth function for calculating depth of nested types implementation in C++ (Posted on Oct. 26, 2021 @ GMT+8, https://codereview.stackexchange.com/q/269376/231235)
