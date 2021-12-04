@@ -3,22 +3,15 @@
 #include "../image.h"
 #include "../image_operations.h"
 
-void pixelwiseOperationTest();
-
-int main()
-{
-	pixelwiseOperationTest();
-	return 0;
-}
-
+template<typename T>
 void pixelwiseOperationTest()
 {
     constexpr std::size_t size = 10;
     
-    auto img1 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(3));
-	auto img2 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(3));
-	auto img3 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(3));
-	auto img4 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(3));
+    auto img1 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<T>(3));
+	auto img2 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<T>(3));
+	auto img3 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<T>(3));
+	auto img4 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<T>(3));
 
     auto output = TinyDIP::pixelwiseOperation
     (
@@ -34,5 +27,13 @@ void pixelwiseOperationTest()
     output.print();
 }
 
+int main()
+{
+    pixelwiseOperationTest<int>();
+    pixelwiseOperationTest<long>();
+    pixelwiseOperationTest<float>();
+	pixelwiseOperationTest<double>();
+	return 0;
+}
 
 
