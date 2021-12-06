@@ -13,7 +13,7 @@ void manhattanDistanceTest()
 	{
 		for (std::size_t x = 1; x <= N1; x++)
 		{
-			test_input.at(y - 1, x - 1) = x * 10 + y;
+			test_input.at(y - 1, x - 1) = x * 10 + y + y & 1;
 		}
 	}
 	T expected = 0;
