@@ -10,7 +10,7 @@ void subimage2Test()
     image1.at(2, 2) = 1;
     std::cout << "Width: " + std::to_string(image1.getWidth()) + "\n";
     std::cout << "Height: " + std::to_string(image1.getHeight()) + "\n";
-    auto image2 = TinyDIP::copyResizeBicubic(image1, 12, 12);
+    auto image2 = TinyDIP::copyResizeBicubic<T>(image1, 12, 12);
     std::cout << "Width: " + std::to_string(image2.getWidth()) + "\n";
     std::cout << "Height: " + std::to_string(image2.getHeight()) + "\n";
     image2.print();
