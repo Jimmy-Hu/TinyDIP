@@ -3,6 +3,16 @@
 #include "../image.h"
 #include "../image_operations.h"
 
+template<typename ElementT>
+void print3(std::vector<TinyDIP::Image<ElementT>> input)
+{
+	for (std::size_t i = 0; i < input.size(); i++)
+	{
+		input[i].print();
+		std::cout << "*******************\n";
+	}
+}
+
 template<typename T>
 void dct3DetailTest()
 {
@@ -26,16 +36,6 @@ void dct3DetailTest()
 
 	auto test_output = TinyDIP::dct3_detail(test_input, 0);
 	test_output.print();
-}
-
-template<typename ElementT>
-void print3(std::vector<TinyDIP::Image<ElementT>> input)
-{
-	for (std::size_t i = 0; i < input.size(); i++)
-	{
-		input[i].print();
-		std::cout << "*******************\n";
-	}
 }
 
 int main()
