@@ -3,30 +3,14 @@
 #include "../image.h"
 #include "../image_operations.h"
 
-void dct3DetailTest();
-template<typename ElementT>
-void print3(std::vector<TinyDIP::Image<ElementT>> input)
-{
-	for (std::size_t i = 0; i < input.size(); i++)
-	{
-		input[i].print();
-		std::cout << "*******************\n";
-	}
-}
-
-int main()
-{
-	dct3DetailTest();
-	return 0;
-}
-
+template<typename T>
 void dct3DetailTest()
 {
 	std::size_t N1 = 10, N2 = 10, N3 = 10;
-	std::vector<TinyDIP::Image<double>> test_input;
+	std::vector<TinyDIP::Image<T>> test_input;
 	for (std::size_t z = 0; z < N3; z++)
 	{
-		test_input.push_back(TinyDIP::Image<double>(N1, N2));
+		test_input.push_back(TinyDIP::Image<T>(N1, N2));
 	}
 	for (std::size_t z = 1; z <= N3; z++)
 	{
@@ -42,5 +26,21 @@ void dct3DetailTest()
 
 	auto test_output = TinyDIP::dct3_detail(test_input, 0);
 	test_output.print();
+}
 
+template<typename ElementT>
+void print3(std::vector<TinyDIP::Image<ElementT>> input)
+{
+	for (std::size_t i = 0; i < input.size(); i++)
+	{
+		input[i].print();
+		std::cout << "*******************\n";
+	}
+}
+
+int main()
+{
+	dct3DetailTest<float>();
+	dct3DetailTest<double>();
+	return 0;
 }
