@@ -3,7 +3,6 @@
 #include "../image.h"
 #include "../image_operations.h"
 
-void idct3DetailTest();
 template<typename ElementT>
 void print3(std::vector<TinyDIP::Image<ElementT>> input)
 {
@@ -14,24 +13,14 @@ void print3(std::vector<TinyDIP::Image<ElementT>> input)
 	}
 }
 
-int main()
-{
-	auto start = std::chrono::system_clock::now();
-	idct3DetailTest();
-	auto end = std::chrono::system_clock::now();
-	std::chrono::duration<double> elapsed_seconds = end - start;
-	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-	std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
-	return 0;
-}
-
+template<typename T>
 void idct3DetailTest()
 {
 	std::size_t N1 = 10, N2 = 10, N3 = 10;
-	std::vector<TinyDIP::Image<double>> test_input;
+	std::vector<TinyDIP::Image<T>> test_input;
 	for (std::size_t z = 0; z < N3; z++)
 	{
-		test_input.push_back(TinyDIP::Image<double>(N1, N2));
+		test_input.push_back(TinyDIP::Image<T>(N1, N2));
 	}
 	for (std::size_t z = 1; z <= N3; z++)
 	{
@@ -55,4 +44,15 @@ void idct3DetailTest()
 	
 	auto idct_result = TinyDIP::idct3_detail(dct_planes, 0);
 	idct_result.print();
+}
+
+int main()
+{
+	auto start = std::chrono::system_clock::now();
+	idct3DetailTest<double>();
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> elapsed_seconds = end - start;
+	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+	std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
+	return 0;
 }
