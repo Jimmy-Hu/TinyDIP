@@ -14,9 +14,8 @@ void print3(std::vector<TinyDIP::Image<ElementT>> input)
 }
 
 template<typename T>
-void idct3DetailTest()
+void idct3DetailTest(const std::size_t N1, const std::size_t N2, const std::size_t N3)
 {
-	std::size_t N1 = 10, N2 = 10, N3 = 10;
 	std::vector<TinyDIP::Image<T>> test_input;
 	for (std::size_t z = 0; z < N3; z++)
 	{
@@ -49,7 +48,7 @@ void idct3DetailTest()
 int main()
 {
 	auto start = std::chrono::system_clock::now();
-	idct3DetailTest<double>();
+	idct3DetailTest<double>(10, 10, 10);
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
 	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
