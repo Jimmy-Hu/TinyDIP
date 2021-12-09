@@ -11,7 +11,7 @@ template<class ElementT>
 constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
 	                              const std::vector<TinyDIP::Image<ElementT>>& dictionary_x,
 	                              const std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
-	                              const ElementT sigma, const ElementT threshold)
+	                              const ElementT sigma, const ElementT threshold) noexcept
 {
 	auto output = TinyDIP::Image(input.getWidth(), input.getHeight(), ElementT{});
 	auto weights = TinyDIP::recursive_transform<1>(
@@ -45,7 +45,7 @@ constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
 void each_image( const std::string input_path, const std::string output_path,
 	             std::vector<TinyDIP::Image<double>>& dictionary_x,
 	             std::vector<TinyDIP::Image<double>>& dictionary_y,
-	             const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 0.1)
+	             const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 0.1) noexcept
 {
 	auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
 	auto input_hsv = TinyDIP::rgb2hsv(input_img);
@@ -80,11 +80,11 @@ void each_image( const std::string input_path, const std::string output_path,
 	TinyDIP::bmp_write(output_path.c_str(), output_img);
 }
 
-void dct2Test3( std::string input_folder, std::string output_folder,
-	            std::string dictionary_path,
+void dct2Test3( const std::string& input_folder, const std::string& output_folder,
+	            const std::string& dictionary_path,
 	            const std::size_t start_index = 1, const std::size_t end_index = 1,
 	            const std::size_t dic_start_index = 80, const std::size_t dic_end_index = 100,
-	            const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 0.1)
+	            const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 0.1) noexcept
 {
 	std::cout << "dct2Test3 program..." << '\n';
 	std::cout << "sigma = " << std::to_string(sigma) << '\n';
