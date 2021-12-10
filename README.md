@@ -20,10 +20,16 @@ TinyDIP library could be built with [CMake](https://cmake.org/) as the following
 
 1. Create `./build` folder:
   
-  ```shell
-  mkdir build
-  ```
-  
+    ```shell
+    mkdir build
+    ```
+
+2. Config project
+    
+    ```shell
+    cmake -B ./build -DCMAKE_TOOLCHAIN_FILE=../../vcpkg/scripts/buildsystems/vcpkg.cmake -S .
+    cmake -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -S . -B ./build
+    ```
 
 #### Windows
 
