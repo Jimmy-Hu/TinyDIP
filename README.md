@@ -18,6 +18,13 @@ Both `std::ranges` and [concepts](https://en.cppreference.com/w/cpp/language/con
 
 TinyDIP library could be built with [CMake](https://cmake.org/) as the following commands:
 
+1. Create `./build` folder:
+  
+  ```shell
+  mkdir build
+  ```
+  
+
 #### Windows
 
 
