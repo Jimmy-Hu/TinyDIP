@@ -28,7 +28,7 @@ TinyDIP library could be built with [CMake](https://cmake.org/) as the following
     
     ```shell
     cmake -B ./build -DCMAKE_TOOLCHAIN_FILE=../../vcpkg/scripts/buildsystems/vcpkg.cmake -S .
-    cmake -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -S . -B ./build
+    cmake -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -S . -B ./build    #  specify CMAKE_C_COMPILER and CMAKE_CXX_COMPILER flags
     ```
 
 3. Build project
@@ -45,6 +45,7 @@ TinyDIP library could be built with [CMake](https://cmake.org/) as the following
 
 4. Run the built execution file
 
+    After the building process as above, the built execution files can be checked under `./build/` folder. 
 
 #### Windows
 
