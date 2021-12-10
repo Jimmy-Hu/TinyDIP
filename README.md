@@ -31,6 +31,21 @@ TinyDIP library could be built with [CMake](https://cmake.org/) as the following
     cmake -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -S . -B ./build
     ```
 
+3. Build project
+    
+    ```shell
+    cmake --build ./build
+    ```
+
+    If the parallel build process is prefered, `--parallel` flag can be added. On the other hand, if the verbose information is needed, `--verbose` flag can be added.
+
+    ```shell
+    cmake --build ./build --parallel --verbose
+    ```
+
+4. Run the built execution file
+
+
 #### Windows
 
 
