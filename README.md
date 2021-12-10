@@ -10,7 +10,7 @@ Both `std::ranges` and [concepts](https://en.cppreference.com/w/cpp/language/con
 
 - GCC: g++-11
 
-- MSVC: MSVC 19.24
+- MSVC: MSVC 19.24 (Visual Studio 2019 Update 4)
 
 ### Build Configuration & Process
 
@@ -49,7 +49,7 @@ TinyDIP library could be built with [CMake](https://cmake.org/) as the following
 
 #### Windows
 
-
+- In Visual Studio IDE, [CMake projects can be opened in Visual Studio](https://docs.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=msvc-170)
 
 ### Code Review
 
