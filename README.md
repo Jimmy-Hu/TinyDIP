@@ -10,7 +10,7 @@ Both `std::ranges` and [concepts](https://en.cppreference.com/w/cpp/language/con
 
 - GCC: g++-11
 
-- MSVC: MSVC 19.24 (Visual Studio 2019 Update 4)
+- MSVC: MSVC 19.24 (Visual Studio 2019 Update 4, Visual Studio 2019 version 16.4)
 
 ### Build Configuration & Process
 
@@ -45,7 +45,11 @@ TinyDIP library could be built with [CMake](https://cmake.org/) as the following
 
 4. Run the built execution file
 
-    After the building process as above, the built execution files can be checked under `./build/` folder. 
+    After the building process as above, the built execution files can be checked under `./build/` folder. The built execution file `TinyDIP` can be run with the following command:
+
+    ```shell
+    ./build/TinyDIP
+    ```
 
 #### Windows
 
