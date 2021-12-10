@@ -12,6 +12,16 @@ Both `std::ranges` and [concepts](https://en.cppreference.com/w/cpp/language/con
 
 - MSVC: MSVC 19.24
 
+### Build Configuration & Process
+
+#### Linux & MacOS
+
+TinyDIP library could be built with [CMake](https://cmake.org/) as the following commands:
+
+#### Windows
+
+
+
 ### Code Review
 
 - Two dimensional gaussian image generator in C++, Jun 25, 2021 @ GMT+8
