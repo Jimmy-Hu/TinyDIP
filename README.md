@@ -3,7 +3,11 @@ Tiny Digital Image Processing Library is a C++ library designed with C++20 synta
 
 ### Environment Requirment
 
-Both `std::ranges` and [concepts](https://en.cppreference.com/w/cpp/language/constraints) ard widely used in TinyDIP library. C++ compiler support information could be checked with https://en.cppreference.com/w/cpp/compiler_support#cpp20.
+Both `std::ranges` and [concepts](https://en.cppreference.com/w/cpp/language/constraints) ard widely used in TinyDIP library. C++ compiler support information could be checked with https://en.cppreference.com/w/cpp/compiler_support#cpp20. The suggested compiler (tested, minimum) version are listed as below.
+
+- GCC: g++-11
+
+- MSVC: MSVC 19.24
 
 ### Code Review
 
