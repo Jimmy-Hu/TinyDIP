@@ -192,8 +192,6 @@ namespace TinyDIP
             return *this;
         }
 
-        bool operator==(const Image<ElementT>& rhs) const = default;
-
         friend bool operator==(Image<ElementT> const&, Image<ElementT> const&) = default;
 
         bool operator!=(const Image<ElementT>& rhs) const
