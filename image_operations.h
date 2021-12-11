@@ -104,14 +104,14 @@ namespace TinyDIP
     template <typename ElementT>
     class Image;
 
-    template<TinyDIP::arithmetic T = GrayScale, typename OutputT = RGB>
+    template<arithmetic T = GrayScale, typename OutputT = RGB>
     requires (std::same_as<T, GrayScale>)
     constexpr static auto constructRGB(Image<T> r, Image<T> g, Image<T> b)
     {
         is_size_same(r, g);
         is_size_same(g, b);
         is_size_same(r, b);
-        auto output = TinyDIP::Image<OutputT>(r.getWidth(), r.getHeight());
+        auto output = Image<OutputT>(r.getWidth(), r.getHeight());
         for (std::size_t y = 0; y < r.getHeight(); y++)
         {
             for (std::size_t x = 0; x < r.getWidth(); x++)
@@ -124,14 +124,14 @@ namespace TinyDIP
         return output;
     }
 
-    template<TinyDIP::arithmetic T = double, typename OutputT = HSV>
+    template<arithmetic T = double, typename OutputT = HSV>
     requires (std::same_as<T, double>)
     constexpr static auto constructHSV(Image<T> h, Image<T> s, Image<T> v)
     {
         is_size_same(h, s);
         is_size_same(s, v);
         is_size_same(h, v);
-        auto output = TinyDIP::Image<OutputT>(h.getWidth(), h.getHeight());
+        auto output = Image<OutputT>(h.getWidth(), h.getHeight());
         for (std::size_t y = 0; y < h.getHeight(); y++)
         {
             for (std::size_t x = 0; x < h.getWidth(); x++)
