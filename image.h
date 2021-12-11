@@ -59,17 +59,17 @@ namespace TinyDIP
             height(newHeight)
         {
             assert(input.size() == newWidth * newHeight);
-            this->image_data = input;   //  Deep copy
+            image_data = input;   //  Deep copy
         }
 
         Image(const std::vector<std::vector<ElementT>>& input)
         {
-            this->height = input.size();
-            this->width = input[0].size();
+            height = input.size();
+            width = input[0].size();
             
             for (auto& rows : input)
             {
-                this->image_data.insert(this->image_data.end(), std::begin(input), std::end(input));    //  flatten
+                image_data.insert(image_data.end(), std::begin(input), std::end(input));    //  flatten
             }
             return;
         }
