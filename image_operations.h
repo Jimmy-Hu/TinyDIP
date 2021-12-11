@@ -324,8 +324,8 @@ namespace TinyDIP
         return output;
     }
 
-    template<typename Op, class InputT, class... Args, std::size_t unwrap_level = 1>
-    constexpr static auto pixelwiseOperation(Op op, const Image<InputT>& input1, const Args&... inputs)
+    template<std::size_t unwrap_level = 1, class InputT, class... Args>
+    constexpr static auto pixelwiseOperation(auto op, const Image<InputT>& input1, const Args&... inputs)
     {
         auto output = TinyDIP::Image(
             recursive_transform<unwrap_level>(
@@ -340,9 +340,9 @@ namespace TinyDIP
         return output;
     }
 
-    template<class ExPo, typename Op, class InputT, std::size_t unwrap_level = 1>
+    template<std::size_t unwrap_level = 1, class ExPo, class InputT>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr static auto pixelwiseOperation(ExPo execution_policy, Op op, const Image<InputT>& input1)
+    constexpr static auto pixelwiseOperation(ExPo execution_policy, auto op, const Image<InputT>& input1)
     {
         auto output = TinyDIP::Image(
             recursive_transform<unwrap_level>(
