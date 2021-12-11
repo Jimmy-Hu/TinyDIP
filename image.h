@@ -192,16 +192,9 @@ namespace TinyDIP
             return *this;
         }
 
-        bool operator==(const Image<ElementT>& rhs) const
-        {
-            /* do actual comparison */
-            if (rhs.width != this->width ||
-                rhs.height != this->height)
-            {
-                return false;
-            }
-            return rhs.image_data == this->image_data;
-        }
+        bool operator==(const Image<ElementT>& rhs) const = default;
+
+        friend bool operator==(Image<ElementT> const&, Image<ElementT> const&) = default;
 
         bool operator!=(const Image<ElementT>& rhs) const
         {
