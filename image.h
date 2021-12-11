@@ -1,7 +1,7 @@
 /* Developed by Jimmy Hu */
 
-#ifndef Image_H
-#define Image_H
+#ifndef TinyDIP_Image_H
+#define TinyDIP_Image_H
 
 #include <algorithm>
 #include <array>
