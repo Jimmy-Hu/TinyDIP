@@ -281,7 +281,7 @@ namespace TinyDIP
     template<std::ranges::range Range> requires (std::ranges::input_range<std::ranges::range_value_t<Range>>)
     constexpr auto recursive_size(const Range& input)
     {
-        return std::transform_reduce(std::ranges::begin(input), std::end(input), std::size_t{}, std::plus<std::size_t>(), [](auto& element) {
+        return std::transform_reduce(std::ranges::begin(input), std::ranges::end(input), std::size_t{}, std::plus<std::size_t>(), [](auto& element) {
             return recursive_size(element);
             });
     }
@@ -558,7 +558,7 @@ namespace TinyDIP
     template<std::ranges::range Input, class T, class UnaryOp, class BinaryOp = std::plus<T>>
     constexpr auto recursive_transform_reduce(const Input& input, T init, const UnaryOp& unary_op, const BinaryOp& binop = std::plus<T>())
     {
-        return std::transform_reduce(std::ranges::begin(input), std::end(input), init, binop, [&](auto& element) {
+        return std::transform_reduce(std::ranges::begin(input), std::ranges::end(input), init, binop, [&](auto& element) {
             return recursive_transform_reduce(element, T{}, unary_op, binop);
             });
     }
@@ -575,7 +575,7 @@ namespace TinyDIP
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr auto recursive_transform_reduce(ExPo execution_policy, const Input& input, T init, const UnaryOp& unary_op, const BinaryOp& binop = std::plus<T>())
     {
-        return std::transform_reduce(execution_policy, std::ranges::begin(input), std::end(input), init, binop, [&](auto& element) {
+        return std::transform_reduce(execution_policy, std::ranges::begin(input), std::ranges::end(input), init, binop, [&](auto& element) {
             return recursive_transform_reduce(execution_policy, element, T{}, unary_op, binop);
             });
     }
