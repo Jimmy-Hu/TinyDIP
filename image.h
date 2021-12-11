@@ -255,6 +255,9 @@ namespace TinyDIP
 #endif
 
     };
+
+    template<typename T, typename ElementT>
+    concept is_Image = std::is_same_v<T, Image<ElementT>>;
 }
 
 
