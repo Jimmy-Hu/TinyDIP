@@ -105,6 +105,11 @@ namespace TinyDIP
             return first;
     }
 
+    template<typename... Args>
+    constexpr static auto& first_of(Args&... inputs) {
+        return get_from_variadic_template<1>(inputs);
+    }
+
     //  recursive_count implementation
 
     //  recursive_count implementation (the version with unwrap_level)
