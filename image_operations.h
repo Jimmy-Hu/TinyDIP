@@ -324,19 +324,18 @@ namespace TinyDIP
         return output;
     }
 
-    template<std::size_t unwrap_level = 1, class InputT, class... Args>
-    constexpr static auto pixelwiseOperation(auto op, const Image<InputT>& input1, const Args&... inputs)
+    template<std::size_t unwrap_level = 1, class... Args>
+    constexpr static auto pixelwiseOperation(auto op, const Args&... inputs)
     {
-        auto output = TinyDIP::Image(
+        auto output = Image(
             recursive_transform<unwrap_level>(
                 [&](auto&& element1, auto&&... elements) 
                     {
                         return op(element1, elements...);
                     },
-                (input1.getImageData()),
                 (inputs.getImageData())...),
-            input1.getWidth(),
-            input1.getHeight());
+            first_of(inputs).getWidth(),
+            first_of(inputs).getHeight());
         return output;
     }
 
