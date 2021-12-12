@@ -96,6 +96,15 @@ namespace TinyDIP
         return recursive_depth<std::ranges::range_value_t<Range>>() + 1;
     }
 
+    template<std::size_t index = 1, typename Arg, typename... Args>
+    constexpr static auto& get_from_variadic_template(const Arg& first, const Args&... inputs)
+    {
+        if constexpr (index > 1)
+            return get_from_variadic_template<index - 1>(inputs...);
+        else
+            return first;
+    }
+
     //  recursive_count implementation
 
     //  recursive_count implementation (the version with unwrap_level)
