@@ -1,5 +1,5 @@
 # Reference: https://cmake.org/cmake/help/latest/guide/tutorial/index.html
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.13)        # For lgtm.com service
 
 # set the project name and version
 # Reference: https://stackoverflow.com/a/41651622/6667035
@@ -35,8 +35,15 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math -std=c++2a -fopenmp")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # using GCC
-  # Reference: https://superuser.com/a/1424303/1147141
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -std=c++20 -Xpreprocessor -fopenmp -O3 -fdump-tree-original")
+  # Reference: https://stackoverflow.com/a/4065761/6667035
+  IF (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 10.0)
+    # Reference: https://superuser.com/a/1424303/1147141
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -std=c++20 -Xpreprocessor -fopenmp -O3 -fdump-tree-original")
+  ELSE()
+    # Reference: https://superuser.com/a/1424303/1147141
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -std=c++2a -Xpreprocessor -fopenmp -O3 -fdump-tree-original")
+  ENDIF()
+  
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
   # using Intel C++
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
