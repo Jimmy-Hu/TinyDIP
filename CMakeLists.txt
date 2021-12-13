@@ -1,5 +1,5 @@
 # Reference: https://cmake.org/cmake/help/latest/guide/tutorial/index.html
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.18)
 
 # set the project name and version
 # Reference: https://stackoverflow.com/a/41651622/6667035
@@ -133,5 +133,8 @@ macro(print_all_variables)
     message(STATUS "print_all_variables------------------------------------------}")
 endmacro()
 
-cmake_language(CALL print_all_variables)
+IF (CMAKE_VERSION VERSION_GREATER_EQUAL "3.18")
+  cmake_language(CALL print_all_variables)
+endif()
+
 
