@@ -343,7 +343,7 @@ namespace TinyDIP
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto pixelwiseOperation(ExPo execution_policy, auto op, const Image<InputT>& input1)
     {
-        auto output = TinyDIP::Image(
+        auto output = Image(
             recursive_transform<unwrap_level>(
                 execution_policy,
                 [&](auto&& element1) 
@@ -407,7 +407,7 @@ namespace TinyDIP
     template<typename ElementT>
     constexpr static auto concat_horizontal(std::vector<Image<ElementT>> input)
     {
-        //return TinyDIP::recursive_reduce(input, TinyDIP::Image<ElementT>(0, input[0].getHeight()), [](Image<ElementT> element1, Image<ElementT> element2) { return TinyDIP::concat_horizontal(element1, element2); });
+        //return recursive_reduce(input, Image<ElementT>(0, input[0].getHeight()), [](Image<ElementT> element1, Image<ElementT> element2) { return concat_horizontal(element1, element2); });
         auto output = input[0];
         for (std::size_t i = 1; i < input.size(); i++)
         {
