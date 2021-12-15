@@ -28,6 +28,12 @@ if(APPLE)           # Reference: https://stackoverflow.com/a/40152725/6667035
     set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-11")
 endif()
 
+if(UNIX AND NOT APPLE)
+    # for Linux, BSD, Solaris, Minix
+    set(CMAKE_C_COMPILER "/usr/bin/gcc")
+    set(CMAKE_CXX_COMPILER "/usr/bin/g++-11")
+endif()
+
 # Using different command for compiling
 # Reference: https://stackoverflow.com/a/10055571/6667035
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
