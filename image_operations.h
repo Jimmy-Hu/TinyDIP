@@ -452,7 +452,7 @@ namespace TinyDIP
     template<typename ElementT>
     constexpr static auto concat(std::vector<std::vector<Image<ElementT>>> input)
     {
-        auto result1 = TinyDIP::recursive_transform<1>(
+        auto result1 = recursive_transform<1>(
             //std::execution::par,
             [](std::vector<Image<ElementT>> input) { return concat_horizontal(input); },
             input);
