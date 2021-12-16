@@ -538,8 +538,8 @@ namespace TinyDIP
         const size_t centerx, const size_t centery,
         const InputT standard_deviation_x, const InputT standard_deviation_y)
     {
-        auto output = TinyDIP::Image<InputT>(xsize, ysize);
-        auto row_vector_x = TinyDIP::Image<InputT>(xsize, 1);
+        auto output = Image<InputT>(xsize, ysize);
+        auto row_vector_x = Image<InputT>(xsize, 1);
         for (size_t x = 0; x < xsize; ++x)
         {
             row_vector_x.at(x, 0) = normalDistribution1D(static_cast<InputT>(x) - static_cast<InputT>(centerx), standard_deviation_x);
