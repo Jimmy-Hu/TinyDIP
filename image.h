@@ -200,6 +200,8 @@ namespace TinyDIP
 
         friend bool operator!=(Image<ElementT> const&, Image<ElementT> const&) = default;
 
+        friend Image<ElementT> operator+(const Image<ElementT>& input1, const Image<ElementT>& input2);
+
         Image<ElementT>& operator=(Image<ElementT> const& input) = default;  //  Copy Assign
 
         Image<ElementT>& operator=(Image<ElementT>&& other) = default;       //  Move Assign
