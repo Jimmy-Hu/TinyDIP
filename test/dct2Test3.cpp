@@ -7,15 +7,17 @@
 #include "../image_io.h"
 #include "../image_operations.h"
 
-template<class ElementT>
-constexpr static auto get_offset( const TinyDIP::Image<ElementT>& input,
+template<class ExPo, class ElementT>
+requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+constexpr static auto get_offset( ExPo execution_policy, 
+	                              const TinyDIP::Image<ElementT>& input,
 	                              const std::vector<TinyDIP::Image<ElementT>>& dictionary_x,
 	                              const std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
 	                              const ElementT sigma, const ElementT threshold) noexcept
 {
 	auto output = TinyDIP::Image(input.getWidth(), input.getHeight(), ElementT{});
 	auto weights = TinyDIP::recursive_transform<1>(
-		std::execution::par,
+		execution_policy,
 		[&](auto&& element)
 		{ 
 			return TinyDIP::normalDistribution1D(TinyDIP::manhattan_distance(input, element), sigma);
