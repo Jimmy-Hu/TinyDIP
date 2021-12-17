@@ -645,6 +645,16 @@ namespace TinyDIP
         return TinyDIP::pixelwiseOperation(std::multiplies<>{}, input1, multiplies(inputs...));
     }
 
+    template<class InputT, class... Args>
+    constexpr static auto multiplies(const std::vector<Image<InputT>>& input1, const Args&... inputs)
+    {
+        return TinyDIP::recursive_transform<1>(
+            [](auto&& input1_element, auto&&... inputs_element)
+            {
+                return multiplies(input1_element, inputs_element...);
+            }, input1, inputs...);
+    }
+
     template<class InputT>
     constexpr static Image<InputT> divides(const Image<InputT>& input1, const Image<InputT>& input2)
     {
