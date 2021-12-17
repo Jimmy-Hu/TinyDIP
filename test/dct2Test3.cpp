@@ -64,7 +64,7 @@ void each_image( const std::string input_path, const std::string output_path,
 
 	auto output_dct_blocks = TinyDIP::recursive_transform<2>(
 		std::execution::par,
-		[&](auto&& element) { return TinyDIP::plus(element, get_offset(element, dictionary_x, dictionary_y, sigma, std::pow(10, -30))); },
+		[&](auto&& element) { return TinyDIP::plus(element, get_offset(std::execution::par, dictionary_x, dictionary_y, sigma, std::pow(10, -30))); },
 		input_dct_blocks
 		);
 	std::cout << "Save output to " << output_path << '\n';
