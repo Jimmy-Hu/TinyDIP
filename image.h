@@ -58,7 +58,10 @@ namespace TinyDIP
             width(newWidth),
             height(newHeight)
         {
-            assert(input.size() == newWidth * newHeight);
+            if (input.size() != newWidth * newHeight)
+            {
+                throw exception("Image data input and the given size are mismatched!");
+            }
             image_data = input;   //  Deep copy
         }
 
