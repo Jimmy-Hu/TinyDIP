@@ -595,6 +595,16 @@ namespace TinyDIP
         return TinyDIP::pixelwiseOperation(std::plus<>{}, input1, plus(inputs...));
     }
 
+    template<class InputT, class... Args>
+    constexpr static auto plus(const std::vector<Image<InputT>>& input1, const Args&... inputs)
+    {
+        return TinyDIP::recursive_transform<1>(
+            [](auto&& input1_element, auto&&... inputs_element)
+            {
+                return plus(input1_element, inputs_element...);
+            }, input1, inputs...);
+    }
+
     template<class InputT>
     constexpr static Image<InputT> subtract(const Image<InputT>& input1, const Image<InputT>& input2)
     {
