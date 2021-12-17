@@ -61,7 +61,7 @@ namespace TinyDIP
         {
             if (input.size() != newWidth * newHeight)
             {
-                throw std::exception("Image data input and the given size are mismatched!");
+                throw std::runtime_error("Image data input and the given size are mismatched!");
             }
             image_data = input;   //  Deep copy
         }
