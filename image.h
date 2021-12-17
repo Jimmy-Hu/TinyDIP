@@ -164,8 +164,8 @@ namespace TinyDIP
         {
             assert(rhs.width == this->width);
             assert(rhs.height == this->height);
-            std::transform(image_data.cbegin(), image_data.cend(), rhs.image_data.cbegin(),
-                   image_data.begin(), std::plus<>{});
+            std::transform(std::ranges::cbegin(image_data), std::ranges::cend(image_data), std::ranges::cbegin(rhs.image_data),
+                   std::ranges::begin(image_data), std::plus<>{});
             return *this;
         }
 
