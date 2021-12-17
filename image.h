@@ -9,6 +9,7 @@
 #include <chrono>
 #include <complex>
 #include <concepts>
+#include <exception>
 #include <fstream>
 #include <functional>
 #include <iostream>
