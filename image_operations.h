@@ -612,6 +612,16 @@ namespace TinyDIP
         return TinyDIP::pixelwiseOperation(std::minus<>{}, input1, input2);
     }
 
+    template<class InputT>
+    constexpr static Image<InputT> subtract(const std::vector<Image<InputT>>& input1, const std::vector<Image<InputT>>& input2)
+    {
+        return TinyDIP::recursive_transform<1>(
+            [](auto&& input1_element, auto&& input2_element)
+            {
+                return subtract(input1_element, input2_element);
+            }, input1, input2);
+    }
+
     template<class InputT = RGB>
     requires (std::same_as<InputT, RGB>)
     constexpr static Image<InputT> subtract(const Image<InputT>& input1, const Image<InputT>& input2)
