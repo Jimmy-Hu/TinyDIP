@@ -109,7 +109,7 @@ constexpr static auto dictionaryBasedNonlocalMean(  ExPo execution_policy,
     
     for (std::size_t i = 0; i < outputs.size(); ++i)
     {
-        output = TinyDIP::plus(output, outputs[i]);
+        output += outputs[i];
     }
     output = TinyDIP::divides(output, TinyDIP::n_dim_vector_generator<1>(TinyDIP::Image(output[0].getWidth(), output[0].getHeight(), sum_of_weights), output.size()));
     return output;
