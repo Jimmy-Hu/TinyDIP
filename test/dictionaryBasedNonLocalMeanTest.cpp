@@ -71,7 +71,7 @@ constexpr static auto dictionaryBasedNonlocalMean(  ExPo execution_policy,
                                                     const std::vector<TinyDIP::Image<ElementT>>& input,
                                                     const double gaussian_sigma = 3.0,
                                                     const double gaussian_mean = 0,
-                                                    const double threshold = 1e-160)
+                                                    const double threshold = 1e-160) noexcept
 {
     std::vector<TinyDIP::Image<ElementT>> output = 
         TinyDIP::n_dim_vector_generator<1>(
@@ -80,8 +80,7 @@ constexpr static auto dictionaryBasedNonlocalMean(  ExPo execution_policy,
     auto code_words_y = std::get<1>(dictionary);
     if (code_words_x.size() != code_words_y.size())
     {
-        std::cerr << "Size of data in dictionary incorrect.";
-        return output;
+        throw std::runtime_error("Size of data in dictionary incorrect.");
     }
     auto weights = TinyDIP::recursive_transform<1>(
         execution_policy,
