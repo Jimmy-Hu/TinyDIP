@@ -592,7 +592,7 @@ namespace TinyDIP
     template<class InputT, class... Args>
     constexpr static Image<InputT> plus(const Image<InputT>& input1, const Args&... inputs)
     {
-        return TinyDIP::pixelwiseOperation(std::plus<>{}, input1, plus(inputs...));
+        return pixelwiseOperation(std::plus<>{}, input1, plus(inputs...));
     }
 
     template<class InputT, class... Args>
