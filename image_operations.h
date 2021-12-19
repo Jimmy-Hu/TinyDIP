@@ -837,10 +837,10 @@ namespace TinyDIP
         return TinyDIP::pixelwiseOperation(execution_policy, [](auto&& element) { return std::abs(element); }, input);
     }
 
-    template<TinyDIP::arithmetic ElementT = double>
+    template<arithmetic ElementT = double>
     constexpr static auto difference(const Image<ElementT>& input1, const Image<ElementT>& input2)
     {
-        return TinyDIP::abs(TinyDIP::subtract(input1, input2));
+        return pixelwiseOperation([](auto&& element1, auto&& element2) { return std::abs(element1 - element2); }, input1, input2);
     }
 
     template<TinyDIP::arithmetic ElementT = double>
