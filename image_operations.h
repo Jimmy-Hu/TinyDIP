@@ -598,7 +598,7 @@ namespace TinyDIP
     template<class InputT, class... Args>
     constexpr static auto plus(const std::vector<Image<InputT>>& input1, const Args&... inputs)
     {
-        return TinyDIP::recursive_transform<1>(
+        return recursive_transform<1>(
             [](auto&& input1_element, auto&&... inputs_element)
             {
                 return plus(input1_element, inputs_element...);
