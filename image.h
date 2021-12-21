@@ -205,7 +205,10 @@ namespace TinyDIP
             return input1 += input2;
         }
 
-        friend Image<ElementT> operator-(const Image<ElementT>& input1, const Image<ElementT>& input2);
+        friend Image<ElementT> operator-(const Image<ElementT>& input1, const Image<ElementT>& input2)
+        {
+            return input1 -= input2;
+        }
 
         Image<ElementT>& operator=(Image<ElementT> const& input) = default;  //  Copy Assign
 
@@ -266,12 +269,6 @@ namespace TinyDIP
 #endif
 
     };
-
-    template<class ElementT>
-    Image<ElementT> operator-(const Image<ElementT>& input1, const Image<ElementT>& input2)
-    {
-        return subtract(input1, input2);
-    }
 
     template<typename T, typename ElementT>
     concept is_Image = std::is_same_v<T, Image<ElementT>>;
