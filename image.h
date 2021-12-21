@@ -268,12 +268,6 @@ namespace TinyDIP
     };
 
     template<class ElementT>
-    Image<ElementT> operator+(const Image<ElementT>& input1, const Image<ElementT>& input2)
-    {
-        return plus(input1, input2);
-    }
-
-    template<class ElementT>
     Image<ElementT> operator-(const Image<ElementT>& input1, const Image<ElementT>& input2)
     {
         return subtract(input1, input2);
