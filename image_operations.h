@@ -609,7 +609,7 @@ namespace TinyDIP
     constexpr static Image<InputT> subtract(const Image<InputT>& input1, const Image<InputT>& input2)
     {
         is_size_same(input1, input2);
-        return TinyDIP::pixelwiseOperation(std::minus<>{}, input1, input2);
+        return pixelwiseOperation(std::minus<>{}, input1, input2);
     }
 
     template<class InputT>
