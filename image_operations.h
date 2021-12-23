@@ -615,7 +615,7 @@ namespace TinyDIP
     template<class InputT>
     constexpr static Image<InputT> subtract(const std::vector<Image<InputT>>& input1, const std::vector<Image<InputT>>& input2)
     {
-        return TinyDIP::recursive_transform<1>(
+        return recursive_transform<1>(
             [](auto&& input1_element, auto&& input2_element)
             {
                 return subtract(input1_element, input2_element);
