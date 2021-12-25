@@ -649,14 +649,14 @@ namespace TinyDIP
     template<class InputT>
     constexpr static Image<InputT> multiplies(const Image<InputT>& input1, const Image<InputT>& input2)
     {
-        return TinyDIP::pixelwiseOperation(std::multiplies<>{}, input1, input2);
+        return pixelwiseOperation(std::multiplies<>{}, input1, input2);
     }
 
     template<class ExPo, class InputT>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static Image<InputT> multiplies(ExPo execution_policy, const Image<InputT>& input1, const Image<InputT>& input2)
     {
-        return TinyDIP::pixelwiseOperation(execution_policy, std::multiplies<>{}, input1, input2);
+        return pixelwiseOperation(execution_policy, std::multiplies<>{}, input1, input2);
     }
 
     template<class InputT, class... Args>
