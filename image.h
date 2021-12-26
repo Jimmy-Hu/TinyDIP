@@ -55,7 +55,7 @@ namespace TinyDIP
             height(height),
             image_data(width * height, initVal) {}
 
-        Image(const std::vector<ElementT> input, std::size_t newWidth, std::size_t newHeight):
+        Image(std::vector<ElementT> input, std::size_t newWidth, std::size_t newHeight):
             width(newWidth),
             height(newHeight)
         {
