@@ -100,7 +100,7 @@ namespace TinyDIP
             return height;
         }
 
-        constexpr auto getSize()
+        constexpr auto getSize() noexcept
         {
             return std::make_tuple(width, height);
         }
