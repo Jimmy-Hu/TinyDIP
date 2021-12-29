@@ -711,7 +711,7 @@ namespace TinyDIP
     }
 
     template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
-    constexpr static Image<ElementT> dct3_detail(const std::vector<Image<ElementT>>& input, const int plane_index)
+    constexpr static Image<ElementT> dct3_detail(const std::vector<Image<ElementT>>& input, const std::size_t plane_index)
     {
         std::size_t N3 = input.size();
         OutputT alpha1 = (plane_index == 0) ? (static_cast<OutputT>(1.0) / static_cast<OutputT>(std::sqrt(2))) : (static_cast<OutputT>(1.0));
