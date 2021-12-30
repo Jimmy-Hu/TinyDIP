@@ -748,7 +748,7 @@ namespace TinyDIP
         return output;
     }
 
-    template<TinyDIP::arithmetic ElementT = double, TinyDIP::arithmetic OutputT = ElementT>
+    template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
     constexpr static std::vector<Image<ElementT>> dct3(std::vector<Image<ElementT>> input)
     {
         std::vector<Image<ElementT>> output;
