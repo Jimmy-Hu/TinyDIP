@@ -715,7 +715,7 @@ namespace TinyDIP
     {
         std::size_t N3 = input.size();
         OutputT alpha1 = (plane_index == 0) ? (static_cast<OutputT>(1.0) / static_cast<OutputT>(std::sqrt(2))) : (static_cast<OutputT>(1.0));
-        auto output = TinyDIP::Image<OutputT>(input[plane_index].getWidth(), input[plane_index].getHeight());
+        auto output = Image<OutputT>(input[plane_index].getWidth(), input[plane_index].getHeight());
         for (std::size_t y = 0; y < output.getHeight(); y++)
         {
             OutputT alpha2 = (y == 0) ? (static_cast<OutputT>(1.0) / static_cast<OutputT>(std::sqrt(2))) : (static_cast<OutputT>(1.0));
