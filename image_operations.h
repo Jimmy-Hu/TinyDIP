@@ -732,9 +732,9 @@ namespace TinyDIP
                     {
                         for (std::size_t inner_x = 0; inner_x < plane.getWidth(); ++inner_x)
                         {
-                            auto l1 = (std::numbers::pi / (2 * N1) * (2 * static_cast<OutputT>(inner_x) + 1) * x);
-                            auto l2 = (std::numbers::pi / (2 * N2) * (2 * static_cast<OutputT>(inner_y) + 1) * y);
-                            auto l3 = (std::numbers::pi / (2 * static_cast<OutputT>(N3)) * (2 * static_cast<OutputT>(inner_z) + 1) * static_cast<OutputT>(plane_index));
+                            auto l1 = (std::numbers::pi_v<OutputT> / (2 * N1) * (2 * static_cast<OutputT>(inner_x) + 1) * x);
+                            auto l2 = (std::numbers::pi_v<OutputT> / (2 * N2) * (2 * static_cast<OutputT>(inner_y) + 1) * y);
+                            auto l3 = (std::numbers::pi_v<OutputT> / (2 * static_cast<OutputT>(N3)) * (2 * static_cast<OutputT>(inner_z) + 1) * static_cast<OutputT>(plane_index));
                             sum += static_cast<OutputT>(plane.at(inner_x, inner_y)) *
                                 std::cos(l1) * std::cos(l2) * std::cos(l3);
                         }
