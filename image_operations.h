@@ -714,15 +714,15 @@ namespace TinyDIP
     constexpr Image<OutputT> dct3_detail(const std::vector<Image<ElementT>>& input, const std::size_t plane_index)
     {
         auto N3 = input.size();
-        OutputT alpha1 = (plane_index == 0) ? (static_cast<OutputT>(1.0) / static_cast<OutputT>(std::sqrt(2))) : (static_cast<OutputT>(1.0));
+        auto alpha1 = (plane_index == 0) ? (std::numbers::sqrt2_v<OutputT> / 2) : (static_cast<OutputT>(1.0));
         auto output = Image<OutputT>(input[plane_index].getWidth(), input[plane_index].getHeight());
         for (std::size_t y = 0; y < output.getHeight(); ++y)
         {
-            OutputT alpha2 = (y == 0) ? (static_cast<OutputT>(1.0) / static_cast<OutputT>(std::sqrt(2))) : (static_cast<OutputT>(1.0));
+            OutputT alpha2 = (y == 0) ? (std::numbers::sqrt2_v<OutputT> / 2) : (static_cast<OutputT>(1.0));
             for (std::size_t x = 0; x < output.getWidth(); ++x)
             {
                 OutputT sum{};
-                OutputT alpha3 = (x == 0) ? (static_cast<OutputT>(1.0) / static_cast<OutputT>(std::sqrt(2))) : (static_cast<OutputT>(1.0));
+                OutputT alpha3 = (x == 0) ? (std::numbers::sqrt2_v<OutputT> / 2) : (static_cast<OutputT>(1.0));
                 for (std::size_t inner_z = 0; inner_z < N3; ++inner_z)
                 {
                     auto plane = input[inner_z];
