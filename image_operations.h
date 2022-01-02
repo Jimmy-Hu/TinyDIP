@@ -761,9 +761,9 @@ namespace TinyDIP
     }
 
     template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
-    constexpr static Image<ElementT> idct3_detail(std::vector<Image<ElementT>> input, int plane_index)
+    constexpr Image<OutputT> idct3_detail(const std::vector<Image<ElementT>>& input, const std::size_t plane_index)
     {
-        std::size_t N3 = input.size();
+        auto N3 = input.size();
         auto output = Image<OutputT>(input[plane_index].getWidth(), input[plane_index].getHeight());
         for (std::size_t y = 0; y < output.getHeight(); y++)
         {
