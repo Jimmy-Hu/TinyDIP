@@ -710,9 +710,11 @@ namespace TinyDIP
         return TinyDIP::pixelwiseOperation(std::negate<>{}, input1);
     }
 
-    template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
-    constexpr Image<OutputT> dct3_detail(const std::vector<Image<ElementT>>& input, const std::size_t plane_index)
+    template<std::floating_point ElementT = double, std::floating_point OutputT = ElementT>
+    Image<OutputT> dct3_detail(const std::vector<Image<ElementT>>& input, const std::size_t plane_index)
     {
+        auto N1 = static_cast<OutputT>(input[0].getWidth());
+        auto N2 = static_cast<OutputT>(input[0].getHeight());
         auto N3 = input.size();
         auto alpha1 = (plane_index == 0) ? (std::numbers::sqrt2_v<OutputT> / 2) : (OutputT{1.0});
         auto output = Image<OutputT>(input[plane_index].getWidth(), input[plane_index].getHeight());
@@ -726,8 +728,6 @@ namespace TinyDIP
                 for (std::size_t inner_z = 0; inner_z < N3; ++inner_z)
                 {
                     auto plane = input[inner_z];
-                    auto N1 = static_cast<OutputT>(plane.getWidth());
-                    auto N2 = static_cast<OutputT>(plane.getHeight());
                     for (std::size_t inner_y = 0; inner_y < plane.getHeight(); ++inner_y)
                     {
                         for (std::size_t inner_x = 0; inner_x < plane.getWidth(); ++inner_x)
@@ -740,8 +740,6 @@ namespace TinyDIP
                         }
                     }
                 }
-                auto N1 = static_cast<OutputT>(input[0].getWidth());
-                auto N2 = static_cast<OutputT>(input[0].getHeight());
                 output.at(x, y) = 8 * alpha1 * alpha2 * alpha3 * sum / (N1 * N2 * N3);
             }
         }
