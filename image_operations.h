@@ -752,10 +752,10 @@ namespace TinyDIP
     constexpr std::vector<Image<OutputT>> dct3(const std::vector<Image<ElementT>>& input)
     {
         std::vector<Image<OutputT>> output;
-        output.reserve(input.size());
+        output.resize(input.size());
         for (std::size_t i = 0; i < input.size(); ++i)
         {
-            output.emplace_back(dct3_detail<ElementT, OutputT>(input, i));
+            output[i] = dct3_detail<ElementT, OutputT>(input, i);
         }
         return output;
     }
