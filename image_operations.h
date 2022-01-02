@@ -794,14 +794,14 @@ namespace TinyDIP
         return output;
     }
 
-    template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
-    constexpr std::vector<Image<OutputT>> idct3(const std::vector<Image<ElementT>>& input)
+    template<std::floating_point ElementT = double, std::floating_point OutputT = ElementT>
+    std::vector<Image<OutputT>> idct3(const std::vector<Image<ElementT>>& input)
     {
         std::vector<Image<OutputT>> output;
-        output.reserve(input.size());
+        output.resize(input.size());
         for (std::size_t i = 0; i < input.size(); ++i)
         {
-            output.emplace_back(idct3_detail(input, i));
+            output[i] = idct3_detail<ElementT, OutputT>(input, i);
         }
         return output;
     }
