@@ -753,7 +753,7 @@ namespace TinyDIP
     {
         std::vector<Image<OutputT>> output;
         output.reserve(input.size());
-        for (std::size_t i = 0; i < input.size(); i++)
+        for (std::size_t i = 0; i < input.size(); ++i)
         {
             output.emplace_back(dct3_detail<ElementT, OutputT>(input, i));
         }
