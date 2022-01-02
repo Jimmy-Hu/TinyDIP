@@ -749,7 +749,7 @@ namespace TinyDIP
     }
 
     template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
-    constexpr std::vector<Image<ElementT>> dct3(const std::vector<Image<ElementT>>& input)
+    constexpr std::vector<Image<OutputT>> dct3(const std::vector<Image<ElementT>>& input)
     {
         std::vector<Image<OutputT>> output;
         output.reserve(input.size());
