@@ -695,7 +695,7 @@ namespace TinyDIP
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static Image<InputT> divides(ExPo execution_policy, const Image<InputT>& input1, const Image<InputT>& input2)
     {
-        return TinyDIP::pixelwiseOperation(execution_policy, std::divides<>{}, input1, input2);
+        return pixelwiseOperation(execution_policy, std::divides<>{}, input1, input2);
     }
     
     template<class InputT>
