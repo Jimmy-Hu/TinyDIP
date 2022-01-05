@@ -701,7 +701,7 @@ namespace TinyDIP
     template<class InputT>
     constexpr static Image<InputT> modulus(const Image<InputT>& input1, const Image<InputT>& input2)
     {
-        return TinyDIP::pixelwiseOperation(std::modulus<>{}, input1, input2);
+        return pixelwiseOperation(std::modulus<>{}, input1, input2);
     }
 
     template<class InputT>
