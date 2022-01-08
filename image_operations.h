@@ -806,7 +806,7 @@ namespace TinyDIP
         return output;
     }
 
-    template<TinyDIP::arithmetic ElementT = double, TinyDIP::arithmetic OutputT = ElementT>
+    template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
     constexpr static Image<ElementT> dct2(Image<ElementT> input)
     {
         Image<ElementT> output;
