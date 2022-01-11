@@ -20,6 +20,12 @@ namespace TinyDIP
         return x.getWidth() == y.getWidth();
     }
 
+    template<typename ElementT>
+    constexpr bool is_height_same(const Image<ElementT>& x, const Image<ElementT>& y)
+    {
+        return x.getHeight() == y.getHeight();
+    }
+
     static auto rgb2hsv(RGB input)
     {
         HSV output{};
