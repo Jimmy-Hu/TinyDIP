@@ -14,6 +14,10 @@
 
 namespace TinyDIP
 {
+    // Forward Declaration class Image
+    template <typename ElementT>
+    class Image;
+
     template<typename ElementT>
     constexpr bool is_width_same(const Image<ElementT>& x, const Image<ElementT>& y)
     {
@@ -115,10 +119,6 @@ namespace TinyDIP
         }
         return output;
     }
-
-    // Forward Declaration class Image
-    template <typename ElementT>
-    class Image;
 
     template<arithmetic T = GrayScale, typename OutputT = RGB>
     requires (std::same_as<T, GrayScale>)
