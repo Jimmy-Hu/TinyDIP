@@ -12,8 +12,6 @@
 #include "basic_functions.h"
 #include "image.h"
 
-#define is_size_same(x, y) {assert(x.getWidth() == y.getWidth()); assert(x.getHeight() == y.getHeight());}
-
 namespace TinyDIP
 {
     static auto rgb2hsv(RGB input)
