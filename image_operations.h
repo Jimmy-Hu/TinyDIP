@@ -36,6 +36,12 @@ namespace TinyDIP
         return is_width_same(x, y) && is_height_same(x, y);
     }
 
+    template<typename ElementT>
+    constexpr void assert_width_same(const Image<ElementT>& x, const Image<ElementT>& y)
+    {
+        assert(is_width_same(x, y));
+    }
+
     static auto rgb2hsv(RGB input)
     {
         HSV output{};
