@@ -48,6 +48,13 @@ namespace TinyDIP
         assert(is_height_same(x, y));
     }
 
+    template<typename ElementT>
+    constexpr void assert_size_same(const Image<ElementT>& x, const Image<ElementT>& y)
+    {
+        assert_width_same(x, y);
+        assert_height_same(x, y);
+    }
+
     static auto rgb2hsv(RGB input)
     {
         HSV output{};
