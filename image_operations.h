@@ -88,10 +88,10 @@ namespace TinyDIP
     static auto rgb2hsv(RGB input)
     {
         HSV output{};
-        BYTE Red = input.channels[0], Green = input.channels[1], Blue = input.channels[2];
-        std::vector<BYTE> v{ Red, Green, Blue };
+        std::uint8_t Red = input.channels[0], Green = input.channels[1], Blue = input.channels[2];
+        std::vector<std::uint8_t> v{ Red, Green, Blue };
         std::ranges::sort(v);
-        BYTE Max = v[2], Mid = v[1], Min = v[0];
+        std::uint8_t Max = v[2], Mid = v[1], Min = v[0];
 
         auto H1 = std::acos(0.5 * ((Red - Green) + (Red - Blue)) /
             std::sqrt(((std::pow((Red - Green), 2.0)) +
@@ -124,7 +124,7 @@ namespace TinyDIP
     {
         RGB output{};
         long double H = input.channels[0], S = input.channels[1], Max = input.channels[2];
-        BYTE hi = static_cast<BYTE>(floor(H / 60.0));
+        std::uint8_t hi = static_cast<std::uint8_t>(floor(H / 60.0));
         long double f = (H / 60.0) - hi;
         long double Min, q, t;
         Min = Max * (1.0 - S);
@@ -132,39 +132,39 @@ namespace TinyDIP
         t = Max * (1.0 - (1.0 - f) * S);
         if (hi == 0)
         {
-            output.channels[0] = static_cast<BYTE>(Max);
-            output.channels[1] = static_cast<BYTE>(t);
-            output.channels[2] = static_cast<BYTE>(Min);
+            output.channels[0] = static_cast<std::uint8_t>(Max);
+            output.channels[1] = static_cast<std::uint8_t>(t);
+            output.channels[2] = static_cast<std::uint8_t>(Min);
         }
         else if (hi == 1)
         {
-            output.channels[0] = static_cast<BYTE>(q);
-            output.channels[1] = static_cast<BYTE>(Max);
-            output.channels[2] = static_cast<BYTE>(Min);
+            output.channels[0] = static_cast<std::uint8_t>(q);
+            output.channels[1] = static_cast<std::uint8_t>(Max);
+            output.channels[2] = static_cast<std::uint8_t>(Min);
         }
         else if (hi == 2)
         {
-            output.channels[0] = static_cast<BYTE>(Min);
-            output.channels[1] = static_cast<BYTE>(Max);
-            output.channels[2] = static_cast<BYTE>(t);
+            output.channels[0] = static_cast<std::uint8_t>(Min);
+            output.channels[1] = static_cast<std::uint8_t>(Max);
+            output.channels[2] = static_cast<std::uint8_t>(t);
         }
         else if (hi == 3)
         {
-            output.channels[0] = static_cast<BYTE>(Min);
-            output.channels[1] = static_cast<BYTE>(q);
-            output.channels[2] = static_cast<BYTE>(Max);
+            output.channels[0] = static_cast<std::uint8_t>(Min);
+            output.channels[1] = static_cast<std::uint8_t>(q);
+            output.channels[2] = static_cast<std::uint8_t>(Max);
         }
         else if (hi == 4)
         {
-            output.channels[0] = static_cast<BYTE>(t);
-            output.channels[1] = static_cast<BYTE>(Min);
-            output.channels[2] = static_cast<BYTE>(Max);
+            output.channels[0] = static_cast<std::uint8_t>(t);
+            output.channels[1] = static_cast<std::uint8_t>(Min);
+            output.channels[2] = static_cast<std::uint8_t>(Max);
         }
         else if (hi == 5)
         {
-            output.channels[0] = static_cast<BYTE>(Max);
-            output.channels[1] = static_cast<BYTE>(Min);
-            output.channels[2] = static_cast<BYTE>(q);
+            output.channels[0] = static_cast<std::uint8_t>(Max);
+            output.channels[1] = static_cast<std::uint8_t>(Min);
+            output.channels[2] = static_cast<std::uint8_t>(q);
         }
         return output;
     }
