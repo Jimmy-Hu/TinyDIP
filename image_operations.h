@@ -173,9 +173,9 @@ namespace TinyDIP
     requires (std::same_as<T, GrayScale>)
     constexpr static auto constructRGB(Image<T> r, Image<T> g, Image<T> b)
     {
-        is_size_same(r, g);
-        is_size_same(g, b);
-        is_size_same(r, b);
+        check_size_same(r, g);
+        check_size_same(g, b);
+        check_size_same(r, b);
         auto output = Image<OutputT>(r.getWidth(), r.getHeight());
         for (std::size_t y = 0; y < r.getHeight(); y++)
         {
