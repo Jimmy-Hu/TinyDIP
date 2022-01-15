@@ -34,7 +34,7 @@ void dct3DetailTest()
 	}
 	print3(test_input);
 
-	auto test_output = TinyDIP::dct3_detail(test_input, 0);
+	auto test_output = TinyDIP::dct3_one_plane(test_input, 0);
 	test_output.print();
 }
 

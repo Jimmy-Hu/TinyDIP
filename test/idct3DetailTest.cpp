@@ -33,12 +33,12 @@ void idct3DetailTest(const std::size_t N1, const std::size_t N2, const std::size
 	}
 	print3(test_input);
 
-	auto dct_plane = TinyDIP::dct3_detail(test_input, 0);
+	auto dct_plane = TinyDIP::dct3_one_plane(test_input, 0);
 
 	std::vector<decltype(dct_plane)> dct_planes;
 	for (std::size_t z = 0; z < N3; z++)
 	{
-		dct_planes.push_back(TinyDIP::dct3_detail(test_input, z));
+		dct_planes.push_back(TinyDIP::dct3_one_plane(test_input, z));
 	}
 	
 	auto idct_result = TinyDIP::idct3_detail(dct_planes, 0);
