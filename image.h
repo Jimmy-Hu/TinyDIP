@@ -116,7 +116,7 @@ namespace TinyDIP
             return std::make_tuple(width, height);
         }
 
-        std::vector<ElementT> const& getImageData() const { return image_data; }      //  expose the internal data
+        std::vector<ElementT> const& getImageData() const noexcept { return image_data; }      //  expose the internal data
 
         void print(std::string separator = "\t", std::ostream& os = std::cout) const
         {
