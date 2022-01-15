@@ -35,6 +35,12 @@ namespace TinyDIP
     {
         return x.getHeight() == y.getHeight();
     }
+
+    template<typename ElementT>
+    constexpr bool is_height_same(const Image<ElementT>& x, const Image<ElementT>& y, const Image<ElementT>& z)
+    {
+        return is_height_same(x, y) && is_height_same(y, z) && is_height_same(x, z);
+    }
     
     template<typename ElementT>
     constexpr bool is_size_same(const Image<ElementT>& x, const Image<ElementT>& y)
