@@ -66,6 +66,17 @@ namespace TinyDIP
             image_data = input;
         }
 
+        Image(std::vector<ElementT>&& input, std::size_t newWidth, std::size_t newHeight):
+            width(newWidth),
+            height(newHeight)
+        {
+            if (input.size() != newWidth * newHeight)
+            {
+                throw std::runtime_error("Image data input and the given size are mismatched!");
+            }
+            image_data = std::move(input);
+        }
+
         Image(const std::vector<std::vector<ElementT>>& input)
         {
             height = input.size();
