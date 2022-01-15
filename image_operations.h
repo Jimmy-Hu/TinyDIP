@@ -93,6 +93,15 @@ namespace TinyDIP
         assert_size_same(x, z);
     }
 
+    template<typename ElementT>
+    constexpr void check_size_same(const Image<ElementT>& x, const Image<ElementT>& y)
+    {
+        if (!is_width_same(x, y))
+            throw std::runtime_error("Width mismatched!");
+        if (!is_height_same(x, y))
+            throw std::runtime_error("Height mismatched!");
+    }
+
     static auto rgb2hsv(RGB input)
     {
         HSV output{};
