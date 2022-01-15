@@ -3,6 +3,7 @@
 #ifndef BASE_H
 #define BASE_H
 
+#include <cstdint>
 #include <filesystem>
 #include <math.h>
 #include <stdio.h>
