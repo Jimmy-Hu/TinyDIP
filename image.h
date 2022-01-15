@@ -251,8 +251,10 @@ namespace TinyDIP
 
         void checkBoundary(const size_t x, const size_t y) const
         {
-            assert(x < width);
-            assert(y < height);
+            if (x >= width)
+                throw std::out_of_range("Given x out of range!");
+            if (y >= height)
+                throw std::out_of_range("Given y out of range!");
         }
 
 #ifdef USE_BOOST_SERIALIZATION
