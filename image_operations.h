@@ -193,9 +193,9 @@ namespace TinyDIP
     requires (std::same_as<T, double>)
     constexpr static auto constructHSV(Image<T> h, Image<T> s, Image<T> v)
     {
-        is_size_same(h, s);
-        is_size_same(s, v);
-        is_size_same(h, v);
+        check_size_same(h, s);
+        check_size_same(s, v);
+        check_size_same(h, v);
         auto output = Image<OutputT>(h.getWidth(), h.getHeight());
         for (std::size_t y = 0; y < h.getHeight(); y++)
         {
