@@ -49,6 +49,12 @@ namespace TinyDIP
     }
 
     template<typename ElementT>
+    constexpr void assert_width_same(const Image<ElementT>& x, const Image<ElementT>& y, const Image<ElementT>& z)
+    {
+        assert(is_width_same(x, y, z));
+    }
+
+    template<typename ElementT>
     constexpr void assert_height_same(const Image<ElementT>& x, const Image<ElementT>& y)
     {
         assert(is_height_same(x, y));
