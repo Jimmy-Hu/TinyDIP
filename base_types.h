@@ -11,14 +11,12 @@
 #include <string>
 #include <utility>
 
-using BYTE = unsigned char;
-
 struct RGB
 {
-    BYTE channels[3];
+    std::uint8_t channels[3];
 };
 
-using GrayScale = BYTE;
+using GrayScale = std::uint8_t;
 
 struct HSV
 {
@@ -31,7 +29,7 @@ struct BMPIMAGE
     
     unsigned int XSIZE;
     unsigned int YSIZE;
-    BYTE FILLINGBYTE;
-    BYTE *IMAGE_DATA;
+    std::uint8_t FILLINGBYTE;
+    std::uint8_t*IMAGE_DATA;
 };
 #endif
