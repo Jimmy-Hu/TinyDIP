@@ -824,7 +824,7 @@ namespace TinyDIP
     }
 
     template<std::floating_point ElementT = double, std::floating_point OutputT = ElementT>
-    Image<OutputT> idct3_detail(const std::vector<Image<ElementT>>& input, const std::size_t plane_index)
+    Image<OutputT> idct3_one_plane(const std::vector<Image<ElementT>>& input, const std::size_t plane_index)
     {
         auto N1 = static_cast<OutputT>(input[0].getWidth());
         auto N2 = static_cast<OutputT>(input[0].getHeight());
@@ -866,7 +866,7 @@ namespace TinyDIP
         output.resize(input.size());
         for (std::size_t i = 0; i < input.size(); ++i)
         {
-            output[i] = idct3_detail<ElementT, OutputT>(input, i);
+            output[i] = idct3_one_plane<ElementT, OutputT>(input, i);
         }
         return output;
     }
@@ -885,7 +885,7 @@ namespace TinyDIP
     {
         Image<ElementT> output;
         std::vector v{ input };
-        output = idct3_detail(v, 0);
+        output = idct3_one_plane(v, 0);
         return output;
     }
 

@@ -41,7 +41,7 @@ void idct3DetailTest(const std::size_t N1, const std::size_t N2, const std::size
 		dct_planes.push_back(TinyDIP::dct3_one_plane(test_input, z));
 	}
 	
-	auto idct_result = TinyDIP::idct3_detail(dct_planes, 0);
+	auto idct_result = TinyDIP::idct3_one_plane(dct_planes, 0);
 	idct_result.print();
 }
 
