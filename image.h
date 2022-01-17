@@ -180,8 +180,7 @@ namespace TinyDIP
 
         Image<ElementT>& operator*=(const Image<ElementT>& rhs)
         {
-            assert(rhs.width == this->width);
-            assert(rhs.height == this->height);
+            check_size_same(rhs, *this);
             std::transform(std::ranges::cbegin(image_data), std::ranges::cend(image_data), std::ranges::cbegin(rhs.image_data),
                    std::ranges::begin(image_data), std::multiplies<>{});
             return *this;
