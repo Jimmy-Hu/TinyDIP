@@ -931,11 +931,11 @@ namespace TinyDIP
         return pixelwiseOperation([](auto&& element1, auto&& element2) { return std::abs(element1 - element2); }, input1, input2);
     }
 
-    template<TinyDIP::arithmetic ElementT = double>
+    template<arithmetic ElementT = double>
     constexpr static ElementT manhattan_distance(const Image<ElementT>& input1, const Image<ElementT>& input2)
     {
         check_size_same(input1, input2);
-        return TinyDIP::recursive_reduce(TinyDIP::difference(input1, input2).getImageData(), ElementT{});
+        return recursive_reduce(difference(input1, input2).getImageData(), ElementT{});
     }
 
     template<TinyDIP::arithmetic ElementT = double, TinyDIP::arithmetic ExpT = double>
