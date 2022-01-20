@@ -938,10 +938,10 @@ namespace TinyDIP
         return recursive_reduce(difference(input1, input2).getImageData(), ElementT{});
     }
 
-    template<TinyDIP::arithmetic ElementT = double, TinyDIP::arithmetic ExpT = double>
+    template<arithmetic ElementT = double, arithmetic ExpT = double>
     constexpr static auto pow(const Image<ElementT>& input, ExpT exp)
     {
-        return TinyDIP::pixelwiseOperation([&](auto&& element) { return std::pow(element, exp); }, input);
+        return pixelwiseOperation([&](auto&& element) { return std::pow(element, exp); }, input);
     }
 
     template<class ExPo, TinyDIP::arithmetic ElementT = double, TinyDIP::arithmetic ExpT = double>
