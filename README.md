@@ -37,7 +37,7 @@ TinyDIP library could be built with [CMake](https://cmake.org/) as the following
     cmake --build ./build
     ```
 
-    If the parallel build process is prefered, `--parallel` flag can be added. On the other hand, if the verbose information is needed, `--verbose` flag can be added.
+    If the parallel build process is prefered, `--parallel` flag can be added. However, if you want to build in parallel, ensure the memory is large enough. On the other hand, if the verbose information is needed, `--verbose` flag can be added.
 
     ```shell
     cmake --build ./build --parallel --verbose
