@@ -110,6 +110,15 @@ namespace TinyDIP
         return get_from_variadic_template<1>(inputs...);
     }
 
+    template<std::size_t, typename, typename...>
+    struct get_from_variadic_template_struct { };
+
+    template<typename T1, typename... Ts>
+    struct get_from_variadic_template_struct<1, T1, Ts...>
+    {
+        using type = T1;
+    };
+
     //  recursive_count implementation
 
     //  recursive_count implementation (the version with unwrap_level)
