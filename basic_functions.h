@@ -119,6 +119,13 @@ namespace TinyDIP
         using type = T1;
     };
 
+    template<std::size_t index, typename T1, typename... Ts>
+    requires ( requires { typename get_from_variadic_template_struct<index - 1, Ts...>::type; })
+    struct get_from_variadic_template_struct<index, T1, Ts...>
+    {
+        using type = typename get_from_variadic_template_struct<index - 1, Ts...>::type;
+    };
+
     //  recursive_count implementation
 
     //  recursive_count implementation (the version with unwrap_level)
