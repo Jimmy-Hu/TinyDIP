@@ -3,8 +3,6 @@
 #include "../image.h"
 #include "../image_operations.h"
 
-void dct3Test();
-
 template<typename ElementT>
 void print3(std::vector<TinyDIP::Image<ElementT>> input)
 {
@@ -13,12 +11,6 @@ void print3(std::vector<TinyDIP::Image<ElementT>> input)
 		input[i].print();
 		std::cout << "*******************\n";
 	}
-}
-
-int main()
-{
-	dct3Test();
-	return 0;
 }
 
 void dct3Test()
@@ -43,4 +35,15 @@ void dct3Test()
 
 	auto test_output = TinyDIP::dct3(test_input);
 	print3(test_output);
+}
+
+int main()
+{
+	auto start = std::chrono::system_clock::now();
+	dct3Test();
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> elapsed_seconds = end - start;
+	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+	std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
+	return 0;
 }
