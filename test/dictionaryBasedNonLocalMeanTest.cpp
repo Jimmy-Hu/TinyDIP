@@ -20,8 +20,8 @@ end
 template<class ElementT = double>
 constexpr static auto create_dictionary(const std::size_t ND, const std::size_t xsize, const std::size_t ysize, const std::size_t zsize)
 {
-    auto code_words_x = TinyDIP::n_dim_vector_generator<1>(std::vector<TinyDIP::Image<ElementT>>(), 10);
-    auto code_words_y = TinyDIP::n_dim_vector_generator<1>(std::vector<TinyDIP::Image<ElementT>>(), 10);
+    auto code_words_x = TinyDIP::n_dim_vector_generator<1>(std::vector<TinyDIP::Image<ElementT>>(), ND);
+    auto code_words_y = TinyDIP::n_dim_vector_generator<1>(std::vector<TinyDIP::Image<ElementT>>(), ND);
     for (std::size_t i = 0; i < ND; ++i)
     {
         code_words_x[i] = TinyDIP::n_dim_vector_generator<1>(
