@@ -513,7 +513,7 @@ namespace TinyDIP
     template<typename ElementT>
     constexpr static auto concat_vertical(Image<ElementT> input1, Image<ElementT> input2)
     {
-        assert(input1.getWidth() == input2.getWidth());
+        check_width_same(input1, input2);
         Image<ElementT> output(input1.getWidth(), input1.getHeight() + input2.getHeight());
         for (std::size_t y = 0; y < input1.getHeight(); ++y)
         {
