@@ -4,7 +4,7 @@
 #include "../image_operations.h"
 
 template<typename ElementT>
-void print3(std::vector<TinyDIP::Image<ElementT>> input)
+void print3(std::vector<TinyDIP::Image<ElementT>>& input)
 {
 	for (std::size_t i = 0; i < input.size(); i++)
 	{
