@@ -13,9 +13,9 @@ void print3(std::vector<TinyDIP::Image<ElementT>>& input)
 	}
 }
 
-void dct3Test()
+void dct3Test(const std::size_t N1 = 10)
 {
-	std::size_t N1 = 10, N2 = 10, N3 = 10;
+	std::size_t N2 = 10, N3 = 10;
 	std::vector<TinyDIP::Image<double>> test_input;
 	for (std::size_t z = 0; z < N3; z++)
 	{
