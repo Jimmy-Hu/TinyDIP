@@ -39,6 +39,7 @@ void dct3Test(const std::size_t N1 = 10, const std::size_t N2 = 10, const std::s
 int main()
 {
 	auto start = std::chrono::system_clock::now();
+	dct3Test(8, 8, 8);
 	dct3Test();
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
