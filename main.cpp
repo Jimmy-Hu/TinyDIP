@@ -199,6 +199,14 @@ void difference_and_enhancement(std::string input_path1, std::string input_path2
 
 #ifndef BOOST_TEST_MODULE
 void addLeadingZeros(std::string input_path, std::string output_path);
+
+void print(auto comment, auto const& seq, char term = ' ') {
+    for (std::cout << comment << '\n'; auto const& elem : seq)
+        std::cout << elem << term;
+    std::cout << '\n';
+}
+
+
 int main()
 {
     std::string file_path = "../../../InputImages/1";
