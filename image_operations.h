@@ -377,7 +377,7 @@ namespace TinyDIP
     }
 
     template<typename ElementT>
-    constexpr static auto subimage2(const Image<ElementT>& input, const std::size_t startx, std::size_t endx, std::size_t starty, std::size_t endy)
+    constexpr static auto subimage2(const Image<ElementT>& input, const std::size_t startx, std::size_t endx, const std::size_t starty, std::size_t endy)
     {
         assert(startx <= endx);
         assert(starty <= endy);
