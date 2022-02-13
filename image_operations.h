@@ -392,6 +392,34 @@ namespace TinyDIP
         return output;
     }
 
+    template<typename ElementT>
+    requires (std::same_as<ElementT, RGB>)
+    constexpr static auto highlight_region(
+        const Image<ElementT>& input,
+        const std::size_t startx, const std::size_t endx, const std::size_t starty, const std::size_t endy,
+        const std::size_t width = 5, const std::uint8_t value_r = 223, const std::uint8_t value_g = 0, const std::uint8_t value_b = 34)
+    {
+        assert(startx <= endx);
+        assert(starty <= endy);
+        auto output = input;
+        for (std::size_t y = starty - width / 2; y < endy + width / 2; ++y)
+        {
+            for (std::size_t x = startx - width / 2; x < endx + width / 2; ++x)
+            {
+                if (std::abs(static_cast<int>(x) - static_cast<int>(startx)) < width ||
+                    std::abs(static_cast<int>(x) - static_cast<int>(endx)) < width ||
+                    std::abs(static_cast<int>(y) - static_cast<int>(starty)) < width ||
+                    std::abs(static_cast<int>(y) - static_cast<int>(endy)) < width)
+                {
+                    output.at(x, y).channels[0] = value_r;
+                    output.at(x, y).channels[1] = value_g;
+                    output.at(x, y).channels[2] = value_b;
+                }
+            }
+        }
+        return output;
+    }
+
     /*  split function
     *   xsegments is a number for the block count in x axis
     *   ysegments is a number for the block count in y axis
