@@ -4,9 +4,8 @@
 #include "../image.h"
 #include "../image_operations.h"
 
-void idct2Test(const std::size_t N1 = 10)
+void idct2Test(const std::size_t N1 = 10, const std::size_t N2 = 10)
 {
-	std::size_t N2 = 10;
 	TinyDIP::Image<double> test_input(N1, N2);
 	for (std::size_t y = 1; y <= N2; y++)
 	{
