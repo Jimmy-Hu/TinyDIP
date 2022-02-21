@@ -10,22 +10,20 @@
 #include "../image.h"
 #include "../image_operations.h"
 
-void imageElementwiseAddTest();
+void imageElementwiseAddTest()
+{
+    auto test = TinyDIP::Image<int>(10, 10, 1);
+    test += test;
+    test.print();
+
+    auto test2 = TinyDIP::Image<int>(11, 11, 1);
+    test += test2;
+    test.print();
+}
 
 int main()
 {
     imageElementwiseAddTest();
     return 0;
-}
-
-void imageElementwiseAddTest()
-{
-    auto test = TinyDIP::Image<int>(10, 10, 1);
-    test+=test;
-    test.print();
-
-    auto test2 = TinyDIP::Image<int>(11, 11, 1);
-    test+=test2;
-    test.print();
 }
 
