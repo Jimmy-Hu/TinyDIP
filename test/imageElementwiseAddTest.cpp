@@ -10,13 +10,13 @@
 #include "../image.h"
 #include "../image_operations.h"
 
-void imageElementwiseAddTest()
+void imageElementwiseAddTest(const std::size_t N1 = 10)
 {
-    auto test = TinyDIP::Image<int>(10, 10, 1);
+    auto test = TinyDIP::Image<int>(N1, 10, 1);
     test += test;
     test.print();
 
-    auto test2 = TinyDIP::Image<int>(11, 11, 1);
+    auto test2 = TinyDIP::Image<int>(N1 + 1, 11, 1);
     test += test2;
     test.print();
 }
