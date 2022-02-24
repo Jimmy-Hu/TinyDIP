@@ -1,4 +1,4 @@
-/* Develop by Jimmy Hu */
+/* Developed by Jimmy Hu */
 
 //  compile command:
 //  clang++ -std=c++20 -Xpreprocessor -fopenmp -I/usr/local/include -L/usr/local/lib -lomp  bicubicInterpolationTest.cpp -L /usr/local/Cellar/llvm/10.0.0_3/lib/ -lm -O3 -o bicubicInterpolationTest -v
@@ -9,14 +9,6 @@
 #include "../basic_functions.h"
 #include "../image.h"
 #include "../image_operations.h"
-
-void bicubicInterpolationTest();
-
-int main()
-{
-    bicubicInterpolationTest();
-    return 0;
-}
 
 void bicubicInterpolationTest()
 {
@@ -29,3 +21,10 @@ void bicubicInterpolationTest()
     auto image2 = TinyDIP::copyResizeBicubic(image1, 12, 12);
     image2.print();
 }
+
+int main()
+{
+    bicubicInterpolationTest();
+    return 0;
+}
+
