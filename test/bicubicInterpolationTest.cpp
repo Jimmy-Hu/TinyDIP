@@ -5,6 +5,7 @@
 //  https://stackoverflow.com/a/61821729/6667035
 //  clear && rm -rf ./bicubicInterpolationTest && g++-11 -std=c++20 -O4 -ffast-math -funsafe-math-optimizations -std=c++20 -fpermissive -H --verbose -Wall bicubicInterpolationTest.cpp -o bicubicInterpolationTest 
 
+#include <chrono>
 #include "../base_types.h"
 #include "../basic_functions.h"
 #include "../image.h"
