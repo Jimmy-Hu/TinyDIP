@@ -1,4 +1,5 @@
 #include <cassert>
+#include <chrono>
 #include <execution>
 #include "../base_types.h"
 #include "../basic_functions.h"
