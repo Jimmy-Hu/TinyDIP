@@ -7,11 +7,11 @@
 #include "../image_operations.h"
 
 template<class T>
-void powParallelTest()
+void powParallelTest(const std::size_t N1 = 10)
 {
 	for (std::size_t i = 0; i < 11; i++)
 	{
-		std::size_t N1 = 10, N2 = 10;
+		std::size_t N2 = 10;
 		TinyDIP::Image<T> test_input(N1, N2);
 		for (std::size_t y = 1; y <= N2; y++)
 		{
