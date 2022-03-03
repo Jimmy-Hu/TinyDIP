@@ -91,7 +91,7 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
 	std::cout << "sigma = " << std::to_string(sigma) << '\n';
 	//***Load dictionary***
 	std::vector<TinyDIP::Image<double>> x, y;
-	for (std::size_t i = dic_start_index; i <= dic_end_index; i++)
+	for (std::size_t i = dic_start_index; i <= dic_end_index; ++i)
 	{
 		std::string fullpath = dictionary_path + "/" + std::to_string(i);
 		std::cout << "Dictionary path: " << fullpath << '\n';
