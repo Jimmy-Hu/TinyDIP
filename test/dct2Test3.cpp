@@ -115,7 +115,7 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
 	auto xy_diff = TinyDIP::recursive_transform([&](auto&& element1, auto&& element2) { return TinyDIP::subtract(element2, element1); }, x, y);
 	std::cout << "x count: " << x.size() << "\txy_diff count: " << xy_diff.size() << '\n';
 	
-	for (std::size_t i = start_index; i <= end_index; i++)
+	for (std::size_t i = start_index; i <= end_index; ++i)
 	{
 		std::string fullpath = input_folder + "/" + std::to_string(i);
 		std::cout << "fullpath: " << fullpath << '\n';
