@@ -354,7 +354,7 @@ namespace TinyDIP
     }
 
     template<typename ElementT>
-    constexpr static auto subimage(const Image<ElementT>& input, std::size_t width, std::size_t height, std::size_t xcenter, std::size_t ycenter)
+    constexpr static auto subimage(const Image<ElementT>& input, const std::size_t width, std::size_t height, std::size_t xcenter, std::size_t ycenter)
     {
         auto output = Image<ElementT>(width, height);
         std::size_t cornerx = xcenter - static_cast<std::size_t>(std::floor(static_cast<double>(width) / 2));
