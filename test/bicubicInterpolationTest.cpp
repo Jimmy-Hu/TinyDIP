@@ -11,9 +11,12 @@
 #include "../image.h"
 #include "../image_operations.h"
 
-void bicubicInterpolationTest(const std::size_t sizex = 3, const std::size_t sizey = 3)
+void bicubicInterpolationTest(
+    const std::size_t sizex = 3,
+    const std::size_t sizey = 3,
+    const std::size_t init_val = 1)
 {
-    TinyDIP::Image<GrayScale> image1(sizex, sizey, 1);
+    TinyDIP::Image<GrayScale> image1(sizex, sizey, init_val);
     std::cout << "Width: " + std::to_string(image1.getWidth()) + "\n";
     std::cout << "Height: " + std::to_string(image1.getHeight()) + "\n";
     image1.at(1, 1) = 100;
