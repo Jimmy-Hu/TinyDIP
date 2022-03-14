@@ -23,6 +23,8 @@ void bicubicInterpolationTest(
     image1.print();
 
     auto image2 = TinyDIP::copyResizeBicubic(image1, 12, 12);
+    std::cout << "Width after copyResizeBicubic operation: " + std::to_string(image2.getWidth()) + "\n";
+    std::cout << "Height after copyResizeBicubic operation: " + std::to_string(image2.getHeight()) + "\n";
     image2.print();
 }
 
