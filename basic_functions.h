@@ -528,7 +528,7 @@ namespace TinyDIP
     template<std::size_t unwrap_level, typename F, typename T1, typename... Ts>
     using recursive_variadic_invoke_result_t = typename recursive_variadic_invoke_result<unwrap_level, F, T1, Ts...>::type;
 
-    template<typename OutputIt, typename NAryOperation, typename InputIt, typename... InputIts>
+    template<typename OutputIt, std::copy_constructible NAryOperation, typename InputIt, typename... InputIts>
     OutputIt transform(OutputIt d_first, NAryOperation op, InputIt first, InputIt last, InputIts... rest) {
         while (first != last) {
             *d_first++ = op(*first++, (*rest++)...);
