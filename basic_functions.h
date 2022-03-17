@@ -57,6 +57,18 @@ namespace TinyDIP
     template<typename T1, typename T2>
     concept is_minusable2 = requires(T1 x1, T2 x2) { x1 - x2; };
 
+    template<typename T>
+    concept is_multiplicable = requires(T x)
+    {
+        x * x;
+    };
+
+    template<typename T>
+    concept is_divisible = requires(T x)
+    {
+        x / x;
+    };
+
     #ifdef USE_BOOST_MULTIDIMENSIONAL_ARRAY
     template<typename T>
     concept is_multi_array = requires(T x)
@@ -64,6 +76,13 @@ namespace TinyDIP
         x.num_dimensions();
         x.shape();
         boost::multi_array(x);
+    };
+
+    template<typename T1, typename T2>
+    concept is_multi_array_dimensionality_equal =
+    is_multi_array<T1> && is_multi_array<T2> && requires(T1 x, T2 y)
+    {
+        T1::dimensionality == T2::dimensionality;
     };
     #endif
 
@@ -82,6 +101,63 @@ namespace TinyDIP
     {
         return false;
     }
+
+    template<typename T, typename TestT = double>
+    constexpr bool is_integer(T input)
+    {
+        TestT floor_input = std::floor(static_cast<TestT>(input));
+        if (true)
+        {
+
+        }
+        return false;
+    }
+
+    #ifdef USE_BOOST_MULTIDIMENSIONAL_ARRAY
+    //  Multiplication
+    template<is_multiplicable T1, is_multiplicable T2>
+    constexpr auto element_wise_multiplication(const T1& input1, const T2& input2)
+    {
+        return input1 * input2;
+    }
+
+    template<is_multi_array T1, is_multi_array T2>
+    requires (is_multi_array_dimensionality_equal<T1, T2>)
+    constexpr auto element_wise_multiplication(const T1& input1, const T2& input2)
+    {
+        if (input1.num_dimensions() != input2.num_dimensions())     //  Dimensions are different, unable to perform element-wise add operation
+            throw std::logic_error("Array dimensions are different");
+        if (*input1.shape() != *input2.shape())                     //  Shapes are different, unable to perform element-wise add operation
+            throw std::logic_error("Array shapes are different");
+        boost::multi_array output(input1);                          //  drawback to be improved: avoiding copying whole input1 array into output, but with appropriate memory allocation
+        for (decltype(+input1.shape()[0]) i = 0; i < input1.shape()[0]; ++i)
+            output[i] = element_wise_multiplication(input1[i], input2[i]);
+        return output;
+    }
+
+    //  Division
+    template<is_divisible T1, is_divisible T2>
+    constexpr auto element_wise_division(const T1& input1, const T2& input2)
+    {
+        if (input2 == 0)
+            throw std::logic_error("Divide by zero exception");     //  Handle the case of dividing by zero exception
+        return input1 / input2;
+    }
+
+    template<is_multi_array T1, is_multi_array T2>
+    requires (is_multi_array_dimensionality_equal<T1, T2>)
+    constexpr auto element_wise_division(const T1& input1, const T2& input2)
+    {
+        if (input1.num_dimensions() != input2.num_dimensions())     //  Dimensions are different, unable to perform element-wise add operation
+            throw std::logic_error("Array dimensions are different");
+        if (*input1.shape() != *input2.shape())                     //  Shapes are different, unable to perform element-wise add operation
+            throw std::logic_error("Array shapes are different");
+        boost::multi_array output(input1);                          //  drawback to be improved: avoiding copying whole input1 array into output, but with appropriate memory allocation
+        for (decltype(+input1.shape()[0]) i = 0; i < input1.shape()[0]; ++i)
+            output[i] = element_wise_division(input1[i], input2[i]);
+        return output;
+    }
+    #endif
 
     //  recursive_depth function implementation
     template<typename T>
@@ -461,7 +537,7 @@ namespace TinyDIP
     }
 
     //  recursive_transform for the multiple parameters cases (the version with unwrap_level)
-    template<std::size_t unwrap_level = 1, class F, class Arg1, class... Args>
+    template<std::size_t unwrap_level = 1, std::copy_constructible F, class Arg1, class... Args>
     constexpr auto recursive_transform(const F& f, const Arg1& arg1, const Args&... args)
     {
         if constexpr (unwrap_level > 0)
