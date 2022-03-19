@@ -507,7 +507,7 @@ namespace TinyDIP
             std::ranges::range_value_t<Ts>...>>;
     };
 
-    template<std::size_t unwrap_level, typename F, class...Ts1, template<class...>class Container1, typename... Ts>
+    template<std::size_t unwrap_level, std::copy_constructible F, class...Ts1, template<class...>class Container1, typename... Ts>
     requires (  std::ranges::input_range<Container1<Ts1...>> &&
                 requires { typename recursive_variadic_invoke_result<
                                         unwrap_level - 1,
