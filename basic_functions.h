@@ -492,7 +492,7 @@ namespace TinyDIP
         using type = Container<typename recursive_invoke_result<unwrap_level - 1, F, std::ranges::range_value_t<Container<Ts...>>>::type>;
     };
 
-    template<std::size_t unwrap_level, typename F, typename T>
+    template<std::size_t unwrap_level, std::copy_constructible F, typename T>
     using recursive_invoke_result_t = typename recursive_invoke_result<unwrap_level, F, T>::type;
 
     //  recursive_variadic_invoke_result_t implementation
