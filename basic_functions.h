@@ -484,7 +484,7 @@ namespace TinyDIP
     template<typename T, typename F>
     struct recursive_invoke_result<0, F, T> { using type = std::invoke_result_t<F, T>; };
 
-    template<std::size_t unwrap_level, typename F, template<typename...> typename Container, typename... Ts>
+    template<std::size_t unwrap_level, std::copy_constructible F, template<typename...> typename Container, typename... Ts>
     requires (std::ranges::input_range<Container<Ts...>> &&
             requires { typename recursive_invoke_result<unwrap_level - 1, F, std::ranges::range_value_t<Container<Ts...>>>::type; })
     struct recursive_invoke_result<unwrap_level, F, Container<Ts...>>
