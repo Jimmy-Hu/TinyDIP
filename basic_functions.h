@@ -477,6 +477,8 @@ namespace TinyDIP
         }
     }
 
+    //  [TODO] recursive_for_each function implementation (with execution policy)
+
     //  recursive_invoke_result_t implementation
     template<std::size_t, typename, typename>
     struct recursive_invoke_result { };
