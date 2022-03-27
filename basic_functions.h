@@ -490,7 +490,7 @@ namespace TinyDIP
                 execution_policy,
                 std::ranges::begin(input),
                 std::ranges::end(input),
-                [&](auto&& element) { return recursive_for_each<unwrap_level - 1>(execution_policy, element, op); }
+                [&](auto&& element) { return recursive_for_each<unwrap_level - 1>(execution_policy, op, element); }
             );
             return op;
         }
