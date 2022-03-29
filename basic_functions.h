@@ -453,7 +453,7 @@ namespace TinyDIP
     }
 
     //  recursive_for_each function implementation
-    template<std::size_t unwrap_level = 1, typename Range, class UnaryFunction>
+    template<std::size_t unwrap_level = 1, class UnaryFunction, typename Range>
     constexpr UnaryFunction recursive_for_each(UnaryFunction op, Range& input)
     {
         if constexpr (unwrap_level > 1)
@@ -463,7 +463,7 @@ namespace TinyDIP
             std::for_each(
                 std::ranges::begin(input),
                 std::ranges::end(input),
-                [&](auto&& element) { return recursive_for_each<unwrap_level - 1>(element, op); }
+                [&](auto&& element) { return recursive_for_each<unwrap_level - 1>(op, element); }
             );
             return op;
         }
