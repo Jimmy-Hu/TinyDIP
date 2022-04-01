@@ -98,6 +98,7 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
 		auto input_dbmp = TinyDIP::double_image::read(fullpath.c_str(), false);
 		auto dct_block_x = TinyDIP::split(input_dbmp, input_dbmp.getWidth() / N1, input_dbmp.getHeight() / N2);
 		TinyDIP::recursive_for_each<2>(
+			std::execution::par,
 			[&](auto&& element) 
 			{
 				x.push_back(element);
@@ -108,6 +109,7 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
 		auto input_dbmp_gt = TinyDIP::double_image::read(fullpath_gt.c_str(), false);
 		auto dct_block_y = TinyDIP::split(input_dbmp_gt, input_dbmp_gt.getWidth() / N1, input_dbmp_gt.getHeight() / N2);
 		TinyDIP::recursive_for_each<2>(
+			std::execution::par,
 			[&](auto&& element)
 			{
 				y.push_back(element);
