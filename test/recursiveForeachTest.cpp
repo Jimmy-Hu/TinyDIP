@@ -18,7 +18,7 @@ void recursiveForeachTest()
 	TinyDIP::recursive_for_each<1>(print, test_vector);
 	std::cout << '\n';
 	std::vector<decltype(test_vector)> test_vector2{ test_vector, test_vector, test_vector };
-	TinyDIP::recursive_for_each<2>(test_vector2, print);
+	TinyDIP::recursive_for_each<2>(print, test_vector2);
 
 	return;
 }
