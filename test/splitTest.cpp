@@ -22,6 +22,6 @@ void splitTest()
     std::cout << "Height: " + std::to_string(image2.getHeight()) + "\n";
     image2.print();
     auto test_output = TinyDIP::split(image2, 2, 2);
-    TinyDIP::recursive_for_each<2>(test_output, [](TinyDIP::Image<GrayScale> element) { element.print(); });
+    TinyDIP::recursive_for_each<2>([](TinyDIP::Image<GrayScale> element) { element.print(); }, test_output);
 	return;
 }
