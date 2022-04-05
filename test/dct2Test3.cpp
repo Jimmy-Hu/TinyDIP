@@ -43,10 +43,13 @@ constexpr static auto get_offset( ExPo execution_policy,
 	return output;
 }
 
-void each_image( const std::string input_path, const std::string output_path,
-	             std::vector<TinyDIP::Image<double>>& dictionary_x,
-	             std::vector<TinyDIP::Image<double>>& dictionary_y,
-	             const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 0.1) noexcept
+template<class ExPo, class ElementT>
+requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+void each_image( ExPo execution_policy, 
+	             const std::string input_path, const std::string output_path,
+	             std::vector<TinyDIP::Image<ElementT>>& dictionary_x,
+	             std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
+	             const std::size_t N1 = 8, const std::size_t N2 = 8, const ElementT sigma = 0.1) noexcept
 {
 	auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
 	auto input_hsv = TinyDIP::rgb2hsv(input_img);
@@ -124,7 +127,7 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
 		std::string fullpath = input_folder + "/" + std::to_string(i);
 		std::cout << "fullpath: " << fullpath << '\n';
 		std::string output_path = output_folder + "/" + std::to_string(i);
-		each_image(fullpath, output_path, x, xy_diff, N1, N2, sigma);
+		each_image(std::execution::par, fullpath, output_path, x, xy_diff, N1, N2, sigma);
 	}
 	return;
 }
