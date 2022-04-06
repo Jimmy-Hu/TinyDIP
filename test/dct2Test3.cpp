@@ -59,7 +59,7 @@ void each_image( ExPo execution_policy,
 
 	std::cout << "Call dct2 function..." << '\n';
 	auto input_dct_blocks = TinyDIP::recursive_transform<2>(
-		std::execution::par,
+		execution_policy,
 		[](auto&& element) { return TinyDIP::dct2(element); },
 		TinyDIP::split(v_plane, v_plane.getWidth() / N1, v_plane.getHeight() / N2)
 		);
