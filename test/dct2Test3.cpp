@@ -65,7 +65,7 @@ void each_image( ExPo execution_policy,
 		);
 
 	auto output_dct_blocks = TinyDIP::recursive_transform<2>(
-		std::execution::par,
+		execution_policy,
 		[&](auto&& element) { return TinyDIP::plus(element, get_offset(std::execution::par, element, dictionary_x, dictionary_y, sigma, std::pow(10, -30))); },
 		input_dct_blocks
 		);
