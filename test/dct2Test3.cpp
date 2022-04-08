@@ -76,7 +76,7 @@ void each_image( ExPo execution_policy,
 		TinyDIP::multiplies(
 			TinyDIP::concat(
 				TinyDIP::recursive_transform<2>(
-					std::execution::par,
+					execution_policy,
 					[](auto&& element) { return TinyDIP::idct2(element); },
 					output_dct_blocks)),
 			TinyDIP::Image<double>(input_img.getWidth(), input_img.getHeight(), 255))
