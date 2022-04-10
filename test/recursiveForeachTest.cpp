@@ -17,7 +17,7 @@ void recursiveForeachTest()
 	auto print = [](const int& n) { std::cout << " " << n; };
 	std::vector<int> test_vector{ 1, 2, 3 };
 
-	//	Act
+	//	Action
 	TinyDIP::recursive_for_each<1>(print, test_vector);
 	std::cout << '\n';
 	std::vector<decltype(test_vector)> test_vector2{ test_vector, test_vector, test_vector };
