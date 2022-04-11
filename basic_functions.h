@@ -610,7 +610,7 @@ namespace TinyDIP
         }
         else
         {
-            return f(input);
+            return std::invoke(f, input);
         }
     }
 
