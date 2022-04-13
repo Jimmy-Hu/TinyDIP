@@ -74,7 +74,7 @@ namespace TinyDIP
             {
                 throw std::runtime_error("Image data input and the given size are mismatched!");
             }
-            image_data = std::move(input);
+            image_data = std::move(input);              //  Reference: https://stackoverflow.com/a/51706522/6667035
         }
 
         Image(const std::vector<std::vector<ElementT>>& input)
