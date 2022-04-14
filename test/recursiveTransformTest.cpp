@@ -23,7 +23,7 @@ int main()
 
 void recursiveTransformTest()
 {
-	for (std::size_t N = 1; N < 10; N++)
+	for (std::size_t N = 1; N < 10; ++N)
 	{
 		std::size_t N1 = N, N2 = N, N3 = N;
 		auto test_vector = TinyDIP::n_dim_vector_generator<3>(0, 10);
