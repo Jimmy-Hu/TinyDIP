@@ -80,6 +80,7 @@ add_executable(dictionaryBasedNonLocalMeanTest test/dictionaryBasedNonLocalMeanT
 add_executable(getNFromVariadicTemplatesTest test/getNFromVariadicTemplatesTest.cpp image_io.cpp)
 add_executable(highlightRegionTest test/highlightRegionTest.cpp image_io.cpp)
 add_executable(manhattanDistanceTest test/manhattanDistanceTest.cpp image_io.cpp)
+add_executable(multipliesParallelTest test/multipliesParallelTest.cpp image_io.cpp)
 add_executable(multipliesWithImageVectorsTest test/multipliesWithImageVectorsTest.cpp image_io.cpp)
 add_executable(powTest test/powTest.cpp image_io.cpp)
 add_executable(powParallelTest test/powParallelTest.cpp image_io.cpp)
