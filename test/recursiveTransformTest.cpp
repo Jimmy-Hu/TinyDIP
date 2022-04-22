@@ -18,7 +18,7 @@ void print3(std::vector<TinyDIP::Image<ElementT>> input)
 int main()
 {
 	auto start = std::chrono::system_clock::now();
-	recursiveTransformTest();
+	recursiveTransformTest(3);
 	auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
@@ -26,12 +26,13 @@ int main()
 	return 0;
 }
 
-void recursiveTransformTest()
+template<typename InputT>
+void recursiveTransformTest(InputT initialValue)
 {
 	for (std::size_t N = 1; N < 10; ++N)
 	{
 		std::size_t N1 = N, N2 = N, N3 = N;
-		auto test_vector = TinyDIP::n_dim_vector_generator<3>(0, 10);
+		auto test_vector = TinyDIP::n_dim_vector_generator<3>(initialValue, 10);
 
 		for (std::size_t z = 1; z <= N3; z++)
 		{
