@@ -3,29 +3,6 @@
 #include "../image.h"
 #include "../image_operations.h"
 
-void recursiveTransformTest();
-
-template<typename ElementT>
-void print3(std::vector<TinyDIP::Image<ElementT>> input)
-{
-	for (std::size_t i = 0; i < input.size(); i++)
-	{
-		input[i].print();
-		std::cout << "*******************\n";
-	}
-}
-
-int main()
-{
-	auto start = std::chrono::system_clock::now();
-	recursiveTransformTest(3);
-	auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-    std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
-	return 0;
-}
-
 template<typename InputT>
 void recursiveTransformTest(InputT initialValue)
 {
@@ -51,3 +28,25 @@ void recursiveTransformTest(InputT initialValue)
 	
 	//print3(TinyDIP::recursive_transform<1>([](std::vector<std::vector<int>> element) { return TinyDIP::Image<int>(element); }, test_vector));
 }
+
+template<typename ElementT>
+void print3(std::vector<TinyDIP::Image<ElementT>> input)
+{
+	for (std::size_t i = 0; i < input.size(); i++)
+	{
+		input[i].print();
+		std::cout << "*******************\n";
+	}
+}
+
+int main()
+{
+	auto start = std::chrono::system_clock::now();
+	recursiveTransformTest(3);
+	auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+    std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
+	return 0;
+}
+
