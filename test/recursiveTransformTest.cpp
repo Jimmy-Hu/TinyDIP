@@ -44,6 +44,7 @@ int main()
 	auto start = std::chrono::system_clock::now();
 	recursiveTransformTest(3);
 	recursiveTransformTest(static_cast<double>(3));
+	recursiveTransformTest(static_cast<float>(3));
 	auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
