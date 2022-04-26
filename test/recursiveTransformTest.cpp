@@ -42,6 +42,7 @@ void print3(std::vector<TinyDIP::Image<ElementT>> input)
 int main()
 {
 	auto start = std::chrono::system_clock::now();
+	std::cout << "Test with int:\n";
 	recursiveTransformTest(3);
 	recursiveTransformTest(static_cast<double>(3));
 	recursiveTransformTest(static_cast<float>(3));
