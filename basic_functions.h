@@ -40,12 +40,6 @@
 namespace TinyDIP
 {
     template<typename T>
-    concept is_back_inserterable = requires(T x)
-    {
-        std::back_inserter(x);
-    };
-
-    template<typename T>
     concept is_inserterable = requires(T x)
     {
         std::inserter(x, std::ranges::end(x));
