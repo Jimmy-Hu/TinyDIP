@@ -407,7 +407,7 @@ namespace TinyDIP
     
     /*  recursive_reduce_all template function performs operation on input container exhaustively
     */
-    template<class T> requires is_summable<T>
+    template<arithmetic T>
     constexpr auto recursive_reduce_all(const T& input)
     {
         return input;
