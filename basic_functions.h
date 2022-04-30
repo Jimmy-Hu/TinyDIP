@@ -157,7 +157,7 @@ namespace TinyDIP
     template<typename T>
     constexpr std::size_t recursive_depth()
     {
-        return 0;
+        return std::size_t{0};
     }
 
     template<std::ranges::input_range Range>
