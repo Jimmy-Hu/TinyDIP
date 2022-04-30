@@ -368,11 +368,11 @@ namespace TinyDIP
         });
     }
 
-    //  recursive_size implementation
+    //  recursive_size template function implementation
     template<class T> requires (!std::ranges::range<T>)
     constexpr auto recursive_size(const T& input)
     {
-        return 1;
+        return std::size_t{1};
     }
 
     template<std::ranges::range Range> requires (!(std::ranges::input_range<std::ranges::range_value_t<Range>>))
