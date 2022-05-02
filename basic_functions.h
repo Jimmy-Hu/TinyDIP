@@ -247,7 +247,7 @@ namespace TinyDIP
     template<class T, std::invocable<T> Pred>
     constexpr std::size_t recursive_count_if(const T& input, const Pred& predicate)
     {
-        return predicate(input) ? 1 : 0;
+        return predicate(input) ? 1 : std::size_t{0};
     }
 
     template<std::ranges::input_range Range, class Pred>
