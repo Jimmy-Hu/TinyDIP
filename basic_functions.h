@@ -282,7 +282,7 @@ namespace TinyDIP
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr std::size_t recursive_count_if(ExPo execution_policy, const T& input, const Pred& predicate)
     {
-        return predicate(input) ? 1 : 0;
+        return predicate(input) ? std::size_t{1} : 0;
     }
 
     template<class ExPo, std::ranges::input_range Range, class Pred>
