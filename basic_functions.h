@@ -218,13 +218,6 @@ namespace TinyDIP
         }
     }
 
-    //  recursive_count implementation (the version without unwrap_level)
-    template<std::ranges::input_range Range>
-    constexpr auto recursive_count(const Range& input, const auto& target)
-    {
-        return recursive_count<recursive_depth<Range>()>(input, target);
-    }
-
     //  recursive_count implementation (with execution policy)
     template<class ExPo, std::ranges::input_range Range, typename T>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
