@@ -305,10 +305,9 @@ namespace TinyDIP
 
     //  batch_recursive_count_if implementation (the version with unwrap_level)
     template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred1>
+    requires(unwrap_level <= recursive_depth<T>())
     constexpr auto batch_recursive_count_if(const T& input, const Pred1& predicate1)
     {
-        static_assert(unwrap_level <= recursive_depth<T>(),
-            "unwrap level higher than recursion depth of input");
         std::vector<decltype(recursive_count_if<unwrap_level>(input, predicate1))> output;
         output.push_back(recursive_count_if<unwrap_level>(input, predicate1));
         return output;
