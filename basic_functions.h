@@ -380,12 +380,11 @@ namespace TinyDIP
 
     //  recursive_count implementation (the version with unwrap_level)
     template<std::size_t unwrap_level, std::ranges::range T>
+    requires(unwrap_level <= recursive_depth<T>())
     constexpr auto recursive_size(const T input)
     {
         if constexpr (unwrap_level > 1)
         {
-            static_assert(unwrap_level <= recursive_depth<T>(),
-                "unwrap level higher than recursion depth of input");
             return recursive_size<unwrap_level - 1>(input.at(0));
         }
         else
