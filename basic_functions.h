@@ -444,12 +444,11 @@ namespace TinyDIP
 
     //  recursive_for_each function implementation
     template<std::size_t unwrap_level = 1, class UnaryFunction, typename Range>
+    requires(unwrap_level <= recursive_depth<Range>())
     constexpr UnaryFunction recursive_for_each(UnaryFunction op, Range& input)
     {
         if constexpr (unwrap_level > 1)
         {
-            static_assert(unwrap_level <= recursive_depth<Range>(),
-                "unwrap level higher than recursion depth of input");
             std::for_each(
                 std::ranges::begin(input),
                 std::ranges::end(input),
