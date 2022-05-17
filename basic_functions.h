@@ -468,13 +468,12 @@ namespace TinyDIP
 
     //  recursive_for_each function implementation (with execution policy)
     template<std::size_t unwrap_level = 1, class ExPo, class UnaryFunction, typename Range>
-    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    requires (unwrap_level <= recursive_depth<Range>() &&
+              std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr UnaryFunction recursive_for_each(ExPo execution_policy, UnaryFunction op, Range& input)
     {
         if constexpr (unwrap_level > 1)
         {
-            static_assert(unwrap_level <= recursive_depth<Range>(),
-                "unwrap level higher than recursion depth of input");
             std::for_each(
                 execution_policy,
                 std::ranges::begin(input),
