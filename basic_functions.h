@@ -571,7 +571,7 @@ namespace TinyDIP
         }
         else
         {
-            return f(arg1, args...);
+            return std::invoke(f, arg1, args...);
         }
     }
 
