@@ -577,13 +577,12 @@ namespace TinyDIP
 
     //  recursive_transform implementation (the version with unwrap_level, with execution policy)
     template<std::size_t unwrap_level = 1, class ExPo, class T, class F>
-    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>> &&
+              unwrap_level <= recursive_depth<T>())
     constexpr auto recursive_transform(ExPo execution_policy, const F& f, const T& input)
     {
         if constexpr (unwrap_level > 0)
         {
-            static_assert(unwrap_level <= recursive_depth<T>(),
-                "unwrap level higher than recursion depth of input");
             recursive_invoke_result_t<unwrap_level, F, T> output{};
             output.resize(input.size());
             std::mutex mutex;
