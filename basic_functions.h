@@ -605,13 +605,12 @@ namespace TinyDIP
 
     //  recursive_transform for the binary operation cases (the version with unwrap_level, with execution policy)
     template<std::size_t unwrap_level = 1, class ExPo, class T1, class T2, class F>
-    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>> &&
+              unwrap_level <= recursive_depth<T>())
     constexpr auto recursive_transform(ExPo execution_policy, const F& f, const T1& input1, const T2& input2)
     {
         if constexpr (unwrap_level > 0)
         {
-            static_assert(unwrap_level <= recursive_depth<T>(),
-                "unwrap level higher than recursion depth of input");
             recursive_variadic_invoke_result_t<unwrap_level, F, T1, T2> output{};
             assert(input1.size() == input2.size());
             std::mutex mutex;
