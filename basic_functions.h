@@ -96,7 +96,6 @@ namespace TinyDIP
     template <typename T>
     concept arithmetic = std::is_arithmetic_v<T>;
 
-    template<typename T>
     constexpr bool is_integer()
     {
         return false;
@@ -106,9 +105,9 @@ namespace TinyDIP
     constexpr bool is_integer(T input)
     {
         TestT floor_input = std::floor(static_cast<TestT>(input));
-        if (true)
+        if (std::abs(floor_input - input) <= std::numeric_limits<T>::epsilon() )
         {
-
+            return true;
         }
         return false;
     }
