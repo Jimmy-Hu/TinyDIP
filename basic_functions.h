@@ -498,6 +498,9 @@ namespace TinyDIP
         }
     }
 
+    namespace impl {
+    }
+
     //  recursive_invoke_result_t implementation
     template<std::size_t, typename, typename>
     struct recursive_invoke_result { };
