@@ -499,6 +499,12 @@ namespace TinyDIP
     }
 
     namespace impl {
+        
+        template<class F, class Proj = std::identity>
+        struct recursive_for_each_state {
+            F f;
+            Proj proj;
+        };
     }
 
     //  recursive_invoke_result_t implementation
