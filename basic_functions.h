@@ -505,6 +505,12 @@ namespace TinyDIP
             F f;
             Proj proj;
         };
+
+        template<class T, class State>
+        requires(!std::ranges::input_range<T>)
+        constexpr void recursive_foreach_all(T& value, State& state) {
+            std::invoke(state.f, std::invoke(state.proj, value));
+        }
     }
 
     //  recursive_invoke_result_t implementation
