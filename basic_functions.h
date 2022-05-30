@@ -531,6 +531,16 @@ namespace TinyDIP
         }
     }
 
+    template<class T, class I, class F>
+constexpr auto recursive_fold_right_all(const T& inputRange, I init, F f)
+{
+    recursive_reverse_foreach_all(inputRange, [&](auto& value) {
+        init = std::invoke(f, value, init);
+    });
+
+    return init;
+}
+
     //  recursive_invoke_result_t implementation
     template<std::size_t, typename, typename>
     struct recursive_invoke_result { };
