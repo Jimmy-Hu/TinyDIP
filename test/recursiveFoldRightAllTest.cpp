@@ -7,3 +7,7 @@
 
 void recursiveFoldRightAllTest();
 
+int main()
+
+
+
