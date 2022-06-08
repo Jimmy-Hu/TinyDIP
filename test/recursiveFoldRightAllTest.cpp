@@ -8,6 +8,10 @@
 void recursiveFoldRightAllTest();
 
 int main()
+{
+	recursiveFoldRightAllTest();
+	return 0;
+}
 
 
 
