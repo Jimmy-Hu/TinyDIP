@@ -15,6 +15,7 @@ int main()
 
 void recursiveFoldRightAllTest()
 {
-    
+    auto test_vectors = TinyDIP::n_dim_container_generator<std::vector, 4, int>(1, 3);
+
 }
 
