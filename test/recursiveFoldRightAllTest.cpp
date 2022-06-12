@@ -19,6 +19,7 @@ void recursiveFoldRightAllTest()
 
     std::cout << "Play with test_vectors:\n\n";
     
+    std::cout << "recursive_fold_right_all function test with vectors / std::plus<>(): \n";
     
 }
 
