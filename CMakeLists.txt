@@ -102,6 +102,7 @@ add_executable(recursiveForeachTest test/recursiveForeachTest.cpp image_io.cpp)
 add_executable(recursiveSizeTest test/recursiveSizeTest.cpp image_io.cpp)
 add_executable(recursiveTransformTest test/recursiveTransformTest.cpp image_io.cpp)
 add_executable(idct2Test test/idct2Test.cpp image_io.cpp)
+add_executable(recursiveFoldRightAllTest test/recursiveFoldRightAllTest.cpp image_io.cpp)
 
 # target_include_directories
 if(APPLE)
