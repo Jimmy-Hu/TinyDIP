@@ -26,6 +26,8 @@ set(CMAKE_BUILD_TYPE debug)
 if(APPLE)           # Reference: https://stackoverflow.com/a/40152725/6667035
     set(CMAKE_C_COMPILER "/usr/local/bin/gcc")
     set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-13")
+    # Reference: https://developer.apple.com/forums/thread/737707
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -no-pie")
 endif()
 
 if(UNIX AND NOT APPLE)
