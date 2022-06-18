@@ -20,6 +20,7 @@ void recursiveFoldRightAllTest()
     std::cout << "Play with test_vectors:\n\n";
     
     std::cout << "recursive_fold_right_all function test with vectors / std::plus<>(): \n";
+    auto recursive_fold_right_all_result1 = TinyDIP::recursive_fold_right_all(test_vectors, static_cast<int>(1), std::plus<>());
     
     return;
 }
