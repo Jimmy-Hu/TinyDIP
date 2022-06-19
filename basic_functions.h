@@ -531,10 +531,12 @@ namespace TinyDIP
         }
     }
 
+    //  recursive_fold_right_all template function implementation
+    //  https://codereview.stackexchange.com/q/287842/231235
     template<class T, class I, class F>
     constexpr auto recursive_fold_right_all(const T& inputRange, I init, F f)
     {
-        recursive_reverse_foreach_all(inputRange, [&](auto& value) {
+        impl::recursive_reverse_foreach_all(inputRange, [&](auto& value) {
             init = std::invoke(f, value, init);
         });
 
