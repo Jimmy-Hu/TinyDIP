@@ -531,12 +531,20 @@ namespace TinyDIP
         }
     }
 
+    template<class T, class Proj = std::identity, class F>
+    constexpr auto recursive_reverse_foreach_all(T& inputRange, F f, Proj proj = {})
+    {
+        impl::recursive_for_each_state state(std::move(f), std::move(proj));
+        impl::recursive_reverse_foreach_all(inputRange, state);
+        return std::make_pair(inputRange.end(), std::move(state.f));
+    }
+
     //  recursive_fold_right_all template function implementation
     //  https://codereview.stackexchange.com/q/287842/231235
     template<class T, class I, class F>
     constexpr auto recursive_fold_right_all(const T& inputRange, I init, F f)
     {
-        impl::recursive_reverse_foreach_all(inputRange, [&](auto& value) {
+        recursive_reverse_foreach_all(inputRange, [&](auto& value) {
             init = std::invoke(f, value, init);
         });
 
