@@ -9,6 +9,7 @@ void recursiveFoldRightAllTest();
 
 int main()
 {
+    auto start = std::chrono::system_clock::now();
 	recursiveFoldRightAllTest();
 	return 0;
 }
