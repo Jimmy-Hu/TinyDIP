@@ -33,6 +33,7 @@ void recursiveFoldRightAllTest()
     std::cout << recursive_fold_right_all_result2 << "\n\n";
 
     auto v = {1, 2, 3, 4, 5, 6, 7, 8};
+    std::string initial_string = "A";
     return;
 }
 
