@@ -34,6 +34,12 @@ void recursiveFoldRightAllTest()
 
     auto v = {1, 2, 3, 4, 5, 6, 7, 8};
     std::string initial_string = "A";
+    // Use a program defined function object (lambda-expression):
+    std::string recursive_fold_right_all_result3 = TinyDIP::recursive_fold_right_all
+    (
+        v, initial_string, [](int x, std::string s) { return s + ':' + std::to_string(x); }
+    );
+
     return;
 }
 
