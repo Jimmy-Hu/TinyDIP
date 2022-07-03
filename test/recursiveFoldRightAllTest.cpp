@@ -39,6 +39,7 @@ void recursiveFoldRightAllTest()
     (
         v, initial_string, [](int x, std::string s) { return s + ':' + std::to_string(x); }
     );
+    std::cout << "recursive_fold_right_all_result3: " << recursive_fold_right_all_result3 << '\n';
 
     return;
 }
