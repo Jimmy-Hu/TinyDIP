@@ -33,8 +33,8 @@ void recursiveFoldRightAllTest()
     assert(recursive_fold_right_all_result2 == 2);
     std::cout << recursive_fold_right_all_result2 << "\n\n";
 
-    std::cout << "recursive_fold_right_all function test with vectors / std::min: \n";
-    auto recursive_fold_right_all_result3 = TinyDIP::recursive_fold_right_all(test_vectors, static_cast<int>(2), std::min);
+    std::cout << "recursive_fold_right_all function test with vectors / std::divides: \n";
+    auto recursive_fold_right_all_result3 = TinyDIP::recursive_fold_right_all(test_vectors, static_cast<int>(2), std::divides<>());
     assert(recursive_fold_right_all_result3 == 2);
     std::cout << recursive_fold_right_all_result3 << "\n\n";
 
