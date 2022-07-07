@@ -28,16 +28,15 @@ void recursiveFoldRightAllTest()
     auto recursive_fold_right_all_result1 = TinyDIP::recursive_fold_right_all(test_vectors, static_cast<int>(1), std::plus<>());
     std::cout << recursive_fold_right_all_result1 << "\n\n";
 
-    std::cout << "recursive_fold_right_all function test with vectors / std::multiplies<>(): \n";
-    auto recursive_fold_right_all_result2 = TinyDIP::recursive_fold_right_all(test_vectors, static_cast<int>(2), std::multiplies<>());
-    assert(recursive_fold_right_all_result2 == 2);
+    std::cout << "recursive_fold_right_all function test with vectors / std::divides: \n";
+    auto recursive_fold_right_all_result2 = TinyDIP::recursive_fold_right_all(test_vectors, static_cast<int>(2), std::divides<>());
     std::cout << recursive_fold_right_all_result2 << "\n\n";
 
-    std::cout << "recursive_fold_right_all function test with vectors / std::divides: \n";
-    auto recursive_fold_right_all_result3 = TinyDIP::recursive_fold_right_all(test_vectors, static_cast<int>(2), std::divides<>());
+    std::cout << "recursive_fold_right_all function test with vectors / std::multiplies<>(): \n";
+    auto recursive_fold_right_all_result3 = TinyDIP::recursive_fold_right_all(test_vectors, static_cast<int>(2), std::multiplies<>());
     assert(recursive_fold_right_all_result3 == 2);
     std::cout << recursive_fold_right_all_result3 << "\n\n";
-
+    
     auto v = {1, 2, 3, 4, 5, 6, 7, 8};
     std::string initial_string = "A";
     // Use a program defined function object (lambda-expression):
@@ -45,7 +44,7 @@ void recursiveFoldRightAllTest()
     (
         v, initial_string, [](int x, std::string s) { return s + ':' + std::to_string(x); }
     );
-    std::cout << "recursive_fold_right_all_result3: " << recursive_fold_right_all_result4 << '\n';
+    std::cout << "recursive_fold_right_all_result4: " << recursive_fold_right_all_result4 << '\n';
 
     return;
 }
