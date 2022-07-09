@@ -28,7 +28,7 @@ void recursiveFoldRightAllTest()
     auto recursive_fold_right_all_result1 = TinyDIP::recursive_fold_right_all(test_vectors, static_cast<int>(1), std::plus<>());
     std::cout << recursive_fold_right_all_result1 << "\n\n";
 
-    std::cout << "recursive_fold_right_all function test with vectors / std::minus: \n";
+    std::cout << "recursive_fold_right_all function test with vectors / std::minus<>(): \n";
     auto recursive_fold_right_all_result2 = TinyDIP::recursive_fold_right_all(test_vectors, static_cast<int>(2), std::minus<>());
     std::cout << recursive_fold_right_all_result2 << "\n\n";
 
@@ -36,7 +36,7 @@ void recursiveFoldRightAllTest()
     auto recursive_fold_right_all_result3 = TinyDIP::recursive_fold_right_all(test_vectors, static_cast<int>(2), std::multiplies<>());
     assert(recursive_fold_right_all_result3 == 2);
     std::cout << recursive_fold_right_all_result3 << "\n\n";
-    
+
     auto v = {1, 2, 3, 4, 5, 6, 7, 8};
     std::string initial_string = "A";
     // Use a program defined function object (lambda-expression):
