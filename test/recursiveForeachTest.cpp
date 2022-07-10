@@ -7,6 +7,7 @@ void recursiveForeachTest();
 
 int main()
 {
+	auto start = std::chrono::system_clock::now();
 	recursiveForeachTest();
 	return 0;
 }
