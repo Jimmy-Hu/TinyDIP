@@ -23,6 +23,8 @@ int main()
 
 void recursiveFoldRightAllTest()
 {
+    recursiveFoldRightAllTestWithVector<4>();
+    
     auto v = {1, 2, 3, 4, 5, 6, 7, 8};
     std::string initial_string = "A";
     // Use a program defined function object (lambda-expression):
@@ -38,7 +40,7 @@ void recursiveFoldRightAllTest()
 template<std::size_t dim>
 void recursiveFoldRightAllTestWithVector()
 {
-    auto test_vectors = TinyDIP::n_dim_container_generator<4>(1, 3);
+    auto test_vectors = TinyDIP::n_dim_container_generator<dim>(1, 3);
 
     std::cout << "Play with test_vectors:\n\n";
     
