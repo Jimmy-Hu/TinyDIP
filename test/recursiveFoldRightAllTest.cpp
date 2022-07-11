@@ -7,6 +7,7 @@
 
 void recursiveFoldRightAllTest();
 
+template<std::size_t dim>
 void recursiveFoldRightAllTestWithVector();
 
 int main()
@@ -21,6 +22,21 @@ int main()
 }
 
 void recursiveFoldRightAllTest()
+{
+    auto v = {1, 2, 3, 4, 5, 6, 7, 8};
+    std::string initial_string = "A";
+    // Use a program defined function object (lambda-expression):
+    std::string recursive_fold_right_all_result4 = TinyDIP::recursive_fold_right_all
+    (
+        v, initial_string, [](int x, std::string s) { return s + ':' + std::to_string(x); }
+    );
+    std::cout << "recursive_fold_right_all_result4: " << recursive_fold_right_all_result4 << '\n';
+
+    return;
+}
+
+template<std::size_t dim>
+void recursiveFoldRightAllTestWithVector()
 {
     auto test_vectors = TinyDIP::n_dim_container_generator<4>(1, 3);
 
@@ -38,20 +54,4 @@ void recursiveFoldRightAllTest()
     auto recursive_fold_right_all_result3 = TinyDIP::recursive_fold_right_all(test_vectors, static_cast<int>(2), std::multiplies<>());
     assert(recursive_fold_right_all_result3 == 2);
     std::cout << recursive_fold_right_all_result3 << "\n\n";
-
-    auto v = {1, 2, 3, 4, 5, 6, 7, 8};
-    std::string initial_string = "A";
-    // Use a program defined function object (lambda-expression):
-    std::string recursive_fold_right_all_result4 = TinyDIP::recursive_fold_right_all
-    (
-        v, initial_string, [](int x, std::string s) { return s + ':' + std::to_string(x); }
-    );
-    std::cout << "recursive_fold_right_all_result4: " << recursive_fold_right_all_result4 << '\n';
-
-    return;
-}
-
-void recursiveFoldRightAllTestWithVector()
-{
-    
 }
