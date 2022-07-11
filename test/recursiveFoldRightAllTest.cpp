@@ -7,6 +7,8 @@
 
 void recursiveFoldRightAllTest();
 
+void recursiveFoldRightAllTestWithVector();
+
 int main()
 {
     auto start = std::chrono::system_clock::now();
@@ -49,3 +51,7 @@ void recursiveFoldRightAllTest()
     return;
 }
 
+void recursiveFoldRightAllTestWithVector()
+{
+    
+}
