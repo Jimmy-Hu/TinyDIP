@@ -22,6 +22,7 @@ void powTest()
 
 int main()
 {
+	auto start = std::chrono::system_clock::now();
 	powTest<int>();
 	powTest<float>();
 	powTest<double>();
