@@ -26,5 +26,6 @@ int main()
 	powTest<int>();
 	powTest<float>();
 	powTest<double>();
+	auto end = std::chrono::system_clock::now();
 	return 0;
 }
