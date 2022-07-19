@@ -27,5 +27,6 @@ int main()
 	powTest<float>();
 	powTest<double>();
 	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> elapsed_seconds = end - start;
 	return 0;
 }
