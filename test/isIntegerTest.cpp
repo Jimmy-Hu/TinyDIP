@@ -7,6 +7,7 @@ void isIntegerTest();
 
 int main()
 {
+	auto start = std::chrono::system_clock::now();
 	isIntegerTest();
 	return 0;
 }
