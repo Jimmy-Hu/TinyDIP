@@ -9,6 +9,8 @@ int main()
 {
 	auto start = std::chrono::system_clock::now();
 	isIntegerTest();
+	auto end = std::chrono::system_clock::now();
+	
 	return 0;
 }
 
