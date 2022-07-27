@@ -18,6 +18,6 @@ int main()
 
 void isIntegerTest()
 {
-
+	assert(TinyDIP::is_integer(1) == true);
 	return;
 }
