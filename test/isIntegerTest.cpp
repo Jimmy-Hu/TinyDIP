@@ -19,5 +19,6 @@ int main()
 void isIntegerTest()
 {
 	assert(TinyDIP::is_integer(1) == true);
+	assert(TinyDIP::is_integer(2) == true);
 	return;
 }
