@@ -62,5 +62,9 @@ void recursiveFoldRightAllTestWithVector()
 template<std::size_t dim>
 void recursiveFoldRightAllTestWithArray()
 {
-    
+    auto test_array1 = TinyDIP::n_dim_array_generator<dim, 1>(1);
+
+    std::cout << "Play with test_array1:\n\n";
+    std::cout << "recursive_fold_right_all function test with array / std::plus<>(): \n";
+    std::cout << TinyDIP::recursive_fold_right_all(test_vectors, static_cast<int>(1), std::plus<>()) << "\n\n";
 }
