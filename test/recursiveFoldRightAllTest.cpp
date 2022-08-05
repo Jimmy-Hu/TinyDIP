@@ -10,6 +10,9 @@ void recursiveFoldRightAllTest();
 template<std::size_t dim>
 void recursiveFoldRightAllTestWithVector();
 
+template<std::size_t dim>
+void recursiveFoldRightAllTestWithVector();
+
 int main()
 {
     auto start = std::chrono::system_clock::now();
