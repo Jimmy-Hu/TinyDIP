@@ -11,7 +11,7 @@ template<std::size_t dim>
 void recursiveFoldRightAllTestWithVector();
 
 template<std::size_t dim>
-void recursiveFoldRightAllTestWithVector();
+void recursiveFoldRightAllTestWithArray();
 
 int main()
 {
