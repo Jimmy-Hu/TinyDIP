@@ -72,4 +72,7 @@ void recursiveFoldRightAllTestWithArray()
     std::cout << "Play with test_array1:\n\n";
     std::cout << "recursive_fold_right_all function test with array / std::plus<>(): \n";
     std::cout << TinyDIP::recursive_fold_right_all(test_array1, static_cast<int>(1), std::plus<>()) << "\n\n";
+
+    std::cout << "recursive_fold_right_all function test with array / std::minus<>(): \n";
+    std::cout << TinyDIP::recursive_fold_right_all(test_array1, static_cast<int>(2), std::minus<>()) << "\n\n";
 }
