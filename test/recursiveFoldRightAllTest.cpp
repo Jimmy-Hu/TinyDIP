@@ -10,7 +10,7 @@ void recursiveFoldRightAllTest();
 template<std::size_t dim>
 void recursiveFoldRightAllTestWithVector();
 
-template<std::size_t dim>
+template<std::size_t dim, std::size_t times>
 void recursiveFoldRightAllTestWithArray();
 
 int main()
@@ -30,7 +30,7 @@ void recursiveFoldRightAllTest()
     recursiveFoldRightAllTestWithVector<5>();
     recursiveFoldRightAllTestWithVector<6>();
 
-    recursiveFoldRightAllTestWithArray<4>();
+    recursiveFoldRightAllTestWithArray<4, 1>();
     recursiveFoldRightAllTestWithArray<5>();
     recursiveFoldRightAllTestWithArray<6>();
     
@@ -66,10 +66,10 @@ void recursiveFoldRightAllTestWithVector()
     std::cout << recursive_fold_right_all_result3 << "\n\n";
 }
 
-template<std::size_t dim>
+template<std::size_t dim, std::size_t times>
 void recursiveFoldRightAllTestWithArray()
 {
-    auto test_array1 = TinyDIP::n_dim_array_generator<dim, 1>(1);
+    auto test_array1 = TinyDIP::n_dim_array_generator<dim, times>(1);
 
     std::cout << "Play with test_array1:\n\n";
     std::cout << "recursive_fold_right_all function test with array / std::plus<>(): \n";
