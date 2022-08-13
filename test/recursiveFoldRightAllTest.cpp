@@ -31,7 +31,7 @@ void recursiveFoldRightAllTest()
     recursiveFoldRightAllTestWithVector<6>();
 
     recursiveFoldRightAllTestWithArray<4, 1>();
-    recursiveFoldRightAllTestWithArray<5>();
+    recursiveFoldRightAllTestWithArray<5, 1>();
     recursiveFoldRightAllTestWithArray<6>();
     
     auto v = {1, 2, 3, 4, 5, 6, 7, 8};
