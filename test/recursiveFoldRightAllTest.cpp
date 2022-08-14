@@ -32,7 +32,7 @@ void recursiveFoldRightAllTest()
 
     recursiveFoldRightAllTestWithArray<4, 1>();
     recursiveFoldRightAllTestWithArray<5, 1>();
-    recursiveFoldRightAllTestWithArray<6>();
+    recursiveFoldRightAllTestWithArray<6, 1>();
     
     auto v = {1, 2, 3, 4, 5, 6, 7, 8};
     std::string initial_string = "A";
