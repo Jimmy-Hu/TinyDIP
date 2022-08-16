@@ -47,7 +47,7 @@ void recursiveFoldRightAllTest()
 }
 
 template<std::size_t dim>
-void recursiveFoldRightAllTestWithVector()
+void recursiveFoldRightAllTestWithVector(std::size_t times)
 {
     auto test_vectors = TinyDIP::n_dim_container_generator<dim>(1, 3);
 
