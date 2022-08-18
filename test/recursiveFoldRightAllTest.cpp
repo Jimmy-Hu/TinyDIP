@@ -26,7 +26,7 @@ int main()
 
 void recursiveFoldRightAllTest()
 {
-    recursiveFoldRightAllTestWithVector<4>();
+    recursiveFoldRightAllTestWithVector<4>(1);
     recursiveFoldRightAllTestWithVector<5>();
     recursiveFoldRightAllTestWithVector<6>();
 
