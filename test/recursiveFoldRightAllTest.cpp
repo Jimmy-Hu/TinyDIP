@@ -13,6 +13,8 @@ void recursiveFoldRightAllTestWithVector(std::size_t times);
 template<std::size_t dim, std::size_t times>
 void recursiveFoldRightAllTestWithArray();
 
+void recursiveFoldRightAllTestWithDeque();
+
 int main()
 {
     auto start = std::chrono::system_clock::now();
