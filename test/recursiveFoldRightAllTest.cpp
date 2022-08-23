@@ -13,6 +13,7 @@ void recursiveFoldRightAllTestWithVector(std::size_t times);
 template<std::size_t dim, std::size_t times>
 void recursiveFoldRightAllTestWithArray();
 
+template<std::size_t dim>
 void recursiveFoldRightAllTestWithDeque();
 
 int main()
