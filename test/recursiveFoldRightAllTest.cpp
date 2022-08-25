@@ -84,3 +84,9 @@ void recursiveFoldRightAllTestWithArray()
     std::cout << "recursive_fold_right_all function test with array / std::multiplies<>(): \n";
     std::cout <<  TinyDIP::recursive_fold_right_all(test_array1, static_cast<int>(2), std::multiplies<>()) << "\n\n";
 }
+
+template<std::size_t dim>
+void recursiveFoldRightAllTestWithDeque(std::size_t times)
+{
+    
+}
