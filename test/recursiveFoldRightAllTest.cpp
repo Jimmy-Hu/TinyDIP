@@ -88,5 +88,7 @@ void recursiveFoldRightAllTestWithArray()
 template<std::size_t dim>
 void recursiveFoldRightAllTestWithDeque(std::size_t times)
 {
+    auto test_deque1 = TinyDIP::n_dim_deque_generator<dim, times>(1);
+
     
 }
