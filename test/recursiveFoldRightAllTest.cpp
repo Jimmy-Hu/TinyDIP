@@ -90,5 +90,5 @@ void recursiveFoldRightAllTestWithDeque(std::size_t times)
 {
     auto test_deque1 = TinyDIP::n_dim_deque_generator<dim, times>(1);
 
-    
+    std::cout << "Play with test_deque1:\n\n";
 }
