@@ -92,4 +92,7 @@ void recursiveFoldRightAllTestWithDeque(std::size_t times)
 
     std::cout << "Play with test_deque1:\n\n";
     std::cout << "recursive_fold_right_all function test with deque / std::plus<>(): \n";
+    std::cout << TinyDIP::recursive_fold_right_all(test_deque1, static_cast<int>(1), std::plus<>()) << "\n\n";
+
+    
 }
