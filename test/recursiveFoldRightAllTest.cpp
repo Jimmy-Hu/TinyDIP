@@ -67,6 +67,8 @@ void recursiveFoldRightAllTestWithVector(std::size_t times)
     std::cout << "recursive_fold_right_all function test with vectors / std::multiplies<>(): \n";
     auto recursive_fold_right_all_result3 = TinyDIP::recursive_fold_right_all(test_vectors, static_cast<int>(2), std::multiplies<>());
     std::cout << recursive_fold_right_all_result3 << "\n\n";
+
+    return;
 }
 
 template<std::size_t dim, std::size_t times>
