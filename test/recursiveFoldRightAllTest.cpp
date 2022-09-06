@@ -36,6 +36,8 @@ void recursiveFoldRightAllTest()
     recursiveFoldRightAllTestWithArray<4, 1>();
     recursiveFoldRightAllTestWithArray<5, 1>();
     recursiveFoldRightAllTestWithArray<6, 1>();
+
+    recursiveFoldRightAllTestWithDeque<4>(1);
     
     auto v = {1, 2, 3, 4, 5, 6, 7, 8};
     std::string initial_string = "A";
@@ -103,6 +105,6 @@ void recursiveFoldRightAllTestWithDeque(std::size_t times)
 
     std::cout << "recursive_fold_right_all function test with deque / std::multiplies<>(): \n";
     std::cout <<  TinyDIP::recursive_fold_right_all(test_deque1, static_cast<int>(2), std::multiplies<>()) << "\n\n";
-    
+
     return;
 }
