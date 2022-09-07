@@ -38,6 +38,7 @@ void recursiveFoldRightAllTest()
     recursiveFoldRightAllTestWithArray<6, 1>();
 
     recursiveFoldRightAllTestWithDeque<4>(1);
+    recursiveFoldRightAllTestWithDeque<5>(1);
     
     auto v = {1, 2, 3, 4, 5, 6, 7, 8};
     std::string initial_string = "A";
