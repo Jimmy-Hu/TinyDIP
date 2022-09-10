@@ -17,6 +17,7 @@ template<std::size_t dim>
 void recursiveFoldRightAllTestWithDeque(std::size_t times);
 
 template<std::size_t dim>
+void recursiveFoldRightAllTestWithList(std::size_t times);
 
 int main()
 {
