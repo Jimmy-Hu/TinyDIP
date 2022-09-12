@@ -115,3 +115,5 @@ void recursiveFoldRightAllTestWithDeque(std::size_t times)
 
     return;
 }
+
+template<std::size_t dim>
