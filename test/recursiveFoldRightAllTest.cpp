@@ -120,4 +120,7 @@ template<std::size_t dim>
 void recursiveFoldRightAllTestWithList(std::size_t times)
 {
     auto test_list1 = TinyDIP::n_dim_list_generator<dim>(1, times);
+
+    std::cout << "Play with test_list1:\n\n";
+    
 }
