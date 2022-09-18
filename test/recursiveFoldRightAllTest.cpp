@@ -122,5 +122,6 @@ void recursiveFoldRightAllTestWithList(std::size_t times)
     auto test_list1 = TinyDIP::n_dim_list_generator<dim>(1, times);
 
     std::cout << "Play with test_list1:\n\n";
+    std::cout << "recursive_fold_right_all function test with list / std::plus<>(): \n";
     std::cout << TinyDIP::recursive_fold_right_all(test_list1, static_cast<int>(1), std::plus<>()) << "\n\n";
 }
