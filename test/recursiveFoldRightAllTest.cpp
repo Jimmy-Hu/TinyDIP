@@ -129,4 +129,5 @@ void recursiveFoldRightAllTestWithList(std::size_t times)
     std::cout << TinyDIP::recursive_fold_right_all(test_list1, static_cast<int>(2), std::minus<>()) << "\n\n";
 
     std::cout << "recursive_fold_right_all function test with deque / std::multiplies<>(): \n";
+    std::cout <<  TinyDIP::recursive_fold_right_all(test_list1, static_cast<int>(2), std::multiplies<>()) << "\n\n";
 }
