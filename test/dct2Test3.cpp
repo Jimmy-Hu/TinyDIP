@@ -32,7 +32,10 @@ constexpr static auto get_offset( ExPo execution_policy,
 	auto outputs = TinyDIP::recursive_transform<1>(
 		[&](auto&& input1, auto&& input2)
 		{
-			return TinyDIP::multiplies(execution_policy, input1, TinyDIP::Image(input1.getWidth(), input1.getHeight(), input2));
+			return TinyDIP::multiplies(
+				//execution_policy,
+				input1, TinyDIP::Image(input1.getWidth(), input1.getHeight(), input2)
+				);
 		}, dictionary_y, weights);
 	//return TinyDIP::recursive_reduce(outputs, output, [](auto&& input1, auto&& input2) { return TinyDIP::plus(input1, input2); })
 	for (std::size_t i = 0; i < outputs.size(); ++i)
