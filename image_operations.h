@@ -788,6 +788,7 @@ namespace TinyDIP
     }
 
     template<class ExPo, class InputT, class... Args>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static Image<InputT> multiplies(ExPo execution_policy, const Image<InputT>& input1, const Args&... inputs)
     {
         return pixelwiseOperation(execution_policy, std::multiplies<>{}, input1, multiplies(inputs...));
