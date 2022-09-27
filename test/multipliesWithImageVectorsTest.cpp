@@ -24,6 +24,13 @@ void multipliesWithImageVectorsTest(const std::size_t xsize, const std::size_t y
 	return;
 }
 
+template<class ExPo, class ElementT = double>
+requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+void multipliesWithImageVectorsTest(ExPo execution_policy, const std::size_t xsize, const std::size_t ysize, const std::size_t zsize)
+{
+	
+}
+
 int main()
 {
 	auto start = std::chrono::system_clock::now();
