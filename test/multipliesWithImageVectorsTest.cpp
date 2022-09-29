@@ -29,6 +29,7 @@ requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
 void multipliesWithImageVectorsTest(ExPo execution_policy, const std::size_t xsize, const std::size_t ysize, const std::size_t zsize)
 {
 	std::vector<TinyDIP::Image<ElementT>> test_x;
+	for (std::size_t z = 0; z < zsize; ++z)
 	
 }
 
