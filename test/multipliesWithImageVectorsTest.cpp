@@ -30,6 +30,9 @@ void multipliesWithImageVectorsTest(ExPo execution_policy, const std::size_t xsi
 {
 	std::vector<TinyDIP::Image<ElementT>> test_x;
 	for (std::size_t z = 0; z < zsize; ++z)
+	{
+		test_x.push_back(TinyDIP::Image(xsize, ysize, 0.1));
+	}
 	
 }
 
