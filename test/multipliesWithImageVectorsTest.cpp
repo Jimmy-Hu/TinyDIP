@@ -47,7 +47,7 @@ int main()
 {
 	auto start = std::chrono::system_clock::now();
 	multipliesWithImageVectorsTest(10, 10, 10);
-	multipliesWithImageVectorsTest(std::execution::par, 5, 5, 5);
+	//multipliesWithImageVectorsTest(std::execution::par, 5, 5, 5);	//	execution_policy unsupported for TinyDIP::Image vectors
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
 	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
