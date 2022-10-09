@@ -45,6 +45,7 @@ void recursiveFoldRightAllTest()
     recursiveFoldRightAllTestWithDeque<6>(1);
 
     recursiveFoldRightAllTestWithList<4>(1);
+    recursiveFoldRightAllTestWithList<5>(1);
     
     auto v = {1, 2, 3, 4, 5, 6, 7, 8};
     std::string initial_string = "A";
