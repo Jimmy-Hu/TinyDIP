@@ -692,6 +692,7 @@ namespace TinyDIP
         const double standard_deviation_x, const double standard_deviation_y,
         const double correlation, const double normalize_factor = 1.0)
     {
+        auto output = Image<InputT>(xsize, ysize);
         return 0;
     }
 
