@@ -683,17 +683,30 @@ namespace TinyDIP
         return output;
     }
 
-    //  multiple standard deviations with correlation
+    //  General two-dimensional elliptical Gaussian
+    //  f(x, y) = A*e^(-a(x - x0)^2 + 2b(x - x0)(y - y0)+c(y - y0)^2)
     //  0 <= correlation <= 1
     template<class InputT, class OutputT>
     constexpr static auto gaussianFigure2D(
         const size_t xsize, const size_t ysize,
         const size_t centerx, const size_t centery,
-        const double standard_deviation_x, const double standard_deviation_y,
-        const double correlation, const double normalize_factor = 1.0)
+        const double a, const double b,
+        const double c, const double normalize_factor = 1.0)
     {
         auto output = Image<InputT>(xsize, ysize);
-        return 0;
+        for (size_t y = 0; y < ysize; ++y)
+        {
+            for (size_t x = 0; x < xsize; ++x)
+            {
+                output.at(x, y) = normalize_factor*
+                    std::exp(
+                        -a*std::pow((static_cast<InputT>(x) - static_cast<InputT>(centerx)), 2) +
+                        2*b*(static_cast<InputT>(x) - static_cast<InputT>(centerx))*(static_cast<InputT>(y) - static_cast<InputT>(centery)) +
+                        c*std::pow((static_cast<InputT>(y) - static_cast<InputT>(centery)), 2)
+                        );
+            }
+        }
+        return output;
     }
 
     //  single standard deviation
