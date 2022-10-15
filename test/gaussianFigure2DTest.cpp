@@ -5,3 +5,9 @@
 #include "../image.h"
 #include "../image_operations.h"
 
+void gaussianFigure2DTest();
+
+int main()
+{
+    
+}
