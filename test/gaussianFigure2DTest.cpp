@@ -10,5 +10,5 @@ void gaussianFigure2DTest();
 int main()
 {
     auto start = std::chrono::system_clock::now();
-    
+    return 0;
 }
