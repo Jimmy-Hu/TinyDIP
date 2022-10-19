@@ -13,3 +13,8 @@ int main()
     gaussianFigure2DTest();
     return 0;
 }
+
+void gaussianFigure2DTest()
+{
+    
+}
