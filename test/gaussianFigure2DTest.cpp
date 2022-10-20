@@ -16,5 +16,5 @@ int main()
 
 void gaussianFigure2DTest()
 {
-    
+    return;
 }
