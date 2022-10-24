@@ -685,13 +685,12 @@ namespace TinyDIP
 
     //  General two-dimensional elliptical Gaussian
     //  f(x, y) = A*e^(-a(x - x0)^2 + 2b(x - x0)(y - y0)+c(y - y0)^2)
-    //  0 <= correlation <= 1
-    template<class InputT, class OutputT>
+    template<class InputT>
     constexpr static auto gaussianFigure2D(
         const size_t xsize, const size_t ysize,
         const size_t centerx, const size_t centery,
-        const double a, const double b,
-        const double c, const double normalize_factor = 1.0)
+        const InputT a, const InputT b,
+        const InputT c, const InputT normalize_factor = 1.0)
     {
         auto output = Image<InputT>(xsize, ysize);
         for (size_t y = 0; y < ysize; ++y)
