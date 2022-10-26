@@ -750,6 +750,7 @@ namespace TinyDIP
     template<class InputT>
     constexpr static Image<InputT> subtract(const std::vector<Image<InputT>>& input1, const std::vector<Image<InputT>>& input2)
     {
+        assert(input1.size() == input2.size());
         return recursive_transform<1>(
             [](auto&& input1_element, auto&& input2_element)
             {
