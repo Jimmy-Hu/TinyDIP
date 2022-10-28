@@ -527,7 +527,7 @@ namespace TinyDIP
     }
 
     template<typename ElementT>
-    constexpr static auto concat_horizontal(std::vector<Image<ElementT>> input)
+    constexpr static auto concat_horizontal(const std::vector<Image<ElementT>>& input)
     {
         //return recursive_reduce(input, Image<ElementT>(0, input[0].getHeight()), [](Image<ElementT> element1, Image<ElementT> element2) { return concat_horizontal(element1, element2); });
         auto output = input[0];
