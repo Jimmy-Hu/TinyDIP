@@ -539,7 +539,7 @@ namespace TinyDIP
     }
 
     template<typename ElementT>
-    constexpr static auto concat_vertical(Image<ElementT> input1, Image<ElementT> input2)
+    constexpr static auto concat_vertical(const Image<ElementT>& input1, const Image<ElementT>& input2)
     {
         check_width_same(input1, input2);
         Image<ElementT> output(input1.getWidth(), input1.getHeight() + input2.getHeight());
