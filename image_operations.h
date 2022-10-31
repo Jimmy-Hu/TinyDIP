@@ -572,7 +572,7 @@ namespace TinyDIP
     }
 
     template<typename ElementT>
-    constexpr static auto concat(std::vector<std::vector<Image<ElementT>>> input)
+    constexpr static auto concat(const std::vector<std::vector<Image<ElementT>>>& input)
     {
         auto result1 = recursive_transform<1>(
             //std::execution::par,
