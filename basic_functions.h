@@ -329,10 +329,13 @@ namespace TinyDIP
     }
 
     //  recursive_max implementation
-    template<std::totally_ordered T>
-    constexpr auto recursive_max(T number)
+    template<class T, class Proj = std::identity,
+        std::indirect_strict_weak_order<
+                std::projected<const T*, Proj>> Comp = std::ranges::less>
+    requires(!std::ranges::input_range<T>)          //  non-range overloading
+    static inline T recursive_max(T inputNumber, Comp comp = {}, Proj proj = {})
     {
-        return number;
+        return std::invoke(proj, inputNumber);
     }
 
     template<std::ranges::range T>
