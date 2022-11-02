@@ -349,6 +349,16 @@ namespace TinyDIP
         return maxValue;
     }
 
+    //  recursive_min template function implementation
+    template<class T, class Proj = std::identity,
+             std::indirect_strict_weak_order<
+             std::projected<const T*, Proj>> Comp = std::ranges::less>
+    requires(!std::ranges::input_range<T>)          //  non-range overloading
+    static inline T recursive_min(T inputNumber, Comp comp = {}, Proj proj = {})
+    {
+        return std::invoke(proj, inputNumber);
+    }
+
     //  recursive_print implementation
     template<typename T>
     constexpr void recursive_print(const T& input, const std::size_t level = 0)
