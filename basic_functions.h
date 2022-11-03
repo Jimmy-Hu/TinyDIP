@@ -359,6 +359,23 @@ namespace TinyDIP
         return std::invoke(proj, inputNumber);
     }
 
+    template<std::ranges::input_range T, class Proj = std::identity,
+             std::indirect_strict_weak_order<
+             std::projected<const T*, Proj>> Comp = std::ranges::less>
+    static inline auto recursive_min(const T& numbers, Comp comp = {}, Proj proj = {})
+    {
+        auto output = recursive_min(numbers.at(0), comp, proj);
+        for (auto& element : numbers)
+        {
+            output = std::ranges::min(
+                output,
+                recursive_min(element, comp, proj),
+                comp,
+                proj);
+        }
+        return output;
+    }
+
     //  recursive_print implementation
     template<typename T>
     constexpr void recursive_print(const T& input, const std::size_t level = 0)
