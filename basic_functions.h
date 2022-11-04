@@ -328,7 +328,7 @@ namespace TinyDIP
         return output1;
     }
 
-    //  recursive_max implementation
+    //  recursive_max template function implementation
     template<class T, class Proj = std::identity,
         std::indirect_strict_weak_order<
                 std::projected<const T*, Proj>> Comp = std::ranges::less>
@@ -338,15 +338,21 @@ namespace TinyDIP
         return std::invoke(proj, inputNumber);
     }
 
-    template<std::ranges::range T>
-    constexpr auto recursive_max(const T& numbers)
+    template<std::ranges::input_range T, class Proj = std::identity,
+             std::indirect_strict_weak_order<
+             std::projected<const T*, Proj>> Comp = std::ranges::less>
+    static inline auto recursive_max(const T& numbers, Comp comp = {}, Proj proj = {})
     {
-        auto maxValue = recursive_max(numbers.at(0));
+        auto output = recursive_max(numbers.at(0), comp, proj);
         for (auto& element : numbers)
         {
-            maxValue = std::max(maxValue, recursive_max(element));
+            output = std::ranges::max(
+                output,
+                recursive_max(element, comp, proj),
+                comp,
+                proj);
         }
-        return maxValue;
+        return output;
     }
 
     //  recursive_min template function implementation
