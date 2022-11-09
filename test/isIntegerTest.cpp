@@ -30,8 +30,12 @@ void isIntegerTest()
 
 	double test_number2 = 2;
 	assert(TinyDIP::is_integer(test_number2) == true);
+	
 	test_number2 = 2.0001;
 	assert(TinyDIP::is_integer(test_number2) == false);
+
+	test_number2 = 2.0;
+	assert(TinyDIP::is_integer(test_number2) == true);
 
 	return;
 }
