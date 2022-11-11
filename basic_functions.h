@@ -101,15 +101,11 @@ namespace TinyDIP
         return false;
     }
 
-    template<typename T, typename TestT = double>
+    template<std::floating_point T>
     constexpr bool is_integer(T input)
     {
-        TestT floor_input = std::floor(static_cast<TestT>(input));
-        if (std::abs(floor_input - input) <= std::numeric_limits<T>::epsilon() )
-        {
-            return true;
-        }
-        return false;
+        T integer_part;
+        return std::modf(input, &integer_part) == 0;
     }
 
     #ifdef USE_BOOST_MULTIDIMENSIONAL_ARRAY
