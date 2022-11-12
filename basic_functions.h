@@ -108,6 +108,12 @@ namespace TinyDIP
         return std::modf(input, &integer_part) == 0;
     }
 
+    template<std::integral T>
+    constexpr bool is_integer(T input)
+    {
+        return true;
+    }
+
     #ifdef USE_BOOST_MULTIDIMENSIONAL_ARRAY
     //  Multiplication
     template<is_multiplicable T1, is_multiplicable T2>
