@@ -25,6 +25,7 @@ void isIntegerTest()
 	assert(TinyDIP::is_integer(1u) == true);
 	assert(TinyDIP::is_integer(-1) == true);
 	assert(TinyDIP::is_integer(-1.0) == true);
+	assert(TinyDIP::is_integer(-1.1));
 
 	float test_number1 = 1.2;
 	assert(TinyDIP::is_integer(test_number1) == false);
