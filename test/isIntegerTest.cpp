@@ -27,6 +27,7 @@ void isIntegerTest()
 	assert(TinyDIP::is_integer(-1.0) == true);
 	assert(TinyDIP::is_integer(-1.1) == false);
 
+	//	Test with maximum / minimum double
 	assert(TinyDIP::is_integer(std::numeric_limits<double>::max()) == true);
 
 	assert(TinyDIP::is_integer(std::numeric_limits<double>::min()) == false);
