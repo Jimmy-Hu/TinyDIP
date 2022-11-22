@@ -42,6 +42,7 @@ void recursiveFoldRightAllTest()
     recursiveFoldRightAllTestWithArray<5, 1>();
     recursiveFoldRightAllTestWithArray<6, 1>();
     recursiveFoldRightAllTestWithArray<7, 1>();
+    recursiveFoldRightAllTestWithArray<8, 1>();
 
     recursiveFoldRightAllTestWithDeque<4>(1);
     recursiveFoldRightAllTestWithDeque<5>(1);
