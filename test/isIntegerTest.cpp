@@ -34,7 +34,7 @@ void isIntegerTest()
 
 	assert(TinyDIP::is_integer(-std::numeric_limits<double>::max()) == true);
 
-	std::cout << TinyDIP::is_integer(std::numeric_limits<long double>::denorm_min());
+	assert(TinyDIP::is_integer(std::numeric_limits<long double>::denorm_min()) == false);
 
 	float test_number1 = 1.2;
 	assert(TinyDIP::is_integer(test_number1) == false);
