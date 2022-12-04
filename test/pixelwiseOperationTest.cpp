@@ -27,6 +27,7 @@ void pixelwiseOperationTest(const size_t size = 10)
 
 int main()
 {
+    auto start = std::chrono::system_clock::now();
     pixelwiseOperationTest<int>();
     pixelwiseOperationTest<long>();
     pixelwiseOperationTest<float>();
