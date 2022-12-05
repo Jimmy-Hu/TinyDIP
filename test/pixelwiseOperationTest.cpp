@@ -32,6 +32,7 @@ int main()
     pixelwiseOperationTest<long>();
     pixelwiseOperationTest<float>();
 	pixelwiseOperationTest<double>();
+    auto end = std::chrono::system_clock::now();
 	return 0;
 }
 
