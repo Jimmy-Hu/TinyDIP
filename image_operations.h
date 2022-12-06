@@ -718,6 +718,27 @@ namespace TinyDIP
         return gaussianFigure2D(xsize, ysize, centerx, centery, standard_deviation, standard_deviation);
     }
 
+    //  gaussianFigure3D Template Function Implementation
+    //  multiple standard deviations
+    template<class InputT>
+    requires(std::floating_point<InputT> || std::integral<InputT>)
+    constexpr static auto gaussianFigure3D(
+        const size_t xsize, const size_t ysize, const size_t zsize,
+        const size_t centerx, const size_t centery, const size_t centerz,
+        const InputT standard_deviation_x, const InputT standard_deviation_y, const InputT standard_deviation_z)
+    {
+        auto output = std::vector<Image<InputT>>();
+        auto gaussian_image2d = gaussianFigure2D(xsize, ysize, centerx, centery, standard_deviation_x, standard_deviation_y);
+        for (size_t z = 0; z < zsize; ++z)
+        {
+            output.push_back(
+                multiplies(gaussian_image2d,
+                Image(xsize, ysize, normalDistribution1D(static_cast<InputT>(z) - static_cast<InputT>(centerz), standard_deviation_z)))
+            );
+        }
+        return output;
+    }
+
     template<class InputT>
     constexpr static Image<InputT> plus(const Image<InputT>& input1)
     {
