@@ -813,7 +813,10 @@ namespace TinyDIP
     requires(std::floating_point<TimesT> || std::integral<TimesT>)
     constexpr static Image<InputT> multiplies(const Image<InputT>& input1, const TimesT times)
     {
-        
+        return multiplies(
+            input1,
+            Image(xsize, ysize, normalDistribution1D(static_cast<InputT>(z) - static_cast<InputT>(centerz), standard_deviation_z)))
+        );
     }
 
     template<class ExPo, class InputT>
