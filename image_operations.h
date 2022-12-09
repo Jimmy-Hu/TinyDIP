@@ -815,7 +815,7 @@ namespace TinyDIP
     {
         return multiplies(
             input1,
-            Image(xsize, ysize, normalDistribution1D(static_cast<InputT>(z) - static_cast<InputT>(centerz), standard_deviation_z)))
+            Image(input1.width, input1.height, times)
         );
     }
 
