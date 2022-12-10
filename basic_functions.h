@@ -7,6 +7,7 @@
 #include <array>
 #include <cassert>
 #include <chrono>
+#include <cmath>
 #include <complex>
 #include <concepts>
 #include <deque>
