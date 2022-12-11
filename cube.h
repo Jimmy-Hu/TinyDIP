@@ -25,9 +25,7 @@ namespace TinyDIP
 	class Cube
 	{
 	public:
-		Cube()
-		{
-		}
+		Cube() = default;
 
         Cube(const int newWidth, const int newHeight, const int newDepth)
         {
