@@ -53,7 +53,7 @@ namespace TinyDIP
             return;
         }
 
-        Image(const std::vector<std::vector<std::vector<ElementT>>>& input)
+        Cube(const std::vector<std::vector<std::vector<ElementT>>>& input)
         {
             this->data = recursive_transform<3>(input, [](ElementT element) {return element; } ); //  Deep copy
             return;
