@@ -27,7 +27,7 @@ namespace TinyDIP
 	public:
 		Cube() = default;
 
-        Cube(const int newWidth, const int newHeight, const int newDepth)
+        Cube(const std::size_t newWidth, const std::size_t newHeight, const std::size_t newDepth)
         {
             this->data.resize(newDepth);
             for (size_t i = 0; i < newDepth; ++i) {
@@ -42,9 +42,9 @@ namespace TinyDIP
 
         Cube(const int newWidth, const int newHeight, const int newDepth, ElementT initVal)
         {
-            this->data.resize(newDepth);
+            data.resize(newDepth);
             for (size_t i = 0; i < newDepth; ++i) {
-                this->data[i].resize(newHeight);
+                data[i].resize(newHeight);
                 for (size_t j = 0; j < newHeight; j++) {
                     this->data[i][j].resize(newWidth);
                 }
@@ -98,41 +98,37 @@ namespace TinyDIP
             return this->data.size();
         }
 
-        constexpr auto getData()
-        {
-            return this->transform([](ElementT element) { return element; });   //  Deep copy
-        }
+        std::vector<ElementT> const& getData() const noexcept { return data; }      //  expose the internal data
 
-        void print()
+        void print(std::string separator = "\t", std::ostream& os = std::cout) const
         {
-            for (auto& element_group1 : this->toString())
+            for (std::size_t y = 0; y < height; ++y)
             {
-                for (auto& element_group2 : element_group1)
+                for (std::size_t x = 0; x < width; ++x)
                 {
-                    for (auto& element : element_group2)
-                    {
-                        std::cout << element << "\t";
-                    }
-                    std::cout << "\n";
+                    //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
+                    os << +at(x, y) << separator;
                 }
-                std::cout << "\n";
-                std::cout << "\n";
+                os << "\n";
             }
+            os << "\n";
             return;
-        }
-
-        constexpr auto toString()
-        {
-            return this->transform([](ElementT element) { return std::to_string(element); });
         }
         
     private:
-        std::vector<std::vector<std::vector<ElementT>>> data;
-
-        template<class F>
-        constexpr auto transform(const F& f)
+        std::size_t width;
+        std::size_t height;
+        std::size_t depth;
+        std::vector<ElementT> data;
+        
+        void checkBoundary(const size_t x, const size_t y, const size_t z) const
         {
-            return recursive_transform<3>(this->data, f);
+            if (x >= width)
+                throw std::out_of_range("Given x out of range!");
+            if (y >= height)
+                throw std::out_of_range("Given y out of range!");
+            if (z >= depth)
+                throw std::out_of_range("Given z out of range!");
         }
     };
 }
