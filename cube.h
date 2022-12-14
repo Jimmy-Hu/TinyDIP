@@ -85,17 +85,17 @@ namespace TinyDIP
 
         constexpr auto getSizeX()
         {
-            return this->data[0][0].size();
+            return width;
         }
 
         constexpr auto getSizeY()
         {
-            return this->data[0].size();
+            return height;
         }
 
         constexpr auto getSizeZ()
         {
-            return this->data.size();
+            return depth;
         }
 
         std::vector<ElementT> const& getData() const noexcept { return data; }      //  expose the internal data
@@ -114,6 +114,10 @@ namespace TinyDIP
             os << "\n";
             return;
         }
+
+        Cube(const Image<Cube> &input) = default;                           //  Copy Constructor
+
+        Cube(Cube<ElementT> &&input) = default;                             //  Move Constructor
         
     private:
         std::size_t width;
