@@ -115,6 +115,8 @@ namespace TinyDIP
             return;
         }
 
+        Cube<ElementT>& operator=(Cube<ElementT> const& input) = default;   //  Copy Assign
+
         Cube<ElementT>& operator=(Cube<ElementT>&& other) = default;        //  Move Assign
 
         Cube(const Image<Cube> &input) = default;                           //  Copy Constructor
