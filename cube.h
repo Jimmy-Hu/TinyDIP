@@ -115,6 +115,11 @@ namespace TinyDIP
             return;
         }
 
+        friend Cube<ElementT> operator-(Cube<ElementT> input1, const Cube<ElementT>& input2)
+        {
+            return input1 -= input2;
+        }
+
         Cube<ElementT>& operator=(Cube<ElementT> const& input) = default;   //  Copy Assign
 
         Cube<ElementT>& operator=(Cube<ElementT>&& other) = default;        //  Move Assign
