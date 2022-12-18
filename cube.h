@@ -115,6 +115,15 @@ namespace TinyDIP
             return;
         }
 
+        friend bool operator==(Cube<ElementT> const&, Cube<ElementT> const&) = default;
+
+        friend bool operator!=(Cube<ElementT> const&, Cube<ElementT> const&) = default;
+
+        friend Cube<ElementT> operator+(Cube<ElementT> input1, const Cube<ElementT>& input2)
+        {
+            return input1 += input2;
+        }
+
         friend Cube<ElementT> operator-(Cube<ElementT> input1, const Cube<ElementT>& input2)
         {
             return input1 -= input2;
