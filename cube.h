@@ -115,6 +115,14 @@ namespace TinyDIP
             return;
         }
 
+        Image<ElementT>& operator/=(const Image<ElementT>& rhs)
+        {
+            check_size_same(rhs, *this);
+            std::transform(std::ranges::cbegin(image_data), std::ranges::cend(image_data), std::ranges::cbegin(rhs.image_data),
+                   std::ranges::begin(image_data), std::divides<>{});
+            return *this;
+        }
+
         friend bool operator==(Cube<ElementT> const&, Cube<ElementT> const&) = default;
 
         friend bool operator!=(Cube<ElementT> const&, Cube<ElementT> const&) = default;
