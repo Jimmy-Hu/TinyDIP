@@ -20,6 +20,14 @@ namespace TinyDIP
     {
         return x.getWidth() == y.getWidth();
     }
+
+    template<typename ElementT>
+    constexpr bool is_width_same(const Cube<ElementT>& x, const Cube<ElementT>& y, const Cube<ElementT>& z)
+    {
+        return is_width_same(x, y) && is_width_same(y, z);
+    }
+
+    
 }
 
 #endif
