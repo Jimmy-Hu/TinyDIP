@@ -28,10 +28,11 @@ namespace TinyDIP
     }
 
     template<typename ElementT>
-    constexpr bool is_height_same(const Image<ElementT>& x, const Image<ElementT>& y)
+    constexpr bool is_height_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
     {
         return x.getHeight() == y.getHeight();
     }
+    
 }
 
 #endif
