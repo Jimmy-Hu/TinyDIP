@@ -38,6 +38,12 @@ namespace TinyDIP
     {
         return is_height_same(x, y) && is_height_same(y, z);
     }
+
+    template<typename ElementT>
+    constexpr bool is_depth_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    {
+        return x.getSizeZ() == y.getSizeZ();
+    }
 }
 
 #endif
