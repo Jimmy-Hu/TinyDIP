@@ -18,7 +18,7 @@ namespace TinyDIP
     template<typename ElementT>
     constexpr bool is_width_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
     {
-        return x.getWidth() == y.getWidth();
+        return x.getSizeX() == y.getSizeX();
     }
 
     template<typename ElementT>
@@ -30,7 +30,7 @@ namespace TinyDIP
     template<typename ElementT>
     constexpr bool is_height_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
     {
-        return x.getHeight() == y.getHeight();
+        return x.getSizeY() == y.getSizeY();
     }
     
     template<typename ElementT>
