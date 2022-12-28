@@ -50,6 +50,12 @@ namespace TinyDIP
     {
         return is_depth_same(x, y) && is_depth_same(y, z);
     }
+
+    template<typename ElementT>
+    constexpr bool is_size_same(const Image<ElementT>& x, const Image<ElementT>& y)
+    {
+        return is_width_same(x, y) && is_height_same(x, y) && is_depth_same(x, y);
+    }
 }
 
 #endif
