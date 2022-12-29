@@ -52,9 +52,15 @@ namespace TinyDIP
     }
 
     template<typename ElementT>
-    constexpr bool is_size_same(const Image<ElementT>& x, const Image<ElementT>& y)
+    constexpr bool is_size_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
     {
         return is_width_same(x, y) && is_height_same(x, y) && is_depth_same(x, y);
+    }
+
+    template<typename ElementT>
+    constexpr bool is_size_same(const Cube<ElementT>& x, const Cube<ElementT>& y, const Cube<ElementT>& z)
+    {
+        return is_size_same(x, y) && is_size_same(y, z);
     }
 }
 
