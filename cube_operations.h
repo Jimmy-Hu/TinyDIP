@@ -107,6 +107,13 @@ namespace TinyDIP
         assert_height_same(x, y);
         assert_depth_same(x, y);
     }
+
+    template<typename ElementT>
+    constexpr void assert_size_same(const Cube<ElementT>& x, const Cube<ElementT>& y, const Cube<ElementT>& z)
+    {
+        assert_size_same(x, y);
+        assert_size_same(y, z);
+    }
 }
 
 #endif
