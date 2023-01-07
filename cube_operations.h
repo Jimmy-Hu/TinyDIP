@@ -114,6 +114,13 @@ namespace TinyDIP
         assert_size_same(x, y);
         assert_size_same(y, z);
     }
+
+    template<typename ElementT>
+    constexpr void check_width_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    {
+        if (!is_width_same(x, y))
+            throw std::runtime_error("Width mismatched!");
+    }
 }
 
 #endif
