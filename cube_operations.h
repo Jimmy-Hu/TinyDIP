@@ -128,6 +128,13 @@ namespace TinyDIP
         if (!is_height_same(x, y))
             throw std::runtime_error("Height mismatched!");
     }
+
+    template<typename ElementT>
+    constexpr void check_depth_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    {
+        if (!is_depth_same(x, y))
+            throw std::runtime_error("Depth mismatched!");
+    }
 }
 
 #endif
