@@ -115,6 +115,14 @@ namespace TinyDIP
             return;
         }
 
+        Cube<ElementT>& operator+=(const Cube<ElementT>& rhs)
+        {
+            check_size_same(rhs, *this);
+            std::transform(std::ranges::cbegin(data), std::ranges::cend(data), std::ranges::cbegin(rhs.data),
+                   std::ranges::begin(data), std::plus<>{});
+            return *this;
+        }
+
         Cube<ElementT>& operator-=(const Cube<ElementT>& rhs)
         {
             check_size_same(rhs, *this);
