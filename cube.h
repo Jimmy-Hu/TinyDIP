@@ -102,17 +102,28 @@ namespace TinyDIP
 
         void print(std::string separator = "\t", std::ostream& os = std::cout) const
         {
-            for (std::size_t y = 0; y < height; ++y)
+            for(std::size_t z = 0; z < depth; ++z)
             {
-                for (std::size_t x = 0; x < width; ++x)
+                for (std::size_t y = 0; y < height; ++y)
                 {
-                    //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                    os << +at(x, y) << separator;
+                    for (std::size_t x = 0; x < width; ++x)
+                    {
+                        //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
+                        os << +at(x, y, z) << separator;
+                    }
+                    os << "\n";
                 }
                 os << "\n";
             }
             os << "\n";
             return;
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, const Image<ElementT>& rhs)
+        {
+            const std::string separator = "\t";
+            rhs.print(separator, os);
+            return os;
         }
 
         Cube<ElementT>& operator+=(const Cube<ElementT>& rhs)
