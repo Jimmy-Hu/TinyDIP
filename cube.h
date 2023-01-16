@@ -27,73 +27,61 @@ namespace TinyDIP
 	public:
 		Cube() = default;
 
-        Cube(const std::size_t newWidth, const std::size_t newHeight, const std::size_t newDepth)
+        Cube(const std::size_t newWidth, const std::size_t newHeight, const std::size_t newDepth):
+            width(width),
+            height(height),
+            depth(newDepth),
+            data(width * height * depth) { }
+
+        Cube(const int newWidth, const int newHeight, const int newDepth, ElementT initVal):
+            width(newWidth),
+            height(newHeight),
+            depth(newDepth),
+            data(width * height * depth, initVal) {}
+
+        Cube(const std::vector<Image<ElementT>>& input)
         {
-            this->data.resize(newDepth);
-            for (size_t i = 0; i < newDepth; ++i) {
-                this->data[i].resize(newHeight);
-                for (size_t j = 0; j < newHeight; j++) {
-                    this->data[i][j].resize(newWidth);
+            width = input[0].getWidth();
+            height = input[0].getHeight();
+            depth = input.size();
+            
+            for (std::size_t z = 0; z < input.size(); ++z)
+            {
+                auto image = input[z];
+                for (std::size_t y = 0; y < height; ++y)
+                {
+                    for (std::size_t x = 0; x < width; ++x)
+                    {
+                        data[z * width * height + y * width + x] = image.at(x, y);
+                    }
                 }
             }
-            this->data = recursive_transform<3>(this->data, [](ElementT element) { return ElementT{}; });
             return;
         }
 
-        Cube(const int newWidth, const int newHeight, const int newDepth, ElementT initVal)
-        {
-            data.resize(newDepth);
-            for (size_t i = 0; i < newDepth; ++i) {
-                data[i].resize(newHeight);
-                for (size_t j = 0; j < newHeight; j++) {
-                    this->data[i][j].resize(newWidth);
-                }
-            }
-            this->data = recursive_transform<3>(this->data, [initVal](ElementT element) { return initVal; });
-            return;
+        constexpr ElementT& at(const unsigned int x, const unsigned int y, const unsigned int z)
+        { 
+            checkBoundary(x, y, z);
+            return data[z * width * height + y * width + x];
         }
 
-        Cube(const std::vector<std::vector<std::vector<ElementT>>>& input)
+        constexpr ElementT const& at(const unsigned int x, const unsigned int y, const unsigned int z) const
         {
-            this->data = recursive_transform<3>(input, [](ElementT element) {return element; } ); //  Deep copy
-            return;
+            checkBoundary(x, y);
+            return data[z * width * height + y * width + x];
         }
 
-        template<class OutputT>
-        constexpr auto cast()
-        {
-            return this->transform([](ElementT element) { return static_cast<OutputT>(element); });
-        }
-
-        constexpr auto get(const unsigned int locationx, const unsigned int locationy, const unsigned int locationz)
-        {
-            return this->data[locationz][locationy][locationx];
-        }
-
-        constexpr auto set(const unsigned int locationx, const unsigned int locationy, const unsigned int locationz, ElementT element)
-        {
-            this->data[locationz][locationy][locationx] = element;
-            return *this;
-        }
-
-        template<class InputT>
-        constexpr auto set(const unsigned int locationx, const unsigned int locationy, const unsigned int locationz, const InputT& element)
-        {
-            this->image_data[locationz][locationy][locationx] = static_cast<ElementT>(element);
-            return *this;
-        }
-
-        constexpr auto getSizeX()
+        constexpr auto getSizeX() const noexcept
         {
             return width;
         }
 
-        constexpr auto getSizeY()
+        constexpr auto getSizeY() const noexcept
         {
             return height;
         }
 
-        constexpr auto getSizeZ()
+        constexpr auto getSizeZ() const noexcept
         {
             return depth;
         }
