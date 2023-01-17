@@ -107,7 +107,7 @@ namespace TinyDIP
             return;
         }
 
-        friend std::ostream& operator<<(std::ostream& os, const Image<ElementT>& rhs)
+        friend std::ostream& operator<<(std::ostream& os, const Cube<ElementT>& rhs)
         {
             const std::string separator = "\t";
             rhs.print(separator, os);
@@ -164,7 +164,7 @@ namespace TinyDIP
 
         Cube<ElementT>& operator=(Cube<ElementT>&& other) = default;        //  Move Assign
 
-        Cube(const Image<Cube> &input) = default;                           //  Copy Constructor
+        Cube(const Cube<ElementT> &input) = default;                        //  Copy Constructor
 
         Cube(Cube<ElementT> &&input) = default;                             //  Move Constructor
         
