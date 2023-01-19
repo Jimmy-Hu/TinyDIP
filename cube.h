@@ -44,6 +44,7 @@ namespace TinyDIP
             width = input[0].getWidth();
             height = input[0].getHeight();
             depth = input.size();
+            data.resize(width * height * depth);
             
             for (std::size_t z = 0; z < input.size(); ++z)
             {
