@@ -728,10 +728,11 @@ namespace TinyDIP
         const InputT standard_deviation_x, const InputT standard_deviation_y, const InputT standard_deviation_z)
     {
         auto output = std::vector<Image<InputT>>();
+        output.reserve(zsize);
         auto gaussian_image2d = gaussianFigure2D(xsize, ysize, centerx, centery, standard_deviation_x, standard_deviation_y);
         for (size_t z = 0; z < zsize; ++z)
         {
-            output.push_back(
+            output.emplace_back(
                 multiplies(gaussian_image2d,
                 Image(xsize, ysize, normalDistribution1D(static_cast<InputT>(z) - static_cast<InputT>(centerz), standard_deviation_z)))
             );
@@ -815,7 +816,7 @@ namespace TinyDIP
     {
         return multiplies(
             input1,
-            Image(input1.width, input1.height, times)
+            Image(input1.getWidth(), input1.getHeight(), times)
         );
     }
 
