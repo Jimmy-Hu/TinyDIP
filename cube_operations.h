@@ -143,6 +143,13 @@ namespace TinyDIP
         check_height_same(x, y);
         check_depth_same(x, y);
     }
+
+    //  plus template function implementation
+    template<class InputT>
+    constexpr static Cube<InputT> plus(const Cube<InputT>& input1)
+    {
+        return input1;
+    }
 }
 
 #endif
