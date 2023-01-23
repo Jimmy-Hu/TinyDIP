@@ -144,6 +144,23 @@ namespace TinyDIP
         check_depth_same(x, y);
     }
 
+    //  voxelwiseOperation template function implementation
+    template<std::size_t unwrap_level = 1, class... Args>
+    constexpr static auto voxelwiseOperation(auto op, const Args&... inputs)
+    {
+        auto output = Cube(
+            recursive_transform<unwrap_level>(
+                [&](auto&& element1, auto&&... elements) 
+                    {
+                        return op(element1, elements...);
+                    },
+                inputs.getData()...),
+            first_of(inputs...).getWidth(),
+            first_of(inputs...).getHeight(),
+            first_of(inputs...).getDepth());
+        return output;
+    }
+
     //  plus template function implementation
     template<class InputT>
     constexpr static Cube<InputT> plus(const Cube<InputT>& input1)
