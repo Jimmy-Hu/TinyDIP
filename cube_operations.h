@@ -161,6 +161,24 @@ namespace TinyDIP
         return output;
     }
 
+    template<std::size_t unwrap_level = 1, class ExPo, class InputT>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static auto voxelwiseOperation(ExPo execution_policy, auto op, const Image<InputT>& input1)
+    {
+        auto output = Cube(
+            recursive_transform<unwrap_level>(
+                execution_policy,
+                [&](auto&& element1) 
+                    {
+                        return op(element1);
+                    },
+                (input1.getData())),
+            input1.getWidth(),
+            input1.getHeight(),
+            input1.getDepth());
+        return output;
+    }
+
     //  plus template function implementation
     template<class InputT>
     constexpr static Cube<InputT> plus(const Cube<InputT>& input1)
