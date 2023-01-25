@@ -733,11 +733,11 @@ namespace TinyDIP
         for (size_t z = 0; z < zsize; ++z)
         {
             output.emplace_back(
-                multiplies(gaussian_image2d,
-                Image(xsize, ysize, normalDistribution1D(static_cast<InputT>(z) - static_cast<InputT>(centerz), standard_deviation_z)))
+                gaussian_image2d *
+                normalDistribution1D(static_cast<InputT>(z) - static_cast<InputT>(centerz), standard_deviation_z)
             );
         }
-        return output;
+        return Cube(output);
     }
 
     template<class InputT>
