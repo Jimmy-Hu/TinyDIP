@@ -213,6 +213,11 @@ namespace TinyDIP
             return multiplies(input1, input2);
         }
 
+        friend Image<ElementT> operator*(ElementT input1, Image<ElementT> input2)
+        {
+            return multiplies(input2, input1);
+        }
+
         Image<ElementT>& operator=(Image<ElementT> const& input) = default;  //  Copy Assign
 
         Image<ElementT>& operator=(Image<ElementT>&& other) = default;       //  Move Assign
