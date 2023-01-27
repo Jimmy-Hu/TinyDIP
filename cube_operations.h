@@ -185,6 +185,12 @@ namespace TinyDIP
     {
         return input1;
     }
+
+    template<class InputT, class... Args>
+    constexpr static Cube<InputT> plus(const Cube<InputT>& input1, const Args&... inputs)
+    {
+        return voxelwiseOperation(std::plus<>{}, input1, plus(inputs...));
+    }
 }
 
 #endif
