@@ -39,6 +39,18 @@ namespace TinyDIP
             depth(newDepth),
             data(width * height * depth, initVal) {}
 
+        Cube(const std::vector<ElementT>& input, std::size_t newWidth, std::size_t newHeight, const std::size_t newDepth):
+            width(newWidth),
+            height(newHeight),
+            depth(newDepth)
+        {
+            if (input.size() != newWidth * newHeight * newDepth)
+            {
+                throw std::runtime_error("Data input and the given size are mismatched!");
+            }
+            data = input;
+        }    
+
         Cube(const std::vector<Image<ElementT>>& input)
         {
             width = input[0].getWidth();
@@ -159,6 +171,11 @@ namespace TinyDIP
         friend Cube<ElementT> operator-(Cube<ElementT> input1, const Cube<ElementT>& input2)
         {
             return input1 -= input2;
+        }
+
+        friend Image<ElementT> operator*(Image<ElementT> input1, ElementT input2)
+        {
+            return multiplies(input1, input2);
         }
 
         Cube<ElementT>& operator=(Cube<ElementT> const& input) = default;   //  Copy Assign
