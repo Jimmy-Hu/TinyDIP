@@ -99,6 +99,21 @@ namespace TinyDIP
             return depth;
         }
 
+        constexpr auto getWidth() const noexcept
+        {
+            return width;
+        }
+
+        constexpr auto getHeight() const noexcept
+        {
+            return height;
+        }
+
+        constexpr auto getDepth() const noexcept
+        {
+            return depth;
+        }
+
         std::vector<ElementT> const& getData() const noexcept { return data; }      //  expose the internal data
 
         void print(std::string separator = "\t", std::ostream& os = std::cout) const
