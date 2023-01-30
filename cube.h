@@ -188,7 +188,7 @@ namespace TinyDIP
             return input1 -= input2;
         }
 
-        friend Image<ElementT> operator*(Image<ElementT> input1, ElementT input2)
+        friend Cube<ElementT> operator*(Cube<ElementT> input1, ElementT input2)
         {
             return multiplies(input1, input2);
         }
