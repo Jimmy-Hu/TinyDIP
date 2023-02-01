@@ -201,6 +201,14 @@ namespace TinyDIP
                 return plus(input1_element, inputs_element...);
             }, input1, inputs...);
     }
+
+    //  subtract template function implementation
+    template<class InputT>
+    constexpr static Cube<InputT> subtract(const Cube<InputT>& input1, const Cube<InputT>& input2)
+    {
+        check_size_same(input1, input2);
+        return voxelwiseOperation(std::minus<>{}, input1, input2);
+    }
 }
 
 #endif
