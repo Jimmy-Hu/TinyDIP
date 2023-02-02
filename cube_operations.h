@@ -209,6 +209,17 @@ namespace TinyDIP
         check_size_same(input1, input2);
         return voxelwiseOperation(std::minus<>{}, input1, input2);
     }
+
+    template<class InputT>
+    constexpr static auto subtract(const std::vector<Cube<InputT>>& input1, const std::vector<Cube<InputT>>& input2)
+    {
+        assert(input1.size() == input2.size());
+        return recursive_transform<1>(
+            [](auto&& input1_element, auto&& input2_element)
+            {
+                return subtract(input1_element, input2_element);
+            }, input1, input2);
+    }
 }
 
 #endif
