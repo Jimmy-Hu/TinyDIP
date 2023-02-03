@@ -770,7 +770,7 @@ namespace TinyDIP
     }
 
     template<class InputT>
-    constexpr static Image<InputT> subtract(const std::vector<Image<InputT>>& input1, const std::vector<Image<InputT>>& input2)
+    constexpr static auto subtract(const std::vector<Image<InputT>>& input1, const std::vector<Image<InputT>>& input2)
     {
         assert(input1.size() == input2.size());
         return recursive_transform<1>(
@@ -818,6 +818,13 @@ namespace TinyDIP
             input1,
             Image(input1.getWidth(), input1.getHeight(), times)
         );
+    }
+    
+    template<class InputT, class TimesT>
+    requires(std::floating_point<TimesT> || std::integral<TimesT>)
+    constexpr static Image<InputT> multiplies(const TimesT times, const Image<InputT>& input1)
+    {
+        return multiplies(input1, times);
     }
 
     template<class ExPo, class InputT>
