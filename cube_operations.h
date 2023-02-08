@@ -223,7 +223,7 @@ namespace TinyDIP
 
     //  multiplies template function implementation
     template<class InputT>
-    constexpr static Image<InputT> multiplies(const Image<InputT>& input1, const Image<InputT>& input2)
+    constexpr static Cube<InputT> multiplies(const Cube<InputT>& input1, const Cube<InputT>& input2)
     {
         return voxelwiseOperation(std::multiplies<>{}, input1, input2);
     }
