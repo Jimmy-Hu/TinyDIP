@@ -227,6 +227,16 @@ namespace TinyDIP
     {
         return voxelwiseOperation(std::multiplies<>{}, input1, input2);
     }
+
+    template<class InputT, class TimesT>
+    requires(std::floating_point<TimesT> || std::integral<TimesT>)
+    constexpr static Cube<InputT> multiplies(const Cube<InputT>& input1, const TimesT times)
+    {
+        return multiplies(
+            input1,
+            Cube(input1.getWidth(), input1.getHeight(), input1.getDepth(), times)
+        );
+    }
 }
 
 #endif
