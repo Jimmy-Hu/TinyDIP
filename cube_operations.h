@@ -237,6 +237,13 @@ namespace TinyDIP
             Cube(input1.getWidth(), input1.getHeight(), input1.getDepth(), times)
         );
     }
+
+    template<class InputT, class TimesT>
+    requires(std::floating_point<TimesT> || std::integral<TimesT>)
+    constexpr static Cube<InputT> multiplies(const TimesT times, const Cube<InputT>& input1)
+    {
+        return multiplies(input1, times);
+    }
 }
 
 #endif
