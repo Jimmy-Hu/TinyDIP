@@ -251,6 +251,12 @@ namespace TinyDIP
     {
         return voxelwiseOperation(execution_policy, std::multiplies<>{}, input1, input2);
     }
+
+    template<class InputT>
+    constexpr static Cube<InputT> divides(const Cube<InputT>& input1, const Cube<InputT>& input2)
+    {
+        return pixelwiseOperation(std::divides<>{}, input1, input2);
+    }
 }
 
 #endif
