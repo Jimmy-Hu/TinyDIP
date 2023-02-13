@@ -257,6 +257,17 @@ namespace TinyDIP
     {
         return pixelwiseOperation(std::divides<>{}, input1, input2);
     }
+
+    template<class InputT>
+    constexpr static auto divides(const std::vector<Cube<InputT>>& input1, const std::vector<Cube<InputT>>& input2)
+    {
+        assert(input1.size() == input2.size());
+        return recursive_transform<1>(
+            [](auto&& input1_element, auto&& input2_element)
+            {
+                return divides(input1_element, input2_element);
+            }, input1, input2);
+    }
 }
 
 #endif
