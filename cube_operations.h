@@ -268,6 +268,13 @@ namespace TinyDIP
                 return divides(input1_element, input2_element);
             }, input1, input2);
     }
+
+    template<class ExPo, class InputT>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static Cube<InputT> divides(ExPo execution_policy, const Cube<InputT>& input1, const Cube<InputT>& input2)
+    {
+        return pixelwiseOperation(execution_policy, std::divides<>{}, input1, input2);
+    }
 }
 
 #endif
