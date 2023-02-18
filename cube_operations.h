@@ -281,6 +281,12 @@ namespace TinyDIP
     {
         return voxelwiseOperation(std::modulus<>{}, input1, input2);
     }
+
+    template<class InputT>
+    constexpr static Image<InputT> negate(const Image<InputT>& input1)
+    {
+        return voxelwiseOperation(std::negate<>{}, input1);
+    }
 }
 
 #endif
