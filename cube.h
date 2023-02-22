@@ -71,7 +71,7 @@ namespace TinyDIP
             }
         }
 
-        constexpr ElementT& at(const std::size_t x, const std::size_t y, const unsigned int z)
+        constexpr ElementT& at(const std::size_t x, const std::size_t y, const std::size_t z)
         { 
             checkBoundary(x, y, z);
             return data[z * width * height + y * width + x];
