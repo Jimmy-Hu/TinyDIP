@@ -48,7 +48,7 @@ namespace TinyDIP
             {
                 throw std::runtime_error("Data input and the given size are mismatched!");
             }
-            data = input;
+            data = std::move(input);
         }    
 
         Cube(const std::vector<Image<ElementT>>& input)
