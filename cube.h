@@ -60,12 +60,11 @@ namespace TinyDIP
             
             for (std::size_t z = 0; z < input.size(); ++z)
             {
-                auto image = input[z];
                 for (std::size_t y = 0; y < height; ++y)
                 {
                     for (std::size_t x = 0; x < width; ++x)
                     {
-                        data[z * width * height + y * width + x] = image.at(x, y);
+                        data[z * width * height + y * width + x] = input[z].at(x, y);
                     }
                 }
             }
