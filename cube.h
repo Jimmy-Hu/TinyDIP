@@ -191,6 +191,11 @@ namespace TinyDIP
             return multiplies(input1, input2);
         }
 
+        friend Cube<ElementT> operator*(ElementT input1, Cube<ElementT> input2)
+        {
+            return multiplies(input2, input1);
+        }
+
         Cube<ElementT>& operator=(Cube<ElementT> const& input) = default;   //  Copy Assign
 
         Cube<ElementT>& operator=(Cube<ElementT>&& other) = default;        //  Move Assign
