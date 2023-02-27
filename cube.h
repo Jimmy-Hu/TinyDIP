@@ -1,7 +1,7 @@
 /* Developed by Jimmy Hu */
 
-#ifndef Cube_H
-#define Cube_H
+#ifndef VolumetricImage_H
+#define VolumetricImage_H
 
 #include <algorithm>
 #include <array>
@@ -22,24 +22,24 @@
 namespace TinyDIP
 {
     template <typename ElementT>
-	class Cube
+	class VolumetricImage
 	{
 	public:
-		Cube() = default;
+		VolumetricImage() = default;
 
-        Cube(const std::size_t newWidth, const std::size_t newHeight, const std::size_t newDepth):
+        VolumetricImage(const std::size_t newWidth, const std::size_t newHeight, const std::size_t newDepth):
             width(width),
             height(height),
             depth(newDepth),
             data(width * height * depth) { }
 
-        Cube(const int newWidth, const int newHeight, const int newDepth, ElementT initVal):
+        VolumetricImage(const int newWidth, const int newHeight, const int newDepth, ElementT initVal):
             width(newWidth),
             height(newHeight),
             depth(newDepth),
             data(width * height * depth, initVal) {}
 
-        Cube(const std::vector<ElementT>& input, std::size_t newWidth, std::size_t newHeight, const std::size_t newDepth):
+        VolumetricImage(const std::vector<ElementT>& input, std::size_t newWidth, std::size_t newHeight, const std::size_t newDepth):
             width(newWidth),
             height(newHeight),
             depth(newDepth)
@@ -51,7 +51,7 @@ namespace TinyDIP
             data = std::move(input);
         }    
 
-        Cube(const std::vector<Image<ElementT>>& input)
+        VolumetricImage(const std::vector<Image<ElementT>>& input)
         {
             width = input[0].getWidth();
             height = input[0].getHeight();
@@ -133,14 +133,14 @@ namespace TinyDIP
             return;
         }
 
-        friend std::ostream& operator<<(std::ostream& os, const Cube<ElementT>& rhs)
+        friend std::ostream& operator<<(std::ostream& os, const VolumetricImage<ElementT>& rhs)
         {
             const std::string separator = "\t";
             rhs.print(separator, os);
             return os;
         }
 
-        Cube<ElementT>& operator+=(const Cube<ElementT>& rhs)
+        VolumetricImage<ElementT>& operator+=(const VolumetricImage<ElementT>& rhs)
         {
             check_size_same(rhs, *this);
             std::transform(std::ranges::cbegin(data), std::ranges::cend(data), std::ranges::cbegin(rhs.data),
@@ -148,7 +148,7 @@ namespace TinyDIP
             return *this;
         }
 
-        Cube<ElementT>& operator-=(const Cube<ElementT>& rhs)
+        VolumetricImage<ElementT>& operator-=(const VolumetricImage<ElementT>& rhs)
         {
             check_size_same(rhs, *this);
             std::transform(std::ranges::cbegin(data), std::ranges::cend(data), std::ranges::cbegin(rhs.data),
@@ -156,7 +156,7 @@ namespace TinyDIP
             return *this;
         }
 
-        Cube<ElementT>& operator*=(const Cube<ElementT>& rhs)
+        VolumetricImage<ElementT>& operator*=(const VolumetricImage<ElementT>& rhs)
         {
             check_size_same(rhs, *this);
             std::transform(std::ranges::cbegin(data), std::ranges::cend(data), std::ranges::cbegin(rhs.data),
@@ -164,7 +164,7 @@ namespace TinyDIP
             return *this;
         }
 
-        Cube<ElementT>& operator/=(const Cube<ElementT>& rhs)
+        VolumetricImage<ElementT>& operator/=(const VolumetricImage<ElementT>& rhs)
         {
             check_size_same(rhs, *this);
             std::transform(std::ranges::cbegin(data), std::ranges::cend(data), std::ranges::cbegin(rhs.data),
@@ -172,37 +172,37 @@ namespace TinyDIP
             return *this;
         }
 
-        friend bool operator==(Cube<ElementT> const&, Cube<ElementT> const&) = default;
+        friend bool operator==(VolumetricImage<ElementT> const&, VolumetricImage<ElementT> const&) = default;
 
-        friend bool operator!=(Cube<ElementT> const&, Cube<ElementT> const&) = default;
+        friend bool operator!=(VolumetricImage<ElementT> const&, VolumetricImage<ElementT> const&) = default;
 
-        friend Cube<ElementT> operator+(Cube<ElementT> input1, const Cube<ElementT>& input2)
+        friend VolumetricImage<ElementT> operator+(VolumetricImage<ElementT> input1, const VolumetricImage<ElementT>& input2)
         {
             return input1 += input2;
         }
 
-        friend Cube<ElementT> operator-(Cube<ElementT> input1, const Cube<ElementT>& input2)
+        friend VolumetricImage<ElementT> operator-(VolumetricImage<ElementT> input1, const VolumetricImage<ElementT>& input2)
         {
             return input1 -= input2;
         }
 
-        friend Cube<ElementT> operator*(Cube<ElementT> input1, ElementT input2)
+        friend VolumetricImage<ElementT> operator*(VolumetricImage<ElementT> input1, ElementT input2)
         {
             return multiplies(input1, input2);
         }
 
-        friend Cube<ElementT> operator*(ElementT input1, Cube<ElementT> input2)
+        friend VolumetricImage<ElementT> operator*(ElementT input1, VolumetricImage<ElementT> input2)
         {
             return multiplies(input2, input1);
         }
 
-        Cube<ElementT>& operator=(Cube<ElementT> const& input) = default;   //  Copy Assign
+        VolumetricImage<ElementT>& operator=(VolumetricImage<ElementT> const& input) = default;   //  Copy Assign
 
-        Cube<ElementT>& operator=(Cube<ElementT>&& other) = default;        //  Move Assign
+        VolumetricImage<ElementT>& operator=(VolumetricImage<ElementT>&& other) = default;        //  Move Assign
 
-        Cube(const Cube<ElementT> &input) = default;                        //  Copy Constructor
+        VolumetricImage(const VolumetricImage<ElementT> &input) = default;                        //  Copy Constructor
 
-        Cube(Cube<ElementT> &&input) = default;                             //  Move Constructor
+        VolumetricImage(VolumetricImage<ElementT> &&input) = default;                             //  Move Constructor
         
     private:
         std::size_t width;
