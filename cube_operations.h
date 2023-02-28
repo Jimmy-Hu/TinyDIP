@@ -1,7 +1,7 @@
 /* Developed by Jimmy Hu */
 
-#ifndef CubeOperations_H
-#define CubeOperations_H
+#ifndef VolumetricImageOperations_H
+#define VolumetricImageOperations_H
 
 #include <concepts>
 #include <execution>
@@ -16,92 +16,92 @@
 namespace TinyDIP
 {
     template<typename ElementT>
-    constexpr bool is_width_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    constexpr bool is_width_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y)
     {
         return x.getSizeX() == y.getSizeX();
     }
 
     template<typename ElementT>
-    constexpr bool is_width_same(const Cube<ElementT>& x, const Cube<ElementT>& y, const Cube<ElementT>& z)
+    constexpr bool is_width_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y, const VolumetricImage<ElementT>& z)
     {
         return is_width_same(x, y) && is_width_same(y, z);
     }
 
     template<typename ElementT>
-    constexpr bool is_height_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    constexpr bool is_height_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y)
     {
         return x.getSizeY() == y.getSizeY();
     }
     
     template<typename ElementT>
-    constexpr bool is_height_same(const Cube<ElementT>& x, const Cube<ElementT>& y, const Cube<ElementT>& z)
+    constexpr bool is_height_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y, const VolumetricImage<ElementT>& z)
     {
         return is_height_same(x, y) && is_height_same(y, z);
     }
 
     template<typename ElementT>
-    constexpr bool is_depth_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    constexpr bool is_depth_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y)
     {
         return x.getSizeZ() == y.getSizeZ();
     }
 
     template<typename ElementT>
-    constexpr bool is_depth_same(const Cube<ElementT>& x, const Cube<ElementT>& y, const Cube<ElementT>& z)
+    constexpr bool is_depth_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y, const VolumetricImage<ElementT>& z)
     {
         return is_depth_same(x, y) && is_depth_same(y, z);
     }
 
     template<typename ElementT>
-    constexpr bool is_size_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    constexpr bool is_size_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y)
     {
         return is_width_same(x, y) && is_height_same(x, y) && is_depth_same(x, y);
     }
 
     template<typename ElementT>
-    constexpr bool is_size_same(const Cube<ElementT>& x, const Cube<ElementT>& y, const Cube<ElementT>& z)
+    constexpr bool is_size_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y, const VolumetricImage<ElementT>& z)
     {
         return is_size_same(x, y) && is_size_same(y, z);
     }
 
     template<typename ElementT>
-    constexpr void assert_width_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    constexpr void assert_width_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y)
     {
         assert(is_width_same(x, y));
     }
 
     template<typename ElementT>
-    constexpr void assert_width_same(const Cube<ElementT>& x, const Cube<ElementT>& y, const Cube<ElementT>& z)
+    constexpr void assert_width_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y, const VolumetricImage<ElementT>& z)
     {
         assert(is_width_same(x, y, z));
     }
 
     template<typename ElementT>
-    constexpr void assert_height_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    constexpr void assert_height_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y)
     {
         assert(is_height_same(x, y));
     }
 
     template<typename ElementT>
-    constexpr void assert_height_same(const Cube<ElementT>& x, const Cube<ElementT>& y, const Cube<ElementT>& z)
+    constexpr void assert_height_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y, const VolumetricImage<ElementT>& z)
     {
         assert(is_height_same(x, y, z));
     }
 
     template<typename ElementT>
-    constexpr void assert_depth_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    constexpr void assert_depth_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y)
     {
         assert(is_depth_same(x, y));
     }
 
     template<typename ElementT>
-    constexpr void assert_depth_same(const Cube<ElementT>& x, const Cube<ElementT>& y, const Cube<ElementT>& z)
+    constexpr void assert_depth_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y, const VolumetricImage<ElementT>& z)
     {
         assert(is_depth_same(x, y));
         assert(is_depth_same(y, z));
     }
 
     template<typename ElementT>
-    constexpr void assert_size_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    constexpr void assert_size_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y)
     {
         assert_width_same(x, y);
         assert_height_same(x, y);
@@ -109,35 +109,35 @@ namespace TinyDIP
     }
 
     template<typename ElementT>
-    constexpr void assert_size_same(const Cube<ElementT>& x, const Cube<ElementT>& y, const Cube<ElementT>& z)
+    constexpr void assert_size_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y, const VolumetricImage<ElementT>& z)
     {
         assert_size_same(x, y);
         assert_size_same(y, z);
     }
 
     template<typename ElementT>
-    constexpr void check_width_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    constexpr void check_width_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y)
     {
         if (!is_width_same(x, y))
             throw std::runtime_error("Width mismatched!");
     }
 
     template<typename ElementT>
-    constexpr void check_height_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    constexpr void check_height_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y)
     {
         if (!is_height_same(x, y))
             throw std::runtime_error("Height mismatched!");
     }
 
     template<typename ElementT>
-    constexpr void check_depth_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    constexpr void check_depth_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y)
     {
         if (!is_depth_same(x, y))
             throw std::runtime_error("Depth mismatched!");
     }
 
     template<typename ElementT>
-    constexpr void check_size_same(const Cube<ElementT>& x, const Cube<ElementT>& y)
+    constexpr void check_size_same(const VolumetricImage<ElementT>& x, const VolumetricImage<ElementT>& y)
     {
         check_width_same(x, y);
         check_height_same(x, y);
@@ -148,7 +148,7 @@ namespace TinyDIP
     template<std::size_t unwrap_level = 1, class... Args>
     constexpr static auto voxelwiseOperation(auto op, const Args&... inputs)
     {
-        auto output = Cube(
+        auto output = VolumetricImage(
             recursive_transform<unwrap_level>(
                 [&](auto&& element1, auto&&... elements) 
                     {
@@ -165,7 +165,7 @@ namespace TinyDIP
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto voxelwiseOperation(ExPo execution_policy, auto op, const Image<InputT>& input1)
     {
-        auto output = Cube(
+        auto output = VolumetricImage(
             recursive_transform<unwrap_level>(
                 execution_policy,
                 [&](auto&& element1) 
@@ -181,19 +181,19 @@ namespace TinyDIP
 
     //  plus template function implementation
     template<class InputT>
-    constexpr static Cube<InputT> plus(const Cube<InputT>& input1)
+    constexpr static VolumetricImage<InputT> plus(const VolumetricImage<InputT>& input1)
     {
         return input1;
     }
 
     template<class InputT, class... Args>
-    constexpr static Cube<InputT> plus(const Cube<InputT>& input1, const Args&... inputs)
+    constexpr static VolumetricImage<InputT> plus(const VolumetricImage<InputT>& input1, const Args&... inputs)
     {
         return voxelwiseOperation(std::plus<>{}, input1, plus(inputs...));
     }
 
     template<class InputT, class... Args>
-    constexpr static auto plus(const std::vector<Cube<InputT>>& input1, const Args&... inputs)
+    constexpr static auto plus(const std::vector<VolumetricImage<InputT>>& input1, const Args&... inputs)
     {
         return recursive_transform<1>(
             [](auto&& input1_element, auto&&... inputs_element)
@@ -204,14 +204,14 @@ namespace TinyDIP
 
     //  subtract template function implementation
     template<class InputT>
-    constexpr static Cube<InputT> subtract(const Cube<InputT>& input1, const Cube<InputT>& input2)
+    constexpr static VolumetricImage<InputT> subtract(const VolumetricImage<InputT>& input1, const VolumetricImage<InputT>& input2)
     {
         check_size_same(input1, input2);
         return voxelwiseOperation(std::minus<>{}, input1, input2);
     }
 
     template<class InputT>
-    constexpr static auto subtract(const std::vector<Cube<InputT>>& input1, const std::vector<Cube<InputT>>& input2)
+    constexpr static auto subtract(const std::vector<VolumetricImage<InputT>>& input1, const std::vector<VolumetricImage<InputT>>& input2)
     {
         assert(input1.size() == input2.size());
         return recursive_transform<1>(
@@ -223,43 +223,43 @@ namespace TinyDIP
 
     //  multiplies template function implementation
     template<class InputT>
-    constexpr static Cube<InputT> multiplies(const Cube<InputT>& input1, const Cube<InputT>& input2)
+    constexpr static VolumetricImage<InputT> multiplies(const VolumetricImage<InputT>& input1, const VolumetricImage<InputT>& input2)
     {
         return voxelwiseOperation(std::multiplies<>{}, input1, input2);
     }
 
     template<class InputT, class TimesT>
     requires(std::floating_point<TimesT> || std::integral<TimesT>)
-    constexpr static Cube<InputT> multiplies(const Cube<InputT>& input1, const TimesT times)
+    constexpr static VolumetricImage<InputT> multiplies(const VolumetricImage<InputT>& input1, const TimesT times)
     {
         return multiplies(
             input1,
-            Cube(input1.getWidth(), input1.getHeight(), input1.getDepth(), times)
+            VolumetricImage(input1.getWidth(), input1.getHeight(), input1.getDepth(), times)
         );
     }
 
     template<class InputT, class TimesT>
     requires(std::floating_point<TimesT> || std::integral<TimesT>)
-    constexpr static Cube<InputT> multiplies(const TimesT times, const Cube<InputT>& input1)
+    constexpr static VolumetricImage<InputT> multiplies(const TimesT times, const VolumetricImage<InputT>& input1)
     {
         return multiplies(input1, times);
     }
 
     template<class ExPo, class InputT>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr static Cube<InputT> multiplies(ExPo execution_policy, const Cube<InputT>& input1, const Cube<InputT>& input2)
+    constexpr static VolumetricImage<InputT> multiplies(ExPo execution_policy, const VolumetricImage<InputT>& input1, const VolumetricImage<InputT>& input2)
     {
         return voxelwiseOperation(execution_policy, std::multiplies<>{}, input1, input2);
     }
 
     template<class InputT>
-    constexpr static Cube<InputT> divides(const Cube<InputT>& input1, const Cube<InputT>& input2)
+    constexpr static VolumetricImage<InputT> divides(const VolumetricImage<InputT>& input1, const VolumetricImage<InputT>& input2)
     {
         return voxelwiseOperation(std::divides<>{}, input1, input2);
     }
 
     template<class InputT>
-    constexpr static auto divides(const std::vector<Cube<InputT>>& input1, const std::vector<Cube<InputT>>& input2)
+    constexpr static auto divides(const std::vector<VolumetricImage<InputT>>& input1, const std::vector<VolumetricImage<InputT>>& input2)
     {
         assert(input1.size() == input2.size());
         return recursive_transform<1>(
@@ -271,19 +271,19 @@ namespace TinyDIP
 
     template<class ExPo, class InputT>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr static Cube<InputT> divides(ExPo execution_policy, const Cube<InputT>& input1, const Cube<InputT>& input2)
+    constexpr static VolumetricImage<InputT> divides(ExPo execution_policy, const VolumetricImage<InputT>& input1, const VolumetricImage<InputT>& input2)
     {
         return voxelwiseOperation(execution_policy, std::divides<>{}, input1, input2);
     }
 
     template<class InputT>
-    constexpr static Cube<InputT> modulus(const Cube<InputT>& input1, const Cube<InputT>& input2)
+    constexpr static VolumetricImage<InputT> modulus(const VolumetricImage<InputT>& input1, const VolumetricImage<InputT>& input2)
     {
         return voxelwiseOperation(std::modulus<>{}, input1, input2);
     }
 
     template<class InputT>
-    constexpr static Cube<InputT> negate(const Cube<InputT>& input1)
+    constexpr static VolumetricImage<InputT> negate(const VolumetricImage<InputT>& input1)
     {
         return voxelwiseOperation(std::negate<>{}, input1);
     }
