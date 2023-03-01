@@ -737,7 +737,7 @@ namespace TinyDIP
                 normalDistribution1D(static_cast<InputT>(z) - static_cast<InputT>(centerz), standard_deviation_z)
             );
         }
-        return Cube(output);
+        return VolumetricImage(output);
     }
 
     template<class InputT>
