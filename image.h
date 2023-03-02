@@ -46,19 +46,23 @@ namespace TinyDIP
         Image() = default;
 
         Image(const std::size_t width, const std::size_t height):
-            width(width),
-            height(height),
-            image_data(width * height) { }
+            image_data(width * height)
+            {
+                size.push_back(width);
+                size.push_back(height);
+            }
 
         Image(const std::size_t width, const std::size_t height, const ElementT initVal):
-            width(width),
-            height(height),
-            image_data(width * height, initVal) {}
+            image_data(width * height, initVal)
+            {
+                size.push_back(width);
+                size.push_back(height);
+            }
 
-        Image(const std::vector<ElementT>& input, std::size_t newWidth, std::size_t newHeight):
-            width(newWidth),
-            height(newHeight)
+        Image(const std::vector<ElementT>& input, std::size_t newWidth, std::size_t newHeight)
         {
+            size.push_back(newWidth);
+            size.push_back(newHeight);
             if (input.size() != newWidth * newHeight)
             {
                 throw std::runtime_error("Image data input and the given size are mismatched!");
@@ -66,10 +70,10 @@ namespace TinyDIP
             image_data = input;
         }
 
-        Image(std::vector<ElementT>&& input, std::size_t newWidth, std::size_t newHeight):
-            width(newWidth),
-            height(newHeight)
+        Image(std::vector<ElementT>&& input, std::size_t newWidth, std::size_t newHeight)
         {
+            size.push_back(newWidth);
+            size.push_back(newHeight);
             if (input.size() != newWidth * newHeight)
             {
                 throw std::runtime_error("Image data input and the given size are mismatched!");
@@ -79,9 +83,8 @@ namespace TinyDIP
 
         Image(const std::vector<std::vector<ElementT>>& input)
         {
-            height = input.size();
-            width = input[0].size();
-            
+            size.push_back(input[0].size());
+            size.push_back(input.size());
             for (auto& rows : input)
             {
                 image_data.insert(image_data.end(), std::ranges::begin(input), std::ranges::end(input));    //  flatten
@@ -92,37 +95,37 @@ namespace TinyDIP
         constexpr ElementT& at(const unsigned int x, const unsigned int y)
         { 
             checkBoundary(x, y);
-            return image_data[y * width + x];
+            return image_data[y * size[0] + x];
         }
 
         constexpr ElementT const& at(const unsigned int x, const unsigned int y) const
         {
             checkBoundary(x, y);
-            return image_data[y * width + x];
+            return image_data[y * size[0] + x];
         }
 
         constexpr std::size_t getWidth() const
         {
-            return width;
+            return size[0];
         }
 
         constexpr std::size_t getHeight() const noexcept
         {
-            return height;
+            return size[1];
         }
 
         constexpr auto getSize() noexcept
         {
-            return std::make_tuple(width, height);
+            return std::make_tuple(size[0], size[1]);
         }
 
         std::vector<ElementT> const& getImageData() const noexcept { return image_data; }      //  expose the internal data
 
         void print(std::string separator = "\t", std::ostream& os = std::cout) const
         {
-            for (std::size_t y = 0; y < height; ++y)
+            for (std::size_t y = 0; y < size[1]; ++y)
             {
-                for (std::size_t x = 0; x < width; ++x)
+                for (std::size_t x = 0; x < size[0]; ++x)
                 {
                     //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
                     os << +at(x, y) << separator;
@@ -137,9 +140,9 @@ namespace TinyDIP
         void print(std::string separator = "\t", std::ostream& os = std::cout) const
         requires(std::same_as<ElementT, RGB>)
         {
-            for (std::size_t y = 0; y < height; ++y)
+            for (std::size_t y = 0; y < size[1]; ++y)
             {
-                for (std::size_t x = 0; x < width; ++x)
+                for (std::size_t x = 0; x < size[0]; ++x)
                 {
                     os << "( ";
                     for (std::size_t channel_index = 0; channel_index < 3; ++channel_index)
@@ -242,15 +245,14 @@ namespace TinyDIP
         
 #endif
     private:
-        std::size_t width;
-        std::size_t height;
+        std::vector<std::size_t> size;
         std::vector<ElementT> image_data;
 
         void checkBoundary(const size_t x, const size_t y) const
         {
-            if (x >= width)
+            if (x >= size[0])
                 throw std::out_of_range("Given x out of range!");
-            if (y >= height)
+            if (y >= size[1])
                 throw std::out_of_range("Given y out of range!");
         }
 
@@ -259,8 +261,7 @@ namespace TinyDIP
         template<class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
-            ar& width;
-            ar& height;
+            ar& size;
             ar& image_data;
         }
         /*
