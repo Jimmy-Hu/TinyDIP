@@ -48,21 +48,24 @@ namespace TinyDIP
         Image(const std::size_t width, const std::size_t height):
             image_data(width * height)
             {
-                size.push_back(width);
-                size.push_back(height);
+                size.reserve(2);
+                size.emplace_back(width);
+                size.emplace_back(height);
             }
 
         Image(const std::size_t width, const std::size_t height, const ElementT initVal):
             image_data(width * height, initVal)
             {
-                size.push_back(width);
-                size.push_back(height);
+                size.reserve(2);
+                size.emplace_back(width);
+                size.emplace_back(height);
             }
 
         Image(const std::vector<ElementT>& input, std::size_t newWidth, std::size_t newHeight)
         {
-            size.push_back(newWidth);
-            size.push_back(newHeight);
+            size.reserve(2);
+            size.emplace_back(newWidth);
+            size.emplace_back(newHeight);
             if (input.size() != newWidth * newHeight)
             {
                 throw std::runtime_error("Image data input and the given size are mismatched!");
@@ -72,8 +75,9 @@ namespace TinyDIP
 
         Image(std::vector<ElementT>&& input, std::size_t newWidth, std::size_t newHeight)
         {
-            size.push_back(newWidth);
-            size.push_back(newHeight);
+            size.reserve(2);
+            size.emplace_back(newWidth);
+            size.emplace_back(newHeight);
             if (input.size() != newWidth * newHeight)
             {
                 throw std::runtime_error("Image data input and the given size are mismatched!");
@@ -83,8 +87,9 @@ namespace TinyDIP
 
         Image(const std::vector<std::vector<ElementT>>& input)
         {
-            size.push_back(input[0].size());
-            size.push_back(input.size());
+            size.reserve(2);
+            size.emplace_back(input[0].size());
+            size.emplace_back(input.size());
             for (auto& rows : input)
             {
                 image_data.insert(image_data.end(), std::ranges::begin(input), std::ranges::end(input));    //  flatten
