@@ -225,14 +225,6 @@ namespace TinyDIP
         {
             return multiplies(input2, input1);
         }
-
-        Image<ElementT>& operator=(Image<ElementT> const& input) = default;  //  Copy Assign
-
-        Image<ElementT>& operator=(Image<ElementT>&& other) = default;       //  Move Assign
-
-        Image(const Image<ElementT> &input) = default;                       //  Copy Constructor
-
-        Image(Image<ElementT> &&input) = default;                            //  Move Constructor
         
 #ifdef USE_BOOST_SERIALIZATION
 
