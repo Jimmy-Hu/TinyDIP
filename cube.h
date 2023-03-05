@@ -195,14 +195,6 @@ namespace TinyDIP
         {
             return multiplies(input2, input1);
         }
-
-        VolumetricImage<ElementT>& operator=(VolumetricImage<ElementT> const& input) = default;   //  Copy Assign
-
-        VolumetricImage<ElementT>& operator=(VolumetricImage<ElementT>&& other) = default;        //  Move Assign
-
-        VolumetricImage(const VolumetricImage<ElementT> &input) = default;                        //  Copy Constructor
-
-        VolumetricImage(VolumetricImage<ElementT> &&input) = default;                             //  Move Constructor
         
     private:
         std::size_t width;
