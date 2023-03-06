@@ -82,21 +82,6 @@ namespace TinyDIP
             return data[z * width * height + y * width + x];
         }
 
-        constexpr auto getSizeX() const noexcept
-        {
-            return width;
-        }
-
-        constexpr auto getSizeY() const noexcept
-        {
-            return height;
-        }
-
-        constexpr auto getSizeZ() const noexcept
-        {
-            return depth;
-        }
-
         constexpr auto getWidth() const noexcept
         {
             return width;
