@@ -98,16 +98,19 @@ namespace TinyDIP
         }
 
         template<typename... Args>
-        constexpr ElementT& at(const Args... sizeInput)
+        constexpr ElementT& at(const Args... indexInput)
         {
-            auto x = TinyDIP::get_from_variadic_template<1>(sizeInput...);
-            auto y = TinyDIP::get_from_variadic_template<2>(sizeInput...);
+            auto x = get_from_variadic_template<1>(indexInput...);
+            auto y = get_from_variadic_template<2>(indexInput...);
             checkBoundary(x, y);
             return image_data[y * size[0] + x];
         }
 
-        constexpr ElementT const& at(const unsigned int x, const unsigned int y) const
+        template<typename... Args>
+        constexpr ElementT const& at(const Args... indexInput) const
         {
+            auto x = get_from_variadic_template<1>(indexInput...);
+            auto y = get_from_variadic_template<2>(indexInput...);
             checkBoundary(x, y);
             return image_data[y * size[0] + x];
         }
