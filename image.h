@@ -100,18 +100,18 @@ namespace TinyDIP
         template<typename... Args>
         constexpr ElementT& at(const Args... indexInput)
         {
+            checkBoundary(indexInput...);
             auto x = get_from_variadic_template<1>(indexInput...);
             auto y = get_from_variadic_template<2>(indexInput...);
-            checkBoundary(x, y);
             return image_data[y * size[0] + x];
         }
 
         template<typename... Args>
         constexpr ElementT const& at(const Args... indexInput) const
         {
+            checkBoundary(indexInput...);
             auto x = get_from_variadic_template<1>(indexInput...);
             auto y = get_from_variadic_template<2>(indexInput...);
-            checkBoundary(x, y);
             return image_data[y * size[0] + x];
         }
 
@@ -251,11 +251,12 @@ namespace TinyDIP
         std::vector<std::size_t> size;
         std::vector<ElementT> image_data;
 
-        void checkBoundary(const size_t x, const size_t y) const
+        template<typename... Args>
+        void checkBoundary(const Args... indexInput) const
         {
-            if (x >= size[0])
+            if (get_from_variadic_template<1>(indexInput) >= size[0])
                 throw std::out_of_range("Given x out of range!");
-            if (y >= size[1])
+            if (get_from_variadic_template<2>(indexInput) >= size[1])
                 throw std::out_of_range("Given y out of range!");
         }
 
