@@ -254,10 +254,14 @@ namespace TinyDIP
         template<typename... Args>
         void checkBoundary(const Args... indexInput) const
         {
-            if (get_from_variadic_template<1>(indexInput...) >= size[0])
-                throw std::out_of_range("Given x out of range!");
-            if (get_from_variadic_template<2>(indexInput...) >= size[1])
-                throw std::out_of_range("Given y out of range!");
+            constexpr std::size_t n = sizeof...(Args);
+            if constexpr (n == 2)
+            {
+                if (get_from_variadic_template<1>(indexInput...) >= size[0])
+                    throw std::out_of_range("Given x out of range!");
+                if (get_from_variadic_template<2>(indexInput...) >= size[1])
+                    throw std::out_of_range("Given y out of range!");
+            }
         }
 
 #ifdef USE_BOOST_SERIALIZATION
