@@ -114,9 +114,13 @@ namespace TinyDIP
         constexpr ElementT const& at(const Args... indexInput) const
         {
             checkBoundary(indexInput...);
-            auto x = get_from_variadic_template<1>(indexInput...);
-            auto y = get_from_variadic_template<2>(indexInput...);
-            return image_data[y * size[0] + x];
+            constexpr std::size_t n = sizeof...(Args);
+            if constexpr (n == 2)
+            {
+                auto x = get_from_variadic_template<1>(indexInput...);
+                auto y = get_from_variadic_template<2>(indexInput...);
+                return image_data[y * size[0] + x];
+            }
         }
 
         constexpr std::size_t getWidth() const
