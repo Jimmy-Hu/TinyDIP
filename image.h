@@ -53,6 +53,15 @@ namespace TinyDIP
                 size.emplace_back(height);
             }
 
+        Image(const std::size_t width, const std::size_t height, const std::size_t depth):
+            image_data(width * height * depth)
+            {
+                size.reserve(3);
+                size.emplace_back(width);
+                size.emplace_back(height);
+                size.emplace_back(depth);
+            }    
+
         Image(const std::size_t width, const std::size_t height, const ElementT initVal):
             image_data(width * height, initVal)
             {
@@ -142,17 +151,20 @@ namespace TinyDIP
 
         void print(std::string separator = "\t", std::ostream& os = std::cout) const
         {
-            for (std::size_t y = 0; y < size[1]; ++y)
+            if(size.size() == 2)
             {
-                for (std::size_t x = 0; x < size[0]; ++x)
+                for (std::size_t y = 0; y < size[1]; ++y)
                 {
-                    //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                    os << +at(x, y) << separator;
+                    for (std::size_t x = 0; x < size[0]; ++x)
+                    {
+                        //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
+                        os << +at(x, y) << separator;
+                    }
+                    os << "\n";
                 }
                 os << "\n";
+                return;
             }
-            os << "\n";
-            return;
         }
 
         //  Enable this function if ElementT = RGB
