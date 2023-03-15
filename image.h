@@ -60,14 +60,6 @@ namespace TinyDIP
                 size.emplace_back(width);
                 size.emplace_back(height);
                 size.emplace_back(depth);
-            }    
-
-        Image(const std::size_t width, const std::size_t height, const ElementT initVal):
-            image_data(width * height, initVal)
-            {
-                size.reserve(2);
-                size.emplace_back(width);
-                size.emplace_back(height);
             }
 
         Image(const std::vector<ElementT>& input, std::size_t newWidth, std::size_t newHeight)
