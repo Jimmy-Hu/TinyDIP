@@ -9,7 +9,8 @@
 template<typename T>
 void subimage2Test(const std::size_t sizex = 3, const std::size_t sizey = 3)
 {
-    TinyDIP::Image<T> image1(sizex, sizey, 10);
+    TinyDIP::Image<T> image1(sizex, sizey);
+    image1.setAllValue(10);
     image1.at(2, 2) = 1;
     std::cout << "Width: " + std::to_string(image1.getWidth()) + "\n";
     std::cout << "Height: " + std::to_string(image1.getHeight()) + "\n";
