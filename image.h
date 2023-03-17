@@ -181,6 +181,11 @@ namespace TinyDIP
             return;
         }
 
+        void setAllValue(const ElementT input)
+        {
+            std::fill(image_data.begin(), image_data.end(), input);
+        }
+
         friend std::ostream& operator<<(std::ostream& os, const Image<ElementT>& rhs)
         {
             const std::string separator = "\t";
