@@ -7,6 +7,7 @@ void subimageTest();
 
 int main()
 {
+    auto start = std::chrono::system_clock::now();
     subimageTest();
     return 0;
 }
