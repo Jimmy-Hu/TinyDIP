@@ -242,10 +242,11 @@ namespace TinyDIP
     requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, HSV>))
     constexpr static auto getPlane(Image<ElementT> input, std::size_t index)
     {
-        auto output = Image(input.getWidth(), input.getHeight(), input.at(0, 0).channels[0]);
-        for (std::size_t y = 0; y < input.getHeight(); y++)
+        auto output = Image(input.getWidth(), input.getHeight());
+        output.setAllValue(input.at(0, 0).channels[0]);
+        for (std::size_t y = 0; y < input.getHeight(); ++y)
         {
-            for (std::size_t x = 0; x < input.getWidth(); x++)
+            for (std::size_t x = 0; x < input.getWidth(); ++x)
             {
                 output.at(x, y) = input.at(x, y).channels[index];
             }
