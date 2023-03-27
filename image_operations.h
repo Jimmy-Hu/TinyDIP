@@ -238,11 +238,11 @@ namespace TinyDIP
         return output;
     }
 
-    template<class ElementT>
+    template<class ElementT, class OutputT = double>
     requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, HSV>))
     constexpr static auto getPlane(Image<ElementT> input, std::size_t index)
     {
-        auto output = Image(input.getWidth(), input.getHeight());
+        auto output = Image<OutputT>(input.getWidth(), input.getHeight());
         output.setAllValue(input.at(0, 0).channels[0]);
         for (std::size_t y = 0; y < input.getHeight(); ++y)
         {
