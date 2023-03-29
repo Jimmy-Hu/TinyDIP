@@ -15,7 +15,7 @@ constexpr static auto get_offset( ExPo execution_policy,
 	                              const std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
 	                              const ElementT sigma, const ElementT threshold) noexcept
 {
-	auto output = TinyDIP::Image(input.getWidth(), input.getHeight(), ElementT{});
+	auto output = TinyDIP::Image<ElementT>(input.getWidth(), input.getHeight());
 	auto weights = TinyDIP::recursive_transform<1>(
 		execution_policy,
 		[&](auto&& element)
@@ -32,17 +32,16 @@ constexpr static auto get_offset( ExPo execution_policy,
 	auto outputs = TinyDIP::recursive_transform<1>(
 		[&](auto&& input1, auto&& input2)
 		{
-			return TinyDIP::multiplies(
-				//execution_policy,
-				input1, TinyDIP::Image(input1.getWidth(), input1.getHeight(), input2)
-				);
+			return input1 * input2;
 		}, dictionary_y, weights);
 	//return TinyDIP::recursive_reduce(outputs, output, [](auto&& input1, auto&& input2) { return TinyDIP::plus(input1, input2); })
 	for (std::size_t i = 0; i < outputs.size(); ++i)
 	{
 		output += outputs[i];
 	}
-	output = TinyDIP::divides(output, TinyDIP::Image(output.getWidth(), output.getHeight(), sum_of_weights));
+	auto image_for_divides = TinyDIP::Image<ElementT>(output.getWidth(), output.getHeight());
+	image_for_divides.setAllValue(sum_of_weights)
+	output = TinyDIP::divides(output, image_for_divides);
 	return output;
 }
 
@@ -58,7 +57,9 @@ void each_image( ExPo execution_policy,
 	auto input_hsv = TinyDIP::rgb2hsv(input_img);
 	auto h_plane = TinyDIP::getHplane(input_hsv);
 	auto s_plane = TinyDIP::getSplane(input_hsv);
-	auto v_plane = TinyDIP::divides(TinyDIP::getVplane(input_hsv), TinyDIP::Image<double>(input_img.getWidth(), input_img.getHeight(), 255));
+	auto image_255 = TinyDIP::Image<double>(input_img.getWidth(), input_img.getHeight());
+	image_255.setAllValue(255);
+	auto v_plane = TinyDIP::divides(TinyDIP::getVplane(input_hsv), image_255);
 
 	std::cout << "Call dct2 function..." << '\n';
 	auto input_dct_blocks = TinyDIP::recursive_transform<2>(
@@ -82,7 +83,7 @@ void each_image( ExPo execution_policy,
 					execution_policy,
 					[](auto&& element) { return TinyDIP::idct2(element); },
 					output_dct_blocks)),
-			TinyDIP::Image<double>(input_img.getWidth(), input_img.getHeight(), 255))
+			image_255)
 	));
 	TinyDIP::bmp_write(output_path.c_str(), output_img);
 }
