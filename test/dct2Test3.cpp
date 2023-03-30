@@ -40,7 +40,7 @@ constexpr static auto get_offset( ExPo execution_policy,
 		output += outputs[i];
 	}
 	auto image_for_divides = TinyDIP::Image<ElementT>(output.getWidth(), output.getHeight());
-	image_for_divides.setAllValue(sum_of_weights)
+	image_for_divides.setAllValue(sum_of_weights);
 	output = TinyDIP::divides(output, image_for_divides);
 	return output;
 }
