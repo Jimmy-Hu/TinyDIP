@@ -831,7 +831,7 @@ namespace TinyDIP
     requires(std::floating_point<TimesT> || std::integral<TimesT>)
     constexpr static Image<InputT> multiplies(const Image<InputT>& input1, const TimesT times)
     {
-        auto image = Image(input1.getWidth(), input1.getHeight());
+        auto image = Image<TimesT>(input1.getWidth(), input1.getHeight());
         image.setAllValue(times);
         return multiplies(
             input1,
