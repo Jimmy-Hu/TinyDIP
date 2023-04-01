@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		dct2Test3("../../../InputImages/RainVideos/16", "../../../OutputImages/16", "../../../Dictionary", 1, 1);
+		dct2Test3("InputImages/RainVideos/1", ".", "Output/Dictionary", 1, 1);
 	}
 	
 	auto end = std::chrono::system_clock::now();
