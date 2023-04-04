@@ -13,7 +13,8 @@ int main()
 
 void concatVerticalTest()
 {
-    TinyDIP::Image<GrayScale> image1(3, 3, 10);
+    TinyDIP::Image<GrayScale> image1(3, 3);
+    image1.setAllValue(10);
     image1.at(2, 2) = 1;
     std::cout << "Width: " + std::to_string(image1.getWidth()) + "\n";
     std::cout << "Height: " + std::to_string(image1.getHeight()) + "\n";
