@@ -7,7 +7,9 @@ void concatVerticalTest();
 
 int main()
 {
+    auto start = std::chrono::system_clock::now();
 	concatVerticalTest();
+    
 	return 0;
 }
 
