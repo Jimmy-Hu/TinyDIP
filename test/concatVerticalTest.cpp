@@ -9,7 +9,7 @@ int main()
 {
     auto start = std::chrono::system_clock::now();
 	concatVerticalTest();
-    
+    auto end = std::chrono::system_clock::now();
 	return 0;
 }
 
