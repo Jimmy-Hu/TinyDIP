@@ -24,10 +24,13 @@ constexpr static auto create_dictionary(const std::size_t ND, const std::size_t 
     auto code_words_y = TinyDIP::n_dim_vector_generator<1>(std::vector<TinyDIP::Image<ElementT>>(), ND);
     for (std::size_t i = 0; i < ND; ++i)
     {
+        auto code_words_x_image = TinyDIP::Image<ElementT>(xsize, ysize);
+        code_words_x_image.setAllValue(static_cast<ElementT>(i) / static_cast<ElementT>(ND));
         code_words_x[i] = TinyDIP::n_dim_vector_generator<1>(
-            TinyDIP::Image<ElementT>(xsize, ysize, static_cast<ElementT>(i) / static_cast<ElementT>(ND)), zsize);
-        code_words_y[i] = TinyDIP::n_dim_vector_generator<1>(
-            TinyDIP::Image<ElementT>(xsize, ysize, 1.0 + static_cast<ElementT>(i) / static_cast<ElementT>(ND)), zsize);
+            code_words_x_image, zsize);
+        auto code_words_y_image = TinyDIP::Image<ElementT>(xsize, ysize);
+        code_words_y_image.setAllValue(1.0 + static_cast<ElementT>(i) / static_cast<ElementT>(ND))
+        code_words_y[i] = TinyDIP::n_dim_vector_generator<1>(code_words_y_image, zsize);
     }
     return std::make_tuple(code_words_x, code_words_y);
 }
@@ -75,7 +78,7 @@ constexpr static auto dictionaryBasedNonlocalMean(  ExPo execution_policy,
 {
     std::vector<TinyDIP::Image<ElementT>> output = 
         TinyDIP::n_dim_vector_generator<1>(
-            TinyDIP::Image(input[0].getWidth(), input[0].getHeight(), 0.0), input.size());
+            TinyDIP::Image<ElementT>(input[0].getWidth(), input[0].getHeight()), input.size());
     auto code_words_x = std::get<0>(dictionary);
     auto code_words_y = std::get<1>(dictionary);
     if (code_words_x.size() != code_words_y.size())
