@@ -106,14 +106,27 @@ constexpr static auto dictionaryBasedNonlocalMean(  ExPo execution_policy,
     auto outputs = TinyDIP::recursive_transform<1>(
         [&](auto&& input1, auto&& input2)
         {
-            return TinyDIP::multiplies(input1, TinyDIP::n_dim_vector_generator<1>(TinyDIP::Image(input1[0].getWidth(), input1[0].getHeight(), input2), input1.size()));
+            auto image = TinyDIP::Image<ElementT>(input1[0].getWidth(), input1[0].getHeight());
+            image.setAllValue(input2);
+            return TinyDIP::multiplies(
+                input1,
+                TinyDIP::n_dim_vector_generator<1>(
+                    image,
+                    input1.size())
+                );
         }, code_words_y, weights);
     
     for (std::size_t i = 0; i < outputs.size(); ++i)
     {
         output = TinyDIP::plus(output, outputs[i]);
     }
-    output = TinyDIP::divides(output, TinyDIP::n_dim_vector_generator<1>(TinyDIP::Image(output[0].getWidth(), output[0].getHeight(), sum_of_weights), output.size()));
+    auto image = TinyDIP::Image<ElementT>(output[0].getWidth(), output[0].getHeight());
+    output = TinyDIP::divides(  output,
+                                TinyDIP::n_dim_vector_generator<1>(
+                                    sum_of_weights,
+                                    output.size()
+                                )
+                             );
     return output;
 }
 
@@ -124,9 +137,12 @@ void dictionaryBasedNonLocalMeanTest()
     std::size_t ysize = 8;
     std::size_t zsize = 1;
     std::vector<TinyDIP::Image<double>> input;
+    input.reserve(zsize);
     for (std::size_t z = 0; z < zsize; ++z)
     {
-        input.push_back(TinyDIP::Image(xsize, ysize, 0.66));
+        auto image = TinyDIP::Image<double>(xsize, ysize);
+        image.setAllValue(0.66);
+        input.emplace_back(image);
     }
     dictionaryBasedNonlocalMean(
         std::execution::par,
