@@ -29,7 +29,7 @@ constexpr static auto create_dictionary(const std::size_t ND, const std::size_t 
         code_words_x[i] = TinyDIP::n_dim_vector_generator<1>(
             code_words_x_image, zsize);
         auto code_words_y_image = TinyDIP::Image<ElementT>(xsize, ysize);
-        code_words_y_image.setAllValue(1.0 + static_cast<ElementT>(i) / static_cast<ElementT>(ND))
+        code_words_y_image.setAllValue(1.0 + static_cast<ElementT>(i) / static_cast<ElementT>(ND));
         code_words_y[i] = TinyDIP::n_dim_vector_generator<1>(code_words_y_image, zsize);
     }
     return std::make_tuple(code_words_x, code_words_y);
