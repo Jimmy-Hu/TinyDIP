@@ -121,9 +121,10 @@ constexpr static auto dictionaryBasedNonlocalMean(  ExPo execution_policy,
         output = TinyDIP::plus(output, outputs[i]);
     }
     auto image = TinyDIP::Image<ElementT>(output[0].getWidth(), output[0].getHeight());
+    image.setAllValue(sum_of_weights)
     output = TinyDIP::divides(  output,
                                 TinyDIP::n_dim_vector_generator<1>(
-                                    sum_of_weights,
+                                    image,
                                     output.size()
                                 )
                              );
