@@ -113,12 +113,24 @@ namespace TinyDIP
         {
             checkBoundary(indexInput...);
             constexpr std::size_t n = sizeof...(Args);
+            if(n != size.size())
+            {
+                throw std::runtime_error("Dimensionality mismatched!");
+            }
             if constexpr (n == 2)
             {
                 auto x = get_from_variadic_template<1>(indexInput...);
                 auto y = get_from_variadic_template<2>(indexInput...);
                 return image_data[y * size[0] + x];
-            }            
+            }
+            else if constexpr (n == 3)
+            {
+                auto x = get_from_variadic_template<1>(indexInput...);
+                auto y = get_from_variadic_template<2>(indexInput...);
+                auto z = get_from_variadic_template<3>(indexInput...);
+                return image_data[(z * size[1] + y) * size[0] + x];
+            }
+            
         }
 
         template<typename... Args>
