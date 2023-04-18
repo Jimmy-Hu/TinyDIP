@@ -298,6 +298,10 @@ namespace TinyDIP
         void checkBoundary(const Args... indexInput) const
         {
             constexpr std::size_t n = sizeof...(Args);
+            if(n != size.size())
+            {
+                throw std::runtime_error("Dimensionality mismatched!");
+            }
             if constexpr (n == 2)
             {
                 if (get_from_variadic_template<1>(indexInput...) >= size[0])
