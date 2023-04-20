@@ -169,7 +169,7 @@ namespace TinyDIP
 
         constexpr auto getSize() noexcept
         {
-            return std::make_tuple(size[0], size[1]);
+            return size;
         }
 
         std::vector<ElementT> const& getImageData() const noexcept { return image_data; }      //  expose the internal data
