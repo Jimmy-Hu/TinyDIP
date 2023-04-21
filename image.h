@@ -72,6 +72,17 @@ namespace TinyDIP
                 size.emplace_back(w);
             }
 
+        Image(const std::size_t a, const std::size_t b, const std::size_t c, const std::size_t d, const std::size_t e):
+            image_data(a * b * c * d * e)
+            {
+                size.reserve(5);
+                size.emplace_back(a);
+                size.emplace_back(b);
+                size.emplace_back(c);
+                size.emplace_back(d);
+                size.emplace_back(e);
+            }
+
         Image(const std::vector<ElementT>& input, std::size_t newWidth, std::size_t newHeight)
         {
             size.reserve(2);
@@ -188,7 +199,23 @@ namespace TinyDIP
                     os << "\n";
                 }
                 os << "\n";
-                return;
+            }
+            else if (size.size() == 3)
+            {
+                for(std::size_t z = 0; z < depth; ++z)
+                {
+                    for (std::size_t y = 0; y < height; ++y)
+                    {
+                        for (std::size_t x = 0; x < width; ++x)
+                        {
+                            //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
+                            os << +at(x, y, z) << separator;
+                        }
+                        os << "\n";
+                    }
+                    os << "\n";
+                }
+                os << "\n";
             }
         }
 
