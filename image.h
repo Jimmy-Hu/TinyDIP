@@ -141,7 +141,14 @@ namespace TinyDIP
                 auto z = get_from_variadic_template<3>(indexInput...);
                 return image_data[(z * size[1] + y) * size[0] + x];
             }
-            
+            else if constexpr (n ==4)
+            {
+                auto x = get_from_variadic_template<1>(indexInput...);
+                auto y = get_from_variadic_template<2>(indexInput...);
+                auto z = get_from_variadic_template<3>(indexInput...);
+                auto w = get_from_variadic_template<3>(indexInput...);
+                return image_data[((w * size[2] + z) * size[1] + y) * size[0] + x];
+            }
         }
 
         template<typename... Args>
