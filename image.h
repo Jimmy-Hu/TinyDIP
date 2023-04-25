@@ -217,11 +217,11 @@ namespace TinyDIP
             }
             else if (size.size() == 3)
             {
-                for(std::size_t z = 0; z < depth; ++z)
+                for(std::size_t z = 0; z < size[2]; ++z)
                 {
-                    for (std::size_t y = 0; y < height; ++y)
+                    for (std::size_t y = 0; y < size[1]; ++y)
                     {
-                        for (std::size_t x = 0; x < width; ++x)
+                        for (std::size_t x = 0; x < size[0]; ++x)
                         {
                             //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
                             os << +at(x, y, z) << separator;
