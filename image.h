@@ -190,6 +190,15 @@ namespace TinyDIP
                 auto w = get_from_variadic_template<4>(indexInput...);
                 return image_data[((w * size[2] + z) * size[1] + y) * size[0] + x];
             }
+            else if constexpr (n == 5)
+            {
+                auto a = get_from_variadic_template<1>(indexInput...);
+                auto b = get_from_variadic_template<2>(indexInput...);
+                auto c = get_from_variadic_template<3>(indexInput...);
+                auto d = get_from_variadic_template<4>(indexInput...);
+                auto e = get_from_variadic_template<5>(indexInput...);
+                return image_data[(((e * size[3] + d) * size[2] + c) * size[1] + b) * size[0] + a];
+            }
         }
 
         constexpr std::size_t getWidth() const
