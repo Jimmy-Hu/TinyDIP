@@ -383,7 +383,7 @@ namespace TinyDIP
                 if (get_from_variadic_template<2>(indexInput...) >= size[1])
                     throw std::out_of_range("Given y out of range!");
                 if (get_from_variadic_template<3>(indexInput...) >= size[2])
-                    throw std::out_of_range("Given y out of range!");
+                    throw std::out_of_range("Given z out of range!");
             }
         }
 
