@@ -385,6 +385,17 @@ namespace TinyDIP
                 if (get_from_variadic_template<3>(indexInput...) >= size[2])
                     throw std::out_of_range("Given z out of range!");
             }
+            if constexpr (n == 4)
+            {
+                if (get_from_variadic_template<1>(indexInput...) >= size[0])
+                    throw std::out_of_range("Index out of range!");
+                if (get_from_variadic_template<2>(indexInput...) >= size[1])
+                    throw std::out_of_range("Index out of range!");
+                if (get_from_variadic_template<3>(indexInput...) >= size[2])
+                    throw std::out_of_range("Index out of range!");
+                if (get_from_variadic_template<4>(indexInput...) >= size[3])
+                    throw std::out_of_range("Index out of range!");
+            }
         }
 
 #ifdef USE_BOOST_SERIALIZATION
