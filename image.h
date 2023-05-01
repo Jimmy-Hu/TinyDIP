@@ -200,8 +200,13 @@ namespace TinyDIP
                 return image_data[(((e * size[3] + d) * size[2] + c) * size[1] + b) * size[0] + a];
             }
         }
+  
+        constexpr std::size_t getDimensionality() const noexcept
+        {
+            return size.size();
+        }
 
-        constexpr std::size_t getWidth() const
+        constexpr std::size_t getWidth() const noexcept
         {
             return size[0];
         }
@@ -394,6 +399,19 @@ namespace TinyDIP
                 if (get_from_variadic_template<3>(indexInput...) >= size[2])
                     throw std::out_of_range("Index out of range!");
                 if (get_from_variadic_template<4>(indexInput...) >= size[3])
+                    throw std::out_of_range("Index out of range!");
+            }
+            if constexpr (n == 5)
+            {
+                if (get_from_variadic_template<1>(indexInput...) >= size[0])
+                    throw std::out_of_range("Index out of range!");
+                if (get_from_variadic_template<2>(indexInput...) >= size[1])
+                    throw std::out_of_range("Index out of range!");
+                if (get_from_variadic_template<3>(indexInput...) >= size[2])
+                    throw std::out_of_range("Index out of range!");
+                if (get_from_variadic_template<4>(indexInput...) >= size[3])
+                    throw std::out_of_range("Index out of range!");
+                if (get_from_variadic_template<5>(indexInput...) >= size[4])
                     throw std::out_of_range("Index out of range!");
             }
         }
