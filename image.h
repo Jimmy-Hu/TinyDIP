@@ -45,43 +45,20 @@ namespace TinyDIP
     public:
         Image() = default;
 
-        Image(const std::size_t width, const std::size_t height):
-            image_data(width * height)
-            {
-                size.reserve(2);
-                size.emplace_back(width);
-                size.emplace_back(height);
-            }
-
-        Image(const std::size_t width, const std::size_t height, const std::size_t depth):
-            image_data(width * height * depth)
-            {
-                size.reserve(3);
-                size.emplace_back(width);
-                size.emplace_back(height);
-                size.emplace_back(depth);
-            }
-
-        Image(const std::size_t x, const std::size_t y, const std::size_t z, const std::size_t w):
-            image_data(x * y * z * w)
-            {
-                size.reserve(4);
-                size.emplace_back(x);
-                size.emplace_back(y);
-                size.emplace_back(z);
-                size.emplace_back(w);
-            }
-
-        Image(const std::size_t a, const std::size_t b, const std::size_t c, const std::size_t d, const std::size_t e):
-            image_data(a * b * c * d * e)
-            {
-                size.reserve(5);
-                size.emplace_back(a);
-                size.emplace_back(b);
-                size.emplace_back(c);
-                size.emplace_back(d);
-                size.emplace_back(e);
-            }
+        template<std::same_as<std::size_t>... Sizes>
+        Image(Sizes... sizes)
+        {
+            size.reserve(sizeof...(sizes));
+            (size.push_back(sizes), ...);
+            image_data.resize(
+                std::reduce(
+                    std::ranges::cbegin(size),
+                    std::ranges::cend(size),
+                    std::size_t{1},
+                    std::multiplies<>()
+                    )
+            );
+        }
 
         Image(const std::vector<ElementT>& input, std::size_t newWidth, std::size_t newHeight)
         {
