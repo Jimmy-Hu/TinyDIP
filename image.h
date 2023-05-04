@@ -60,6 +60,21 @@ namespace TinyDIP
             );
         }
 
+        template<std::same_as<int>... Sizes>
+        Image(Sizes... sizes)
+        {
+            size.reserve(sizeof...(sizes));
+            (size.push_back(sizes), ...);
+            image_data.resize(
+                std::reduce(
+                    std::ranges::cbegin(size),
+                    std::ranges::cend(size),
+                    std::size_t{1},
+                    std::multiplies<>()
+                    )
+            );
+        }
+
         Image(const std::vector<ElementT>& input, std::size_t newWidth, std::size_t newHeight)
         {
             size.reserve(2);
