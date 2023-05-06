@@ -9,7 +9,7 @@ void each_image( std::string input_path, std::string output_path,
                  std::size_t N1 = 8, std::size_t N2 = 8)
 {
 	auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
-	auto image_255 = TinyDIP::Image<double>(input_img.getWidth(), input_img.getHeight())
+	auto image_255 = TinyDIP::Image<double>(input_img.getWidth(), input_img.getHeight());
 	image_255.setAllValue(255);
 	auto dct2_results = TinyDIP::recursive_transform<2>(
 		std::execution::par,
