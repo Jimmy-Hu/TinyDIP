@@ -9,7 +9,8 @@ template<typename T>
 void absTest(T initVal)
 {
 	std::size_t sizeNum = 10;
-	auto test_img = TinyDIP::Image<T>(sizeNum, sizeNum, initVal);
+	auto test_img = TinyDIP::Image<T>(sizeNum, sizeNum);
+	test_img.setAllValue(initVal);
 	TinyDIP::abs(test_img).print();
 	return;
 }
