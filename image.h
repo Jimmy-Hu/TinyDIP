@@ -46,19 +46,8 @@ namespace TinyDIP
         Image() = default;
 
         template<std::same_as<std::size_t>... Sizes>
-        Image(Sizes... sizes)
-        {
-            size.reserve(sizeof...(sizes));
-            (size.push_back(sizes), ...);
-            image_data.resize(
-                std::reduce(
-                    std::ranges::cbegin(size),
-                    std::ranges::cend(size),
-                    std::size_t{1},
-                    std::multiplies<>()
-                    )
-            );
-        }
+        Image(Sizes... sizes): size{sizes...}, image_data((1 * ... * sizes))
+        {}
 
         template<std::same_as<int>... Sizes>
         Image(Sizes... sizes)
