@@ -109,36 +109,19 @@ namespace TinyDIP
             {
                 throw std::runtime_error("Dimensionality mismatched!");
             }
-            if constexpr (n == 2)
-            {
-                auto x = get_from_variadic_template<1>(indexInput...);
-                auto y = get_from_variadic_template<2>(indexInput...);
-                return image_data[y * size[0] + x];
-            }
-            else if constexpr (n == 3)
-            {
-                auto x = get_from_variadic_template<1>(indexInput...);
-                auto y = get_from_variadic_template<2>(indexInput...);
-                auto z = get_from_variadic_template<3>(indexInput...);
-                return image_data[(z * size[1] + y) * size[0] + x];
-            }
-            else if constexpr (n == 4)
-            {
-                auto x = get_from_variadic_template<1>(indexInput...);
-                auto y = get_from_variadic_template<2>(indexInput...);
-                auto z = get_from_variadic_template<3>(indexInput...);
-                auto w = get_from_variadic_template<4>(indexInput...);
-                return image_data[((w * size[2] + z) * size[1] + y) * size[0] + x];
-            }
-            else if constexpr (n == 5)
-            {
-                auto a = get_from_variadic_template<1>(indexInput...);
-                auto b = get_from_variadic_template<2>(indexInput...);
-                auto c = get_from_variadic_template<3>(indexInput...);
-                auto d = get_from_variadic_template<4>(indexInput...);
-                auto e = get_from_variadic_template<5>(indexInput...);
-                return image_data[(((e * size[3] + d) * size[2] + c) * size[1] + b) * size[0] + a];
-            }
+            std::size_t parameter_pack_index = 0;
+            std::size_t image_data_index = 0;
+            auto function = [&](auto index) {
+                std::size_t m = 1;
+                for(std::size_t i = 0; i < parameter_pack_index; ++i)
+                {
+                    m*=size[i];
+                }
+                image_data_index+=(index * m);
+                parameter_pack_index = parameter_pack_index + 1;
+            };
+            (function(indexInput), ...);
+            return image_data[image_data_index];
         }
 
         template<typename... Args>
