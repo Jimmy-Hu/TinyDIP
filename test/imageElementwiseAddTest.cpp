@@ -17,7 +17,8 @@ void imageElementwiseAddTest(const std::size_t N1 = 10)
     test += test;
     test.print();
 
-    auto test2 = TinyDIP::Image<int>(N1 + 1, 11, 1);
+    auto test2 = TinyDIP::Image<int>(N1 + 1, 11);
+    test2.setAllValue(1);
     test += test2;
     test.print();
 }
