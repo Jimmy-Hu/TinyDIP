@@ -12,12 +12,16 @@ void multipliesWithImageVectorsTest(const std::size_t xsize, const std::size_t y
 	std::vector<TinyDIP::Image<ElementT>> test_x;
 	for (std::size_t z = 0; z < zsize; ++z)
 	{
-		test_x.push_back(TinyDIP::Image(xsize, ysize, 0.1));
+		auto image = TinyDIP::Image<ElementT>(xsize, ysize);
+		image.setAllValue(0.1);
+		test_x.push_back();
 	}
 	std::vector<TinyDIP::Image<ElementT>> test_y;
 	for (std::size_t z = 0; z < zsize; ++z)
 	{
-		test_y.push_back(TinyDIP::Image(xsize, ysize, 0.2));
+		auto image = TinyDIP::Image<ElementT>(xsize, ysize);
+		image.setAllValue(0.2);
+		test_y.push_back();
 	}
 	auto result = TinyDIP::multiplies(test_x, test_y);
 	result.at(0).print();
