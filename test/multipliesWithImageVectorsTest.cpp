@@ -35,12 +35,16 @@ void multipliesWithImageVectorsTest(ExPo execution_policy, const std::size_t xsi
 	std::vector<TinyDIP::Image<ElementT>> test_x;
 	for (std::size_t z = 0; z < zsize; ++z)
 	{
-		test_x.push_back(TinyDIP::Image(xsize, ysize, 0.2));
+		auto image = TinyDIP::Image<ElementT>(xsize, ysize);
+		image.setAllValue(0.2);
+		test_x.push_back();
 	}
 	std::vector<TinyDIP::Image<ElementT>> test_y;
 	for (std::size_t z = 0; z < zsize; ++z)
 	{
-		test_y.push_back(TinyDIP::Image(xsize, ysize, 0.4));
+		auto image = TinyDIP::Image<ElementT>(xsize, ysize);
+		image.setAllValue(0.4);
+		test_y.push_back();
 	}
 	auto result = TinyDIP::multiplies(execution_policy, test_x, test_y);
 	result.at(0).print();
