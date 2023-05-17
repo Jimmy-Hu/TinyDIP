@@ -8,7 +8,8 @@
 template<class T>
 constexpr void plusTest(const std::size_t N1 = 10, const std::size_t N2 = 10)
 {
-    auto image1 = TinyDIP::Image<T>(N1, N2, 1);
+    auto image1 = TinyDIP::Image<T>(N1, N2);
+	image1.setAllValue(1);
     auto vector1 = std::vector<decltype(image1)>();
     vector1.push_back(image1);
     TinyDIP::plus(vector1, vector1, vector1)[0].print();
