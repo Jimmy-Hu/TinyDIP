@@ -14,7 +14,7 @@ void multipliesWithImageVectorsTest(const std::size_t xsize, const std::size_t y
 	{
 		auto image = TinyDIP::Image<ElementT>(xsize, ysize);
 		image.setAllValue(0.1);
-		test_x.push_back();
+		test_x.push_back(image);
 	}
 	std::vector<TinyDIP::Image<ElementT>> test_y;
 	for (std::size_t z = 0; z < zsize; ++z)
