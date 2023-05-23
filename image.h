@@ -321,46 +321,14 @@ namespace TinyDIP
             {
                 throw std::runtime_error("Dimensionality mismatched!");
             }
-            if constexpr (n == 2)
-            {
-                if (get_from_variadic_template<1>(indexInput...) >= size[0])
-                    throw std::out_of_range("Given x out of range!");
-                if (get_from_variadic_template<2>(indexInput...) >= size[1])
-                    throw std::out_of_range("Given y out of range!");
-            }
-            if constexpr (n == 3)
-            {
-                if (get_from_variadic_template<1>(indexInput...) >= size[0])
-                    throw std::out_of_range("Given x out of range!");
-                if (get_from_variadic_template<2>(indexInput...) >= size[1])
-                    throw std::out_of_range("Given y out of range!");
-                if (get_from_variadic_template<3>(indexInput...) >= size[2])
-                    throw std::out_of_range("Given z out of range!");
-            }
-            if constexpr (n == 4)
-            {
-                if (get_from_variadic_template<1>(indexInput...) >= size[0])
-                    throw std::out_of_range("Index out of range!");
-                if (get_from_variadic_template<2>(indexInput...) >= size[1])
-                    throw std::out_of_range("Index out of range!");
-                if (get_from_variadic_template<3>(indexInput...) >= size[2])
-                    throw std::out_of_range("Index out of range!");
-                if (get_from_variadic_template<4>(indexInput...) >= size[3])
-                    throw std::out_of_range("Index out of range!");
-            }
-            if constexpr (n == 5)
-            {
-                if (get_from_variadic_template<1>(indexInput...) >= size[0])
-                    throw std::out_of_range("Index out of range!");
-                if (get_from_variadic_template<2>(indexInput...) >= size[1])
-                    throw std::out_of_range("Index out of range!");
-                if (get_from_variadic_template<3>(indexInput...) >= size[2])
-                    throw std::out_of_range("Index out of range!");
-                if (get_from_variadic_template<4>(indexInput...) >= size[3])
-                    throw std::out_of_range("Index out of range!");
-                if (get_from_variadic_template<5>(indexInput...) >= size[4])
-                    throw std::out_of_range("Index out of range!");
-            }
+            std::size_t parameter_pack_index = 0;
+            auto function = [&](auto index) {
+                if (index >= size[parameter_pack_index])
+                    throw std::out_of_range("Given index out of range!");
+                parameter_pack_index = parameter_pack_index + 1;
+            };
+
+            (function(indexInput), ...);
         }
 
 #ifdef USE_BOOST_SERIALIZATION
