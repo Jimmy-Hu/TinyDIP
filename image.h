@@ -170,7 +170,16 @@ namespace TinyDIP
 
         void print(std::string separator = "\t", std::ostream& os = std::cout) const
         {
-            if(size.size() == 2)
+            if(size.size() == 1)
+            {
+                for(std::size_t x = 0; x < size[0]; ++x)
+                {
+                    //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
+                    os << +at(x) << separator;
+                }
+                os << "\n";
+            }
+            else if(size.size() == 2)
             {
                 for (std::size_t y = 0; y < size[1]; ++y)
                 {
