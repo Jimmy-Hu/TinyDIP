@@ -5,3 +5,7 @@
 
 void recursiveReduceTest();
 
+int main()
+{
+    
+}
