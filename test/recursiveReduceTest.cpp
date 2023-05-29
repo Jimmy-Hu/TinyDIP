@@ -7,5 +7,5 @@ void recursiveReduceTest();
 
 int main()
 {
-    
+    auto start = std::chrono::system_clock::now();
 }
