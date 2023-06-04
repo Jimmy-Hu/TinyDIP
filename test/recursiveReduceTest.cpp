@@ -19,5 +19,6 @@ int main()
 
 void recursiveReduceTest()
 {
+    auto test_image1 = TinyDIP::Image<GrayScale>(5, 5);
     
 }
