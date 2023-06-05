@@ -20,5 +20,8 @@ int main()
 void recursiveReduceTest()
 {
     auto test_image1 = TinyDIP::Image<GrayScale>(5, 5);
-    
+    test_image1.setAllValue(1);
+    std::vector<decltype(test_image1)> test_vector1{test_image1, test_image1, test_image1};
+    TinyDIP::recursive_reduce(test_vector1, test_image1).print();
+    return;
 }
