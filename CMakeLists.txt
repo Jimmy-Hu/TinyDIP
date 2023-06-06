@@ -103,10 +103,11 @@ add_executable(dct3Test test/dct3Test.cpp image_io.cpp)
 add_executable(idct3DetailTest test/idct3DetailTest.cpp image_io.cpp)
 add_executable(pixelwiseOperationTest test/pixelwiseOperationTest.cpp image_io.cpp)
 add_executable(pixelwiseOperationParallelTest test/pixelwiseOperationParallelTest.cpp image_io.cpp)
+add_executable(recursiveFoldRightAllTest test/recursiveFoldRightAllTest.cpp image_io.cpp)
 add_executable(recursiveForeachTest test/recursiveForeachTest.cpp image_io.cpp)
+add_executable(recursiveReduceTest test/recursiveReduceTest.cpp image_io.cpp)
 add_executable(recursiveSizeTest test/recursiveSizeTest.cpp image_io.cpp)
 add_executable(recursiveTransformTest test/recursiveTransformTest.cpp image_io.cpp)
-add_executable(recursiveFoldRightAllTest test/recursiveFoldRightAllTest.cpp image_io.cpp)
 
 # target_include_directories
 if(APPLE)
