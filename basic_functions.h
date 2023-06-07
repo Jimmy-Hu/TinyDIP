@@ -457,8 +457,7 @@ namespace TinyDIP
     constexpr auto recursive_reduce(const Container& input, ValueType init, const Function& f = std::plus<ValueType>())
     {
         for (const auto& element : input) {
-            auto result = recursive_reduce(element, ValueType{}, f);
-            init = f(init, result);
+            init = recursive_reduce(element, init, f);
         }
         return init;
     }
