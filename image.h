@@ -233,9 +233,10 @@ namespace TinyDIP
             return;
         }
 
-        void setAllValue(const ElementT input)
+        Image<ElementT>& setAllValue(const ElementT input)
         {
             std::fill(image_data.begin(), image_data.end(), input);
+            return *this;
         }
 
         friend std::ostream& operator<<(std::ostream& os, const Image<ElementT>& rhs)
