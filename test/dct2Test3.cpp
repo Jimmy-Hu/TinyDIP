@@ -1,3 +1,5 @@
+/* Developed by Jimmy Hu */
+
 #include <chrono>
 #include <execution>
 #include <sstream>
