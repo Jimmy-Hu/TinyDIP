@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <execution>
+#include <omp.h>
 #include <sstream>
 #include "../base_types.h"
 #include "../basic_functions.h"
@@ -31,11 +32,23 @@ constexpr static auto get_offset( ExPo execution_policy,
 		return output;
 	}
 	//std::cout << "#weights: " << std::to_string(weights.size()) << "\t#dictionary_y: " << std::to_string(dictionary_y.size()) << '\n';
-	auto outputs = TinyDIP::recursive_transform<1>(
+	if constexpr(true)	//	Use OpenMP
+	{
+		decltype(dictionary_y) outputs;
+		#pragma omp parallel for
+		for (size_t i = 0; i < dictionary_y.size(); ++i)
+		{
+			outputs[i] = dictionary_y[i] * weights[i];
+		}
+	}
+	else
+	{
+		auto outputs = TinyDIP::recursive_transform<1>(
 		[&](auto&& input1, auto&& input2)
 		{
 			return input1 * input2;
 		}, dictionary_y, weights);
+	}
 	output =  TinyDIP::recursive_reduce(outputs, output);
 	auto image_for_divides = TinyDIP::Image<ElementT>(output.getWidth(), output.getHeight());
 	image_for_divides.setAllValue(sum_of_weights);
