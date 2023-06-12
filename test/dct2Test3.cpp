@@ -34,12 +34,14 @@ constexpr static auto get_offset( ExPo execution_policy,
 	//std::cout << "#weights: " << std::to_string(weights.size()) << "\t#dictionary_y: " << std::to_string(dictionary_y.size()) << '\n';
 	if constexpr(true)	//	Use OpenMP
 	{
-		decltype(dictionary_y) outputs;
+		std::vector<TinyDIP::Image<ElementT>> outputs;
+		outputs.reserve(dictionary_y.size());
 		#pragma omp parallel for
 		for (size_t i = 0; i < dictionary_y.size(); ++i)
 		{
 			outputs[i] = dictionary_y[i] * weights[i];
 		}
+		output =  TinyDIP::recursive_reduce(outputs, output);
 	}
 	else
 	{
@@ -48,8 +50,8 @@ constexpr static auto get_offset( ExPo execution_policy,
 		{
 			return input1 * input2;
 		}, dictionary_y, weights);
+		output =  TinyDIP::recursive_reduce(outputs, output);
 	}
-	output =  TinyDIP::recursive_reduce(outputs, output);
 	auto image_for_divides = TinyDIP::Image<ElementT>(output.getWidth(), output.getHeight());
 	image_for_divides.setAllValue(sum_of_weights);
 	output = TinyDIP::divides(output, image_for_divides);
