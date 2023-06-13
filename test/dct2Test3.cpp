@@ -35,7 +35,7 @@ constexpr static auto get_offset( ExPo execution_policy,
 	if constexpr(true)	//	Use OpenMP
 	{
 		std::vector<TinyDIP::Image<ElementT>> outputs;
-		outputs.reserve(dictionary_y.size());
+		outputs.resize(dictionary_y.size());
 		#pragma omp parallel for
 		for (size_t i = 0; i < dictionary_y.size(); ++i)
 		{
