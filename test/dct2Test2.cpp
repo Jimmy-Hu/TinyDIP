@@ -1,3 +1,5 @@
+/* Developed by Jimmy Hu */
+
 #include <execution>
 #include "../base_types.h"
 #include "../basic_functions.h"
