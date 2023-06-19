@@ -168,6 +168,13 @@ namespace TinyDIP
         return std::invoke(p, value);
     }
 
+    template<std::ranges::input_range T, class UnaryPredicate>
+    constexpr auto recursive_all_of(T& inputRange, UnaryPredicate&& p) {
+        return std::ranges::all_of(inputRange, [&](auto&& range) {
+            return recursive_all_of(range, std::forward<UnaryPredicate>(p));
+        });
+    }
+
     //  recursive_depth function implementation
     template<typename T>
     constexpr std::size_t recursive_depth()
