@@ -161,6 +161,13 @@ namespace TinyDIP
     }
     #endif
 
+    /*  recursive_all_of template function implementation
+    */
+    template<class T, class UnaryPredicate>
+    constexpr auto recursive_all_of(T&& value, UnaryPredicate p) {
+        return std::invoke(p, value);
+    }
+
     //  recursive_depth function implementation
     template<typename T>
     constexpr std::size_t recursive_depth()
