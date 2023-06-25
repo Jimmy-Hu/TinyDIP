@@ -23,14 +23,14 @@ int main()
 
 void recursiveAllOfTest()
 {
-    auto test_vectors_1 = TinyDIP::n_dim_container_generator<std::vector, 4, int>(1, 3);
+    auto test_vectors_1 = TinyDIP::n_dim_container_generator<4, int>(1, 3);
     test_vectors_1[0][0][0][0] = 2;
     std::cout << "Play with test_vectors_1:\n";
     
     if (TinyDIP::recursive_all_of(test_vectors_1, [](int i) { return i % 2 == 0; }))
         std::cout << "All numbers are even\n";
 
-    auto test_vectors_2 = TinyDIP::n_dim_container_generator<std::vector, 4, int>(2, 3);
+    auto test_vectors_2 = TinyDIP::n_dim_container_generator<4, int>(2, 3);
     test_vectors_2[0][0][0][0] = 4;
     std::cout << "Play with test_vectors_2:\n";
     
