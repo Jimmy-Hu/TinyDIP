@@ -922,7 +922,7 @@ namespace TinyDIP
         }
     }
 
-    template<std::size_t dim, template<class...> class Container = std::vector, class T>
+    template<std::size_t dim, class T, template<class...> class Container = std::vector>
     constexpr auto n_dim_container_generator(T input, std::size_t times)
     {
         if constexpr (dim == 0)
