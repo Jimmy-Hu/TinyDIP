@@ -931,7 +931,7 @@ namespace TinyDIP
         }
         else
         {
-            return Container(times, n_dim_container_generator<dim - 1, Container, T>(input, times));
+            return Container(times, n_dim_container_generator<dim - 1, T, Container>(input, times));
         }
     }
 }
