@@ -8,12 +8,13 @@
 #include "../image_io.h"
 #include "../image_operations.h"
 
+template<std::size_t dim>
 void recursiveAllOfTest();
 
 int main()
 {
     auto start = std::chrono::system_clock::now();
-	recursiveAllOfTest();
+	recursiveAllOfTest<4>();
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
@@ -21,20 +22,20 @@ int main()
 	return EXIT_SUCCESS;
 }
 
+template<std::size_t dim>
 void recursiveAllOfTest()
 {
-    auto test_vectors_1 = TinyDIP::n_dim_container_generator<4, int>(1, 3);
-    test_vectors_1[0][0][0][0] = 2;
+    auto test_vectors_1 = TinyDIP::n_dim_container_generator<dim, int>(1, 3);
+    
     std::cout << "Play with test_vectors_1:\n";
     
-    if (TinyDIP::recursive_all_of(test_vectors_1, [](int i) { return i % 2 == 0; }))
-        std::cout << "All numbers are even\n";
-
-    auto test_vectors_2 = TinyDIP::n_dim_container_generator<4, int>(2, 3);
-    test_vectors_2[0][0][0][0] = 4;
+    assert(TinyDIP::recursive_all_of(test_vectors_1, [](int i) { return i % 2 == 0; }) == false);
+    
+    auto test_vectors_2 = TinyDIP::n_dim_container_generator<dim, int>(2, 3);
+    
     std::cout << "Play with test_vectors_2:\n";
     
-    if (TinyDIP::recursive_all_of(test_vectors_2, [](int i) { return i % 2 == 0; }))
-        std::cout << "All numbers are even\n";
+    assert(TinyDIP::recursive_all_of(test_vectors_2, [](int i) { return i % 2 == 0; }));
+
     return;
 }
