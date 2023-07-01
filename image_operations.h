@@ -18,6 +18,13 @@ namespace TinyDIP
     template <typename ElementT>
     class Image;
 
+    //  all_of template function implementation
+    template<typename ElementT, class UnaryPredicate>
+    constexpr auto all_of(const Image<ElementT>& input, UnaryPredicate p)
+    {
+        std::ranges::all_of(std::ranges::begin(input.getImageData()), std::ranges::end(input.getImageData()), p);
+    }
+
     template<typename ElementT>
     constexpr bool is_width_same(const Image<ElementT>& x, const Image<ElementT>& y)
     {
