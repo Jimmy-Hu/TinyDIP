@@ -14,7 +14,7 @@ void allOfTest();
 int main()
 {
     auto start = std::chrono::system_clock::now();
-	allOfTest<2>();
+    allOfTest<2>();
     allOfTest<3>();
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
@@ -32,6 +32,11 @@ void allOfTest()
         test_image1.setAllValue(10);
         assert(TinyDIP::all_of(test_image1, [](int i) { return i == 10; }));
     }
-    
+    if constexpr(dim == 3)
+    {
+        auto test_image1 = TinyDIP::Image<dim>(10, 10, 10);
+        test_image1.setAllValue(10);
+        assert(TinyDIP::all_of(test_image1, [](int i) { return i == 10; }));
+    }
     return;
 }
