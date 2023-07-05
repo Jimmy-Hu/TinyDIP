@@ -73,6 +73,7 @@ endif()
 # add the executable
 add_executable(TinyDIP main.cpp image_io.cpp)
 add_executable(absTest test/absTest.cpp image_io.cpp)
+add_executable(allOfTest test/allOfTest.cpp image_io.cpp)
 add_executable(bicubicInterpolationTest test/bicubicInterpolationTest.cpp image_io.cpp)
 add_executable(concatHorizontalTest test/concatHorizontalTest.cpp image_io.cpp)
 add_executable(concatVerticalTest test/concatVerticalTest.cpp image_io.cpp)
