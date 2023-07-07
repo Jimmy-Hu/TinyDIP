@@ -28,13 +28,13 @@ void allOfTest()
 {
     if constexpr(dim == 2)
     {
-        auto test_image1 = TinyDIP::Image<dim, double>(10, 10);
+        auto test_image1 = TinyDIP::Image<double>(10, 10);
         test_image1.setAllValue(10);
         assert(TinyDIP::all_of(test_image1, [](int i) { return i == 10; }));
     }
     if constexpr(dim == 3)
     {
-        auto test_image1 = TinyDIP::Image<dim, double>(10, 10, 10);
+        auto test_image1 = TinyDIP::Image<double>(10, 10, 10);
         test_image1.setAllValue(10);
         assert(TinyDIP::all_of(test_image1, [](int i) { return i == 10; }));
     }
