@@ -163,9 +163,9 @@ namespace TinyDIP
 
     /*  recursive_all_of template function implementation
     */
-    template<class T, class UnaryPredicate>
-    constexpr auto recursive_all_of(T&& value, UnaryPredicate p) {
-        return std::invoke(p, value);
+    template<class T, class Proj = std::identity, class UnaryPredicate>
+    constexpr auto recursive_all_of(T&& value, UnaryPredicate p, Proj proj = {}) {
+        return std::invoke(p, std::invoke(proj, value));
     }
 
     template<std::ranges::input_range T, class UnaryPredicate>
