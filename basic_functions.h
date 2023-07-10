@@ -168,11 +168,11 @@ namespace TinyDIP
         return std::invoke(p, std::invoke(proj, value));
     }
 
-    template<std::ranges::input_range T, class UnaryPredicate>
-    constexpr auto recursive_all_of(T& inputRange, UnaryPredicate&& p) {
+    template<std::ranges::input_range T, class Proj = std::identity, class UnaryPredicate>
+    constexpr auto recursive_all_of(T& inputRange, UnaryPredicate&& p, Proj proj = {}) {
         return std::ranges::all_of(inputRange, [&](auto&& range) {
-            return recursive_all_of(range, std::forward<UnaryPredicate>(p));
-        });
+            return recursive_all_of(range, std::forward<UnaryPredicate>(p), proj);
+        }, proj);
     }
 
     //  recursive_depth function implementation
