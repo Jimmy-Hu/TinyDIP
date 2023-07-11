@@ -603,6 +603,33 @@ namespace TinyDIP
         return init;
     }
 
+    //  recursive_unwrap_type_t struct implementation
+    template<std::size_t, typename, typename...>
+    struct recursive_unwrap_type { };
+
+    template<class...Ts1, template<class...>class Container1, typename... Ts>
+    struct recursive_unwrap_type<1, Container1<Ts1...>, Ts...>
+    {
+        using type = std::ranges::range_value_t<Container1<Ts1...>>;
+    };
+
+    template<std::size_t unwrap_level, class...Ts1, template<class...>class Container1, typename... Ts>
+    requires (  std::ranges::input_range<Container1<Ts1...>> &&
+                requires { typename recursive_unwrap_type<
+                                        unwrap_level - 1,
+                                        std::ranges::range_value_t<Container1<Ts1...>>,
+                                        std::ranges::range_value_t<Ts>...>::type; })                //  The rest arguments are ranges
+    struct recursive_unwrap_type<unwrap_level, Container1<Ts1...>, Ts...>
+    {
+        using type = typename recursive_unwrap_type<
+            unwrap_level - 1,
+            std::ranges::range_value_t<Container1<Ts1...>>
+            >::type;
+    };
+
+    template<std::size_t unwrap_level, typename T1, typename... Ts>
+    using recursive_unwrap_type_t = typename recursive_unwrap_type<unwrap_level, T1, Ts...>::type;
+    
     //  recursive_invoke_result_t implementation
     template<std::size_t, typename, typename>
     struct recursive_invoke_result { };
