@@ -188,6 +188,20 @@ namespace TinyDIP
         return recursive_depth<std::ranges::range_value_t<Range>>() + std::size_t{1};
     }
 
+    //  recursive_depth template function implementation with target type
+    template<typename T_Base, typename T>
+    constexpr std::size_t recursive_depth()
+    {
+        return std::size_t{0};
+    }
+
+    template<typename T_Base, std::ranges::input_range Range>
+    requires (!std::same_as<Range, T_Base>)
+    constexpr std::size_t recursive_depth()
+    {
+        return recursive_depth<T_Base, std::ranges::range_value_t<Range>>() + std::size_t{1};
+    }
+
     template<std::size_t index = 1, typename Arg, typename... Args>
     constexpr static auto& get_from_variadic_template(const Arg& first, const Args&... inputs)
     {
