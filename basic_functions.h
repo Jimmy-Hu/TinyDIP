@@ -572,13 +572,15 @@ namespace TinyDIP
             Proj proj;
         };
 
+        //  recursive_foreach_all template function implementation
         template<class T, class State>
-        requires(!std::ranges::input_range<T>)
+        requires (recursive_depth<T>() == 0)
         constexpr void recursive_foreach_all(T& value, State& state) {
             std::invoke(state.f, std::invoke(state.proj, value));
         }
 
-        template<std::ranges::input_range T, class State>
+        template<class T, class State>
+        requires (recursive_depth<T>() != 0)
         constexpr void recursive_foreach_all(T& inputRange, State& state) {
             for (auto& item: inputRange)
                 impl::recursive_foreach_all(item, state);
