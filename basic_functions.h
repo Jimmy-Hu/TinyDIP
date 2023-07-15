@@ -825,7 +825,7 @@ namespace TinyDIP
     }
 
 
-    //  recursive_transform_reduce implementation
+    //  recursive_transform_reduce template function implementation
     template<class Input, class T, class UnaryOp, class BinaryOp = std::plus<T>>
     constexpr auto recursive_transform_reduce(const Input& input, T init, const UnaryOp& unary_op, const BinaryOp& binop = std::plus<T>())
     {
@@ -833,10 +833,10 @@ namespace TinyDIP
     }
 
     template<std::ranges::range Input, class T, class UnaryOp, class BinaryOp = std::plus<T>>
-    constexpr auto recursive_transform_reduce(const Input& input, T init, const UnaryOp& unary_op, const BinaryOp& binop = std::plus<T>())
+    constexpr auto recursive_transform_reduce(const Input& input, T init, const UnaryOp&& unary_op, const BinaryOp&& binop = std::plus<T>())
     {
         return std::transform_reduce(std::ranges::begin(input), std::ranges::end(input), init, binop, [&](auto& element) {
-            return recursive_transform_reduce(element, T{}, unary_op, binop);
+            return recursive_transform_reduce(element, T{}, std::forward<UnaryOp>(unary_op), std::forward<BinaryOp>(binop));
             });
     }
 
