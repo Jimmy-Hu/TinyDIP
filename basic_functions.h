@@ -840,9 +840,9 @@ namespace TinyDIP
             });
     }
 
-    //  With execution policy
+    //  recursive_transform_reduce template function implementation with execution policy
     template<class ExPo, class Input, class T, class UnaryOp, class BinaryOp = std::plus<T>>
-    //requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr auto recursive_transform_reduce(ExPo execution_policy, const Input& input, T init, const UnaryOp& unary_op, const BinaryOp& binop = std::plus<T>())
     {
         return binop(init, unary_op(input));
