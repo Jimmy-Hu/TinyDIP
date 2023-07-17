@@ -33,7 +33,7 @@ endif()
 if(UNIX AND NOT APPLE)
     # for Linux, BSD, Solaris, Minix
     set(CMAKE_C_COMPILER "/usr/bin/gcc")
-    set(CMAKE_CXX_COMPILER "/usr/bin/g++-")
+    set(CMAKE_CXX_COMPILER "/usr/bin/g++-13")
 endif()
 
 # Using different command for compiling
