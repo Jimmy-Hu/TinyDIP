@@ -110,6 +110,7 @@ namespace TinyDIP
         return 0;
     }
 
+    //  bmp_file_read function implementation
     BMPIMAGE bmp_file_read(const char * const filename, const bool extension)
     {
         BMPIMAGE output;
@@ -153,7 +154,7 @@ namespace TinyDIP
             output.YSIZE = std::abs(OriginSizeY);
             printf("Width of the input image: %d\n", output.XSIZE);
             printf("Height of the input image: %d\n", output.YSIZE);
-            printf("Size of the input image(Byte): %d\n", (size_t)output.XSIZE * output.YSIZE * 3);
+            printf("Size of the input image(Byte): %ld\n", static_cast<size_t>(output.XSIZE * output.YSIZE * 3));
             output.FILLINGBYTE = bmp_filling_byte_calc(output.XSIZE);
             output.IMAGE_DATA = static_cast<unsigned char*>(malloc(sizeof *output.IMAGE_DATA * (output.XSIZE * 3 + output.FILLINGBYTE) * output.YSIZE));
             if (output.IMAGE_DATA == NULL)
