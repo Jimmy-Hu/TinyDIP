@@ -407,6 +407,7 @@ namespace TinyDIP
             return result;
         }
 
+        //  read function implementation
         TinyDIP::Image<double> read(const char* const filename, const bool extension)
         {
             std::filesystem::path target_path;
@@ -434,7 +435,7 @@ namespace TinyDIP
             }
             printf("Width of the input image: %d\n", OriginSizeX);
             printf("Height of the input image: %d\n", OriginSizeY);
-            printf("Size of the input image: %d\n", (size_t)OriginSizeX * OriginSizeY);
+            printf("Size of the input image: %ld\n", static_cast<size_t>(OriginSizeX * OriginSizeY));
             unsigned char header[54];
             fread(header, sizeof(unsigned char), 54, fp);
             double* image;
