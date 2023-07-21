@@ -534,6 +534,7 @@ namespace TinyDIP
         return result;
     }
 
+    //  hsv_read function implementation
     Image<HSV> hsv_read(const char* const filename, const bool extension)
     {
         std::filesystem::path target_path;
@@ -561,7 +562,7 @@ namespace TinyDIP
         }
         printf("Width of the input image: %d\n", OriginSizeX);
         printf("Height of the input image: %d\n", OriginSizeY);
-        printf("Size of the input image: %d\n", (size_t)OriginSizeX * OriginSizeY * 3);
+        printf("Size of the input image: %ld\n", static_cast<size_t>(OriginSizeX * OriginSizeY * 3));
         unsigned char header[54];
         fread(header, sizeof(unsigned char), 54, fp);
         double* image;
