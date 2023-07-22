@@ -850,10 +850,10 @@ namespace TinyDIP
 
     template<class ExPo, std::ranges::range Input, class T, class UnaryOp, class BinaryOp = std::plus<T>>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr auto recursive_transform_reduce(ExPo execution_policy, const Input& input, T init, const UnaryOp& unary_op, const BinaryOp& binop = std::plus<T>())
+    constexpr auto recursive_transform_reduce(ExPo execution_policy, const Input& input, T init, const UnaryOp&& unary_op, const BinaryOp&& binop = std::plus<T>())
     {
         return std::transform_reduce(execution_policy, std::ranges::begin(input), std::ranges::end(input), init, binop, [&](auto& element) {
-            return recursive_transform_reduce(execution_policy, element, T{}, unary_op, binop);
+            return recursive_transform_reduce(execution_policy, element, T{}, std::forward<UnaryOp>(unary_op), std::forward<BinaryOp>(binop));
             });
     }
 
