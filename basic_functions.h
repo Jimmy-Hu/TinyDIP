@@ -171,7 +171,7 @@ namespace TinyDIP
     template<std::ranges::input_range T, class Proj = std::identity, class UnaryPredicate>
     constexpr auto recursive_all_of(T& inputRange, UnaryPredicate&& p, Proj proj = {}) {
         return std::ranges::all_of(inputRange, [&](auto&& range) {
-            return recursive_all_of(range, std::forward<UnaryPredicate>(p), proj);
+            return recursive_all_of(range, p, proj);
         }, proj);
     }
 
