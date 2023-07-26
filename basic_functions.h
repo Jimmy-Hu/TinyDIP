@@ -161,18 +161,21 @@ namespace TinyDIP
     }
     #endif
 
-    /*  recursive_all_of template function implementation
+    /*  recursive_all_of template function implementation with unwrap level
     */
-    template<class T, class Proj = std::identity, class UnaryPredicate>
-    constexpr auto recursive_all_of(T&& value, UnaryPredicate p, Proj proj = {}) {
-        return std::invoke(p, std::invoke(proj, value));
-    }
-
-    template<std::ranges::input_range T, class Proj = std::identity, class UnaryPredicate>
-    constexpr auto recursive_all_of(T& inputRange, UnaryPredicate&& p, Proj proj = {}) {
-        return std::ranges::all_of(inputRange, [&](auto&& range) {
-            return recursive_all_of(range, p, proj);
-        }, proj);
+    template<std::size_t unwrap_level, class T, class Proj = std::identity, class UnaryPredicate>
+    requires(unwrap_level <= recursive_depth<T>())
+    constexpr auto recursive_all_of(T&& value, UnaryPredicate&& p, Proj&& proj = {}) {
+        if constexpr (unwrap_level > 0)
+        {
+            return std::ranges::all_of(value, [&](auto&& element) {
+                return recursive_all_of<unwrap_level - 1>(element, p, proj);
+            });
+        }
+        else
+        {
+            return std::invoke(p, std::invoke(proj, value));
+        }
     }
 
     //  recursive_depth function implementation
