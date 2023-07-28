@@ -161,23 +161,6 @@ namespace TinyDIP
     }
     #endif
 
-    /*  recursive_all_of template function implementation with unwrap level
-    */
-    template<std::size_t unwrap_level, class T, class Proj = std::identity, class UnaryPredicate>
-    requires(unwrap_level <= recursive_depth<T>())
-    constexpr auto recursive_all_of(T&& value, UnaryPredicate&& p, Proj&& proj = {}) {
-        if constexpr (unwrap_level > 0)
-        {
-            return std::ranges::all_of(value, [&](auto&& element) {
-                return recursive_all_of<unwrap_level - 1>(element, p, proj);
-            });
-        }
-        else
-        {
-            return std::invoke(p, std::invoke(proj, value));
-        }
-    }
-
     //  recursive_depth function implementation
     template<typename T>
     constexpr std::size_t recursive_depth()
@@ -205,6 +188,23 @@ namespace TinyDIP
         return recursive_depth<T_Base, std::ranges::range_value_t<Range>>() + std::size_t{1};
     }
 
+    /*  recursive_all_of template function implementation with unwrap level
+    */
+    template<std::size_t unwrap_level, class T, class Proj = std::identity, class UnaryPredicate>
+    requires(unwrap_level <= recursive_depth<T>())
+    constexpr auto recursive_all_of(T&& value, UnaryPredicate&& p, Proj&& proj = {}) {
+        if constexpr (unwrap_level > 0)
+        {
+            return std::ranges::all_of(value, [&](auto&& element) {
+                return recursive_all_of<unwrap_level - 1>(element, p, proj);
+            });
+        }
+        else
+        {
+            return std::invoke(p, std::invoke(proj, value));
+        }
+    }
+    
     template<std::size_t index = 1, typename Arg, typename... Args>
     constexpr static auto& get_from_variadic_template(const Arg& first, const Args&... inputs)
     {
