@@ -23,10 +23,11 @@ int main()
 	return EXIT_SUCCESS;
 }
 
+//  recursive_all_of_tests template function implementation
 template<std::size_t dim>
 void recursive_all_of_tests()
 {
-    auto test_vectors_1 = n_dim_container_generator<dim, int, std::vector>(1, 3);
+    auto test_vectors_1 = TinyDIP::n_dim_container_generator<dim, int, std::vector>(1, 3);
     test_vectors_1[0][0][0][0] = 2;
     assert(recursive_all_of<dim>(test_vectors_1, [](auto&& i) { return i % 2 == 0; }) == false);
 
