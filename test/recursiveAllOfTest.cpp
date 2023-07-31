@@ -36,50 +36,50 @@ void recursive_all_of_tests()
     assert(TinyDIP::recursive_all_of<dim>(test_vectors_2, [](auto&& i) { return i % 2 == 0; }));
     
     //  Tests with std::string
-    auto test_vector_string = n_dim_container_generator<4, std::string, std::vector>("1", 3);
-    assert(recursive_all_of<dim>(test_vector_string, [](auto&& i) { return i == "1"; }));
-    assert(recursive_all_of<dim>(test_vector_string, [](auto&& i) { return i == "2"; }) == false);
+    auto test_vector_string = TinyDIP::n_dim_container_generator<4, std::string, std::vector>("1", 3);
+    assert(TinyDIP::recursive_all_of<dim>(test_vector_string, [](auto&& i) { return i == "1"; }));
+    assert(TinyDIP::recursive_all_of<dim>(test_vector_string, [](auto&& i) { return i == "2"; }) == false);
 
     //  Tests with std::string, projection
-    assert(recursive_all_of<dim>(
+    assert(TinyDIP::recursive_all_of<dim>(
         test_vector_string,
         [](auto&& i) { return i == "1"; },
         [](auto&& element) {return std::to_string(stoi(element) + 1); }) == false);
-    assert(recursive_all_of<dim>(
+    assert(TinyDIP::recursive_all_of<dim>(
         test_vector_string,
         [](auto&& i) { return i == "2"; },
         [](auto&& element) {return std::to_string(stoi(element) + 1); }));
     
     //  Tests with std::array of std::string
     std::array<std::string, 3> word_array1 = {"foo", "foo", "foo"};
-    assert(recursive_all_of<1>(word_array1, [](auto&& i) { return i == "foo"; }));
-    assert(recursive_all_of<1>(word_array1, [](auto&& i) { return i == "bar"; }) == false);
+    assert(TinyDIP::recursive_all_of<1>(word_array1, [](auto&& i) { return i == "foo"; }));
+    assert(TinyDIP::recursive_all_of<1>(word_array1, [](auto&& i) { return i == "bar"; }) == false);
 
     //  Tests with std::deque of std::string
     std::deque<std::string> word_deque1 = {"foo", "foo", "foo", "foo"};
-    assert(recursive_all_of<1>(word_deque1, [](auto&& i) { return i == "foo"; }));
-    assert(recursive_all_of<1>(word_deque1, [](auto&& i) { return i == "bar"; }) == false);
+    assert(TinyDIP::recursive_all_of<1>(word_deque1, [](auto&& i) { return i == "foo"; }));
+    assert(TinyDIP::recursive_all_of<1>(word_deque1, [](auto&& i) { return i == "bar"; }) == false);
 
     std::vector<std::wstring> wstring_vector1{};
     for(int i = 0; i < 4; ++i)
     {
         wstring_vector1.push_back(std::to_wstring(1));
     }
-    assert(recursive_all_of<1>(wstring_vector1, [](auto&& i) { return i == std::to_wstring(1); }));
-    assert(recursive_all_of<1>(wstring_vector1, [](auto&& i) { return i == std::to_wstring(2); }) == false);
+    assert(TinyDIP::recursive_all_of<1>(wstring_vector1, [](auto&& i) { return i == std::to_wstring(1); }));
+    assert(TinyDIP::recursive_all_of<1>(wstring_vector1, [](auto&& i) { return i == std::to_wstring(2); }) == false);
 
     std::vector<std::u8string> u8string_vector1{};
     for(int i = 0; i < 4; ++i)
     {
         u8string_vector1.push_back(u8"\u20AC2.00");
     }
-    assert(recursive_all_of<1>(u8string_vector1, [](auto&& i) { return i == u8"\u20AC2.00"; }));
-    assert(recursive_all_of<1>(u8string_vector1, [](auto&& i) { return i == u8"\u20AC1.00"; }) == false);
+    assert(TinyDIP::recursive_all_of<1>(u8string_vector1, [](auto&& i) { return i == u8"\u20AC2.00"; }));
+    assert(TinyDIP::recursive_all_of<1>(u8string_vector1, [](auto&& i) { return i == u8"\u20AC1.00"; }) == false);
 
     std::pmr::string pmr_string1 = "123";
     std::vector<std::pmr::string> pmr_string_vector1 = {pmr_string1, pmr_string1, pmr_string1};
-    assert(recursive_all_of<1>(pmr_string_vector1, [](auto&& i) { return i == "123"; }));
-    assert(recursive_all_of<1>(pmr_string_vector1, [](auto&& i) { return i == "456"; }) == false);
+    assert(TinyDIP::recursive_all_of<1>(pmr_string_vector1, [](auto&& i) { return i == "123"; }));
+    assert(TinyDIP::recursive_all_of<1>(pmr_string_vector1, [](auto&& i) { return i == "456"; }) == false);
     std::cout << "All tests passed!\n";
 
     return;
