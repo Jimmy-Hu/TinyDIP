@@ -31,12 +31,12 @@ void recursive_all_of_tests()
     test_vectors_1[0][0][0][0] = 2;
     assert(TinyDIP::recursive_all_of<dim>(test_vectors_1, [](auto&& i) { return i % 2 == 0; }) == false);
 
-    auto test_vectors_2 = TinyDIP::n_dim_container_generator<4, int, std::vector>(2, 3);
+    auto test_vectors_2 = TinyDIP::n_dim_container_generator<dim, int, std::vector>(2, 3);
     test_vectors_2[0][0][0][0] = 4;
     assert(TinyDIP::recursive_all_of<dim>(test_vectors_2, [](auto&& i) { return i % 2 == 0; }));
     
     //  Tests with std::string
-    auto test_vector_string = TinyDIP::n_dim_container_generator<4, std::string, std::vector>("1", 3);
+    auto test_vector_string = TinyDIP::n_dim_container_generator<dim, std::string, std::vector>("1", 3);
     assert(TinyDIP::recursive_all_of<dim>(test_vector_string, [](auto&& i) { return i == "1"; }));
     assert(TinyDIP::recursive_all_of<dim>(test_vector_string, [](auto&& i) { return i == "2"; }) == false);
 
