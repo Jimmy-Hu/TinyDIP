@@ -15,7 +15,7 @@ int main()
 {
     auto start = std::chrono::system_clock::now();
 	recursive_all_of_tests<4>();
-    //recursive_all_of_tests<5>();
+    recursive_all_of_tests<5>();
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
