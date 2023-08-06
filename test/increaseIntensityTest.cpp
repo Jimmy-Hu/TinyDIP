@@ -14,7 +14,7 @@ int main()
 
 void increaseIntensityTest()
 {
-    auto bmp1 = TinyDIP::bmp_read("../../../InputImages/1", false);
+    auto bmp1 = TinyDIP::bmp_read("../../InputImages/1", false);
     auto hsv1 = TinyDIP::rgb2hsv(bmp1);
     if constexpr (false)
     {
