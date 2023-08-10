@@ -39,7 +39,7 @@ void increaseIntensityTest()
                 TinyDIP::pixelwiseOperation([i](auto&& element) { return element + i; }, TinyDIP::getVplane(hsv1))
             ));
             TinyDIP::bmp_write(std::to_string(i), output);
-			std::cout << "Image output with increasing " << i << " in value plane is done.\n";
+            std::cout << "Image output with increasing " << i << " in value plane is done.\n";
         }
     }
     
