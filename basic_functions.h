@@ -204,6 +204,23 @@ namespace TinyDIP
             return std::invoke(p, std::invoke(proj, value));
         }
     }
+
+    /*  recursive_find_if template function implementation with unwrap level
+    */
+    template<std::size_t unwrap_level, class T, class Proj = std::identity, class UnaryPredicate>
+    requires(unwrap_level <= recursive_depth<T>())
+    constexpr auto recursive_find_if(T&& value, UnaryPredicate&& p, Proj&& proj = {}) {
+        if constexpr (unwrap_level > 0)
+        {
+            return std::ranges::find_if(value, [&](auto& element) {
+                return recursive_find_if<unwrap_level - 1>(element, p, proj);
+            }) != std::ranges::end(value);
+        }
+        else
+        {
+            return std::invoke(p, std::invoke(proj, value));
+        }
+    }
     
     template<std::size_t index = 1, typename Arg, typename... Args>
     constexpr static auto& get_from_variadic_template(const Arg& first, const Args&... inputs)
