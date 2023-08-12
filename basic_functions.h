@@ -221,6 +221,13 @@ namespace TinyDIP
             return std::invoke(p, std::invoke(proj, value));
         }
     }
+
+    //  recursive_any_of template function implementation with unwrap level
+    template<std::size_t unwrap_level, class T, class Proj = std::identity, class UnaryPredicate>
+    constexpr auto recursive_any_of(T&& value, UnaryPredicate&& p, Proj&& proj = {})
+    {
+        return recursive_find_if<unwrap_level>(value, p, proj);
+    }
     
     template<std::size_t index = 1, typename Arg, typename... Args>
     constexpr static auto& get_from_variadic_template(const Arg& first, const Args&... inputs)
