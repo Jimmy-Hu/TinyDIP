@@ -17,6 +17,11 @@ void recursive_find_if_tests()
     auto test_vectors_2 = TinyDIP::n_dim_container_generator<4, int, std::vector>(3, 3);
     assert(TinyDIP::recursive_find_if<4>(test_vectors_2, [](auto&& i) { return i % 2 == 0; }) == false);
     
+    //  Tests with std::string
+    auto test_vector_string = TinyDIP::n_dim_container_generator<4, std::string, std::vector>("1", 3);
+    assert(TinyDIP::recursive_find_if<4>(test_vector_string, [](auto&& i) { return i == "1"; }));
+    assert(TinyDIP::recursive_find_if<4>(test_vector_string, [](auto&& i) { return i == "2"; }) == false);
+
 
     return;
 }
