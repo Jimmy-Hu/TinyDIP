@@ -27,6 +27,10 @@ void recursive_find_if_tests()
         test_vector_string,
         [](auto&& i) { return i == "1"; },
         [](auto&& element) {return std::to_string(std::stoi(element) + 1); }) == false);
+    assert(TinyDIP::recursive_find_if<4>(
+        test_vector_string,
+        [](auto&& i) { return i == "2"; },
+        [](auto&& element) {return std::to_string(std::stoi(element) + 1); }));
     
 
     return;
