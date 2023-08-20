@@ -32,6 +32,12 @@ void recursive_find_if_tests()
         [](auto&& i) { return i == "2"; },
         [](auto&& element) {return std::to_string(std::stoi(element) + 1); }));
     
+    //  Tests with std::array of std::string
+    std::array<std::string, 3> word_array1 = {"foo", "foo", "foo"};
+    assert(TinyDIP::recursive_find_if<1>(word_array1, [](auto&& i) { return i == "foo"; }));
+    assert(TinyDIP::recursive_find_if<1>(word_array1, [](auto&& i) { return i == "bar"; }) == false);
+
+    
 
     return;
 }
