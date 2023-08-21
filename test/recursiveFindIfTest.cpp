@@ -37,7 +37,36 @@ void recursive_find_if_tests()
     assert(TinyDIP::recursive_find_if<1>(word_array1, [](auto&& i) { return i == "foo"; }));
     assert(TinyDIP::recursive_find_if<1>(word_array1, [](auto&& i) { return i == "bar"; }) == false);
 
-    
+    //  Tests with std::deque of std::string
+    std::deque<std::string> word_deque1 = {"foo", "foo", "foo", "bar"};
+    assert(TinyDIP::recursive_find_if<1>(word_deque1, [](auto&& i) { return i == "foo"; }));
+    assert(TinyDIP::recursive_find_if<1>(word_deque1, [](auto&& i) { return i == "bar"; }));
+    assert(TinyDIP::recursive_find_if<1>(word_deque1, [](auto&& i) { return i == "abcd"; }) == false);
+    assert(TinyDIP::recursive_find_if<2>(word_deque1, [](auto&& i) { return i == 'a'; }));
+    assert(TinyDIP::recursive_find_if<2>(word_deque1, [](auto&& i) { return i == 'b'; }));
+    assert(TinyDIP::recursive_find_if<2>(word_deque1, [](auto&& i) { return i == 'c'; }) == false);
+
+    std::vector<std::wstring> wstring_vector1{};
+    for(int i = 0; i < 4; ++i)
+    {
+        wstring_vector1.push_back(std::to_wstring(1));
+    }
+    assert(TinyDIP::recursive_find_if<1>(wstring_vector1, [](auto&& i) { return i == std::to_wstring(1); }));
+    assert(TinyDIP::recursive_find_if<1>(wstring_vector1, [](auto&& i) { return i == std::to_wstring(2); }) == false);
+
+    std::vector<std::u8string> u8string_vector1{};
+    for(int i = 0; i < 4; ++i)
+    {
+        u8string_vector1.push_back(u8"\u20AC2.00");
+    }
+    assert(TinyDIP::recursive_find_if<1>(u8string_vector1, [](auto&& i) { return i == u8"\u20AC2.00"; }));
+    assert(TinyDIP::recursive_find_if<1>(u8string_vector1, [](auto&& i) { return i == u8"\u20AC1.00"; }) == false);
+
+    std::pmr::string pmr_string1 = "123";
+    std::vector<std::pmr::string> pmr_string_vector1 = {pmr_string1, pmr_string1, pmr_string1};
+    assert(TinyDIP::recursive_find_if<1>(pmr_string_vector1, [](auto&& i) { return i == "123"; }));
+    assert(TinyDIP::recursive_find_if<1>(pmr_string_vector1, [](auto&& i) { return i == "456"; }) == false);
+    std::cout << "All tests passed!\n";
 
     return;
 }
