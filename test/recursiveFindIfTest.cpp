@@ -45,6 +45,7 @@ void recursive_find_if_tests()
     assert(TinyDIP::recursive_find_if<2>(word_deque1, [](auto&& i) { return i == 'a'; }));
     assert(TinyDIP::recursive_find_if<2>(word_deque1, [](auto&& i) { return i == 'b'; }));
     assert(TinyDIP::recursive_find_if<2>(word_deque1, [](auto&& i) { return i == 'c'; }) == false);
+    assert(TinyDIP::recursive_find_if<2>(word_deque1, [](auto&& i) { return i == 'd'; }) == false);
 
     std::vector<std::wstring> wstring_vector1{};
     for(int i = 0; i < 4; ++i)
