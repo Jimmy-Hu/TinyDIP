@@ -41,6 +41,7 @@ void recursive_find_if_tests()
     assert(TinyDIP::recursive_find_if<2>(word_array1, [](auto&& i) { return i == 'c'; }) == false);
     assert(TinyDIP::recursive_find_if<2>(word_array1, [](auto&& i) { return i == 'd'; }) == false);
     assert(TinyDIP::recursive_find_if<2>(word_array1, [](auto&& i) { return i == 'e'; }) == false);
+    assert(TinyDIP::recursive_find_if<2>(word_array1, [](auto&& i) { return i == 'f'; }));
 
     //  Tests with std::deque of std::string
     std::deque<std::string> word_deque1 = {"foo", "foo", "foo", "bar"};
