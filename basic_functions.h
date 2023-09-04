@@ -188,6 +188,22 @@ namespace TinyDIP
         return recursive_depth<T_Base, std::ranges::range_value_t<Range>>() + std::size_t{1};
     }
 
+    //  is_recursive_invocable template function implementation
+    template<std::size_t unwrap_level, typename F, class T>
+    static constexpr bool is_recursive_invocable()
+    {
+        if constexpr (unwrap_level == 0 && std::invocable<F, T>) {
+            return true;
+        } else if constexpr (std::ranges::input_range<T>) {
+            return is_recursive_invocable<
+                        unwrap_level - 1,
+                        F,
+                        std::ranges::range_value_t<T>>();
+        } else {
+            return false;
+        }
+    }
+
     /*  recursive_all_of template function implementation with unwrap level
     */
     template<std::size_t unwrap_level, class T, class Proj = std::identity, class UnaryPredicate>
