@@ -189,12 +189,15 @@ namespace TinyDIP
     }
 
     //  is_recursive_invocable template function implementation
-    template<std::size_t unwrap_level, typename F, class T>
+    template<std::size_t unwrap_level, class F, class T>
     static constexpr bool is_recursive_invocable()
     {
-        if constexpr (unwrap_level == 0 && std::invocable<F, T>) {
-            return true;
-        } else if constexpr (std::ranges::input_range<T>) {
+        if constexpr (unwrap_level == 0) {
+            if constexpr (std::invocable<F, T>)
+                return true;
+            else
+                return false;
+        } else if constexpr (unwrap_level > 0) {
             return is_recursive_invocable<
                         unwrap_level - 1,
                         F,
