@@ -207,6 +207,11 @@ namespace TinyDIP
         }
     }
 
+    //  recursive_invocable concept
+    template<std::size_t unwrap_level, class F, class T>
+    concept recursive_invocable =
+            is_recursive_invocable<unwrap_level, F, T>();
+
     /*  recursive_all_of template function implementation with unwrap level
     */
     template<std::size_t unwrap_level, class T, class Proj = std::identity, class UnaryPredicate>
