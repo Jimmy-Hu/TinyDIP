@@ -57,6 +57,7 @@ void recursive_all_of_tests()
     std::array<std::string, 3> word_array1 = {"foo", "foo", "foo"};
     assert(TinyDIP::recursive_all_of<1>(word_array1, [](auto&& i) { return i == "foo"; }));
     assert(TinyDIP::recursive_all_of<1>(word_array1, [](auto&& i) { return i == "bar"; }) == false);
+    assert(TinyDIP::recursive_all_of<2>(word_array1, [](auto&& i) { return i == 'a'; }) == false);
 
     //  Tests with std::deque of std::string
     std::deque<std::string> word_deque1 = {"foo", "foo", "foo", "foo"};
