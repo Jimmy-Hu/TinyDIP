@@ -291,6 +291,28 @@ namespace TinyDIP
     concept recursive_invocable =
             is_recursive_invocable<unwrap_level, F, T>();
 
+    //  is_recursive_project_invocable template function implementation
+    template<std::size_t unwrap_level, class Proj, class F, class T>
+    requires(unwrap_level <= recursive_depth<T>() &&
+            recursive_invocable<unwrap_level, Proj, T>)
+    static constexpr bool is_recursive_project_invocable()
+    {
+        if constexpr (unwrap_level == 0) {
+            if constexpr (std::invocable<F, std::invoke_result_t<Proj, T>>)
+                return true;
+            else
+                return false;
+        } else if constexpr (unwrap_level > 0) {
+            return is_recursive_project_invocable<
+                        unwrap_level - 1,
+                        Proj,
+                        F,
+                        std::ranges::range_value_t<T>>();
+        } else {
+            return false;
+        }
+    }
+
     /*  recursive_all_of template function implementation with unwrap level
     */
     template<std::size_t unwrap_level, class T, class Proj = std::identity, class UnaryPredicate>
