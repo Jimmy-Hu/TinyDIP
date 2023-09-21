@@ -340,7 +340,9 @@ namespace TinyDIP
     /*  recursive_find_if template function implementation with unwrap level
     */
     template<std::size_t unwrap_level, class T, class Proj = std::identity, class UnaryPredicate>
-    requires(unwrap_level <= recursive_depth<T>() && recursive_invocable<unwrap_level, Proj, T>)
+    requires(   unwrap_level <= recursive_depth<T>() &&
+                recursive_invocable<unwrap_level, Proj, T> &&
+                recursive_project_invocable<unwrap_level, Proj, UnaryPredicate, T>)
     constexpr auto recursive_find_if(T&& value, UnaryPredicate&& p, Proj&& proj = {}) {
         if constexpr (unwrap_level > 0)
         {
