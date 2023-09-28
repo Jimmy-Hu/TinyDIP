@@ -32,6 +32,20 @@ void recursive_any_of_tests()
         [](auto&& i) { return i == "2"; },
         [](auto&& element) {return std::to_string(std::stoi(element) + 1); }));
     
+    //  Tests with std::array of std::string
+    std::array<std::string, 3> word_array1 = {"foo", "foo", "foo"};
+    assert(TinyDIP::recursive_any_of<1>(word_array1, [](auto&& i) { return i == "foo"; }));
+    assert(TinyDIP::recursive_any_of<1>(word_array1, [](auto&& i) { return i == "bar"; }) == false);
+
+    //  Tests with std::deque of std::string
+    std::deque<std::string> word_deque1 = {"foo", "foo", "foo", "bar"};
+    assert(TinyDIP::recursive_any_of<1>(word_deque1, [](auto&& i) { return i == "foo"; }));
+    assert(TinyDIP::recursive_any_of<1>(word_deque1, [](auto&& i) { return i == "bar"; }));
+    assert(TinyDIP::recursive_any_of<1>(word_deque1, [](auto&& i) { return i == "abcd"; }) == false);
+    assert(TinyDIP::recursive_any_of<2>(word_deque1, [](auto&& i) { return i == 'a'; }));
+    assert(TinyDIP::recursive_any_of<2>(word_deque1, [](auto&& i) { return i == 'b'; }));
+    assert(TinyDIP::recursive_any_of<2>(word_deque1, [](auto&& i) { return i == 'c'; }) == false);
+
     return;
 }
 
