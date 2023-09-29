@@ -46,6 +46,14 @@ void recursive_any_of_tests()
     assert(TinyDIP::recursive_any_of<2>(word_deque1, [](auto&& i) { return i == 'b'; }));
     assert(TinyDIP::recursive_any_of<2>(word_deque1, [](auto&& i) { return i == 'c'; }) == false);
 
+    std::vector<std::wstring> wstring_vector1{};
+    for(int i = 0; i < 4; ++i)
+    {
+        wstring_vector1.push_back(std::to_wstring(1));
+    }
+    assert(TinyDIP::recursive_any_of<1>(wstring_vector1, [](auto&& i) { return i == std::to_wstring(1); }));
+    assert(TinyDIP::recursive_any_of<1>(wstring_vector1, [](auto&& i) { return i == std::to_wstring(2); }) == false);
+
     return;
 }
 
