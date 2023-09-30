@@ -54,6 +54,20 @@ void recursive_any_of_tests()
     assert(TinyDIP::recursive_any_of<1>(wstring_vector1, [](auto&& i) { return i == std::to_wstring(1); }));
     assert(TinyDIP::recursive_any_of<1>(wstring_vector1, [](auto&& i) { return i == std::to_wstring(2); }) == false);
 
+    std::vector<std::u8string> u8string_vector1{};
+    for(int i = 0; i < 4; ++i)
+    {
+        u8string_vector1.push_back(u8"\u20AC2.00");
+    }
+    assert(TinyDIP::recursive_any_of<1>(u8string_vector1, [](auto&& i) { return i == u8"\u20AC2.00"; }));
+    assert(TinyDIP::recursive_any_of<1>(u8string_vector1, [](auto&& i) { return i == u8"\u20AC1.00"; }) == false);
+
+    std::pmr::string pmr_string1 = "123";
+    std::vector<std::pmr::string> pmr_string_vector1 = {pmr_string1, pmr_string1, pmr_string1};
+    assert(TinyDIP::recursive_any_of<1>(pmr_string_vector1, [](auto&& i) { return i == "123"; }));
+    assert(TinyDIP::recursive_any_of<1>(pmr_string_vector1, [](auto&& i) { return i == "456"; }) == false);
+    std::cout << "All tests passed!\n";
+
     return;
 }
 
