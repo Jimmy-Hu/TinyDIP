@@ -10,7 +10,10 @@
 
 void recursive_none_of_tests()
 {
-    
+    auto test_vectors_1 = TinyDIP::n_dim_container_generator<4, int, std::vector>(1, 3);
+    test_vectors_1[0][0][0][0] = 2;
+    assert(TinyDIP::recursive_none_of<4>(test_vectors_1, [](auto&& i) { return i % 2 == 0; }) == false);
+
 
     return;
 }
