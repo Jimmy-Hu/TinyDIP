@@ -46,7 +46,14 @@ void recursive_none_of_tests()
     assert(TinyDIP::recursive_none_of<2>(word_deque1, [](auto&& i) { return i == 'b'; }) == false);
     assert(TinyDIP::recursive_none_of<2>(word_deque1, [](auto&& i) { return i == 'c'; }));
 
-    
+    std::vector<std::wstring> wstring_vector1{};
+    for(int i = 0; i < 4; ++i)
+    {
+        wstring_vector1.push_back(std::to_wstring(1));
+    }
+    assert(TinyDIP::recursive_none_of<1>(wstring_vector1, [](auto&& i) { return i == std::to_wstring(1); }) == false);
+    assert(TinyDIP::recursive_none_of<1>(wstring_vector1, [](auto&& i) { return i == std::to_wstring(2); }));
+
 
     return;
 }
