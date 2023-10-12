@@ -66,6 +66,7 @@ void recursive_none_of_tests()
     std::vector<std::pmr::string> pmr_string_vector1 = {pmr_string1, pmr_string1, pmr_string1};
     assert(TinyDIP::recursive_none_of<1>(pmr_string_vector1, [](auto&& i) { return i == "123"; }) == false);
     assert(TinyDIP::recursive_none_of<1>(pmr_string_vector1, [](auto&& i) { return i == "456"; }));
+    assert(TinyDIP::recursive_none_of<2>(pmr_string_vector1, [](auto&& i) { return i == '1'; }) == false);
     std::cout << "All tests passed!\n";
 
     return;
