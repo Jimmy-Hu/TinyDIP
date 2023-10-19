@@ -68,6 +68,7 @@ void recursive_any_of_tests()
     assert(TinyDIP::recursive_any_of<1>(pmr_string_vector1, [](auto&& i) { return i == "123"; }));
     assert(TinyDIP::recursive_any_of<1>(pmr_string_vector1, [](auto&& i) { return i == "456"; }) == false);
     assert(TinyDIP::recursive_any_of<2>(pmr_string_vector1, [](auto&& i) { return i == '1'; }));
+    assert(TinyDIP::recursive_any_of<2>(pmr_string_vector1, [](auto&& i) { return i == '2'; }));
     std::cout << "All tests passed!\n";
 
     return;
