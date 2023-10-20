@@ -272,17 +272,12 @@ namespace TinyDIP
     static constexpr bool is_recursive_invocable()
     {
         if constexpr (unwrap_level == 0) {
-            if constexpr (std::invocable<F, T...>)
-                return true;
-            else
-                return false;
+            return std::invocable<F, T...>;
         } else if constexpr (unwrap_level > 0) {
             return is_recursive_invocable<
                         unwrap_level - 1,
                         F,
                         std::ranges::range_value_t<T>...>();
-        } else {
-            return false;
         }
     }
 
