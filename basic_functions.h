@@ -273,7 +273,7 @@ namespace TinyDIP
     {
         if constexpr (unwrap_level == 0) {
             return std::invocable<F, T...>;
-        } else if constexpr (unwrap_level > 0) {
+        } else {
             return is_recursive_invocable<
                         unwrap_level - 1,
                         F,
