@@ -293,18 +293,13 @@ namespace TinyDIP
     static constexpr bool is_recursive_project_invocable()
     {
         if constexpr (unwrap_level == 0) {
-            if constexpr (std::invocable<F, std::invoke_result_t<Proj, T...>>)
-                return true;
-            else
-                return false;
-        } else if constexpr (unwrap_level > 0) {
+            return std::invocable<F, std::invoke_result_t<Proj, T...>>;
+        } else {
             return is_recursive_project_invocable<
                         unwrap_level - 1,
                         Proj,
                         F,
                         std::ranges::range_value_t<T>...>();
-        } else {
-            return false;
         }
     }
 
