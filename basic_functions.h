@@ -311,9 +311,7 @@ namespace TinyDIP
     /*  recursive_all_of template function implementation with unwrap level
     */
     template<std::size_t unwrap_level, class T, class Proj = std::identity, class UnaryPredicate>
-    requires(   unwrap_level <= recursive_depth<T>() &&
-                recursive_invocable<unwrap_level, Proj, T> &&
-                recursive_project_invocable<unwrap_level, Proj, UnaryPredicate, T>)
+    requires(   recursive_project_invocable<unwrap_level, Proj, UnaryPredicate, T>)
     constexpr auto recursive_all_of(T&& value, UnaryPredicate&& p, Proj&& proj = {}) {
         if constexpr (unwrap_level > 0)
         {
