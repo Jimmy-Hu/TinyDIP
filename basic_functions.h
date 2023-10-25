@@ -325,6 +325,24 @@ namespace TinyDIP
         }
     }
 
+    /*  recursive_find template function implementation with unwrap level
+    */
+    template<std::size_t unwrap_level, class R, class T, class Proj = std::identity>
+    requires(recursive_invocable<unwrap_level, Proj, R>)
+    constexpr auto recursive_find(R&& range, T&& target, Proj&& proj = {})
+    {
+        if constexpr (unwrap_level)
+        {
+            return std::ranges::find_if(range, [&](auto& element) {
+                return recursive_find<unwrap_level - 1>(element, target, proj);
+            }) != std::ranges::end(range);
+        }
+        else
+        {
+            return range == std::invoke(proj, target);
+        }
+    }
+
     /*  recursive_find_if template function implementation with unwrap level
     */
     template<std::size_t unwrap_level, class T, class Proj = std::identity, class UnaryPredicate>
