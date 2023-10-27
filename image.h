@@ -145,6 +145,11 @@ namespace TinyDIP
             (function(indexInput), ...);
             return image_data[image_data_index];
         }
+
+        constexpr std::size_t count() const noexcept
+        {
+            return std::reduce(std::ranges::cbegin(size), std::ranges::cend(size), 1, std::multiplies());
+        }
   
         constexpr std::size_t getDimensionality() const noexcept
         {
