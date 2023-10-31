@@ -339,7 +339,7 @@ namespace TinyDIP
         }
         else
         {
-            return range == std::invoke(proj, target);
+            return target == std::invoke(proj, range);
         }
     }
 
