@@ -14,7 +14,9 @@ constexpr void plusTest(const std::size_t N1 = 10, const std::size_t N2 = 10)
     vector1.push_back(image1);
 	assert(TinyDIP::plus(vector1, vector1, vector1)[0].count() == N1 * N2);
 	std::cout << "Element count: " << TinyDIP::plus(vector1, vector1, vector1)[0].count() << "\n";
-    TinyDIP::plus(vector1, vector1, vector1)[0].print();
+	auto image2 = TinyDIP::Image<T>(N1, N2);
+	image2.setAllValue(3);
+    assert(TinyDIP::plus(vector1, vector1, vector1)[0] == image2);
 }
 
 int main()
