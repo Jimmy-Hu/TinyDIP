@@ -1070,6 +1070,13 @@ namespace TinyDIP
     {
         return pixelwiseOperation(execution_policy, [&](auto&& element) { return std::pow(element, exp); }, input);
     }
+
+    //  sum template function implementation
+    template<arithmetic ElementT = double>
+    constexpr static auto sum(const Image<ElementT>& input)
+    {
+        input.getImageData()
+    }
 }
 
 #endif
