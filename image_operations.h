@@ -1075,7 +1075,8 @@ namespace TinyDIP
     template<arithmetic ElementT = double>
     constexpr static auto sum(const Image<ElementT>& input)
     {
-        input.getImageData()
+        auto image_data = input.getImageData();
+        return std::reduce(std::ranges::cbegin(image_data), std::ranges::cend(image_data), ElementT{}, std::plus());
     }
 }
 
