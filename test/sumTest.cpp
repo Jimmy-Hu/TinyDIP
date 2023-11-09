@@ -15,7 +15,10 @@ void sum_test(int sizex, int sizey)
     assert(TinyDIP::sum(test_image) == 0);
     test_image.setAllValue(1);
     auto sum_result = std::reduce(std::ranges::cbegin(test_image.getImageData()), std::ranges::cend(test_image.getImageData()), 0, std::plus())
-    assert(TinyDIP::sum(test_image) == sum_result);
+    if(TinyDIP::sum(test_image) != sum_result)
+    {
+        assert(false, "Error occurred while calculating summation");
+    }
     return;
 }
 
