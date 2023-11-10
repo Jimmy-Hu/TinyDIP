@@ -8,6 +8,25 @@
 #include "../image_io.h"
 #include "../image_operations.h"
 
+//  Copy from https://stackoverflow.com/a/37264642/6667035
+#ifndef NDEBUG
+#   define M_Assert(Expr, Msg) \
+    __M_Assert(#Expr, Expr, __FILE__, __LINE__, Msg)
+#else
+#   define M_Assert(Expr, Msg) ;
+#endif
+
+void __M_Assert(const char* expr_str, bool expr, const char* file, int line, const char* msg)
+{
+    if (!expr)
+    {
+        std::cerr << "Assert failed:\t" << msg << "\n"
+            << "Expected:\t" << expr_str << "\n"
+            << "Source:\t\t" << file << ", line " << line << "\n";
+        abort();
+    }
+}
+
 template<class T>
 void sum_test(int sizex, int sizey)
 {
@@ -17,7 +36,7 @@ void sum_test(int sizex, int sizey)
     auto sum_result = std::reduce(std::ranges::cbegin(test_image.getImageData()), std::ranges::cend(test_image.getImageData()), 0, std::plus())
     if(TinyDIP::sum(test_image) != sum_result)
     {
-        assert(false, "Error occurred while calculating summation");
+        M_Assert(false, "Error occurred while calculating summation");
     }
     return;
 }
