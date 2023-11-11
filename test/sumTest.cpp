@@ -27,13 +27,14 @@ void __M_Assert(const char* expr_str, bool expr, const char* file, int line, con
     }
 }
 
+//  sum_test template function implementation
 template<class T>
-void sum_test(int sizex, int sizey)
+void sum_test(const std::size_t sizex, const std::size_t sizey)
 {
     auto test_image = TinyDIP::Image<T>(sizex, sizey);
     assert(TinyDIP::sum(test_image) == 0);
     test_image.setAllValue(1);
-    auto sum_result = std::reduce(std::ranges::cbegin(test_image.getImageData()), std::ranges::cend(test_image.getImageData()), 0, std::plus())
+    auto sum_result = std::reduce(std::ranges::cbegin(test_image.getImageData()), std::ranges::cend(test_image.getImageData()), 0, std::plus());
     if(TinyDIP::sum(test_image) != sum_result)
     {
         M_Assert(false, "Error occurred while calculating summation");
