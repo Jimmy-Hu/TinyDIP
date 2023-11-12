@@ -1078,6 +1078,16 @@ namespace TinyDIP
         auto image_data = input.getImageData();
         return std::reduce(std::ranges::cbegin(image_data), std::ranges::cend(image_data), ElementT{}, std::plus());
     }
+
+    //  sum template function implementation with execution policy
+    template<class ExecutionPolicy, arithmetic ElementT = double>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr static auto sum(ExecutionPolicy execution_policy, const Image<ElementT>& input)
+    {
+        auto image_data = input.getImageData();
+        return std::reduce(execution_policy, std::ranges::cbegin(image_data), std::ranges::cend(image_data), ElementT{}, std::plus());
+    }
+
 }
 
 #endif
