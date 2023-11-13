@@ -2,6 +2,7 @@
 
 #include <execution>
 #include <stdlib.h>
+#include <thread>
 #include "../base_types.h"
 #include "../basic_functions.h"
 #include "../image.h"
@@ -39,12 +40,25 @@ void sum_test(const std::size_t sizex, const std::size_t sizey)
     {
         M_Assert(false, "Error occurred while calculating summation");
     }
+    //  test with parallel execution policy
+    if(TinyDIP::sum(std::execution::par, test_image) != sum_result)
+    {
+        M_Assert(false, "Error occurred while calculating summation");
+    }
+    return;
+}
+
+void sum_test_double(const std::size_t sizex, const std::size_t sizey)
+{
+    sum_test<double>(sizex, sizey);
     return;
 }
 
 int main()
 {
     auto start = std::chrono::system_clock::now();
+    std::thread t(sum_test_double, 10, 10);
+    t.join();  
     sum_test<double>(10, 10);
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
