@@ -57,8 +57,16 @@ void sum_test_double(const std::size_t sizex, const std::size_t sizey)
 int main()
 {
     auto start = std::chrono::system_clock::now();
-    std::thread t(sum_test_double, 10, 10);
-    t.join();  
+    std::vector<std::thread> threads;
+    for (size_t i = 0; i < 100; ++i)
+    {
+        std::thread t(sum_test_double, 10, i);
+        threads.push_back(t);
+    }
+    for (std::thread& each_thread : threads)
+    {
+        each_thread.join();
+    } 
     sum_test<double>(10, 10);
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
