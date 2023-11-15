@@ -61,12 +61,12 @@ int main()
     for (size_t i = 0; i < 100; ++i)
     {
         std::thread t(sum_test_double, 10, i);
-        threads.push_back(t);
+        threads.emplace_back([&](){sum_test_double(10, i);});
     }
     for (std::thread& each_thread : threads)
     {
         each_thread.join();
-    } 
+    }
     sum_test<double>(10, 10);
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
