@@ -171,6 +171,48 @@ namespace TinyDIP
     template<std::size_t unwrap_level, std::copy_constructible F, typename T1, typename... Ts>
     using recursive_variadic_invoke_result_t = typename recursive_variadic_invoke_result<unwrap_level, F, T1, Ts...>::type;
 
+    //  recursive_array_invoke_result struct implementation
+    template<std::size_t, typename, typename, typename...>
+    struct recursive_array_invoke_result { };
+
+    template<   typename F, 
+                template<class, std::size_t> class Container,
+                typename T,
+                std::size_t N>
+    struct recursive_array_invoke_result<1, F, Container<T, N>>
+    {
+        using type = Container<
+            std::invoke_result_t<F, std::ranges::range_value_t<Container<T, N>>>,
+            N>;
+    };
+
+    template<   std::size_t unwrap_level,
+                typename F, 
+                template<class, std::size_t> class Container,
+                typename T,
+                std::size_t N>
+    requires (  std::ranges::input_range<Container<T, N>> &&
+                requires { typename recursive_array_invoke_result<
+                                        unwrap_level - 1,
+                                        F,
+                                        std::ranges::range_value_t<Container<T, N>>>::type; })                //  The rest arguments are ranges
+    struct recursive_array_invoke_result<unwrap_level, F, Container<T, N>>
+    {
+        using type = Container<
+            typename recursive_array_invoke_result<
+            unwrap_level - 1,
+            F,
+            std::ranges::range_value_t<Container<T, N>>
+            >::type, N>;
+    };
+
+    template<   std::size_t unwrap_level,
+                typename F,
+                template<class, std::size_t> class Container,
+                typename T,
+                std::size_t N>
+    using recursive_array_invoke_result_t = typename recursive_array_invoke_result<unwrap_level, F, Container<T, N>>::type;
+
     //  Reference: https://stackoverflow.com/a/58067611/6667035
     template <typename T>
     concept arithmetic = std::is_arithmetic_v<T>;
