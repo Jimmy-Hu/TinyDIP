@@ -866,7 +866,7 @@ namespace TinyDIP
         return d_first;
     }
 
-    //  recursive_transform for the multiple parameters cases (the version with unwrap_level)
+    //  recursive_transform template function for the multiple parameters cases (the version with unwrap_level)
     template<std::size_t unwrap_level = 1, std::copy_constructible F, class Arg1, class... Args>
     requires(unwrap_level <= recursive_depth<Arg1>())
     constexpr auto recursive_transform(const F& f, const Arg1& arg1, const Args&... args)
@@ -883,9 +883,13 @@ namespace TinyDIP
             );
             return output;
         }
-        else
+        else if constexpr (std::regular_invocable<F, Arg1>)
         {
             return std::invoke(f, arg1, args...);
+        }
+        else
+        {
+            static_assert(!std::regular_invocable<F, Arg1>, "Uninvocable?");
         }
     }
 
