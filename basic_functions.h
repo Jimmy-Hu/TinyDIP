@@ -912,9 +912,13 @@ namespace TinyDIP
                 });
             return output;
         }
-        else
+        else if constexpr (std::regular_invocable<F, T>)
         {
             return std::invoke(f, input);
+        }
+        else
+        {
+            static_assert(!std::regular_invocable<F, T>, "Uninvocable?");
         }
     }
 
