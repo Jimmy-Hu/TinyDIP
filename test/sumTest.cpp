@@ -59,7 +59,7 @@ int main()
     auto start = std::chrono::system_clock::now();
     std::vector<std::thread> threads;
     //  Reference: https://stackoverflow.com/a/54551447/6667035
-    for (size_t i = 0; i < std::numeric_limits<std::size_t>::max(); ++i)
+    for (size_t i = 0; i < 1000; ++i)
     {
         threads.emplace_back([&](){sum_test<double>(10, i);});
     }
