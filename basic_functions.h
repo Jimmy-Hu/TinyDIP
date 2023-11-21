@@ -883,13 +883,13 @@ namespace TinyDIP
             );
             return output;
         }
-        else if constexpr (std::regular_invocable<F, Arg1>)
+        else if constexpr (std::regular_invocable<F, Arg1, Args...>)
         {
             return std::invoke(f, arg1, args...);
         }
         else
         {
-            static_assert(!std::regular_invocable<F, Arg1>, "Uninvocable?");
+            static_assert(!std::regular_invocable<F, Arg1, Args...>, "Uninvocable?");
         }
     }
 
