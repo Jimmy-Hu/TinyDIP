@@ -893,6 +893,36 @@ namespace TinyDIP
         }
     }
 
+    //  recursive_transform template function for std::array (the version with unwrap_level)
+    template< std::size_t unwrap_level = 1,
+                template<class, std::size_t> class Container,
+                typename T,
+                std::size_t N,
+                typename F>
+    requires (std::ranges::input_range<Container<T, N>>)
+    constexpr auto recursive_transform(const F& f, const Container<T, N>& arg1)
+    {
+        recursive_array_invoke_result_t<unwrap_level, F, Container, T, N> output{};
+        if constexpr (unwrap_level > 1)
+        {
+            std::ranges::transform(
+                        arg1,
+                        std::ranges::begin(output),
+                        [&f](auto&& element) { return recursive_transform<unwrap_level - 1>(f, element); }
+                    );
+        }
+        else
+        {
+            std::ranges::transform(
+                        arg1,
+                        std::ranges::begin(output),
+                        f
+                    );
+        }
+
+        return output;
+    }
+
     //  recursive_transform implementation (the version with unwrap_level, with execution policy)
     template<std::size_t unwrap_level = 1, class ExPo, class T, class F>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>> &&
