@@ -178,11 +178,13 @@ namespace TinyDIP
     template<   typename F, 
                 template<class, std::size_t> class Container,
                 typename T,
-                std::size_t N>
-    struct recursive_array_invoke_result<1, F, Container<T, N>>
+                std::size_t N,
+                typename... Ts>
+    struct recursive_array_invoke_result<1, F, Container<T, N>, Ts...>
     {
         using type = Container<
-            std::invoke_result_t<F, std::ranges::range_value_t<Container<T, N>>>,
+            std::invoke_result_t<F, std::ranges::range_value_t<Container<T, N>>,
+            std::ranges::range_value_t<Ts>...>,
             N>;
     };
 
@@ -190,19 +192,22 @@ namespace TinyDIP
                 typename F, 
                 template<class, std::size_t> class Container,
                 typename T,
-                std::size_t N>
+                std::size_t N,
+                typename... Ts>
     requires (  std::ranges::input_range<Container<T, N>> &&
                 requires { typename recursive_array_invoke_result<
                                         unwrap_level - 1,
                                         F,
-                                        std::ranges::range_value_t<Container<T, N>>>::type; })                //  The rest arguments are ranges
-    struct recursive_array_invoke_result<unwrap_level, F, Container<T, N>>
+                                        std::ranges::range_value_t<Container<T, N>>,
+                                        std::ranges::range_value_t<Ts>...>::type; })                //  The rest arguments are ranges
+    struct recursive_array_invoke_result<unwrap_level, F, Container<T, N>, Ts...>
     {
         using type = Container<
             typename recursive_array_invoke_result<
             unwrap_level - 1,
             F,
-            std::ranges::range_value_t<Container<T, N>>
+            std::ranges::range_value_t<Container<T, N>>,
+            std::ranges::range_value_t<Ts>...
             >::type, N>;
     };
 
@@ -210,8 +215,9 @@ namespace TinyDIP
                 typename F,
                 template<class, std::size_t> class Container,
                 typename T,
-                std::size_t N>
-    using recursive_array_invoke_result_t = typename recursive_array_invoke_result<unwrap_level, F, Container<T, N>>::type;
+                std::size_t N,
+                typename... Ts>
+    using recursive_array_invoke_result_t = typename recursive_array_invoke_result<unwrap_level, F, Container<T, N>, Ts...>::type;
 
     //  Reference: https://stackoverflow.com/a/58067611/6667035
     template <typename T>
