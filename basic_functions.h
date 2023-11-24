@@ -904,29 +904,32 @@ namespace TinyDIP
                 template<class, std::size_t> class Container,
                 typename T,
                 std::size_t N,
-                typename F>
+                typename F,
+                class... Args>
     requires (std::ranges::input_range<Container<T, N>>)
-    constexpr auto recursive_transform(const F& f, const Container<T, N>& arg1)
+    constexpr auto recursive_transform(const F& f, const Container<T, N>& arg1, const Args&... args)
     {
-        recursive_array_invoke_result_t<unwrap_level, F, Container, T, N> output{};
-        if constexpr (unwrap_level > 1)
+        if constexpr (unwrap_level > 0)
         {
-            std::ranges::transform(
-                        arg1,
-                        std::ranges::begin(output),
-                        [&f](auto&& element) { return recursive_transform<unwrap_level - 1>(f, element); }
-                    );
+            recursive_array_invoke_result_t<unwrap_level, F, Container, T, N, Args...> output{};
+            
+            transform(
+                std::ranges::begin(output),
+                [&f](auto&& element1, auto&&... elements) { return recursive_transform<unwrap_level - 1>(f, element1, elements...); },
+                std::ranges::cbegin(arg1),
+                std::ranges::cend(arg1),
+                std::ranges::cbegin(args)...
+            );
+            return output;
+        }
+        else if constexpr(std::regular_invocable<F, Container<T, N>, Args...>)
+        {
+            return std::invoke(f, arg1, args...);
         }
         else
         {
-            std::ranges::transform(
-                        arg1,
-                        std::ranges::begin(output),
-                        f
-                    );
+            static_assert(!std::regular_invocable<F, Container<T, N>, Args...>, "The function passed to recursive_transform() cannot be invoked");
         }
-
-        return output;
     }
 
     //  recursive_transform implementation (the version with unwrap_level, with execution policy)
