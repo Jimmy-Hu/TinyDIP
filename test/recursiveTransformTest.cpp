@@ -29,6 +29,14 @@ void recursiveTransformTest(InputT initialValue)
 	//print3(TinyDIP::recursive_transform<1>([](std::vector<std::vector<int>> element) { return TinyDIP::Image<int>(element); }, test_vector));
 }
 
+void recursiveTransformArrayTest()
+{
+    std::array<int, 5> test_array_1{1, 2, 3, 4, 5};
+    std::array<decltype(test_array_1), 2> test_array_2{test_array_1, test_array_1};
+    auto result = TinyDIP::recursive_transform<2>([&](auto&& element1, auto&& element2) { return element1 + element2;}, test_array_2, test_array_2);
+    TinyDIP::recursive_print(result);
+}
+
 template<typename ElementT>
 void print3(std::vector<TinyDIP::Image<ElementT>> input)
 {
@@ -46,6 +54,7 @@ int main()
 	recursiveTransformTest(3);
 	recursiveTransformTest(static_cast<double>(3));
 	recursiveTransformTest(static_cast<float>(3));
+	recursiveTransformArrayTest();
 	auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
