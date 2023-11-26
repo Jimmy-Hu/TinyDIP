@@ -33,8 +33,17 @@ void recursiveTransformArrayTest()
 {
     std::array<int, 5> test_array_1{1, 2, 3, 4, 5};
     std::array<decltype(test_array_1), 2> test_array_2{test_array_1, test_array_1};
-    auto result = TinyDIP::recursive_transform<2>([&](auto&& element1, auto&& element2) { return element1 + element2;}, test_array_2, test_array_2);
-    TinyDIP::recursive_print(result);
+    auto result = TinyDIP::recursive_transform<2>(
+		[&](auto&& element1, auto&& element2, auto&& element3)
+		{
+			return element1 + element2 + element3;
+		},
+		test_array_2,
+		test_array_2,
+		test_array_2);
+	std::array<int, 5> expected_result_1{3, 6, 9, 12, 15};
+    std::array<decltype(expected_result_1), 2> expected_result_2{expected_result_1, expected_result_1};
+    assert(result == expected_result_2);
 }
 
 template<typename ElementT>
