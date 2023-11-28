@@ -209,7 +209,7 @@ void print(auto comment, auto const& seq, char term = ' ') {
 
 int main()
 {
-    std::string file_path = "../../../InputImages/1";
+    std::string file_path = "InputImages/1";
     auto bmp1 = TinyDIP::bmp_read(file_path.c_str(), false);
     std::size_t N1 = 8, N2 = 8;
     auto block_count_x = bmp1.getWidth() / N1;
