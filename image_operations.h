@@ -640,7 +640,8 @@ namespace TinyDIP
                     static_cast<InputT>(std::numeric_limits<ElementT>::max()));
     }
 
-    template<class FloatingType = float, class ElementT>
+    //  copyResizeBicubic template function implementation
+    template<class FloatingType = float, arithmetic ElementT>
     Image<ElementT> copyResizeBicubic(Image<ElementT>& image, size_t width, size_t height)
     {
         auto output = Image<ElementT>(width, height);
