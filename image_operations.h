@@ -677,6 +677,17 @@ namespace TinyDIP
         return output;
     }
 
+    //  copyResizeBicubic template function implementation for color image
+    template<class FloatingType = double, class ElementT>
+    requires (std::same_as<ElementT, RGB>)
+    Image<ElementT> copyResizeBicubic(Image<ElementT>& image, size_t width, size_t height)
+    {
+        return TinyDIP::apply_each(image, [&](TinyDIP::Image<GrayScale> each_plane)
+        {
+            return TinyDIP::copyResizeBicubic(each_plane, width, height);
+        });
+    }
+
     //  multiple standard deviations
     template<class InputT>
     constexpr static Image<InputT> gaussianFigure2D(
