@@ -682,9 +682,9 @@ namespace TinyDIP
     requires (std::same_as<ElementT, RGB>)
     Image<ElementT> copyResizeBicubic(Image<ElementT>& image, size_t width, size_t height)
     {
-        return TinyDIP::apply_each(image, [&](TinyDIP::Image<GrayScale> each_plane)
+        return TinyDIP::apply_each(image, [&](auto&& each_plane)
         {
-            return TinyDIP::copyResizeBicubic(each_plane, width, height);
+            return TinyDIP::copyResizeBicubic<FloatingType>(each_plane, width, height);
         });
     }
 
