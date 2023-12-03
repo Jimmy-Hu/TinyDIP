@@ -693,7 +693,7 @@ namespace TinyDIP
             });
     }
 
-    //  recursive_count implementation (the version with unwrap_level)
+    //  recursive_size template function implementation (the version with unwrap_level)
     template<std::size_t unwrap_level, std::ranges::range T>
     requires(unwrap_level <= recursive_depth<T>())
     constexpr auto recursive_size(const T input)
