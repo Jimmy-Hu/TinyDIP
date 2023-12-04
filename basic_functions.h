@@ -1063,6 +1063,22 @@ namespace TinyDIP
             });
     }
 
+    //  recursive_transform_reduce template function implementation
+    template<std::size_t unwrap_level, class Input, class T, class UnaryOp = std::identity, class BinaryOp = std::plus<T>>
+    requires(recursive_invocable<unwrap_level, UnaryOp, Input>)
+    constexpr auto recursive_transform_reduce(const Input& input, T init = {}, const UnaryOp& unary_op = {}, const BinaryOp& binop = std::plus<T>())
+    {
+        if constexpr (unwrap_level > 0)
+        {
+            return std::transform_reduce(std::ranges::begin(input), std::ranges::end(input), init, binop, [&](auto& element) {
+                return recursive_transform_reduce<unwrap_level - 1>(element, T{}, unary_op, binop);
+            });
+        }
+        else
+        {
+            return std::invoke(unary_op, input);
+        }
+    }
 
     template<typename T>
     concept can_calculate_variance_of = requires(const T & value)
