@@ -1080,6 +1080,30 @@ namespace TinyDIP
         }
     }
 
+    //  recursive_transform_reduce template function implementation with execution policy
+    template<std::size_t unwrap_level, class ExecutionPolicy, class Input, class T, class UnaryOp = std::identity, class BinaryOp = std::plus<T>>
+    requires(recursive_invocable<unwrap_level, UnaryOp, Input>&&
+            std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr auto recursive_transform_reduce(ExecutionPolicy execution_policy, const Input& input, T init = {}, const UnaryOp& unary_op = {}, const BinaryOp& binop = std::plus<T>())
+    {
+        if constexpr (unwrap_level > 0)
+        {
+            return std::transform_reduce(
+                execution_policy,
+                std::ranges::begin(input),
+                std::ranges::end(input),
+                init,
+                binop,
+                [&](auto& element) {
+                return recursive_transform_reduce<unwrap_level - 1>(execution_policy, element, T{}, unary_op, binop);
+            });
+        }
+        else
+        {
+            return std::invoke(unary_op, input);
+        }
+    }
+
     template<typename T>
     concept can_calculate_variance_of = requires(const T & value)
     {
