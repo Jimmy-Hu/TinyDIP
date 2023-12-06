@@ -113,6 +113,7 @@ add_executable(recursiveNoneOfTest test/recursiveNoneOfTest.cpp image_io.cpp)
 add_executable(recursiveReduceTest test/recursiveReduceTest.cpp image_io.cpp)
 add_executable(recursiveSizeTest test/recursiveSizeTest.cpp image_io.cpp)
 add_executable(recursiveTransformTest test/recursiveTransformTest.cpp image_io.cpp)
+add_executable(recursiveTransformReduceTest test/recursiveTransformReduceTest.cpp image_io.cpp)
 add_executable(sumTest test/sumTest.cpp image_io.cpp)
 
 # target_include_directories
