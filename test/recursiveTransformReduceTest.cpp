@@ -34,7 +34,7 @@ void recursive_transform_reduce_tests()
     M_Assert(TinyDIP::recursive_transform_reduce<1>(test_vectors_1, 0) == 3, "Basic usage case failed");
 
     //  basic usage case with execution policy
-    M_Assert(recursive_transform_reduce<1>(std::execution::par, test_vectors_1, 0) == 3,
+    M_Assert(TinyDIP::recursive_transform_reduce<1>(std::execution::par, test_vectors_1, 0) == 3,
         "Basic usage case with execution policy failed");
 
     //  test case with unary operation
