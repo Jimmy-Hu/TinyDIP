@@ -45,7 +45,7 @@ void recursive_transform_reduce_tests()
         "Test case with unary operation failed");
 
     //  test case with unary operation, execution policy
-    M_Assert(recursive_transform_reduce<1>(
+    M_Assert(TinyDIP::recursive_transform_reduce<1>(
         std::execution::par,
         test_vectors_1,
         0,
