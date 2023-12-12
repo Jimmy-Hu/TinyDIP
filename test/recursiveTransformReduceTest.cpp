@@ -53,7 +53,7 @@ void recursive_transform_reduce_tests()
         "Test case with unary operation, execution policy failed");
 
     //  test case with unary operation and binary operation
-    M_Assert(recursive_transform_reduce<1>(
+    M_Assert(TinyDIP::recursive_transform_reduce<1>(
         test_vectors_1,
         1,
         [&](auto&& element) { return element + 1; },
