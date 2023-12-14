@@ -69,7 +69,7 @@ void recursive_transform_reduce_tests()
         [&](auto&& element1, auto&& element2) { return element1 * element2; }) == 8,
         "Test case with unary operation, binary operation and execution policy failed");
 
-    auto test_string_vector_1 = n_dim_container_generator<1, std::string, std::vector>("1", 3);
+    auto test_string_vector_1 = TinyDIP::n_dim_container_generator<1, std::string, std::vector>("1", 3);
     //  test case with std::string
     M_Assert(recursive_transform_reduce<1>(test_string_vector_1, std::string("")) == "111",
         "Test case with std::string failed");
