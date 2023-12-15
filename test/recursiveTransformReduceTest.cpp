@@ -71,7 +71,7 @@ void recursive_transform_reduce_tests()
 
     auto test_string_vector_1 = TinyDIP::n_dim_container_generator<1, std::string, std::vector>("1", 3);
     //  test case with std::string
-    M_Assert(recursive_transform_reduce<1>(test_string_vector_1, std::string("")) == "111",
+    M_Assert(TinyDIP::recursive_transform_reduce<1>(test_string_vector_1, std::string("")) == "111",
         "Test case with std::string failed");
 
     //  test case with std::string, execution policy
