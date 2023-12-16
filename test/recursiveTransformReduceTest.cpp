@@ -75,7 +75,7 @@ void recursive_transform_reduce_tests()
         "Test case with std::string failed");
 
     //  test case with std::string, execution policy
-    M_Assert(recursive_transform_reduce<1>(
+    M_Assert(TinyDIP::recursive_transform_reduce<1>(
         std::execution::par,
         test_string_vector_1, std::string("")) == "111",
         "Test case with std::string, execution policy failed");
