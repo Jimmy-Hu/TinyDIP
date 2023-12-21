@@ -107,7 +107,7 @@ void recursive_transform_reduce_tests()
     //  test case with nested std::array
     std::array<int, 3> test_array_1 = {1, 1, 1};
     std::array<decltype(test_array_1), 2> test_array_2 = {test_array_1, test_array_1};
-    M_Assert(recursive_transform_reduce<2>(test_array_2, 1) == 7,
+    M_Assert(TinyDIP::recursive_transform_reduce<2>(test_array_2, 1) == 7,
         "Test case with nested std::vector failed");
 
     //  test case with nested std::array, execution policy
