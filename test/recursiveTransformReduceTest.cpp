@@ -115,7 +115,7 @@ void recursive_transform_reduce_tests()
         "Test case with nested std::vector, execution policy failed");
 
     //  test case with nested std::deque
-    auto test_deque_1 = n_dim_container_generator<1, int, std::deque>(1, 3);
+    auto test_deque_1 = TinyDIP::n_dim_container_generator<1, int, std::deque>(1, 3);
     std::deque<decltype(test_deque_1)> test_deque_2 = {test_deque_1, test_deque_1};
     M_Assert(recursive_transform_reduce<2>(test_deque_2, 1) == 7,
         "Test case with nested std::deque failed");
