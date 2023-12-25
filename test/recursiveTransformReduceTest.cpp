@@ -121,7 +121,7 @@ void recursive_transform_reduce_tests()
         "Test case with nested std::deque failed");
     
     //  test case with nested std::deque, execution policy
-    M_Assert(recursive_transform_reduce<2>(std::execution::par, test_deque_2, 1) == 7,
+    M_Assert(TinyDIP::recursive_transform_reduce<2>(std::execution::par, test_deque_2, 1) == 7,
         "Test case with nested std::deque, execution policy failed");
 
     //  test case with nested std::list
