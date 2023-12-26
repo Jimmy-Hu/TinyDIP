@@ -125,7 +125,7 @@ void recursive_transform_reduce_tests()
         "Test case with nested std::deque, execution policy failed");
 
     //  test case with nested std::list
-    auto test_list_1 = n_dim_container_generator<1, int, std::list>(1, 3);
+    auto test_list_1 = TinyDIP::n_dim_container_generator<1, int, std::list>(1, 3);
     std::list<decltype(test_list_1)> test_list_2 = {test_list_1, test_list_1};
     M_Assert(recursive_transform_reduce<2>(test_list_2, 1) == 7,
         "Test case with nested std::list failed");
