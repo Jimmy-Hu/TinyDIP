@@ -131,7 +131,7 @@ void recursive_transform_reduce_tests()
         "Test case with nested std::list failed");
 
     //  test case with nested std::list, execution policy
-    M_Assert(recursive_transform_reduce<2>(std::execution::par, test_list_2, 1) == 7,
+    M_Assert(TinyDIP::recursive_transform_reduce<2>(std::execution::par, test_list_2, 1) == 7,
         "Test case with nested std::list failed");
 
     std::cout << "All tests passed!\n";
