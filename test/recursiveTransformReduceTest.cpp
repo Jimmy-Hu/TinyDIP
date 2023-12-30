@@ -27,9 +27,10 @@ void __M_Assert(const char* expr_str, bool expr, const char* file, int line, con
     }
 }
 
+template<class T>
 void recursive_transform_reduce_tests()
 {
-    auto test_vectors_1 = TinyDIP::n_dim_container_generator<1, int, std::vector>(1, 3);
+    auto test_vectors_1 = TinyDIP::n_dim_container_generator<1, T, std::vector>(1, 3);
     //  basic usage case
     M_Assert(TinyDIP::recursive_transform_reduce<1>(test_vectors_1, 0) == 3, "Basic usage case failed");
 
@@ -105,7 +106,7 @@ void recursive_transform_reduce_tests()
         "Test case with nested std::vector, execution policy failed");
 
     //  test case with nested std::array
-    std::array<int, 3> test_array_1 = {1, 1, 1};
+    std::array<T, 3> test_array_1 = {1, 1, 1};
     std::array<decltype(test_array_1), 2> test_array_2 = {test_array_1, test_array_1};
     M_Assert(TinyDIP::recursive_transform_reduce<2>(test_array_2, 1) == 7,
         "Test case with nested std::vector failed");
@@ -115,7 +116,7 @@ void recursive_transform_reduce_tests()
         "Test case with nested std::vector, execution policy failed");
 
     //  test case with nested std::deque
-    auto test_deque_1 = TinyDIP::n_dim_container_generator<1, int, std::deque>(1, 3);
+    auto test_deque_1 = TinyDIP::n_dim_container_generator<1, T, std::deque>(1, 3);
     std::deque<decltype(test_deque_1)> test_deque_2 = {test_deque_1, test_deque_1};
     M_Assert(TinyDIP::recursive_transform_reduce<2>(test_deque_2, 1) == 7,
         "Test case with nested std::deque failed");
@@ -125,7 +126,7 @@ void recursive_transform_reduce_tests()
         "Test case with nested std::deque, execution policy failed");
 
     //  test case with nested std::list
-    auto test_list_1 = TinyDIP::n_dim_container_generator<1, int, std::list>(1, 3);
+    auto test_list_1 = TinyDIP::n_dim_container_generator<1, T, std::list>(1, 3);
     std::list<decltype(test_list_1)> test_list_2 = {test_list_1, test_list_1};
     M_Assert(TinyDIP::recursive_transform_reduce<2>(test_list_2, 1) == 7,
         "Test case with nested std::list failed");
@@ -142,7 +143,7 @@ void recursive_transform_reduce_tests()
 int main()
 {
     auto start = std::chrono::system_clock::now();
-    recursive_transform_reduce_tests();
+    recursive_transform_reduce_tests<int>();
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
