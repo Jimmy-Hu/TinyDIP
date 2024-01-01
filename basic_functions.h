@@ -228,6 +228,7 @@ namespace TinyDIP
         return false;
     }
 
+    //  Reference: https://codereview.stackexchange.com/q/288432/231235
     template<std::floating_point T>
     constexpr bool is_integer(T input)
     {
