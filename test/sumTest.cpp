@@ -59,9 +59,9 @@ int main()
     auto start = std::chrono::system_clock::now();
     std::vector<std::thread> threads;
     //  Reference: https://stackoverflow.com/a/54551447/6667035
-    for (size_t i = 0; i < 1000; ++i)
+    for (size_t sizey = 0; sizey < 1000; ++sizey)
     {
-        threads.emplace_back([&](){sum_test<double>(10, i);});
+        threads.emplace_back([&](){sum_test<double>(10, sizey);});
     }
     for (std::thread& each_thread : threads)
     {
