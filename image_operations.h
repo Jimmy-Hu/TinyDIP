@@ -1076,6 +1076,7 @@ namespace TinyDIP
         return pixelwiseOperation([&](auto&& element) { return std::pow(element, exp); }, input);
     }
 
+    //  pow template function implementation
     template<class ExPo, arithmetic ElementT = double, arithmetic ExpT = double>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto pow(ExPo execution_policy, const Image<ElementT>& input, ExpT exp)
