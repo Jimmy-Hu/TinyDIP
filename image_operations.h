@@ -1101,6 +1101,13 @@ namespace TinyDIP
         return std::reduce(execution_policy, std::ranges::cbegin(image_data), std::ranges::cend(image_data), ElementT{}, std::plus());
     }
 
+    //  butterworth_fisheye template function implementation
+    template<arithmetic ElementT = double>
+    constexpr static auto butterworth_fisheye(const Image<ElementT>& input, ElementT D0, ElementT N)
+    {
+        
+    } 
+
 }
 
 #endif
