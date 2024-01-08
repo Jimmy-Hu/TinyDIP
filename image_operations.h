@@ -1105,6 +1105,19 @@ namespace TinyDIP
     template<arithmetic ElementT = double>
     constexpr static auto butterworth_fisheye(const Image<ElementT>& input, ElementT D0, ElementT N)
     {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        
+        Image<ElementT> output;
+        for (std::size_t y = 0; y < count; ++y)
+        {
+            for (std::size_t x = 0; x < count; ++x)
+            {
+                /* code */
+            }
+        }
         
     } 
 
