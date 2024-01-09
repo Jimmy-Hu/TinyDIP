@@ -1115,7 +1115,9 @@ namespace TinyDIP
         {
             for (std::size_t x = 0; x < count; ++x)
             {
-                /* code */
+                ElementT distance_x = x - static_cast<ElementT>(input.getWidth()) / 2.0;
+                ElementT distance_y = y - static_cast<ElementT>(input.getHeight()) / 2.0;
+                
             }
         }
         
