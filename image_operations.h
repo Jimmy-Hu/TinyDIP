@@ -1123,10 +1123,11 @@ namespace TinyDIP
                 ElementT new_distance = distance * weight;
                 ElementT new_distance_x = new_distance * std::cos(angle);
                 ElementT new_distance_y = new_distance * std::cos(angle);
-                
+                output.at(new_distance_x + static_cast<ElementT>(input.getWidth()) / 2.0, new_distance_y + static_cast<ElementT>(input.getHeight()) / 2.0) = 
+                    input.at(x, y);
             }
         }
-        
+        return output;
     } 
 
 }
