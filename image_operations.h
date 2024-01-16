@@ -1110,7 +1110,7 @@ namespace TinyDIP
             throw std::runtime_error("Unsupported dimension!");
         }
         
-        Image<ElementT> output;
+        Image<ElementT> output(input.getWidth(), input.getHeight());
         for (std::size_t y = 0; y < count; ++y)
         {
             for (std::size_t x = 0; x < count; ++x)
