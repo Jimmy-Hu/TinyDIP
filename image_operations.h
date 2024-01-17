@@ -1128,8 +1128,36 @@ namespace TinyDIP
             }
         }
         return output;
-    } 
+    }
 
+    //  gaussian_fisheye template function implementation
+    template<arithmetic ElementT = double>
+    constexpr static auto gaussian_fisheye(const Image<ElementT>& input, ElementT D0)
+    {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        
+        Image<ElementT> output(input.getWidth(), input.getHeight());
+        for (std::size_t y = 0; y < count; ++y)
+        {
+            for (std::size_t x = 0; x < count; ++x)
+            {
+                ElementT distance_x = x - static_cast<ElementT>(input.getWidth()) / 2.0;
+                ElementT distance_y = y - static_cast<ElementT>(input.getHeight()) / 2.0;
+                ElementT distance = std::sqrt(std::pow(distance_x, 2) + std::pow(distance_y, 2));
+                ElementT angle = std::atan2(distance_y, distance_x);
+                ElementT weight = normalDistribution2D(std::fabs(distance_x), std::fabs(distance_y), D0) / normalDistribution2D(0, 0, D0);
+                ElementT new_distance = distance * weight;
+                ElementT new_distance_x = new_distance * std::cos(angle);
+                ElementT new_distance_y = new_distance * std::cos(angle);
+                output.at(new_distance_x + static_cast<ElementT>(input.getWidth()) / 2.0, new_distance_y + static_cast<ElementT>(input.getHeight()) / 2.0) = 
+                    input.at(x, y);
+            }
+        }
+        return output;
+    }
 }
 
 #endif
