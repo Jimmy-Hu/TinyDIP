@@ -1142,7 +1142,7 @@ namespace TinyDIP
         Image<ElementT> output(input.getWidth(), input.getHeight());
         for (std::size_t y = 0; y < input.getHeight(); ++y)
         {
-            for (std::size_t x = 0; x < count; ++x)
+            for (std::size_t x = 0; x < input.getWidth(); ++x)
             {
                 ElementT distance_x = x - static_cast<ElementT>(input.getWidth()) / 2.0;
                 ElementT distance_y = y - static_cast<ElementT>(input.getHeight()) / 2.0;
