@@ -1111,7 +1111,7 @@ namespace TinyDIP
         }
         
         Image<ElementT> output(input.getWidth(), input.getHeight());
-        for (std::size_t y = 0; y < count; ++y)
+        for (std::size_t y = 0; y < input.getHeight(); ++y)
         {
             for (std::size_t x = 0; x < input.getWidth(); ++x)
             {
