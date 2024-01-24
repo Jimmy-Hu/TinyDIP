@@ -1131,8 +1131,8 @@ namespace TinyDIP
     }
 
     //  gaussian_fisheye template function implementation
-    template<arithmetic ElementT = double>
-    constexpr static auto gaussian_fisheye(const Image<ElementT>& input, ElementT D0)
+    template<arithmetic ElementT, class FloatingType = double>
+    constexpr static auto gaussian_fisheye(const Image<ElementT>& input, FloatingType D0)
     {
         if (input.getDimensionality()!=2)
         {
@@ -1144,15 +1144,15 @@ namespace TinyDIP
         {
             for (std::size_t x = 0; x < input.getWidth(); ++x)
             {
-                ElementT distance_x = x - static_cast<ElementT>(input.getWidth()) / 2.0;
-                ElementT distance_y = y - static_cast<ElementT>(input.getHeight()) / 2.0;
-                ElementT distance = std::sqrt(std::pow(distance_x, 2) + std::pow(distance_y, 2));
-                ElementT angle = std::atan2(distance_y, distance_x);
-                ElementT weight = normalDistribution2D(std::fabs(distance_x), std::fabs(distance_y), D0) / normalDistribution2D(0, 0, D0);
-                ElementT new_distance = distance * weight;
-                ElementT new_distance_x = new_distance * std::cos(angle);
-                ElementT new_distance_y = new_distance * std::cos(angle);
-                output.at(new_distance_x + static_cast<ElementT>(input.getWidth()) / 2.0, new_distance_y + static_cast<ElementT>(input.getHeight()) / 2.0) = 
+                FloatingType distance_x = x - static_cast<FloatingType>(input.getWidth()) / 2.0;
+                FloatingType distance_y = y - static_cast<FloatingType>(input.getHeight()) / 2.0;
+                FloatingType distance = std::sqrt(std::pow(distance_x, 2) + std::pow(distance_y, 2));
+                FloatingType angle = std::atan2(distance_y, distance_x);
+                FloatingType weight = normalDistribution2D(std::fabs(distance_x), std::fabs(distance_y), D0) / normalDistribution2D(0, 0, D0);
+                FloatingType new_distance = distance * weight;
+                FloatingType new_distance_x = new_distance * std::cos(angle);
+                FloatingType new_distance_y = new_distance * std::cos(angle);
+                output.at(new_distance_x + static_cast<FloatingType>(input.getWidth()) / 2.0, new_distance_y + static_cast<FloatingType>(input.getHeight()) / 2.0) = 
                     input.at(x, y);
             }
         }
