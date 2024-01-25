@@ -230,7 +230,7 @@ int main()
         },
         TinyDIP::split(bmp1, block_count_x, block_count_y)));
     bmp1 = copyResizeBicubic(bmp1, bmp1.getWidth() * 2, bmp1.getHeight() * 2);
-    bmp1 = gaussian_fisheye(bmp1, 100);
+    bmp1 = gaussian_fisheye(bmp1, 100.0);
     auto output_img = TinyDIP::subimage2(bmp1, 0, bmp1.getWidth() - 1, 0, bmp1.getHeight() - 1);
     TinyDIP::bmp_write("test", output_img);
 
