@@ -1131,7 +1131,7 @@ namespace TinyDIP
     }
 
     //  gaussian_fisheye template function implementation
-    template<arithmetic ElementT, class FloatingType = double>
+    template<arithmetic ElementT, std::floating_point FloatingType = double>
     constexpr static auto gaussian_fisheye(const Image<ElementT>& input, FloatingType D0)
     {
         if (input.getDimensionality()!=2)
@@ -1151,7 +1151,7 @@ namespace TinyDIP
                 FloatingType weight = normalDistribution2D(std::fabs(distance_x), std::fabs(distance_y), D0) / normalDistribution2D(0.0, 0.0, D0);
                 FloatingType new_distance = distance * weight;
                 FloatingType new_distance_x = new_distance * std::cos(angle);
-                FloatingType new_distance_y = new_distance * std::cos(angle);
+                FloatingType new_distance_y = new_distance * std::sin(angle);
                 output.at(new_distance_x + static_cast<FloatingType>(input.getWidth()) / 2.0, new_distance_y + static_cast<FloatingType>(input.getHeight()) / 2.0) = 
                     input.at(x, y);
             }
