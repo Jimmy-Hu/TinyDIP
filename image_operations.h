@@ -1146,7 +1146,7 @@ namespace TinyDIP
             {
                 FloatingType distance_x = x - static_cast<FloatingType>(input.getWidth()) / 2.0;
                 FloatingType distance_y = y - static_cast<FloatingType>(input.getHeight()) / 2.0;
-                FloatingType distance = std::sqrt(std::pow(distance_x, 2) + std::pow(distance_y, 2));
+                FloatingType distance = std::hypot(distance_x, distance_y);
                 FloatingType angle = std::atan2(static_cast<FloatingType>(distance_y), static_cast<FloatingType>(distance_x));
                 FloatingType weight = normalDistribution2D(std::fabs(distance_x), std::fabs(distance_y), D0) / normalDistribution2D(0.0, 0.0, D0);
                 FloatingType new_distance = distance * weight;
