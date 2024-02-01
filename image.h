@@ -122,6 +122,8 @@ namespace TinyDIP
             return image_data[image_data_index];
         }
 
+        //  at template function implementation
+        //  Reference: https://codereview.stackexchange.com/a/288736/231235
         template<typename... Args>
         constexpr ElementT const& at(const Args... indexInput) const
         {
@@ -131,19 +133,17 @@ namespace TinyDIP
             {
                 throw std::runtime_error("Dimensionality mismatched!");
             }
-            std::size_t parameter_pack_index = 0;
-            std::size_t image_data_index = 0;
-            auto function = [&](auto index) {
-                std::size_t m = 1;
-                for(std::size_t i = 0; i < parameter_pack_index; ++i)
-                {
-                    m*=size[i];
-                }
-                image_data_index+=(index * m);
-                parameter_pack_index = parameter_pack_index + 1;
+            std::size_t i = 0;
+            std::size_t stride = 1;
+            std::size_t position = 0;
+
+            auto update_position = [&](auto index) {
+                position += index * stride;
+                stride *= size[i++];
             };
-            (function(indexInput), ...);
-            return image_data[image_data_index];
+            (update_position(indexInput), ...);
+
+            return image_data[position];
         }
 
         constexpr std::size_t count() const noexcept
