@@ -98,28 +98,11 @@ namespace TinyDIP
             return;
         }
 
+        //  at template function implementation
         template<typename... Args>
         constexpr ElementT& at(const Args... indexInput)
         {
-            checkBoundary(indexInput...);
-            constexpr std::size_t n = sizeof...(Args);
-            if(n != size.size())
-            {
-                throw std::runtime_error("Dimensionality mismatched!");
-            }
-            std::size_t parameter_pack_index = 0;
-            std::size_t image_data_index = 0;
-            auto function = [&](auto index) {
-                std::size_t m = 1;
-                for(std::size_t i = 0; i < parameter_pack_index; ++i)
-                {
-                    m*=size[i];
-                }
-                image_data_index+=(index * m);
-                parameter_pack_index = parameter_pack_index + 1;
-            };
-            (function(indexInput), ...);
-            return image_data[image_data_index];
+            return const_cast<ElementT&>(static_cast<const Image &>(*this).at());
         }
 
         //  at template function implementation
