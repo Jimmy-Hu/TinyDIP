@@ -102,7 +102,7 @@ namespace TinyDIP
         template<typename... Args>
         constexpr ElementT& at(const Args... indexInput)
         {
-            return const_cast<ElementT&>(static_cast<const Image &>(*this).at());
+            return const_cast<ElementT&>(static_cast<const Image &>(*this).at(indexInput...));
         }
 
         //  at template function implementation
