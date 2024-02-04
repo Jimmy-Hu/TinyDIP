@@ -223,7 +223,7 @@ namespace TinyDIP
 
         Image<ElementT>& setAllValue(const ElementT input)
         {
-            std::fill(image_data.begin(), image_data.end(), input);
+            std::fill(std::ranges::begin(image_data), std::ranges::end(image_data), input);
             return *this;
         }
 
