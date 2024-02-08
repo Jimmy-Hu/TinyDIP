@@ -1102,7 +1102,7 @@ namespace TinyDIP
     }
 
     //  butterworth_fisheye template function implementation
-    template<arithmetic ElementT = double>
+    template<arithmetic ElementT, std::floating_point FloatingType = double>
     constexpr static auto butterworth_fisheye(const Image<ElementT>& input, ElementT D0, ElementT N)
     {
         if (input.getDimensionality()!=2)
