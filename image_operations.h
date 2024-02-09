@@ -1115,7 +1115,7 @@ namespace TinyDIP
         {
             for (std::size_t x = 0; x < input.getWidth(); ++x)
             {
-                ElementT distance_x = x - static_cast<ElementT>(input.getWidth()) / 2.0;
+                FloatingType distance_x = x - static_cast<FloatingType>(input.getWidth()) / 2.0;
                 ElementT distance_y = y - static_cast<ElementT>(input.getHeight()) / 2.0;
                 ElementT distance = std::hypot(distance_x, distance_y);
                 ElementT angle = std::atan2(distance_y, distance_x);
