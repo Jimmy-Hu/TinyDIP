@@ -1121,7 +1121,7 @@ namespace TinyDIP
                 FloatingType angle = std::atan2(distance_y, distance_x);
                 FloatingType weight = 1 / std::pow((1 + std::pow(distance / D0, 2 * N)), 0.5);
                 FloatingType new_distance = distance * weight;
-                ElementT new_distance_x = new_distance * std::cos(angle);
+                FloatingType new_distance_x = new_distance * std::cos(angle);
                 ElementT new_distance_y = new_distance * std::cos(angle);
                 output.at(
                     static_cast<std::size_t>(new_distance_x + static_cast<FloatingType>(input.getWidth()) / 2.0),
