@@ -1167,6 +1167,35 @@ namespace TinyDIP
     {
         return apply_each(input, [&](auto&& planes) { return gaussian_fisheye(planes, D0); });
     }
+
+    //  rotate template function implementation
+    template<arithmetic ElementT, std::floating_point FloatingType = double>
+    constexpr static auto rotate(const Image<ElementT>& input, FloatingType radians)
+    {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        
+        Image<ElementT> output(input.getWidth(), input.getHeight());
+        for (std::size_t y = 0; y < input.getHeight(); ++y)
+        {
+            for (std::size_t x = 0; x < input.getWidth(); ++x)
+            {
+                FloatingType distance_x = x - static_cast<FloatingType>(input.getWidth()) / 2.0;
+                FloatingType distance_y = y - static_cast<FloatingType>(input.getHeight()) / 2.0;
+                FloatingType distance = std::hypot(distance_x, distance_y);
+                FloatingType angle = std::atan2(distance_y, distance_x);
+                FloatingType new_distance_x = distance * std::cos(angle);
+                FloatingType new_distance_y = distance * std::sin(angle);
+                output.at(
+                    static_cast<std::size_t>(new_distance_x + static_cast<FloatingType>(input.getWidth()) / 2.0),
+                    static_cast<std::size_t>(new_distance_y + static_cast<FloatingType>(input.getHeight()) / 2.0)) = 
+                    input.at(x, y);
+            }
+        }
+        return output;
+    }
 }
 
 #endif
