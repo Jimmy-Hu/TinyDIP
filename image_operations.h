@@ -1202,7 +1202,7 @@ namespace TinyDIP
     requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, HSV>))
     constexpr static auto rotate(const Image<ElementT>& input, FloatingType radians)
     {
-        return apply_each(input, [&](auto&& planes) { return gaussian_fisheye(planes, radians); });
+        return apply_each(input, [&](auto&& planes) { return rotate(planes, radians); });
     }
 }
 
