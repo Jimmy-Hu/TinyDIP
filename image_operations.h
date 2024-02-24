@@ -1160,6 +1160,13 @@ namespace TinyDIP
         return output;
     }
 
+    //  gaussian_fisheye template function implementation for the types other than std::floating_point
+    template<arithmetic ElementT, std::integral T = int>
+    constexpr static auto gaussian_fisheye(const Image<ElementT>& input, T D0)
+    {
+        return gaussian_fisheye(input, static_cast<double>(D0));
+    }
+
     //  gaussian_fisheye template function implementation
     template<typename ElementT, class FloatingType = double>
     requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, HSV>))
