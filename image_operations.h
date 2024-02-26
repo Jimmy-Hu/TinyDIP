@@ -1211,7 +1211,7 @@ namespace TinyDIP
                 FloatingType new_distance_y = new_distance * std::sin(angle);
                 output.at(
                     static_cast<std::size_t>(new_distance_x + half_width),
-                    static_cast<std::size_t>(new_distance_y + half_height) = 
+                    static_cast<std::size_t>(new_distance_y + half_height)) = 
                     input.at(x, y);
             }
         }
