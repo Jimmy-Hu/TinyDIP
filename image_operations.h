@@ -1225,6 +1225,13 @@ namespace TinyDIP
     {
         return apply_each(input, [&](auto&& planes) { return rotate(planes, radians); });
     }
+
+    //  rotate template function implementation
+    template<arithmetic ElementT, std::integral T = int>
+    constexpr static auto rotate(const Image<ElementT>& input, T radians)
+    {
+        return rotate(input, static_cast<double>(radians));
+    }
 }
 
 #endif
