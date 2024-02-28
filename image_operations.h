@@ -1232,6 +1232,13 @@ namespace TinyDIP
     {
         return rotate(input, static_cast<double>(radians));
     }
+
+    //  rotate_degree template function implementation
+    template<typename ElementT, class FloatingType = double>
+    constexpr static auto rotate_degree(const Image<ElementT>& input, T degrees)
+    {
+        
+    }
 }
 
 #endif
