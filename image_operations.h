@@ -1234,7 +1234,7 @@ namespace TinyDIP
     }
 
     //  rotate_degree template function implementation
-    template<typename ElementT, class FloatingType = double>
+    template<typename ElementT, class T = double>
     constexpr static auto rotate_degree(const Image<ElementT>& input, T degrees)
     {
         return rotate(input, static_cast<double>(degrees) * std::numbers::pi_v<long double> / 180.0);
