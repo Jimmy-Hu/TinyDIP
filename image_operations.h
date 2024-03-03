@@ -1188,9 +1188,16 @@ namespace TinyDIP
             throw std::runtime_error("Unsupported dimension!");
         }
         
-        Image<ElementT> output(input.getWidth(), input.getHeight());
+        
         FloatingType half_width = static_cast<FloatingType>(input.getWidth()) / 2.0;
         FloatingType half_height = static_cast<FloatingType>(input.getHeight()) / 2.0;
+        FloatingType new_width = 2 * 
+            std::hypot(half_width, half_height) *
+            std::cos(std::atan2(half_height, new_width) + radians);
+        FloatingType new_height = 2 *
+            std::hypot(half_width, half_height) *
+            std::abs(std::sin(std::atan2(half_height, half_width) + radians));
+        Image<ElementT> output(new_width, new_height);
         for (std::size_t y = 0; y < input.getHeight(); ++y)
         {
             for (std::size_t x = 0; x < input.getWidth(); ++x)
@@ -1201,12 +1208,6 @@ namespace TinyDIP
                 FloatingType distance = std::hypot(distance_x, distance_y);
                 FloatingType angle = std::atan2(distance_y, distance_x) + radians;
                 
-                FloatingType new_width = 2 * 
-                    std::hypot(half_width, half_height) *
-                    std::cos(std::atan2(half_height, new_width) + radians);
-                FloatingType new_height = 2 *
-                    std::hypot(half_width, half_height) *
-                    std::abs(std::sin(std::atan2(half_height, half_width) + radians));
                 FloatingType width_ratio = new_width / static_cast<FloatingType>(input.getWidth());
                 FloatingType height_ratio = new_height / static_cast<FloatingType>(input.getHeight());
                 FloatingType distance_weight = 1 / height_ratio;
