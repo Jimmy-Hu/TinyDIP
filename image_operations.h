@@ -1197,7 +1197,7 @@ namespace TinyDIP
         FloatingType new_height = 2 *
             std::hypot(half_width, half_height) *
             std::abs(std::sin(std::atan2(half_height, half_width) + radians));
-        Image<ElementT> output(new_width, new_height);
+        Image<ElementT> output(static_cast<std::size_t>(new_width), static_cast<std::size_t>(new_height));
         for (std::size_t y = 0; y < input.getHeight(); ++y)
         {
             for (std::size_t x = 0; x < input.getWidth(); ++x)
