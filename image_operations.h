@@ -1175,6 +1175,50 @@ namespace TinyDIP
         return apply_each(input, [&](auto&& planes) { return gaussian_fisheye(planes, D0); });
     }
 
+    //  rotate_detail template function implementation
+    //  rotate_detail template function performs image rotation between 0° to 90°
+    template<arithmetic ElementT, std::floating_point FloatingType = double>
+    constexpr static auto rotate_detail(const Image<ElementT>& input, FloatingType radians)
+    {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        
+        FloatingType half_width = static_cast<FloatingType>(input.getWidth()) / 2.0;
+        FloatingType half_height = static_cast<FloatingType>(input.getHeight()) / 2.0;
+        FloatingType new_width = 2 * 
+            std::hypot(half_width, half_height) *
+            std::cos(std::atan2(half_height, new_width) + radians);
+        FloatingType new_height = 2 *
+            std::hypot(half_width, half_height) *
+            std::abs(std::sin(std::atan2(half_height, half_width) + radians));
+        Image<ElementT> output(static_cast<std::size_t>(new_width), static_cast<std::size_t>(new_height));
+        for (std::size_t y = 0; y < input.getHeight(); ++y)
+        {
+            for (std::size_t x = 0; x < input.getWidth(); ++x)
+            {
+                
+                FloatingType distance_x = x - half_width;
+                FloatingType distance_y = y - half_height;
+                FloatingType distance = std::hypot(distance_x, distance_y);
+                FloatingType angle = std::atan2(distance_y, distance_x) + radians;
+                
+                FloatingType width_ratio = new_width / static_cast<FloatingType>(input.getWidth());
+                FloatingType height_ratio = new_height / static_cast<FloatingType>(input.getHeight());
+                FloatingType distance_weight = 1 / height_ratio;
+                FloatingType new_distance = distance * distance_weight;
+                FloatingType new_distance_x = new_distance * std::cos(angle);
+                FloatingType new_distance_y = new_distance * std::sin(angle);
+                output.at(
+                    static_cast<std::size_t>(new_distance_x + half_width),
+                    static_cast<std::size_t>(new_distance_y + half_height)) = 
+                    input.at(x, y);
+            }
+        }
+        return output;
+    }
+
     //  rotate template function implementation
     template<arithmetic ElementT, std::floating_point FloatingType = double>
     constexpr static auto rotate(const Image<ElementT>& input, FloatingType radians)
