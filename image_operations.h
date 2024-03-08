@@ -1234,6 +1234,7 @@ namespace TinyDIP
             radians-=(std::numbers::pi_v<long double> / 2.0);
         }
         output = rotate_detail(output, radians);
+        return output;
     }
 
     //  rotate template function implementation
