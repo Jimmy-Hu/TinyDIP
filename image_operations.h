@@ -1258,6 +1258,14 @@ namespace TinyDIP
     {
         return rotate(input, static_cast<double>(degrees) * std::numbers::pi_v<long double> / 180.0);
     }
+
+    //  transpose template function implementation
+    template<typename ElementT>
+    constexpr static auto transpose(const Image<ElementT>& input)
+    {
+
+    }
+
 }
 
 #endif
