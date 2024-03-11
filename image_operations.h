@@ -1263,7 +1263,11 @@ namespace TinyDIP
     template<typename ElementT>
     constexpr static auto transpose(const Image<ElementT>& input)
     {
-
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        
     }
 
 }
