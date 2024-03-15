@@ -6,7 +6,7 @@
 
 
 template<class T>
-void manhattanDistanceTest()
+void transposeTest()
 {
     std::size_t N1 = 10, N2 = 10;
     TinyDIP::Image<T> test_input(N1, N2);
@@ -17,5 +17,18 @@ void manhattanDistanceTest()
             test_input.at(y - 1, x - 1) = x * 10 + y + y & 1;
         }
     }
-    
+
+    test_input.print();
+    TinyDIP::transpose(test_input).print();
+}
+
+int main()
+{
+    auto start = std::chrono::system_clock::now();
+    transposeTest<int>();
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+    std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
+    return EXIT_SUCCESS;
 }
