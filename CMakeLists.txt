@@ -115,6 +115,7 @@ add_executable(recursiveSizeTest test/recursiveSizeTest.cpp image_io.cpp)
 add_executable(recursiveTransformTest test/recursiveTransformTest.cpp image_io.cpp)
 add_executable(recursiveTransformReduceTest test/recursiveTransformReduceTest.cpp image_io.cpp)
 add_executable(sumTest test/sumTest.cpp image_io.cpp)
+add_executable(transposeTest test/transposeTest.cpp image_io.cpp)
 
 # target_include_directories
 if(APPLE)
