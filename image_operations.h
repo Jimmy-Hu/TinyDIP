@@ -1201,7 +1201,7 @@ namespace TinyDIP
             {
                 for (std::size_t x = 0; x < input.getWidth(); ++x)
                 {
-                    output.at(y, input.getWidth() - x - 1) = 
+                    output.at(y, x) = 
                         input.at(x, y);
                 }
             }
