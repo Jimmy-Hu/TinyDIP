@@ -1193,20 +1193,22 @@ namespace TinyDIP
         FloatingType new_height = 2 *
             std::hypot(half_width, half_height) *
             std::abs(std::sin(std::atan2(half_height, half_width) + radians));
-        Image<ElementT> output(input.getWidth(), input.getHeight());
+        
         //  if 90° rotation case
         if(radians == std::numbers::pi_v<long double> / 2.0)
         {
+            Image<ElementT> output(input.getHeight(), input.getWidth());
             for (std::size_t y = 0; y < input.getHeight(); ++y)
             {
                 for (std::size_t x = 0; x < input.getWidth(); ++x)
                 {
-                    output.at(y, x) = 
+                    output.at(y, input.getWidth() - x - 1) = 
                         input.at(x, y);
                 }
             }
             return output;
         }
+        Image<ElementT> output(input.getWidth(), input.getHeight());
         for (std::size_t y = 0; y < input.getHeight(); ++y)
         {
             for (std::size_t x = 0; x < input.getWidth(); ++x)
