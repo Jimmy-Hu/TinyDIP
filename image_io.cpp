@@ -564,11 +564,11 @@ namespace TinyDIP
         printf("Height of the input image: %d\n", OriginSizeY);
         printf("Size of the input image: %ld\n", static_cast<size_t>(OriginSizeX * OriginSizeY * 3));
         unsigned char header[54];
-        fread(header, sizeof(unsigned char), 54, fp);
+        auto returnValue = fread(header, sizeof(unsigned char), 54, fp);
         double* image;
         unsigned char filling_bytes = bmp_filling_byte_calc(OriginSizeX, 8);
         image = static_cast<double*>(malloc(sizeof * image * (OriginSizeX * 3 + filling_bytes) * OriginSizeY));
-        fread(image, sizeof(double), (size_t)(long)(OriginSizeX * 3 + filling_bytes) * OriginSizeY, fp);
+        auto returnValue = fread(image, sizeof(double), (size_t)(long)(OriginSizeX * 3 + filling_bytes) * OriginSizeY, fp);
         fclose(fp);
         auto output = Image<HSV>(OriginSizeX, OriginSizeY);
         for (int y = 0; y < OriginSizeY; y++)
