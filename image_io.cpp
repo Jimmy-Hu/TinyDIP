@@ -105,7 +105,7 @@ namespace TinyDIP
         }             
         unsigned char header[54];
         auto result = fread(header, sizeof(unsigned char), 54, fp);
-        auto result = fread(image, sizeof(unsigned char), (size_t)(long)(xsize * 3 + filling_bytes)*ysize, fp);
+        result = fread(image, sizeof(unsigned char), (size_t)(long)(xsize * 3 + filling_bytes)*ysize, fp);
         fclose(fp); 
         return 0;
     }
