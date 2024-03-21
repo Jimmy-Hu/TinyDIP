@@ -82,7 +82,7 @@ namespace TinyDIP
         return output;
     }
 
-    //---- bmp_file_read function ---- 
+    //---- bmp_file_read function implementation ---- 
     char bmp_read_detail(unsigned char * const image, const int xsize, const int ysize, const char * const filename, const bool extension)
     {
         std::filesystem::path fname_bmp;
@@ -104,8 +104,8 @@ namespace TinyDIP
             return -1;
         }             
         unsigned char header[54];
-        fread(header, sizeof(unsigned char), 54, fp);
-        fread(image, sizeof(unsigned char), (size_t)(long)(xsize * 3 + filling_bytes)*ysize, fp);
+        auto result = fread(header, sizeof(unsigned char), 54, fp);
+        auto result = fread(image, sizeof(unsigned char), (size_t)(long)(xsize * 3 + filling_bytes)*ysize, fp);
         fclose(fp); 
         return 0;
     }
