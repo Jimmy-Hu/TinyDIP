@@ -568,7 +568,7 @@ namespace TinyDIP
         double* image;
         unsigned char filling_bytes = bmp_filling_byte_calc(OriginSizeX, 8);
         image = static_cast<double*>(malloc(sizeof * image * (OriginSizeX * 3 + filling_bytes) * OriginSizeY));
-        auto returnValue = fread(image, sizeof(double), (size_t)(long)(OriginSizeX * 3 + filling_bytes) * OriginSizeY, fp);
+        returnValue = fread(image, sizeof(double), (size_t)(long)(OriginSizeX * 3 + filling_bytes) * OriginSizeY, fp);
         fclose(fp);
         auto output = Image<HSV>(OriginSizeX, OriginSizeY);
         for (int y = 0; y < OriginSizeY; y++)
