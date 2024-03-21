@@ -437,11 +437,11 @@ namespace TinyDIP
             printf("Height of the input image: %d\n", OriginSizeY);
             printf("Size of the input image: %ld\n", static_cast<size_t>(OriginSizeX * OriginSizeY));
             unsigned char header[54];
-            fread(header, sizeof(unsigned char), 54, fp);
+            auto returnValue = fread(header, sizeof(unsigned char), 54, fp);
             double* image;
             unsigned char FillingByte = bmp_filling_byte_calc(OriginSizeX, 8);
             image = static_cast<double*>(malloc(sizeof * image * (OriginSizeX + FillingByte) * OriginSizeY));
-            fread(image, sizeof(double), (size_t)(double)(OriginSizeX + FillingByte) * OriginSizeY, fp);
+            auto returnValue = fread(image, sizeof(double), (size_t)(double)(OriginSizeX + FillingByte) * OriginSizeY, fp);
             TinyDIP::Image<double> output(OriginSizeX, OriginSizeY);
             for (int y = 0; y < OriginSizeY; y++)
             {
