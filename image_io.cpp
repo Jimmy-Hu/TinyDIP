@@ -52,7 +52,7 @@ namespace TinyDIP
         return output;
     }
 
-    //---- bmp_read_y_size function ----
+    //---- bmp_read_y_size function definition----
     unsigned long bmp_read_y_size(const char * const filename, const bool extension)
     {
         std::filesystem::path fname_bmp;
@@ -72,7 +72,7 @@ namespace TinyDIP
             return -1;
         }             
         unsigned char header[54];
-        fread(header, sizeof(unsigned char), 54, fp);
+        auto returnValue = fread(header, sizeof(unsigned char), 54, fp);
         unsigned long output; 
         output= header[22] + 
             ((unsigned long)header[23] << 8) +
