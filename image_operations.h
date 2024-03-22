@@ -1133,6 +1133,7 @@ namespace TinyDIP
     }
 
     //  gaussian_fisheye template function implementation
+    //  Reference: https://codereview.stackexchange.com/q/291059/231235
     template<arithmetic ElementT, std::floating_point FloatingType = double>
     constexpr static auto gaussian_fisheye(const Image<ElementT>& input, FloatingType D0)
     {
