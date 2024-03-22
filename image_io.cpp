@@ -177,7 +177,7 @@ namespace TinyDIP
             for (size_t loop = 0; loop < (output.XSIZE * 3 + output.FILLINGBYTE) * output.YSIZE; loop++)
             {
                 printf("%d\n", OriginImageData[loop]);
-                system("read -n 1 -s -p \"Press any key to continue...\n\"");
+                auto returnValue = system("read -n 1 -s -p \"Press any key to continue...\n\"");
             }
             for(int y = 0; y < output.YSIZE; y++)
             {
@@ -191,7 +191,7 @@ namespace TinyDIP
                     OriginImageData[3 * ((output.YSIZE - y - 1) * output.XSIZE + x) + 2],
                     OriginImageData[3 * ((output.YSIZE - y - 1) * output.XSIZE + x) + 1],
                     OriginImageData[3 * ((output.YSIZE - y - 1) * output.XSIZE + x) + 0]);
-                    system("read -n 1 -s -p \"Press any key to continue...\n\"");
+                    auto returnValue = system("read -n 1 -s -p \"Press any key to continue...\n\"");
                 }
             }
             free(OriginImageData);
