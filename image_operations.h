@@ -1185,6 +1185,10 @@ namespace TinyDIP
         {
             throw std::runtime_error("Unsupported dimension!");
         }
+        if (radians == 0)
+        {
+            return input;
+        }
         
         FloatingType half_width = static_cast<FloatingType>(input.getWidth()) / 2.0;
         FloatingType half_height = static_cast<FloatingType>(input.getHeight()) / 2.0;
