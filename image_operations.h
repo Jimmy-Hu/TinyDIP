@@ -1185,20 +1185,11 @@ namespace TinyDIP
         {
             throw std::runtime_error("Unsupported dimension!");
         }
+        //  if 0° rotation case
         if (radians == 0)
         {
             return input;
         }
-        
-        FloatingType half_width = static_cast<FloatingType>(input.getWidth()) / 2.0;
-        FloatingType half_height = static_cast<FloatingType>(input.getHeight()) / 2.0;
-        FloatingType new_width = 2 * 
-            std::hypot(half_width, half_height) *
-            std::cos(std::atan2(half_height, new_width) + radians);
-        FloatingType new_height = 2 *
-            std::hypot(half_width, half_height) *
-            std::abs(std::sin(std::atan2(half_height, half_width) + radians));
-        
         //  if 90° rotation case
         if(radians == std::numbers::pi_v<long double> / 2.0)
         {
@@ -1213,6 +1204,16 @@ namespace TinyDIP
             }
             return output;
         }
+        
+        FloatingType half_width = static_cast<FloatingType>(input.getWidth()) / 2.0;
+        FloatingType half_height = static_cast<FloatingType>(input.getHeight()) / 2.0;
+        FloatingType new_width = 2 * 
+            std::hypot(half_width, half_height) *
+            std::cos(std::atan2(half_height, new_width) + radians);
+        FloatingType new_height = 2 *
+            std::hypot(half_width, half_height) *
+            std::abs(std::sin(std::atan2(half_height, half_width) + radians));
+        
         Image<ElementT> output(input.getWidth(), input.getHeight());
         for (std::size_t y = 0; y < input.getHeight(); ++y)
         {
