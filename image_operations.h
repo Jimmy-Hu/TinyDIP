@@ -1227,7 +1227,7 @@ namespace TinyDIP
                 
                 FloatingType width_ratio = new_width / static_cast<FloatingType>(input.getWidth());
                 FloatingType height_ratio = new_height / static_cast<FloatingType>(input.getHeight());
-                FloatingType distance_weight = 1 / height_ratio;
+                FloatingType distance_weight = (input.getWidth() > input.getHeight())?(1 / height_ratio):(1 / width_ratio);
                 FloatingType new_distance = distance * distance_weight;
                 FloatingType new_distance_x = new_distance * std::cos(angle);
                 FloatingType new_distance_y = new_distance * std::sin(angle);
