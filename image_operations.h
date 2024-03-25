@@ -1209,7 +1209,7 @@ namespace TinyDIP
         FloatingType half_height = static_cast<FloatingType>(input.getHeight()) / 2.0;
         FloatingType new_width = 2 * 
             std::hypot(half_width, half_height) *
-            std::cos(std::atan2(half_height, new_width) + radians);
+            std::abs(std::sin(std::atan2(half_width, half_height) + radians));
         FloatingType new_height = 2 *
             std::hypot(half_width, half_height) *
             std::abs(std::sin(std::atan2(half_height, half_width) + radians));
