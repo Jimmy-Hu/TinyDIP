@@ -1245,7 +1245,7 @@ namespace TinyDIP
     constexpr static auto rotate(const Image<ElementT>& input, FloatingType radians)
     {
         auto output = input;
-        while(radians > 2 * std::numbers::pi_v<long double>)
+        while(radians >= 2 * std::numbers::pi_v<long double>)
         {
             radians = radians - 2 * std::numbers::pi_v<long double>;
         }
