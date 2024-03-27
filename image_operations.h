@@ -1281,7 +1281,7 @@ namespace TinyDIP
         auto new_width = std::round(std::abs(width*cosine) + std::abs(height*sine)) + 1;
 
         //  Define another image variable of dimensions of new_height and new _column filled with zeros
-        Image<ElementT> output(new_width, new_height);
+        Image<ElementT> output(static_cast<std::size_t>(new_width), static_cast<std::size_t>(new_height));
 
         //  Find the centre of the new image that will be obtained
         FloatingType new_centre_width  = std::round((static_cast<FloatingType>(new_width) + 1.0) / 2.0 - 1.0);
