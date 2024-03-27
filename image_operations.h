@@ -1315,6 +1315,18 @@ namespace TinyDIP
         return output;
     }
 
+    //  rotate_detail_shear_transformation template function implementation
+    template<typename ElementT, class FloatingType = double>
+    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, HSV>))
+    constexpr static auto rotate_detail_shear_transformation(const Image<ElementT>& input, FloatingType radians)
+    {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        return apply_each(input, [&](auto&& planes) { return rotate_detail_shear_transformation(planes, radians); });
+    }
+
     //  rotate template function implementation
     template<arithmetic ElementT, std::floating_point FloatingType = double>
     constexpr static auto rotate(const Image<ElementT>& input, FloatingType radians)
