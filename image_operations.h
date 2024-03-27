@@ -1243,6 +1243,7 @@ namespace TinyDIP
     //  rotate_detail_shear_transformation template function implementation
     //  rotate_detail_shear_transformation template function performs image rotation between 0° to 90°
     //  Reference: https://gautamnagrawal.medium.com/rotating-image-by-any-angle-shear-transformation-using-only-numpy-d28d16eb5076
+    template<arithmetic ElementT, std::floating_point FloatingType = double>
     constexpr static auto rotate_detail_shear_transformation(const Image<ElementT>& input, FloatingType radians)
     {
         if (input.getDimensionality()!=2)
