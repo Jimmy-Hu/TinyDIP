@@ -1328,6 +1328,17 @@ namespace TinyDIP
         return apply_each(input, [&](auto&& planes) { return rotate_detail_shear_transformation(planes, radians); });
     }
 
+    //  rotate_detail_shear_transformation_degree template function implementation
+    template<typename ElementT, class T = double>
+    constexpr static auto rotate_detail_shear_transformation_degree(const Image<ElementT>& input, T degrees)
+    {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        return rotate_detail_shear_transformation(input, static_cast<double>(degrees) * std::numbers::pi_v<long double> / 180.0);
+    }
+
     //  rotate template function implementation
     template<arithmetic ElementT, std::floating_point FloatingType = double>
     constexpr static auto rotate(const Image<ElementT>& input, FloatingType radians)
