@@ -1272,12 +1272,47 @@ namespace TinyDIP
         auto sine = std::sin(radians);
         auto height = input.getHeight();
         auto width = input.getWidth();
-        FloatingType half_width = static_cast<FloatingType>(width) / 2.0;
-        FloatingType half_height = static_cast<FloatingType>(height) / 2.0;
+        FloatingType original_centre_width  = std::round((static_cast<FloatingType>(width) + 1.0) / 2.0 - 1.0);
+        FloatingType original_centre_height = std::round((static_cast<FloatingType>(height) + 1.0) / 2.0 - 1.0);
 
-        // Define the height and width of the new image that is to be formed
-        auto new_height = std::round(std::abs(height*cosine)+std::abs(width*sine)) + 1;
+        //  Define the height and width of the new image that is to be formed
+        auto new_height = std::round(std::abs(height*cosine) + std::abs(width*sine)) + 1;
+        auto new_width = std::round(std::abs(width*cosine) + std::abs(height*sine)) + 1;
 
+        //  Define another image variable of dimensions of new_height and new _column filled with zeros
+        Image<ElementT> output(new_width, new_height);
+
+        //  Find the centre of the new image that will be obtained
+        FloatingType new_centre_width  = std::round((static_cast<FloatingType>(new_width) + 1.0) / 2.0 - 1.0);
+        FloatingType new_centre_height = std::round((static_cast<FloatingType>(new_height) + 1.0) / 2.0 - 1.0);
+
+        for (std::size_t i = 0; i < input.getHeight(); ++i)
+        {
+            for (std::size_t j = 0; j < input.getWidth(); ++j)
+            {
+                //  co-ordinates of pixel with respect to the centre of original image
+                auto y = height - 1.0 - i - original_centre_height;
+                auto x = width - 1.0 - j - original_centre_width;
+
+                //  co-ordinate of pixel with respect to the rotated image
+                auto new_y = std::round(-x * sine + y * cosine);
+                auto new_x = std::round(x * cosine + y * sine);
+
+                /*  since image will be rotated the centre will change too, 
+                    so to adust to that we will need to change new_x and new_y with respect to the new centre*/
+                new_y = new_centre_height - new_y;
+                new_x = new_centre_width - new_x;
+                if((0 <= new_x) && (new_x < new_width) &&
+                   (0 <= new_y) && (new_y < new_height))
+                {
+                    output.at(
+                    static_cast<std::size_t>(new_x),
+                    static_cast<std::size_t>(new_y)) = 
+                    input.at(j, i);
+                }
+            }
+        }
+        return output;
     }
 
     //  rotate template function implementation
