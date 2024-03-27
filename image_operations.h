@@ -1240,6 +1240,36 @@ namespace TinyDIP
         return output;
     }
 
+    //  rotate_detail_shear_transformation template function implementation
+    //  rotate_detail_shear_transformation template function performs image rotation between 0° to 90°
+    constexpr static auto rotate_detail_shear_transformation(const Image<ElementT>& input, FloatingType radians)
+    {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        //  if 0° rotation case
+        if (radians == 0)
+        {
+            return input;
+        }
+        //  if 90° rotation case
+        if(radians == std::numbers::pi_v<long double> / 2.0)
+        {
+            Image<ElementT> output(input.getHeight(), input.getWidth());
+            for (std::size_t y = 0; y < input.getHeight(); ++y)
+            {
+                for (std::size_t x = 0; x < input.getWidth(); ++x)
+                {
+                    output.at(input.getHeight() - y - 1, x) = 
+                        input.at(x, y);
+                }
+            }
+            return output;
+        }
+
+    }
+
     //  rotate template function implementation
     template<arithmetic ElementT, std::floating_point FloatingType = double>
     constexpr static auto rotate(const Image<ElementT>& input, FloatingType radians)
