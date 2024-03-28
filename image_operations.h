@@ -14,10 +14,6 @@
 
 namespace TinyDIP
 {
-    // Forward Declaration class Image
-    template <typename ElementT>
-    class Image;
-
     //  all_of template function implementation
     template<typename ElementT, class UnaryPredicate>
     constexpr auto all_of(const Image<ElementT>& input, UnaryPredicate p)
