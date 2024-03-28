@@ -20,7 +20,7 @@
 #include <type_traits>
 #include <variant>
 #include <vector>
-#include "image_operations.h"
+#include "base_types.h"
 
 #ifdef USE_BOOST_SERIALIZATION
 #include <boost/archive/binary_oarchive.hpp>
