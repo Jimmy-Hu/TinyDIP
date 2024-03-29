@@ -1003,7 +1003,7 @@ namespace TinyDIP
     }
     #endif
 
-    //  recursive_copy_if function 
+    //  recursive_copy_if template function implementation
     template <std::ranges::input_range Range, std::invocable<std::ranges::range_value_t<Range>> UnaryPredicate>
     constexpr auto recursive_copy_if(const Range& input, const UnaryPredicate& unary_predicate)
     {
@@ -1017,8 +1017,7 @@ namespace TinyDIP
     template <
         std::ranges::input_range Range,
         class UnaryPredicate>
-        requires (!std::invocable<UnaryPredicate, std::ranges::range_value_t<Range>>)
-        constexpr auto recursive_copy_if(const Range& input, const UnaryPredicate& unary_predicate)
+    constexpr auto recursive_copy_if(const Range& input, const UnaryPredicate& unary_predicate)
     {
         Range output{};
 
