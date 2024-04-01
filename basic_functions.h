@@ -865,6 +865,35 @@ namespace TinyDIP
         return init;
     }
 
+    //  recursive_remove_copy_if function implementation with unwrap level
+    template <std::size_t unwrap_level, std::ranges::input_range Range, class UnaryPredicate>
+    requires(recursive_invocable<unwrap_level, UnaryPredicate, Range> &&
+             is_inserterable<Range> &&
+             unwrap_level > 0)
+    constexpr auto recursive_remove_copy_if(const Range& input, const UnaryPredicate& unary_predicate)
+    {
+        if constexpr(unwrap_level > 1)
+        {
+            Range output{};
+        
+            std::ranges::transform(
+                std::ranges::cbegin(input),
+                std::ranges::cend(input),
+                std::inserter(output, std::ranges::end(output)),
+                [&unary_predicate](auto&& element) { return recursive_remove_copy_if<unwrap_level - 1>(element, unary_predicate); }
+                );
+            return output;
+        }
+        else
+        {
+            Range output{};
+            std::ranges::remove_copy_if(std::ranges::cbegin(input), std::ranges::cend(input),
+                std::inserter(output, std::ranges::end(output)),
+                unary_predicate);
+            return output;
+        }
+    }
+
     template<typename OutputIt, std::copy_constructible NAryOperation, typename InputIt, typename... InputIts>
     OutputIt transform(OutputIt d_first, NAryOperation op, InputIt first, InputIt last, InputIts... rest) {
         while (first != last) {
