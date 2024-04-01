@@ -40,16 +40,16 @@ endif()
 # Reference: https://stackoverflow.com/a/10055571/6667035
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math -std=c++2a -fopenmp")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math -std=c++2b -fopenmp")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # using GCC
   # Reference: https://stackoverflow.com/a/4065761/6667035
   IF (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 10.0)
     # Reference: https://superuser.com/a/1424303/1147141
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -std=c++20 -Xpreprocessor -fopenmp -O3 -fdump-tree-original")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -std=c++2b -Xpreprocessor -fopenmp -O3 -fdump-tree-original")
   ELSE()
     # Reference: https://superuser.com/a/1424303/1147141
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -std=c++2a -Xpreprocessor -fopenmp -O3 -fdump-tree-original")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -std=c++2b -Xpreprocessor -fopenmp -O3 -fdump-tree-original")
   ENDIF()
   
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
