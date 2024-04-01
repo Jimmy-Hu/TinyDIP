@@ -344,9 +344,8 @@ namespace TinyDIP
         std::cout << "\\end{tikzpicture}\n";
     }
 
-    template<class T = RGB>
-    requires (std::same_as<T, RGB>)
-    constexpr static void print_with_latex_to_file(Image<T> input, std::string filename)
+    //  print_with_latex_to_file function implementation
+    constexpr static void print_with_latex_to_file(Image<RGB> input, std::string filename)
     {
         std::ofstream newfile;
         newfile.open(filename);
