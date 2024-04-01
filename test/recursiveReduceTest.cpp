@@ -24,7 +24,7 @@ void __M_Assert(const char* expr_str, bool expr, const char* file, int line, con
     }
 }
 
-void recursiveReduceTest();
+void recursiveReduceTest(const std::size_t xsize, const std::size_t ysize);
 
 int main()
 {
@@ -44,7 +44,7 @@ void recursiveReduceTest(const std::size_t xsize, const std::size_t ysize)
     auto test_image1 = TinyDIP::Image<GrayScale>(xsize, ysize);
     test_image1.setAllValue(1);
     std::vector<decltype(test_image1)> test_vector_1{test_image1, test_image1, test_image1};
-    auto expected_result_1 = TinyDIP::Image<GrayScale>(5, 5);
+    auto expected_result_1 = TinyDIP::Image<GrayScale>(xsize, ysize);
     expected_result_1.setAllValue(4);
     M_Assert(
         TinyDIP::recursive_reduce(test_vector_1, test_image1) ==
