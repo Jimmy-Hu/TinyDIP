@@ -75,6 +75,26 @@ void recursive_remove_copy_if_tests()
         expected_result_4,
         "std::vector<std::vector<std::string>> test case failed");
 
+    //  std::deque<int> test case
+    std::deque<int> test_deque_1;
+    test_deque_1.push_back(1);
+    test_deque_1.push_back(2);
+    test_deque_1.push_back(3);
+    test_deque_1.push_back(4);
+    test_deque_1.push_back(5);
+    test_deque_1.push_back(6);
+    std::deque<int> expected_result_5;
+    expected_result_5.push_back(2);
+    expected_result_5.push_back(3);
+    expected_result_5.push_back(4);
+    expected_result_5.push_back(5);
+    expected_result_5.push_back(6);
+    M_Assert(
+        TinyDIP::recursive_remove_copy_if<1>(test_deque_1, [](auto&& x) { return (x == 1); }) ==
+        expected_result_5,
+        "std::deque<int> test case failed"
+    );
+
 }
 
 int main()
