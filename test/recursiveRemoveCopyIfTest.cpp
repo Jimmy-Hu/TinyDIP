@@ -38,12 +38,23 @@ void recursive_remove_copy_if_tests()
         TinyDIP::recursive_remove_copy_if<1>(test_vector_1, [](auto&& x) { return (x % 2) == 0; }) ==
         expected_result_1,
         "std::vector<int> test case failed");
+    
+    //  std::vector<std::vector<int>> test case
+    std::vector<decltype(test_vector_1)> test_vector_2 = {
+        test_vector_1, test_vector_1, test_vector_1
+    };
+    std::vector<std::vector<int>> expected_result_2 = {
+        expected_result_1, expected_result_1, expected_result_1
+    };
+    M_Assert(
+        TinyDIP::recursive_remove_copy_if<2>(test_vector_2, [](auto&& x) { return (x % 2) == 0; }) ==
+        expected_result_2,
+        "std::vector<std::vector<int>> test case failed");
 }
 
 int main()
 {
     auto start = std::chrono::system_clock::now();
-    std::vector<std::thread> threads;
     recursive_remove_copy_if_tests();
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
