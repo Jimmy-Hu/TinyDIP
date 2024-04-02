@@ -101,6 +101,7 @@ add_executable(recursiveFoldRightAllTest test/recursiveFoldRightAllTest.cpp imag
 add_executable(recursiveForeachTest test/recursiveForeachTest.cpp image_io.cpp)
 add_executable(recursiveNoneOfTest test/recursiveNoneOfTest.cpp image_io.cpp)
 add_executable(recursiveReduceTest test/recursiveReduceTest.cpp image_io.cpp)
+add_executable(recursiveRemoveCopyIfTest test/recursiveRemoveCopyIfTest.cpp image_io.cpp)
 add_executable(recursiveSizeTest test/recursiveSizeTest.cpp image_io.cpp)
 add_executable(recursiveTransformTest test/recursiveTransformTest.cpp image_io.cpp)
 add_executable(recursiveTransformReduceTest test/recursiveTransformReduceTest.cpp image_io.cpp)
