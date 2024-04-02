@@ -27,5 +27,15 @@ void __M_Assert(const char* expr_str, bool expr, const char* file, int line, con
 
 void recursive_remove_copy_if_tests()
 {
-    
+    //  std::vector<int> test case
+    std::vector<int> test_vector_1 = {
+        1, 2, 3, 4, 5, 6
+    };
+    std::vector<int> expected_result_1 = {
+        1, 3, 5
+    };
+    M_Assert(
+        TinyDIP::recursive_remove_copy_if<1>(test_vector_1, [](auto&& x) { return (x % 2) == 0; }) ==
+        expected_result_1,
+        "std::vector<int> test case failed");
 }
