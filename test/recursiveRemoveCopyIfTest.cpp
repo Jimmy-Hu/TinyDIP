@@ -119,6 +119,17 @@ void recursive_remove_copy_if_tests()
         "std::list<int> test case failed"
     );
 
+    //  std::list<std::list<int>> test case
+    std::list<std::list<int>> test_list_2 = { test_list_1, test_list_1, test_list_1, test_list_1 };
+    std::list<std::list<int>> expected_result_8 = {
+        expected_result_7, expected_result_7, expected_result_7, expected_result_7
+    };
+    M_Assert(
+            TinyDIP::recursive_remove_copy_if<2>(test_list_2, [](int x) { return (x % 2) == 0; }) ==
+            expected_result_8,
+            "std::list<std::list<int>> test case failed"
+        );
+
 }
 
 int main()
