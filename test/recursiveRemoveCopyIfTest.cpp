@@ -50,6 +50,18 @@ void recursive_remove_copy_if_tests()
         TinyDIP::recursive_remove_copy_if<2>(test_vector_2, [](auto&& x) { return (x % 2) == 0; }) ==
         expected_result_2,
         "std::vector<std::vector<int>> test case failed");
+
+    //  std::vector<std::string> test case
+    std::vector<std::string> test_vector_3 = {
+        "1", "2", "3", "4", "5", "6"
+    };
+    std::vector<std::string> expected_result_3 = {
+        "2", "3", "4", "5", "6"
+    };
+    M_Assert(
+        TinyDIP::recursive_remove_copy_if<1>(test_vector_3, [](auto&& x) { return (x == "1"); }) ==
+        expected_result_3,
+        "std::vector<std::string> test case failed");
 }
 
 int main()
