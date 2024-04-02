@@ -39,3 +39,15 @@ void recursive_remove_copy_if_tests()
         expected_result_1,
         "std::vector<int> test case failed");
 }
+
+int main()
+{
+    auto start = std::chrono::system_clock::now();
+    std::vector<std::thread> threads;
+    recursive_remove_copy_if_tests();
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+    std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
+    return EXIT_SUCCESS;
+}
