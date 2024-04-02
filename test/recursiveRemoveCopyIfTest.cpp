@@ -110,6 +110,15 @@ void recursive_remove_copy_if_tests()
         "std::deque<std::deque<int>> test case failed"
     );
 
+    //  std::list<int> test case
+    std::list<int> test_list_1 = { 1, 2, 3, 4, 5, 6 };
+    std::list<int> expected_result_7 = {1, 3, 5};
+    M_Assert(
+        TinyDIP::recursive_remove_copy_if<1>(test_list_1, [](int x) { return (x % 2) == 0; }) ==
+        expected_result_7,
+        "std::list<int> test case failed"
+    );
+
 }
 
 int main()
