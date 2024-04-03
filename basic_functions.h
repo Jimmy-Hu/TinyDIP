@@ -869,7 +869,8 @@ namespace TinyDIP
     template <std::size_t unwrap_level, std::ranges::input_range Range, class UnaryPredicate>
     requires(recursive_invocable<unwrap_level, UnaryPredicate, Range> &&
              is_inserterable<Range> &&
-             unwrap_level > 0)
+             unwrap_level > 0 &&
+             unwrap_level <= recursive_depth<Range>())
     constexpr auto recursive_remove_copy_if(const Range& input, const UnaryPredicate& unary_predicate)
     {
         if constexpr(unwrap_level > 1)
