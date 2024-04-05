@@ -244,6 +244,7 @@ int main()
 {
     auto start = std::chrono::system_clock::now();
     recursive_remove_copy_if_tests();
+    recursive_remove_copy_if_execution_policy_tests();
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
