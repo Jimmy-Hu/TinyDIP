@@ -917,6 +917,39 @@ namespace TinyDIP
         }
     }
 
+    //  recursive_remove_copy_if function implementation with unwrap level, execution policy
+    template<std::size_t unwrap_level, class ExPo, std::ranges::input_range Range, class UnaryPredicate>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>> &&
+             recursive_invocable<unwrap_level, UnaryPredicate, Range> &&
+             is_inserterable<Range> &&
+             unwrap_level > 0 &&
+             unwrap_level <= recursive_depth<Range>())
+    constexpr auto recursive_remove_copy_if(ExPo execution_policy, const Range& input, const UnaryPredicate& unary_predicate)
+    {
+        if constexpr(unwrap_level > 1)
+        {
+            Range output{};
+        
+            std::ranges::transform(
+                std::ranges::cbegin(input),
+                std::ranges::cend(input),
+                std::inserter(output, std::ranges::end(output)),
+                [&](auto&& element) {
+                    return recursive_remove_copy_if<unwrap_level - 1>(execution_policy, element, unary_predicate); 
+                    }
+                );
+            return output;
+        }
+        else
+        {
+            Range output{};
+            std::remove_copy_if(execution_policy, std::ranges::cbegin(input), std::ranges::cend(input),
+                std::inserter(output, std::ranges::end(output)),
+                unary_predicate);
+            return output;
+        }
+    }
+
     template<typename OutputIt, std::copy_constructible NAryOperation, typename InputIt, typename... InputIts>
     OutputIt transform(OutputIt d_first, NAryOperation op, InputIt first, InputIt last, InputIts... rest) {
         while (first != last) {
