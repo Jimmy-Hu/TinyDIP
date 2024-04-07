@@ -130,6 +130,15 @@ void recursive_remove_copy_if_tests()
             "std::list<std::list<int>> test case failed"
         );
 
+    //  std::string test case
+    std::string test_string_1 = "123";
+    std::string expected_result_9 = "23";
+    M_Assert(
+            TinyDIP::recursive_remove_copy_if<1>(test_string_1, [](auto&& x) { return x == '1'; }) ==
+            expected_result_9,
+            "std::string test case failed"
+        );
+
 }
 
 //  recursive_remove_copy_if_execution_policy_tests function implementation
