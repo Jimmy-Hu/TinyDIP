@@ -960,6 +960,17 @@ namespace TinyDIP
         return recursive_remove_copy_if<unwrap_level>(input, [&](auto&& element) { return element == value; });
     }
 
+    //  recursive_remove_copy function implementation with unwrap level, execution policy
+    template <std::size_t unwrap_level, class ExPo, std::ranges::input_range Range, class T>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>> &&
+             is_inserterable<Range> &&
+             unwrap_level > 0 &&
+             unwrap_level <= recursive_depth<Range>())
+    constexpr auto recursive_remove_copy(ExPo execution_policy, const Range& input, const T& value)
+    {
+        return recursive_remove_copy_if<unwrap_level>(execution_policy, input, [&](auto&& element) { return element == value; });
+    }
+
     template<typename OutputIt, std::copy_constructible NAryOperation, typename InputIt, typename... InputIts>
     OutputIt transform(OutputIt d_first, NAryOperation op, InputIt first, InputIt last, InputIts... rest) {
         while (first != last) {
