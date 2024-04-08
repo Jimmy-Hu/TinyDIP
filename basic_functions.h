@@ -1002,7 +1002,8 @@ namespace TinyDIP
         }
         else
         {
-            static_assert(!std::regular_invocable<F, Arg1, Args...>, "Uninvocable?");
+            static_assert(!std::regular_invocable<F, Arg1, Args...>, "The function passed to recursive_transform() cannot be invoked"
+                                                                     "with the element types at the given recursion level.");
         }
     }
 
