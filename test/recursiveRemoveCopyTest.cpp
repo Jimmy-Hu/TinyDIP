@@ -25,6 +25,24 @@ void __M_Assert(const char* expr_str, bool expr, const char* file, int line, con
     }
 }
 
+//  recursive_remove_copy_execution_policy_tests function implementation
+void recursive_remove_copy_execution_policy_tests()
+{
+    //  std::vector<int> test case
+    std::vector<int> test_vector_1 = {
+        1, 2, 3, 4, 5, 6
+    };
+    std::vector<int> expected_result_1 = {
+        2, 3, 4, 5, 6
+    };
+    M_Assert(
+        TinyDIP::recursive_remove_copy<1>(std::execution::par, test_vector_1, 1) ==
+        expected_result_1,
+        "std::vector<int> test case failed");
+
+    std::cout << "All tests passed!\n";
+}
+
 int main()
 {
     auto start = std::chrono::system_clock::now();
