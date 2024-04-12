@@ -40,6 +40,11 @@ void recursive_remove_copy_execution_policy_tests()
         expected_result_1,
         "std::vector<int> test case failed");
 
+    //  std::vector<std::vector<int>> test case
+    std::vector<decltype(test_vector_1)> test_vector_2 = {
+        test_vector_1, test_vector_1, test_vector_1
+    };
+    
     std::cout << "All tests passed!\n";
 }
 
