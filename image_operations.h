@@ -1340,8 +1340,7 @@ namespace TinyDIP
     template<arithmetic ElementT, std::floating_point FloatingType = double>
     constexpr static auto rotate(const Image<ElementT>& input, FloatingType radians)
     {
-        auto output = input;
-        while(radians >= 2 * std::numbers::pi_v<long double>)
+        if (input.getDimensionality()!=2)
         {
             radians = radians - 2 * std::numbers::pi_v<long double>;
         }
