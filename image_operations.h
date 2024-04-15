@@ -1342,7 +1342,7 @@ namespace TinyDIP
     {
         if (input.getDimensionality()!=2)
         {
-            radians = radians - 2 * std::numbers::pi_v<long double>;
+            throw std::runtime_error("Unsupported dimension!");
         }
         while(radians > std::numbers::pi_v<long double> / 2.0)
         {
