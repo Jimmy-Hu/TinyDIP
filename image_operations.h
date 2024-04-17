@@ -1345,6 +1345,7 @@ namespace TinyDIP
             throw std::runtime_error("Unsupported dimension!");
         }
         auto output = input;
+        radians = std::fmod(radians, std::numbers::pi_v<long double> / 2.0);
         while(radians > std::numbers::pi_v<long double> / 2.0)
         {
             output = rotate_detail(output, std::numbers::pi_v<long double> / 2.0);
