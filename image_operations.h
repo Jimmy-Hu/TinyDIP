@@ -1371,6 +1371,10 @@ namespace TinyDIP
     template<arithmetic ElementT, std::integral T = int>
     constexpr static auto rotate(const Image<ElementT>& input, T radians)
     {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
         return rotate(input, static_cast<double>(radians));
     }
 
