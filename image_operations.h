@@ -1382,6 +1382,10 @@ namespace TinyDIP
     template<typename ElementT, class T = double>
     constexpr static auto rotate_degree(const Image<ElementT>& input, T degrees)
     {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
         return rotate(input, static_cast<double>(degrees) * std::numbers::pi_v<long double> / 180.0);
     }
 
