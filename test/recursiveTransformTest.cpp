@@ -44,7 +44,9 @@ void recursiveTransformTest(InputT initialValue)
 		}
 		auto expected = TinyDIP::recursive_transform<3>([](auto&& element) {return element + 1; }, test_vector);
 		auto actual = TinyDIP::recursive_transform<3>(std::execution::par, [](auto&& element) {return element + 1; }, test_vector);
-		std::cout << "N = " << N << ": " << std::to_string(actual == expected) << '\n';
+		M_Assert(
+			expected == actual,
+			"recursive_transform test failed");
 	}
 	
 	//print3(TinyDIP::recursive_transform<1>([](std::vector<std::vector<int>> element) { return TinyDIP::Image<int>(element); }, test_vector));
