@@ -44,6 +44,9 @@ void recursive_remove_copy_execution_policy_tests()
     std::vector<decltype(test_vector_1)> test_vector_2 = {
         test_vector_1, test_vector_1, test_vector_1
     };
+    std::vector<std::vector<int>> expected_result_2 = {
+        expected_result_1, expected_result_1, expected_result_1
+    };
     
     std::cout << "All tests passed!\n";
 }
