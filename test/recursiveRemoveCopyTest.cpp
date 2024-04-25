@@ -47,6 +47,12 @@ void recursive_remove_copy_execution_policy_tests()
     std::vector<std::vector<int>> expected_result_2 = {
         expected_result_1, expected_result_1, expected_result_1
     };
+    M_Assert(
+        recursive_remove_copy<2>(std::execution::par, test_vector_2, 1) ==
+        expected_result_2,
+        "std::vector<std::vector<int>> test case failed");
+    
+    //  std::vector<std::string> test case
     
     std::cout << "All tests passed!\n";
 }
