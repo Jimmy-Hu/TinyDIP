@@ -662,13 +662,13 @@ namespace TinyDIP
     template<class T, class Proj = std::identity,
              std::indirect_strict_weak_order<
                     std::projected<const T*, Proj>> Comp = std::ranges::less>
-    requires(!(std::ranges::input_range<T>))          //  non-range overloading
+    requires(!(std::ranges::forward_range<T>))          //  non-range overloading
     constexpr auto recursive_minmax(const T& input, Comp comp = {}, Proj proj = {})
     {
         return input;
     }
 
-    template<std::ranges::input_range T, class Proj = std::identity,
+    template<std::ranges::forward_range T, class Proj = std::identity,
             std::indirect_strict_weak_order<
                     std::projected<const T*, Proj>> Comp = std::ranges::less>
     constexpr auto recursive_minmax(const T& numbers, Comp comp = {}, Proj proj = {})
