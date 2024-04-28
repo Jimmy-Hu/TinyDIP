@@ -53,6 +53,9 @@ void recursive_remove_copy_execution_policy_tests()
         "std::vector<std::vector<int>> test case failed");
     
     //  std::vector<std::string> test case
+    std::vector<std::string> test_vector_3 = {
+        "1", "2", "3", "4", "5", "6"
+    };
     
     std::cout << "All tests passed!\n";
 }
