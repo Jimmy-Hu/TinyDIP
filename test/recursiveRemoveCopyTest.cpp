@@ -71,6 +71,9 @@ void recursive_remove_copy_execution_policy_tests()
     std::vector<std::vector<std::string>> expected_result_4 = {
         expected_result_3, expected_result_3, expected_result_3
     };
+    //  std::deque<int> test case
+    std::deque<int> test_deque_1;
+    test_deque_1.push_back(1);
     
     std::cout << "All tests passed!\n";
 }
