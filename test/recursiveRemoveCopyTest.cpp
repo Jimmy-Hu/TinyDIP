@@ -71,6 +71,11 @@ void recursive_remove_copy_execution_policy_tests()
     std::vector<std::vector<std::string>> expected_result_4 = {
         expected_result_3, expected_result_3, expected_result_3
     };
+    M_Assert(
+        TinyDIP::recursive_remove_copy<2>(std::execution::par, test_vector_4, "1") ==
+        expected_result_4,
+        "std::vector<std::vector<std::string>> test case failed");
+
     //  std::deque<int> test case
     std::deque<int> test_deque_1;
     test_deque_1.push_back(1);
