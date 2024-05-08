@@ -82,6 +82,7 @@ void recursive_remove_copy_execution_policy_tests()
     test_deque_1.push_back(2);
     test_deque_1.push_back(3);
     test_deque_1.push_back(4);
+    test_deque_1.push_back(5);
     
     std::cout << "All tests passed!\n";
 }
