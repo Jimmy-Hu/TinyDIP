@@ -88,6 +88,7 @@ void recursive_remove_copy_execution_policy_tests()
     expected_result_5.push_back(2);
     expected_result_5.push_back(3);
     expected_result_5.push_back(4);
+    expected_result_5.push_back(5);
     
     std::cout << "All tests passed!\n";
 }
