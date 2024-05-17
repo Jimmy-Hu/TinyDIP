@@ -90,6 +90,11 @@ void recursive_remove_copy_execution_policy_tests()
     expected_result_5.push_back(4);
     expected_result_5.push_back(5);
     expected_result_5.push_back(6);
+    M_Assert(
+        TinyDIP::recursive_remove_copy<1>(std::execution::par, test_deque_1, 1) ==
+        expected_result_5,
+        "std::deque<int> test case failed"
+    );
     
     std::cout << "All tests passed!\n";
 }
