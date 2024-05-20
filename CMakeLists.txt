@@ -68,6 +68,7 @@ add_executable(bicubicInterpolationTest test/bicubicInterpolationTest.cpp image_
 add_executable(concatHorizontalTest test/concatHorizontalTest.cpp image_io.cpp)
 add_executable(concatVerticalTest test/concatVerticalTest.cpp image_io.cpp)
 add_executable(concatTest test/concatTest.cpp image_io.cpp)
+add_executable(conv2Test test/conv2Test.cpp image_io.cpp)
 add_executable(dct2Test test/dct2Test.cpp image_io.cpp)
 add_executable(dct2Test2 test/dct2Test2.cpp image_io.cpp)
 add_executable(dct2Test3 test/dct2Test3.cpp image_io.cpp)
