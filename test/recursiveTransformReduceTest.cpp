@@ -16,7 +16,7 @@
 #   define M_Assert(Expr, Msg) ;
 #endif
 
-void M_Assert_Helper(const char* expr_str, bool expr, const char* file, int line, std::string& msg)
+void M_Assert_Helper(const char* expr_str, bool expr, const char* file, int line, const std::string& msg)
 {
     if (!expr)
     {
