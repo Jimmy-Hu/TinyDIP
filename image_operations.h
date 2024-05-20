@@ -116,6 +116,29 @@ namespace TinyDIP
         check_height_same(x, y);
     }
 
+    //  conv2 function implementation
+    template<typename ElementT>
+    requires(std::floating_point<ElementT> || std::integral<ElementT>)
+    constexpr auto conv2(const Image<ElementT>& x, const Image<ElementT>& y)
+    {
+        auto output = Image<ElementT>(x.getWidth() + y.getWidth() - 1, x.getHeight() + y.getHeight() - 1);
+        for (std::size_t x1 = 0; x1 < x.getWidth(); ++x1)
+        {
+            for (std::size_t y1 = 0; y1 < x.getHeight(); ++y1)
+            {
+                for (std::size_t x2 = 0; x2 < y.getWidth(); ++x2)
+                {
+                    for (std::size_t y2 = 0; y2 < y.getHeight(); ++y2)
+                    {
+                        output.at(x1 + x2, y1 + y2) = output.at(x1 + x2, y1 + y2) + x.at(x1, y1) * y.at(x2, y2);
+                    }
+                }
+            }
+        }
+        return output;
+    }
+
+
     static auto rgb2hsv(RGB input)
     {
         HSV output{};
