@@ -19,7 +19,12 @@ int main()
     }
     TinyDIP::conv2(image1, image1).print();
     
-    
+    auto image2 = TinyDIP::bmp_read("InputImages/1", false);
+    std::vector<double> mask_data = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+    auto mask = TinyDIP::Image<double>(mask_data, 3, 3);
+    image2 = conv2(image2, mask);
+    TinyDIP::bmp_write("OutputImages/1", image2);
+
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
