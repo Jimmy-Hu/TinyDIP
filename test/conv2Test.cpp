@@ -4,6 +4,7 @@
 #include "../base_types.h"
 #include "../basic_functions.h"
 #include "../image.h"
+#include "../image_io.h"
 #include "../image_operations.h"
 
 int main()
@@ -20,8 +21,8 @@ int main()
     TinyDIP::conv2(image1, image1).print();
     
     auto image2 = TinyDIP::bmp_read("InputImages/1", false);
-    std::vector<double> mask_data = {1, 1, 1, 1, 1, 1, 1, 1, 1};
-    auto mask = TinyDIP::Image<double>(mask_data, 3, 3);
+    std::vector<unsigned char> mask_data = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+    auto mask = TinyDIP::Image<unsigned char>(mask_data, std::size_t{3}, std::size_t{3});
     image2 = conv2(image2, mask);
     TinyDIP::bmp_write("OutputImages/1", image2);
 
