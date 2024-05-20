@@ -138,6 +138,15 @@ namespace TinyDIP
         return output;
     }
 
+    //  conv2 template function implementation
+    template<typename ElementT, typename ElementT2>
+    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, HSV>) &&
+              (std::floating_point<ElementT2> || std::integral<ElementT2>))
+    constexpr static auto conv2(const Image<ElementT>& input1, const Image<ElementT2>& input2)
+    {
+        return apply_each(input1, [&](auto&& planes) { return conv2(planes, input2); });
+    }
+
 
     static auto rgb2hsv(RGB input)
     {
