@@ -352,7 +352,7 @@ void addLeadingZeros(std::string input_path, std::string output_path)
         std::cout << filename << "\n";
         auto bmpimage = TinyDIP::bmp_read(filename.c_str(), true);
         char buff[100];
-        snprintf(buff, sizeof(buff), "%s%05d", output_path.c_str(), i);
+        snprintf(buff, sizeof(buff), "%s%05ld", output_path.c_str(), i);
         TinyDIP::bmp_write(buff, bmpimage);
     }
 }
