@@ -147,6 +147,36 @@ namespace TinyDIP
         return apply_each(input1, [&](auto&& planes) { return conv2(planes, input2); });
     }
 
+    //  two dimensional discrete fourier transform template function implementation
+    template<typename ElementT, typename ComplexType = std::complex<long double>>
+    requires(std::floating_point<ElementT> || std::integral<ElementT>)
+    constexpr auto dft2(const Image<ElementT>& input)
+    {
+        auto output = Image<ComplexType>(input.getWidth(), input.getHeight());
+        auto normalization_factor = std::sqrt(1.0 / static_cast<long double>(input.getWidth() * input.getHeight()));
+        for (std::size_t y = 0; y < input.getHeight(); ++y)
+        {
+            for (std::size_t x = 0; x < input.getWidth(); ++x)
+            {
+                long double sum_real = 0.0;
+                long double sum_imag = 0.0; 
+                for (std::size_t n = 0; n < input.getHeight(); ++n)
+                {
+                    for (std::size_t m = 0; m < input.getWidth(); ++m)
+                    {
+                        sum_real += input.at(m, n) * 
+                            std::cos(2 * std::numbers::pi_v<long double> * (x * m / static_cast<long double>(input.getWidth()) + y * n / static_cast<long double>(input.getHeight())));
+                        sum_imag += -input.at(m, n) * 
+                            std::sin(2 * std::numbers::pi_v<long double> * (x * m / static_cast<long double>(input.getWidth()) + y * n / static_cast<long double>(input.getHeight())));
+                    }
+                }
+                output.at(x, y).real(normalization_factor * sum_real);
+                output.at(x, y).imag(normalization_factor * sum_imag);
+            }
+        }
+        return output;
+    }
+
 
     static auto rgb2hsv(RGB input)
     {
