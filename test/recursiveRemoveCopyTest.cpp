@@ -104,6 +104,7 @@ void recursive_remove_copy_execution_policy_tests()
     std::deque<decltype(expected_result_5)> expected_result_6;
     expected_result_6.push_back(expected_result_5);
     expected_result_6.push_back(expected_result_5);
+    expected_result_6.push_back(expected_result_5);
     
     std::cout << "All tests passed!\n";
 }
