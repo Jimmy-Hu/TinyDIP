@@ -129,6 +129,29 @@ namespace TinyDIP
             return image_data[position];
         }
 
+        //  at_without_boundary_check template function implementation
+        template<typename... Args>
+        constexpr ElementT& at_without_boundary_check(const Args... indexInput)
+        {
+            return const_cast<ElementT&>(static_cast<const Image &>(*this).at_without_boundary_check(indexInput...));
+        }
+
+        template<typename... Args>
+        constexpr ElementT const& at_without_boundary_check(const Args... indexInput) const
+        {
+            std::size_t i = 0;
+            std::size_t stride = 1;
+            std::size_t position = 0;
+
+            auto update_position = [&](auto index) {
+                position += index * stride;
+                stride *= size[i++];
+            };
+            (update_position(indexInput), ...);
+
+            return image_data[position];
+        }
+
         constexpr std::size_t count() const noexcept
         {
             return std::reduce(std::ranges::cbegin(size), std::ranges::cend(size), 1, std::multiplies());
