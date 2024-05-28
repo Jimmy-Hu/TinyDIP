@@ -177,6 +177,33 @@ namespace TinyDIP
         return output;
     }
 
+    //  two dimensional inverse discrete fourier transform template function implementation
+    template<typename ElementT, typename ComplexType = std::complex<long double>>
+    constexpr auto idft2(const Image<ElementT>& input)
+    {
+        auto output = Image<ComplexType>(input.getWidth(), input.getHeight());
+        auto normalization_factor = std::sqrt(1.0 / static_cast<long double>(input.getWidth() * input.getHeight()));
+        for (std::size_t y = 0; y < input.getHeight(); ++y)
+        {
+            for (std::size_t x = 0; x < input.getWidth(); ++x)
+            {
+                std::complex<long double> sum = 0.0;
+                std::complex<long double> i (0.0,1.0);
+                for (std::size_t n = 0; n < input.getHeight(); ++n)
+                {
+                    for (std::size_t m = 0; m < input.getWidth(); ++m)
+                    {
+                        sum += input.at(m, n) * 
+                            (std::cos(2 * std::numbers::pi_v<long double> * (x * m / static_cast<long double>(input.getWidth()) + y * n / static_cast<long double>(input.getHeight()))) +
+                            i * std::sin(2 * std::numbers::pi_v<long double> * (x * m / static_cast<long double>(input.getWidth()) + y * n / static_cast<long double>(input.getHeight()))));
+                    }
+                }
+                output.at(x, y) = normalization_factor * sum;
+            }
+        }
+        return output;
+    }
+
 
     static auto rgb2hsv(RGB input)
     {
