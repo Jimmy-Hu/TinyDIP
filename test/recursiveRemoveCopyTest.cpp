@@ -110,6 +110,8 @@ void recursive_remove_copy_execution_policy_tests()
         expected_result_6,
         "std::deque<std::deque<int>> test case failed"
     );
+
+    //  std::list<int> test case
     
     std::cout << "All tests passed!\n";
 }
