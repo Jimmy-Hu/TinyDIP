@@ -114,6 +114,12 @@ void recursive_remove_copy_execution_policy_tests()
     //  std::list<int> test case
     std::list<int> test_list_1 = { 1, 2, 3, 4, 5, 6 };
     std::list<int> expected_result_7 = {2, 3, 4, 5, 6};
+    M_Assert(
+        TinyDIP::recursive_remove_copy<1>(std::execution::par, test_list_1, 1) ==
+        expected_result_7,
+        "std::list<int> test case failed"
+    );
+
     
     std::cout << "All tests passed!\n";
 }
