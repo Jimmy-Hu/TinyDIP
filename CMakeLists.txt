@@ -151,6 +151,10 @@ if  (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_link_libraries(TinyDIP Boost::boost ${BOOST_LIBRARIES})
 endif()
 
+# Add opencv library
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+target_link_libraries( TinyDIP ${OpenCV_LIBS} )
 
 # Reference: https://stackoverflow.com/a/31390758/6667035
 macro(print_all_variables)
