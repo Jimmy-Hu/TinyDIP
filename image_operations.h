@@ -11,7 +11,7 @@
 #include "base_types.h"
 #include "basic_functions.h"
 #include "image.h"
-#include <mat.hpp>
+#include <opencv2/opencv.hpp>
 
 namespace TinyDIP
 {
