@@ -122,6 +122,9 @@ void recursive_remove_copy_execution_policy_tests()
 
     //  std::list<std::list<int>> test case
     std::list<std::list<int>> test_list_2 = { test_list_1, test_list_1, test_list_1, test_list_1 };
+    std::list<std::list<int>> expected_result_8 = {
+        expected_result_7, expected_result_7, expected_result_7, expected_result_7
+    };
     
     std::cout << "All tests passed!\n";
 }
