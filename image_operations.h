@@ -222,6 +222,23 @@ namespace TinyDIP
         return output;
     }
 
+    //  to_color_image function implementation
+    constexpr auto to_color_image(const cv::Mat input)
+    {
+        auto output = Image<RGB>(output.cols, output.rows);
+        #pragma omp parallel for collapse(2)
+        for (int y = 0; y < output.rows; ++y)
+        {
+            for (int x = 0; x < output.cols; ++x)
+            {
+                input.at(x, y).channels[0] = output.at<cv::Vec3b>(output.rows - y - 1, x)[2];
+                input.at(x, y).channels[1] = output.at<cv::Vec3b>(output.rows - y - 1, x)[1];
+                input.at(x, y).channels[2] = output.at<cv::Vec3b>(output.rows - y - 1, x)[0];
+            }
+        }
+        return output;
+    }
+
     static auto rgb2hsv(RGB input)
     {
         HSV output{};
