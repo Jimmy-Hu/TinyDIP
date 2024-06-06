@@ -225,11 +225,11 @@ namespace TinyDIP
     //  to_color_image function implementation
     constexpr auto to_color_image(const cv::Mat input)
     {
-        auto output = Image<RGB>(output.cols, output.rows);
+        auto output = Image<RGB>(input.cols, input.rows);
         #pragma omp parallel for collapse(2)
-        for (int y = 0; y < output.rows; ++y)
+        for (int y = 0; y < input.rows; ++y)
         {
-            for (int x = 0; x < output.cols; ++x)
+            for (int x = 0; x < input.cols; ++x)
             {
                 output.at(x, y).channels[0] = input.at<cv::Vec3b>(output.rows - y - 1, x)[2];
                 output.at(x, y).channels[1] = input.at<cv::Vec3b>(output.rows - y - 1, x)[1];
