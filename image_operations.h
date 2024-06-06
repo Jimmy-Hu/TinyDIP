@@ -231,9 +231,9 @@ namespace TinyDIP
         {
             for (int x = 0; x < input.cols; ++x)
             {
-                output.at(x, y).channels[0] = input.at<cv::Vec3b>(output.rows - y - 1, x)[2];
-                output.at(x, y).channels[1] = input.at<cv::Vec3b>(output.rows - y - 1, x)[1];
-                output.at(x, y).channels[2] = input.at<cv::Vec3b>(output.rows - y - 1, x)[0];
+                output.at(x, y).channels[0] = input.at<cv::Vec3b>(input.rows - y - 1, x)[2];
+                output.at(x, y).channels[1] = input.at<cv::Vec3b>(input.rows - y - 1, x)[1];
+                output.at(x, y).channels[2] = input.at<cv::Vec3b>(input.rows - y - 1, x)[0];
             }
         }
         return output;
