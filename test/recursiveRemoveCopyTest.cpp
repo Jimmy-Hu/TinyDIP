@@ -1,6 +1,7 @@
 /* Developed by Jimmy Hu */
 
 #include <cassert>
+#include <ranges>
 #include "../base_types.h"
 #include "../basic_functions.h"
 #include "../image.h"
