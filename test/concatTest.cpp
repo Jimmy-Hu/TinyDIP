@@ -7,6 +7,7 @@ void concatTest();
 
 int main()
 {
+    auto start = std::chrono::system_clock::now();
     concatTest();
     return 0;
 }
