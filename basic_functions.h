@@ -93,6 +93,13 @@ namespace TinyDIP
         std::pow(x1, x2);
     };
 
+    //  Reference: https://stackoverflow.com/a/64287611/6667035
+    template <typename T>
+    struct is_complex : std::false_type {};
+
+    template <typename T>
+    struct is_complex<std::complex<T>> : std::true_type {};
+
     //  recursive_unwrap_type_t struct implementation
     template<std::size_t, typename, typename...>
     struct recursive_unwrap_type { };
