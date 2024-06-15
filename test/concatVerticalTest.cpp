@@ -13,7 +13,7 @@ int main()
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
     std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 void concatVerticalTest()
