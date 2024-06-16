@@ -7,6 +7,7 @@ void dct2Test();
 
 int main()
 {
+	auto start = std::chrono::system_clock::now();
 	dct2Test();
 	return 0;
 }
