@@ -7,9 +7,13 @@ void dct2Test();
 
 int main()
 {
-	auto start = std::chrono::system_clock::now();
-	dct2Test();
-	return 0;
+    auto start = std::chrono::system_clock::now();
+    dct2Test();
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+    std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
+    return EXIT_SUCCESS;
 }
 
 void dct2Test()
