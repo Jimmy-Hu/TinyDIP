@@ -29,7 +29,7 @@ void dct2Test()
         }
     }
 
-	test_input.print();
+    test_input.print();
 
 	TinyDIP::dct2(test_input).print();
 }
