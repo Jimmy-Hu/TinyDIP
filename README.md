@@ -64,7 +64,7 @@ TinyDIP library could be built with [CMake](https://cmake.org/) as the following
 
 ### Code Review
 
-- Two dimensional gaussian image generator in C++, Jun 25, 2021 @ GMT+8
+- Two dimensional gaussian image generator in C++, Jun. 25, 2021 @ GMT+8
   
   https://codereview.stackexchange.com/q/263422/231235
 
