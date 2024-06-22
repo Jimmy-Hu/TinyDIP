@@ -10,22 +10,22 @@
 void each_image( std::string input_path, std::string output_path,
                  std::size_t N1 = 8, std::size_t N2 = 8)
 {
-	auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
-	auto image_255 = TinyDIP::Image<double>(input_img.getWidth(), input_img.getHeight());
-	image_255.setAllValue(255);
-	auto dct2_results = TinyDIP::recursive_transform<2>(
-		std::execution::par,
-		[](auto&& element) { return TinyDIP::dct2(element); },
-		TinyDIP::split(
-			TinyDIP::divides(
-				TinyDIP::getVplane(
-					TinyDIP::rgb2hsv(input_img)),
-					image_255),
-			input_img.getWidth() / N1,
-			input_img.getHeight() / N2)
-		);
-	auto dct2_combined = TinyDIP::concat(dct2_results);
-	TinyDIP::double_image::write(output_path.c_str(), dct2_combined);
+    auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
+    auto image_255 = TinyDIP::Image<double>(input_img.getWidth(), input_img.getHeight());
+    image_255.setAllValue(255);
+    auto dct2_results = TinyDIP::recursive_transform<2>(
+        std::execution::par,
+        [](auto&& element) { return TinyDIP::dct2(element); },
+        TinyDIP::split(
+            TinyDIP::divides(
+                TinyDIP::getVplane(
+                    TinyDIP::rgb2hsv(input_img)),
+                    image_255),
+            input_img.getWidth() / N1,
+            input_img.getHeight() / N2)
+        );
+    auto dct2_combined = TinyDIP::concat(dct2_results);
+    TinyDIP::double_image::write(output_path.c_str(), dct2_combined);
 }
 
 void dct2Test2( std::string arg1, std::string arg2,
