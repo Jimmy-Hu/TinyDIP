@@ -32,20 +32,20 @@ void dct2Test2( std::string arg1, std::string arg2,
                 std::string arg3,
                 std::size_t N1 = 8, std::size_t N2 = 8)
 {
-	std::cout << "dct2Test2 program..." << '\n';
-	std::cout << arg1 << '\n';
-	std::cout << arg2 << '\n';
-	std::size_t start_index = 50, end_index = 100;
-	for (std::size_t i = start_index; i <= end_index; i++)
-	{
-		std::string fullpath = arg1 + "/" + std::to_string(i);
-		std::cout << fullpath << '\n';
-		auto output_path = arg3 + "/" + std::to_string(i);
-		each_image(fullpath, output_path, N1, N2);
-	}
-	auto output_path = arg3 + "/GT";
-	each_image(arg2, output_path, N1, N2);
-	return;
+    std::cout << "dct2Test2 program..." << '\n';
+    std::cout << arg1 << '\n';
+    std::cout << arg2 << '\n';
+    std::size_t start_index = 50, end_index = 100;
+    for (std::size_t i = start_index; i <= end_index; i++)
+    {
+        std::string fullpath = arg1 + "/" + std::to_string(i);
+        std::cout << fullpath << '\n';
+        auto output_path = arg3 + "/" + std::to_string(i);
+        each_image(fullpath, output_path, N1, N2);
+    }
+    auto output_path = arg3 + "/GT";
+    each_image(arg2, output_path, N1, N2);
+    return;
 }
 
 int main(int argc, char* argv[])
