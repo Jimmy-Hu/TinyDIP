@@ -50,10 +50,15 @@ void dct2Test2( std::string arg1, std::string arg2,
 
 int main(int argc, char* argv[])
 {
-	auto arg1 = std::string(argv[1]);
-	auto arg2 = std::string(argv[2]);
-	auto arg3 = std::string(argv[3]);
-	dct2Test2(arg1, arg2, arg3);
-	return 0;
+    auto start = std::chrono::system_clock::now();
+    auto arg1 = std::string(argv[1]);
+    auto arg2 = std::string(argv[2]);
+    auto arg3 = std::string(argv[3]);
+    dct2Test2(arg1, arg2, arg3);
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+    std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
+    return EXIT_SUCCESS;
 }
 
