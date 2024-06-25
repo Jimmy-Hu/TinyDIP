@@ -6,11 +6,11 @@
 template<typename ElementT>
 void print3(std::vector<TinyDIP::Image<ElementT>> input)
 {
-	for (std::size_t i = 0; i < input.size(); i++)
-	{
-		input[i].print();
-		std::cout << "*******************\n";
-	}
+    for (std::size_t i = 0; i < input.size(); i++)
+    {
+        input[i].print();
+        std::cout << "*******************\n";
+    }
 }
 
 template<typename T>
