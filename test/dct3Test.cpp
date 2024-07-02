@@ -32,8 +32,8 @@ void dct3Test(const std::size_t N1 = 10, const std::size_t N2 = 10, const std::s
     }
     print3(test_input);
 
-	auto test_output = TinyDIP::dct3(test_input);
-	print3(test_output);
+    auto test_output = TinyDIP::dct3(test_input);
+    print3(test_output);
 }
 
 int main()
