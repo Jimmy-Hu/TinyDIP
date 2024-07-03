@@ -23,7 +23,7 @@ int main()
                                      0.11111111111111111111111111111111};
     auto mask = TinyDIP::Image<double>(mask_data, std::size_t{3}, std::size_t{3});
     auto output_image = conv2(image1.cast<double>(), mask).cast<unsigned char>();
-    TinyDIP::bmp_write("OutputImages/1", image2);
+    TinyDIP::bmp_write("OutputImages/1", output_image);
 
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
