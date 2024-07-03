@@ -204,7 +204,8 @@ namespace TinyDIP
             return size[1];
         }
 
-        constexpr auto getSize() noexcept
+        //  getSize function implementation
+        constexpr auto getSize() const noexcept
         {
             return size;
         }
