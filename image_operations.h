@@ -361,7 +361,7 @@ namespace TinyDIP
                         image_data_v[index]};
             new_data.emplace_back(hsv);
         }
-        Image<HSV> output(new_data, input.getSize());
+        Image<HSV> output(new_data, h.getSize());
         return output;
     }
 
