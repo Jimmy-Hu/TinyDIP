@@ -152,6 +152,22 @@ namespace TinyDIP
             return image_data[position];
         }
 
+        //  cast template function implementation
+        template<typename TargetT>
+        constexpr Image<TargetT> cast()
+        {
+            std::vector<TargetT> output_data;
+            output_data.resize(image_data.size());
+            std::transform(
+                std::ranges::cbegin(image_data),
+                std::ranges::cend(image_data),
+                std::ranges::begin(output_data),
+                [](auto& input){ return static_cast<TargetT>(input); }
+                );
+            Image<TargetT> output(output_data, size);
+            return output;
+        }
+
         constexpr std::size_t count() const noexcept
         {
             return std::reduce(std::ranges::cbegin(size), std::ranges::cend(size), 1, std::multiplies());
