@@ -369,6 +369,7 @@ namespace TinyDIP
     {
         auto input_data = input.getImageData();
         std::vector<OutputT> output_data;
+        output_data.resize(input.count());
         for (std::size_t i = 0; i < input.count(); ++i)
         {
             output_data[i] = input_data[i].channels[index];
