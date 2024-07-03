@@ -464,6 +464,22 @@ namespace TinyDIP
         return output;
     }
 
+    //  im2uint8 function implementation
+    constexpr static auto im2uint8(Image<RGB_DOUBLE> input)
+    {
+        auto image_data = input.getImageData();
+        std::vector<RGB> new_data;
+        for (size_t index = 0; index < input.count(); ++index)
+        {
+            RGB rgb {   static_cast<std::uint8_t>(image_data[index].channels[0]),
+                        static_cast<std::uint8_t>(image_data[index].channels[1]),
+                        static_cast<std::uint8_t>(image_data[index].channels[2])};
+            new_data.emplace_back(rgb);
+        }
+        Image<RGB> output(new_data, input.getSize());
+        return output;
+    }
+
     //  print_with_latex function implementation
     constexpr static void print_with_latex(Image<RGB> input)
     {
