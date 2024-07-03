@@ -412,6 +412,12 @@ namespace TinyDIP
         return getPlane(input, 1);
     }
 
+    //  getGplane function implementation
+    constexpr static auto getGplane(Image<RGB_DOUBLE> input)
+    {
+        return getPlane(input, 1);
+    }
+
     //  getBplane function implementation
     constexpr static auto getBplane(Image<RGB> input)
     {
