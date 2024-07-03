@@ -684,14 +684,15 @@ namespace TinyDIP
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto pixelwiseOperation(ExPo execution_policy, auto op, const Image<InputT>& input1)
     {
-        auto output = Image(
-            recursive_transform<unwrap_level>(
-                execution_policy,
-                [&](auto&& element1) 
-                    {
-                        return op(element1);
-                    },
-                (input1.getImageData())),
+        auto transformed_data = recursive_transform<unwrap_level>(
+                                    execution_policy,
+                                    [&](auto&& element1) 
+                                        {
+                                            return op(element1);
+                                        },
+                                    (input1.getImageData()));
+        auto output = Image<recursive_unwrap_type_t<unwrap_level, decltype(transformed_data)>>(
+            transformed_data,
             input1.getSize());
         return output;
     }
