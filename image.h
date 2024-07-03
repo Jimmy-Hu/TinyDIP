@@ -74,9 +74,8 @@ namespace TinyDIP
             }
         }
 
-        template<std::vector<ElementT>&& Range,
-                 std::same_as<std::size_t>... Sizes>
-        Image(const Range& input, Sizes... sizes):
+        template<std::same_as<std::size_t>... Sizes>
+        Image(std::vector<ElementT>&& input, Sizes... sizes):
             size{sizes...}, image_data(begin(input), end(input))
         {
             if (image_data.size() != (1 * ... * sizes)) {
