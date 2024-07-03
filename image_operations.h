@@ -424,6 +424,12 @@ namespace TinyDIP
         return getPlane(input, 2);
     }
 
+    //  getBplane function implementation
+    constexpr static auto getBplane(Image<RGB_DOUBLE> input)
+    {
+        return getPlane(input, 2);
+    }
+
     template<class T = HSV>
     requires (std::same_as<T, HSV>)
     constexpr static auto getHplane(Image<T> input)
