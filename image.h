@@ -90,7 +90,7 @@ namespace TinyDIP
         }
 
 
-        Image(std::vector<ElementT>&& input, std::size_t newWidth, std::size_t newHeight)
+        Image(std::vector<ElementT>& input, std::size_t newWidth, std::size_t newHeight)
         {
             size.reserve(2);
             size.emplace_back(newWidth);
