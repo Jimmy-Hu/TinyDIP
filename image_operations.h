@@ -673,8 +673,7 @@ namespace TinyDIP
                         return op(element1, elements...);
                     },
                 inputs.getImageData()...),
-            first_of(inputs...).getWidth(),
-            first_of(inputs...).getHeight());
+            first_of(inputs...).getSize());
         return output;
     }
 
