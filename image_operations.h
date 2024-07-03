@@ -709,15 +709,11 @@ namespace TinyDIP
         return pixelwiseOperation(execution_policy, [](RGB input) { return rgb2hsv(input); }, input);
     }
 
-    template<typename ElementT, typename OutputT = RGB>
-    requires (std::same_as<ElementT, HSV>)
-    constexpr static auto hsv2rgb(const Image<ElementT>& input)
+    //  hsv2rgb template function implementation
+    template<typename OutputT = RGB>
+    constexpr static auto hsv2rgb(const Image<HSV>& input)
     {
-        auto output = Image<OutputT>(
-            recursive_transform<1>([](HSV input) { return hsv2rgb(input); }, input.getImageData()),
-            input.getWidth(),
-            input.getHeight());
-        return output;
+        return pixelwiseOperation([](HSV input) { return rgb2hsv(input); }, input);
     }
 
     template<typename ElementT>
