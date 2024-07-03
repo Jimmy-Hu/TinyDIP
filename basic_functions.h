@@ -462,8 +462,9 @@ namespace TinyDIP
             return first;
     }
 
+    //  first_of template function implementation
     template<typename... Args>
-    constexpr static auto& first_of(Args&... inputs) {
+    constexpr static auto& first_of(const Args&... inputs) {
         return get_from_variadic_template<1>(inputs...);
     }
 
