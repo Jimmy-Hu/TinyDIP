@@ -345,6 +345,28 @@ namespace TinyDIP
         return output;
     }
 
+    //  constructRGBDOUBLE template function implementation
+    template<arithmetic T = double, typename OutputT = RGB_DOUBLE>
+    requires (std::same_as<T, GrayScale>)
+    constexpr static auto constructRGBDOUBLE(Image<T> r, Image<T> g, Image<T> b)
+    {
+        check_size_same(r, g);
+        check_size_same(g, b);
+        auto image_data_r = r.getImageData();
+        auto image_data_g = g.getImageData();
+        auto image_data_b = b.getImageData();
+        std::vector<OutputT> new_data;
+        for (size_t index = 0; index < r.count(); ++index)
+        {
+            OutputT rgb_double { image_data_r[index],
+                                    image_data_g[index],
+                                    image_data_b[index]};
+            new_data.emplace_back(rgb_double);
+        }
+        Image<OutputT> output(new_data, r.getSize());
+        return output;
+    }
+
     //  constructHSV template function implementation
     template<arithmetic T = double, typename OutputT = HSV>
     requires (std::same_as<T, double>)
