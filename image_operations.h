@@ -678,6 +678,7 @@ namespace TinyDIP
         return output;
     }
 
+    //  pixelwiseOperation template function implementation
     template<std::size_t unwrap_level = 1, class ExPo, class InputT>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto pixelwiseOperation(ExPo execution_policy, auto op, const Image<InputT>& input1)
@@ -690,8 +691,7 @@ namespace TinyDIP
                         return op(element1);
                     },
                 (input1.getImageData())),
-            input1.getWidth(),
-            input1.getHeight());
+            input1.getSize());
         return output;
     }
 
