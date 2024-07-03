@@ -22,7 +22,7 @@ int main()
                                      0.11111111111111111111111111111111,
                                      0.11111111111111111111111111111111};
     auto mask = TinyDIP::Image<double>(mask_data, std::size_t{3}, std::size_t{3});
-    auto output_image = im2uint8(im2double(image1));
+    auto output_image = im2uint8(conv2(im2double(image1), mask));
     TinyDIP::bmp_write("OutputImages/1", output_image);
 
     auto end = std::chrono::system_clock::now();
