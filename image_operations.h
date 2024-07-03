@@ -455,9 +455,9 @@ namespace TinyDIP
         std::vector<RGB_DOUBLE> new_data;
         for (size_t index = 0; index < input.count(); ++index)
         {
-            RGB_DOUBLE rgb_double { static_cast<double>(image_data[0]),
-                                    static_cast<double>(image_data[1]),
-                                    static_cast<double>(image_data[2])};
+            RGB_DOUBLE rgb_double { static_cast<double>(image_data[index].channels[0]),
+                                    static_cast<double>(image_data[index].channels[1]),
+                                    static_cast<double>(image_data[index].channels[2])};
             new_data.emplace_back(rgb_double);
         }
         Image<RGB_DOUBLE> output(new_data, input.getSize());
