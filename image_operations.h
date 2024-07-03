@@ -405,9 +405,8 @@ namespace TinyDIP
         return getPlane(input, 1);
     }
 
-    template<class T = RGB>
-    requires (std::same_as<T, RGB>)
-    constexpr static auto getBplane(Image<T> input)
+    //  getBplane function implementation
+    constexpr static auto getBplane(Image<RGB> input)
     {
         return getPlane(input, 2);
     }
