@@ -363,19 +363,17 @@ namespace TinyDIP
         return output;
     }
 
-    template<class ElementT, class OutputT = unsigned char>
-    requires (std::same_as<ElementT, RGB>)
-    constexpr static auto getPlane(Image<ElementT> input, std::size_t index)
+    //  getPlane template function implementation
+    template<class OutputT = unsigned char>
+    constexpr static auto getPlane(Image<RGB> input, std::size_t index)
     {
-        auto output = Image<OutputT>(input.getWidth(), input.getHeight());
-        output.setAllValue(input.at(0, 0).channels[0]);
-        for (std::size_t y = 0; y < input.getHeight(); ++y)
+        auto input_data = input.getImageData();
+        std::vector<OutputT> output_data;
+        for (std::size_t i = 0; i < input.count(); ++i)
         {
-            for (std::size_t x = 0; x < input.getWidth(); ++x)
-            {
-                output.at(x, y) = input.at(x, y).channels[index];
-            }
+            output_data[i] = input_data[i].channels[index];
         }
+        auto output = Image<OutputT>(output_data, input.getSize());
         return output;
     }
     
