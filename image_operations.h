@@ -672,7 +672,7 @@ namespace TinyDIP
                     {
                         return op(element1, elements...);
                     },
-                inputs.getImageData()...)
+                inputs.getImageData()...);
         auto output = Image<recursive_unwrap_type_t<unwrap_level, decltype(transformed_data)>>(
             transformed_data,
             first_of(inputs...).getSize());
