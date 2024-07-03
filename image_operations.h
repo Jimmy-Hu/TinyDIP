@@ -713,7 +713,7 @@ namespace TinyDIP
     template<typename OutputT = RGB>
     constexpr static auto hsv2rgb(const Image<HSV>& input)
     {
-        return pixelwiseOperation([](HSV input) { return rgb2hsv(input); }, input);
+        return pixelwiseOperation([](HSV input) { return hsv2rgb(input); }, input);
     }
 
     template<typename ElementT>
