@@ -16,7 +16,7 @@ int main()
     std::vector<double> mask_data;
     for (std::size_t i = 0; i < mask_size * mask_size; ++i)
     {
-        mask_data.emplace_back(1 / (mask_size * mask_size));
+        mask_data.emplace_back(1.0 / (static_cast<double>(mask_size) * static_cast<double>(mask_size)));
     }
     auto mask = TinyDIP::Image<double>(mask_data, mask_size, mask_size);
     auto output_image = im2uint8(conv2(im2double(image1), mask));
