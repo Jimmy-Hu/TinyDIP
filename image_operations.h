@@ -663,16 +663,18 @@ namespace TinyDIP
         return output;
     }
 
+    //  pixelwiseOperation template function implementation
     template<std::size_t unwrap_level = 1, class... Args>
     constexpr static auto pixelwiseOperation(auto op, const Args&... inputs)
     {
-        auto output = Image(
-            recursive_transform<unwrap_level>(
+        auto transformed_data = recursive_transform<unwrap_level>(
                 [&](auto&& element1, auto&&... elements) 
                     {
                         return op(element1, elements...);
                     },
-                inputs.getImageData()...),
+                inputs.getImageData()...)
+        auto output = Image<recursive_unwrap_type_t<unwrap_level, decltype(transformed_data)>>(
+            transformed_data,
             first_of(inputs...).getSize());
         return output;
     }
