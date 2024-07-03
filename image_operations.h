@@ -323,23 +323,25 @@ namespace TinyDIP
         return output;
     }
 
+    //  constructRGB template function implementation
     template<arithmetic T = GrayScale, typename OutputT = RGB>
     requires (std::same_as<T, GrayScale>)
     constexpr static auto constructRGB(Image<T> r, Image<T> g, Image<T> b)
     {
         check_size_same(r, g);
         check_size_same(g, b);
-        check_size_same(r, b);
-        auto output = Image<OutputT>(r.getWidth(), r.getHeight());
-        for (std::size_t y = 0; y < r.getHeight(); y++)
+        auto image_data_r = r.getImageData();
+        auto image_data_g = g.getImageData();
+        auto image_data_b = b.getImageData();
+        std::vector<RGB> new_data;
+        for (size_t index = 0; index < r.count(); ++index)
         {
-            for (std::size_t x = 0; x < r.getWidth(); x++)
-            {
-                output.at(x, y).channels[0] = r.at(x, y);
-                output.at(x, y).channels[1] = g.at(x, y);
-                output.at(x, y).channels[2] = b.at(x, y);
-            }
+            RGB rgb {   image_data_r[index],
+                        image_data_g[index],
+                        image_data_b[index]};
+            new_data.emplace_back(rgb);
         }
+        Image<RGB> output(new_data, r.getSize());
         return output;
     }
 
