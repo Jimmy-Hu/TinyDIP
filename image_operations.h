@@ -484,6 +484,13 @@ namespace TinyDIP
         return constructRGB(operation(getRplane(input), args...), operation(getGplane(input), args...), operation(getBplane(input), args...));
     }
 
+    //  apply_each template function implementation
+    template<class F, class... Args>
+    constexpr static auto apply_each(Image<RGB_DOUBLE> input, F operation, Args&&... args)
+    {
+        return constructRGBDOUBLE(operation(getRplane(input), args...), operation(getGplane(input), args...), operation(getBplane(input), args...));
+    }
+
     template<class F, class... Args>
     constexpr static auto apply_each(Image<HSV> input, F operation, Args&&... args)
     {
