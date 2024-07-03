@@ -83,6 +83,13 @@ namespace TinyDIP
             }
         }
 
+        Image(std::vector<ElementT>&& input, std::vector<std::size_t> sizes):
+            size{sizes}, image_data(begin(input), end(input))
+        {
+            
+        }
+
+
         Image(std::vector<ElementT>&& input, std::size_t newWidth, std::size_t newHeight)
         {
             size.reserve(2);
