@@ -21,7 +21,9 @@ int main()
     auto mask = TinyDIP::Image<double>(mask_data, mask_size, mask_size);
     auto output_image = TinyDIP::im2uint8(TinyDIP::conv2(TinyDIP::im2double(image1), mask));
     TinyDIP::bmp_write("OutputImages/1", output_image);
-    TinyDIP::bmp_write("OutputImages/1_difference", TinyDIP::im2uint8(TinyDIP::difference(TinyDIP::im2double(image1), TinyDIP::conv2(TinyDIP::im2double(image1))));
+    TinyDIP::bmp_write("OutputImages/1_difference",
+                        TinyDIP::im2uint8(TinyDIP::difference(TinyDIP::im2double(image1), TinyDIP::conv2(TinyDIP::im2double(image1), mask))
+                        );
 
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
