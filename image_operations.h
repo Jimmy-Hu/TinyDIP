@@ -137,7 +137,7 @@ namespace TinyDIP
         }
         if(is_size_same)
         {
-            output = TinyDIP::subimage(output, x.getWidth(), x.getHeight(), static_cast<double>(output.getWidth()) / 2.0, static_cast<double>(output.getHeight()) / 2.0);
+            output = subimage(output, x.getWidth(), x.getHeight(), static_cast<double>(output.getWidth()) / 2.0, static_cast<double>(output.getHeight()) / 2.0);
         }
         return output;
     }
