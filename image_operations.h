@@ -1035,7 +1035,7 @@ namespace TinyDIP
                     255);
             }
         }
-        Image<InputT> output(output_data, input1.getSize());
+        Image<RGB> output(output_data, input1.getSize());
         return output;
     }
 
