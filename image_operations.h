@@ -719,6 +719,14 @@ namespace TinyDIP
         return pixelwiseOperation([](HSV input) { return hsv2rgb(input); }, input);
     }
 
+    //  hsv2rgb template function implementation
+    template<class ExPo>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static auto hsv2rgb(ExPo execution_policy, const Image<HSV>& input)
+    {
+        return pixelwiseOperation(execution_policy, [](HSV input) { return hsv2rgb(input); }, input);
+    }
+
     template<typename ElementT>
     constexpr static auto concat_horizontal(Image<ElementT> input1, Image<ElementT> input2)
     {
