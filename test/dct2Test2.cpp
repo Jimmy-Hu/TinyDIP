@@ -14,7 +14,7 @@ void each_image( std::string input_path, std::string output_path,
     auto image_255 = TinyDIP::Image<double>(input_img.getWidth(), input_img.getHeight());
     image_255.setAllValue(255);
     auto dct2_results = TinyDIP::recursive_transform<2>(
-        std::execution::par,
+        std::execution::seq,
         [](auto&& element) { return TinyDIP::dct2(element); },
         TinyDIP::split(
             TinyDIP::divides(
