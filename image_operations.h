@@ -590,8 +590,9 @@ namespace TinyDIP
         return output;
     }
 
+    //  subimage template function implementation
     template<typename ElementT>
-    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, HSV>))
+    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
     constexpr static auto subimage(const Image<ElementT>& input, std::size_t width, std::size_t height, std::size_t xcenter, std::size_t ycenter)
     {
         return apply_each(input, [width, height, xcenter, ycenter](auto&& planes) { return subimage(planes, width, height, xcenter, ycenter); });
