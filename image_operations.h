@@ -1015,27 +1015,27 @@ namespace TinyDIP
             }, input1, input2);
     }
 
-    template<class InputT = RGB>
-    requires (std::same_as<InputT, RGB>)
-    constexpr static Image<InputT> subtract(const Image<InputT>& input1, const Image<InputT>& input2)
+    //  subtract Function Implementation
+    constexpr static Image<RGB> subtract(const Image<RGB>& input1, const Image<RGB>& input2)
     {
         check_size_same(input1, input2);
-        Image<InputT> output(input1.getWidth(), input1.getHeight());
-        for (std::size_t y = 0; y < input1.getHeight(); ++y)
+        auto input_data1 = input1.getImageData();
+        auto input_data2 = input2.getImageData();
+        std::vector<InputT> output_data;
+        output_data.resize(input1.count());
+        for (std::size_t index = 0; index < input1.count(); ++index)
         {
-            for (std::size_t x = 0; x < input1.getWidth(); ++x)
+            for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
             {
-                for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
-                {
-                    output.at(x, y).channels[channel_index] = 
-                    std::clamp(
-                        input1.at(x, y).channels[channel_index] - 
-                        input2.at(x, y).channels[channel_index],
-                        0,
-                        255);
-                }
+                output_data[index].channels[channel_index] = 
+                std::clamp(
+                    input_data1[index].channels[channel_index] - 
+                    input_data2[index].channels[channel_index],
+                    0,
+                    255);
             }
         }
+        Image<InputT> output(output_data, input1.getSize());
         return output;
     }
 
