@@ -20,7 +20,7 @@ int main()
         mask_data.emplace_back(1.0 / (static_cast<double>(mask_size) * static_cast<double>(mask_size)));
     }
     auto mask = TinyDIP::Image<double>(mask_data, mask_size, mask_size);
-    auto output_image = TinyDIP::conv2(TinyDIP::im2double(image1), mask);
+    auto output_image = TinyDIP::conv2(TinyDIP::im2double(image1), mask, true);
     TinyDIP::bmp_write("OutputImages/1", TinyDIP::im2uint8(output_image));
     TinyDIP::bmp_write("OutputImages/1_difference",
                         TinyDIP::im2uint8(TinyDIP::difference(double_image, output_image))
