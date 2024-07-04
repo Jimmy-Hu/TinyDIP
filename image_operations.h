@@ -1019,24 +1019,24 @@ namespace TinyDIP
     constexpr static Image<RGB> subtract(const Image<RGB>& input1, const Image<RGB>& input2)
     {
         check_size_same(input1, input2);
-        auto input_data1 = input1.getImageData();
-        auto input_data2 = input2.getImageData();
-        std::vector<RGB> output_data;
-        output_data.resize(input1.count());
-        for (std::size_t index = 0; index < input1.count(); ++index)
-        {
-            for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
-            {
-                output_data[index].channels[channel_index] = 
-                std::clamp(
-                    input_data1[index].channels[channel_index] - 
-                    input_data2[index].channels[channel_index],
-                    0,
-                    255);
-            }
-        }
-        Image<RGB> output(output_data, input1.getSize());
-        return output;
+        return pixelwiseOperation(
+                [](RGB x, RGB y)
+                {
+                    RGB rgb;
+                    for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
+                    {
+                        rgb.channels[channel_index] = 
+                        std::clamp(
+                            x.channels[channel_index] - 
+                            y.channels[channel_index],
+                            0,
+                            255);
+                    }
+                    return rgb;
+                },
+                input1,
+                input2
+            );
     }
 
     template<class InputT>
