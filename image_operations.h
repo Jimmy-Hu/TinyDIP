@@ -369,24 +369,23 @@ namespace TinyDIP
     }
 
     //  constructHSV template function implementation
-    template<arithmetic T = double, typename OutputT = HSV>
-    requires (std::same_as<T, double>)
-    constexpr static auto constructHSV(Image<T> h, Image<T> s, Image<T> v)
+    template<typename OutputT = HSV>
+    constexpr static auto constructHSV(Image<double> h, Image<double> s, Image<double> v)
     {
         check_size_same(h, s);
         check_size_same(s, v);
         auto image_data_h = h.getImageData();
         auto image_data_s = s.getImageData();
         auto image_data_v = v.getImageData();
-        std::vector<HSV> new_data;
+        std::vector<OutputT> new_data;
         for (size_t index = 0; index < h.count(); ++index)
         {
-            HSV hsv {   image_data_h[index],
+            OutputT hsv {   image_data_h[index],
                         image_data_s[index],
                         image_data_v[index]};
             new_data.emplace_back(hsv);
         }
-        Image<HSV> output(new_data, h.getSize());
+        Image<OutputT> output(new_data, h.getSize());
         return output;
     }
 
