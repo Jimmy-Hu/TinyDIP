@@ -15,9 +15,11 @@ int main()
     {
         for (std::size_t x = 0; x < image1.getWidth(); ++x)
         {
-            image1.at(x, y) = static_cast<double>(x) + 1.0;
+            image1.at_without_boundary_check(x, y)
+                             = static_cast<double>(x) + static_cast<double>(y) + 1;
         }
     }
+    image1.print();
     TinyDIP::conv2(image1, image1).print();
     
     auto image2 = TinyDIP::bmp_read("InputImages/1", false);
