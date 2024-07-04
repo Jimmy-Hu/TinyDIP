@@ -1263,6 +1263,22 @@ namespace TinyDIP
         return pixelwiseOperation([](auto&& element1, auto&& element2) { return std::abs(element1 - element2); }, input1, input2);
     }
 
+    //  difference Function Implementation
+    constexpr static auto difference(const Image<RGB_DOUBLE>& input1, const Image<RGB_DOUBLE>& input2)
+    {
+        return pixelwiseOperation(
+            [](RGB_DOUBLE element1, RGB_DOUBLE element2)
+            {
+                RGB_DOUBLE rgb_double;
+                for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
+                {
+                    rgb_double.channels[channel_index] = 
+                        std::abs(element1.channels[channel_index] - element2.channels[channel_index]);
+                }
+                return rgb_double;
+            }, input1, input2);
+    }
+
     template<arithmetic ElementT = double>
     constexpr static ElementT manhattan_distance(const Image<ElementT>& input1, const Image<ElementT>& input2)
     {
