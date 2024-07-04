@@ -83,7 +83,7 @@ void each_image( ExPo execution_policy,
 
 	auto output_dct_blocks = TinyDIP::recursive_transform<2>(
 		execution_policy,
-		[&](auto&& element) { return TinyDIP::plus(element, get_offset(std::execution::par, element, dictionary_x, dictionary_y, sigma, std::pow(10, -30))); },
+		[&](auto&& element) { return TinyDIP::plus(element, get_offset(std::execution::seq, element, dictionary_x, dictionary_y, sigma, std::pow(10, -30))); },
 		input_dct_blocks
 		);
 	std::cout << "Save output to " << output_path << '\n';
@@ -118,7 +118,7 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
 		auto input_dbmp = TinyDIP::double_image::read(fullpath.c_str(), false);
 		auto dct_block_x = TinyDIP::split(input_dbmp, input_dbmp.getWidth() / N1, input_dbmp.getHeight() / N2);
 		TinyDIP::recursive_for_each<2>(
-			std::execution::par,
+			std::execution::seq,
 			[&](auto&& element) 
 			{
 				x.push_back(element);
@@ -129,7 +129,7 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
 		auto input_dbmp_gt = TinyDIP::double_image::read(fullpath_gt.c_str(), false);
 		auto dct_block_y = TinyDIP::split(input_dbmp_gt, input_dbmp_gt.getWidth() / N1, input_dbmp_gt.getHeight() / N2);
 		TinyDIP::recursive_for_each<2>(
-			std::execution::par,
+			std::execution::seq,
 			[&](auto&& element)
 			{
 				y.push_back(element);
@@ -144,7 +144,7 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
 		std::string fullpath = input_folder + "/" + std::to_string(i);
 		std::cout << "fullpath: " << fullpath << '\n';
 		std::string output_path = output_folder + "/" + std::to_string(i);
-		each_image(std::execution::par, fullpath, output_path, x, xy_diff, N1, N2, sigma);
+		each_image(std::execution::seq, fullpath, output_path, x, xy_diff, N1, N2, sigma);
 	}
 	return;
 }
