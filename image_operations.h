@@ -120,7 +120,7 @@ namespace TinyDIP
     //  conv2 template function implementation
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
-    constexpr auto conv2(const Image<ElementT>& x, const Image<ElementT>& y)
+    constexpr auto conv2(const Image<ElementT>& x, const Image<ElementT>& y, bool is_size_same)
     {
         auto output = Image<ElementT>(x.getWidth() + y.getWidth() - 1, x.getHeight() + y.getHeight() - 1);
         for (std::size_t y1 = 0; y1 < x.getHeight(); ++y1) {
@@ -134,6 +134,10 @@ namespace TinyDIP
                     }
                 }
             }
+        }
+        if(is_size_same)
+        {
+            output = TinyDIP::subimage(output, x.getWidth(), x.getHeight(), static_cast<double>(output.getWidth()) / 2, static_cast<double>(output.getHeight()) / 2);
         }
         return output;
     }
