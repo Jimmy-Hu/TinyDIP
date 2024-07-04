@@ -146,9 +146,9 @@ namespace TinyDIP
     template<typename ElementT, typename ElementT2>
     requires (((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>)) &&
               (std::floating_point<ElementT2> || std::integral<ElementT2> || is_complex<ElementT2>::value))
-    constexpr static auto conv2(const Image<ElementT>& input1, const Image<ElementT2>& input2)
+    constexpr static auto conv2(const Image<ElementT>& input1, const Image<ElementT2>& input2, bool is_size_same = false)
     {
-        return apply_each(input1, [&](auto&& planes) { return conv2(planes, input2); });
+        return apply_each(input1, [&](auto&& planes) { return conv2(planes, input2, is_size_same); });
     }
 
     //  two dimensional discrete fourier transform template function implementation
