@@ -12,6 +12,7 @@ int main()
     auto start = std::chrono::system_clock::now();
     
     auto image1 = TinyDIP::bmp_read("InputImages/1", false);
+    auto double_image = TinyDIP::im2double(image1);
     std::size_t mask_size = 5;
     std::vector<double> mask_data;
     for (std::size_t i = 0; i < mask_size * mask_size; ++i)
@@ -19,10 +20,10 @@ int main()
         mask_data.emplace_back(1.0 / (static_cast<double>(mask_size) * static_cast<double>(mask_size)));
     }
     auto mask = TinyDIP::Image<double>(mask_data, mask_size, mask_size);
-    auto output_image = TinyDIP::im2uint8(TinyDIP::conv2(TinyDIP::im2double(image1), mask));
-    TinyDIP::bmp_write("OutputImages/1", output_image);
+    auto output_image = TinyDIP::conv2(TinyDIP::im2double(image1), mask);
+    TinyDIP::bmp_write("OutputImages/1", TinyDIP::im2uint8(output_image));
     TinyDIP::bmp_write("OutputImages/1_difference",
-                        TinyDIP::im2uint8(TinyDIP::difference(TinyDIP::im2double(image1), TinyDIP::conv2(TinyDIP::im2double(image1), mask))
+                        TinyDIP::im2uint8(TinyDIP::difference(double_image, output_image))
                         );
 
     auto end = std::chrono::system_clock::now();
