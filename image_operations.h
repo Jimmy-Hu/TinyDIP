@@ -1021,7 +1021,7 @@ namespace TinyDIP
         check_size_same(input1, input2);
         auto input_data1 = input1.getImageData();
         auto input_data2 = input2.getImageData();
-        std::vector<InputT> output_data;
+        std::vector<RGB> output_data;
         output_data.resize(input1.count());
         for (std::size_t index = 0; index < input1.count(); ++index)
         {
