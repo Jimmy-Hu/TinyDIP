@@ -1098,12 +1098,12 @@ namespace TinyDIP
     }
 
     template<class InputT, class... Args>
-    constexpr static auto multiplies(const std::vector<Image<InputT>>& input1, const Args&... inputs)
+    constexpr static auto pixelwise_multiplies(const std::vector<Image<InputT>>& input1, const Args&... inputs)
     {
         return recursive_transform<1>(
             [](auto&& input1_element, auto&&... inputs_element)
             {
-                return multiplies(input1_element, inputs_element...);
+                return pixelwise_multiplies(input1_element, inputs_element...);
             }, input1, inputs...);
     }
 
