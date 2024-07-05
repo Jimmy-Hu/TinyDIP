@@ -58,6 +58,7 @@ constexpr static auto get_offset( ExPo execution_policy,
 	return output;
 }
 
+//	each_image Template Function Implementation
 template<class ExPo, class ElementT>
 requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
 void each_image( ExPo execution_policy, 
@@ -90,7 +91,7 @@ void each_image( ExPo execution_policy,
 	auto output_img = TinyDIP::hsv2rgb(TinyDIP::constructHSV(
 		h_plane,
 		s_plane,
-		TinyDIP::multiplies(
+		TinyDIP::pixelwise_multiplies(
 			TinyDIP::concat(
 				TinyDIP::recursive_transform<2>(
 					execution_policy,
