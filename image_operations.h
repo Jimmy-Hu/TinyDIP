@@ -1062,7 +1062,9 @@ namespace TinyDIP
     requires(std::floating_point<TimesT> || std::integral<TimesT> || is_complex<TimesT>::value)
     constexpr static Image<InputT> multiplies(const Image<InputT>& input1, const TimesT times)
     {
-        auto image = Image<TimesT>(input1.getImageData(), input1.getSize());
+        std::vector<TimesT> data;
+        data.resize(input1.getSize());
+        auto image = Image<TimesT>(data, input1.getSize());
         image.setAllValue(times);
         return pixelwise_multiplies(
             input1,
