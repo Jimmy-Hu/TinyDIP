@@ -1063,7 +1063,7 @@ namespace TinyDIP
     constexpr static Image<InputT> multiplies(const Image<InputT>& input1, const TimesT times)
     {
         std::vector<TimesT> data;
-        data.resize(input1.getSize());
+        data.resize(input1.count());
         auto image = Image<TimesT>(data, input1.getSize());
         image.setAllValue(times);
         return pixelwise_multiplies(
