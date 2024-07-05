@@ -404,6 +404,7 @@ namespace TinyDIP
             new_data.emplace_back(rgb_double);
         }
         Image<DstT> output(new_data, input.getSize());
+        return output;
     }
 
     //  getPlane template function implementation
