@@ -86,7 +86,10 @@ namespace TinyDIP
         Image(std::vector<ElementT>& input, std::vector<std::size_t> sizes):
             size{sizes}, image_data(begin(input), end(input))
         {
-            
+            auto count = std::reduce(std::ranges::cbegin(sizes), std::ranges::cend(sizes), 1, std::multiplies());
+            if (image_data.size() != count) {
+                throw std::runtime_error("Image data input and the given size are mismatched!");
+            }
         }
 
 
