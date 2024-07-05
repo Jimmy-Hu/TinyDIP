@@ -219,7 +219,7 @@ int main()
         //std::execution::par,
         [](auto&& element)
         {
-            auto hsv_block = TinyDIP::rgb2hsv(element);
+            auto hsv_block = TinyDIP::rgb2hsv(TinyDIP::im2double(element));
             auto v_block = TinyDIP::getVplane(hsv_block);
             auto v_block_dct = TinyDIP::dct2(v_block);
             return TinyDIP::hsv2rgb(TinyDIP::constructHSV(
@@ -235,7 +235,7 @@ int main()
     auto cv_mat = TinyDIP::to_cv_mat(output_img);
     cv::imshow("Image", cv_mat);
     cv::waitKey(0);
-    TinyDIP::bmp_write("test20240530", output_img);
+    TinyDIP::bmp_write("test20240705", output_img);
 
     
     return 0;
