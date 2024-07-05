@@ -697,11 +697,12 @@ namespace TinyDIP
         return output;
     }
 
+    //  rgb2hsv template function implementation
     template<typename ElementT, typename OutputT = HSV>
-    requires (std::same_as<ElementT, RGB>)
+    requires (std::same_as<ElementT, RGB> || std::same_as<ElementT, RGB_DOUBLE>)
     constexpr static auto rgb2hsv(const Image<ElementT>& input)
     {
-        return pixelwiseOperation([](RGB input) { return rgb2hsv(input); }, input);
+        return pixelwiseOperation([](ElementT input) { return rgb2hsv(input); }, input);
     }
 
     template<class ExPo, typename ElementT, typename OutputT = HSV>
