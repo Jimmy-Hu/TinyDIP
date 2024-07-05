@@ -389,6 +389,23 @@ namespace TinyDIP
         return output;
     }
 
+    //  convert_image template function implementation
+    //  Reference: https://codereview.stackexchange.com/a/292847/231235
+    template<typename DstT, typename SrcT>
+    constexpr static auto convert_image(Image<SrcT> input)
+    {
+        auto image_data = input.getImageData();
+        std::vector<DstT> new_data;
+        for (size_t index = 0; index < input.count(); ++index)
+        {
+            DstT rgb_double { static_cast<double>(image_data[index].channels[0]),
+                                    static_cast<double>(image_data[index].channels[1]),
+                                    static_cast<double>(image_data[index].channels[2])};
+            new_data.emplace_back(rgb_double);
+        }
+        Image<DstT> output(new_data, input.getSize());
+    }
+
     //  getPlane template function implementation
     template<class OutputT = unsigned char>
     constexpr static auto getPlane(Image<RGB> input, std::size_t index)
