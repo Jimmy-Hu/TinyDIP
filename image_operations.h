@@ -1057,13 +1057,14 @@ namespace TinyDIP
         return pixelwiseOperation(std::multiplies<>{}, input1, input2);
     }
 
+    //  multiplies Template Function Implementation
     template<class InputT, class TimesT>
-    requires(std::floating_point<TimesT> || std::integral<TimesT>)
+    requires(std::floating_point<TimesT> || std::integral<TimesT> || is_complex<TimesT>::value)
     constexpr static Image<InputT> multiplies(const Image<InputT>& input1, const TimesT times)
     {
-        auto image = Image<TimesT>(input1.getWidth(), input1.getHeight());
+        auto image = Image<TimesT>(input1.getSize());
         image.setAllValue(times);
-        return multiplies(
+        return pixelwise_multiplies(
             input1,
             image
         );
