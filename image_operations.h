@@ -1085,9 +1085,9 @@ namespace TinyDIP
     }
 
     template<class InputT, class... Args>
-    constexpr static Image<InputT> multiplies(const Image<InputT>& input1, const Args&... inputs)
+    constexpr static Image<InputT> pixelwise_multiplies(const Image<InputT>& input1, const Args&... inputs)
     {
-        return pixelwiseOperation(std::multiplies<>{}, input1, multiplies(inputs...));
+        return pixelwiseOperation(std::multiplies<>{}, input1, pixelwise_multiplies(inputs...));
     }
 
     template<class ExPo, class InputT, class... Args>
