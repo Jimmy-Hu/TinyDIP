@@ -267,20 +267,11 @@ int main()
     auto img3 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(3));
     auto img4 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(3));
 
-    
-    auto output = TinyDIP::pixelwiseOperation
-    (
-        [](auto&& pixel_in_img1, auto&& pixel_in_img2, auto&& pixel_in_img3, auto&& pixel_in_img4)
-        {
-            return 2 * pixel_in_img1 + pixel_in_img2 - pixel_in_img3 * pixel_in_img4;
-        },
-        TinyDIP::pixelwiseOperation([](auto&& element) { return element; }, img1),
-        TinyDIP::pixelwiseOperation([](auto&& element) { return element; }, img2), 
-        TinyDIP::pixelwiseOperation([](auto&& element) { return element; }, img3),
-        TinyDIP::pixelwiseOperation([](auto&& element) { return element; }, img4)
-    );
-    output.print();
-    TinyDIP::multiplies(
+    TinyDIP::subtract(
+        TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(5)),
+        TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(3))).print(",");
+
+    TinyDIP::pixelwise_multiplies(
         img1, img2, img3, img4, img2, img3, img4, img2, img3, img4,
         img2, img3, img4, img2, img3, img4, img2, img3, img4, 
         img2, img3, img4, img2, img3, img4, img2, img3, img4, 
