@@ -277,6 +277,16 @@ namespace TinyDIP
         return output;
     }
 
+    //  rgb2hsv function implementation
+    constexpr static auto rgb2hsv(RGB_DOUBLE input)
+    {
+        RGB rgb{static_cast<std::uint8_t>(input.channels[0]),
+                static_cast<std::uint8_t>(input.channels[1]),
+                static_cast<std::uint8_t>(input.channels[2])};
+        return rgb2hsv(rgb);
+    }
+
+    //  hsv2rgb function implementation
     static auto hsv2rgb(HSV input)
     {
         RGB output{};
