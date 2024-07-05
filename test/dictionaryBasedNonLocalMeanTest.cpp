@@ -108,7 +108,7 @@ constexpr static auto dictionaryBasedNonlocalMean(  ExPo execution_policy,
         {
             auto image = TinyDIP::Image<ElementT>(input1[0].getWidth(), input1[0].getHeight());
             image.setAllValue(input2);
-            return TinyDIP::multiplies(
+            return TinyDIP::pixelwise_multiplies(
                 input1,
                 TinyDIP::n_dim_vector_generator<1>(
                     image,
