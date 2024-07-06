@@ -168,7 +168,7 @@ namespace TinyDIP
                 {
                     for (std::size_t m = 0; m < input.getWidth(); ++m)
                     {
-                        sum_real += input.at(m, n) * 
+                        sum_real += input.at_without_boundary_check(m, n) * 
                             std::cos(2 * std::numbers::pi_v<long double> * (x * m / static_cast<long double>(input.getWidth()) + y * n / static_cast<long double>(input.getHeight())));
                         sum_imag += -input.at(m, n) * 
                             std::sin(2 * std::numbers::pi_v<long double> * (x * m / static_cast<long double>(input.getWidth()) + y * n / static_cast<long double>(input.getHeight())));
