@@ -83,7 +83,7 @@ namespace TinyDIP
             }
         }
 
-        Image(const std::vector<ElementT>& input, const std::vector<std::size_t>& sizes):
+        Image(const std::vector<ElementT>& input, const std::vector<std::size_t>& sizes)
         {
             size = std::move(sizes);
             image_data = std::move(input);
