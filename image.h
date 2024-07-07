@@ -83,7 +83,7 @@ namespace TinyDIP
             }
         }
 
-        Image(std::vector<ElementT>& input, std::vector<std::size_t> sizes):
+        Image(const std::vector<ElementT>& input, std::vector<std::size_t> sizes):
             size{sizes}, image_data(begin(input), end(input))
         {
             auto count = std::reduce(std::ranges::cbegin(sizes), std::ranges::cend(sizes), 1, std::multiplies());
