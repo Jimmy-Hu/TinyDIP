@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
     {
         auto input_path = std::string(argv[1]);
         auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
-        auto dictionary = load_dictionary(dictionary_path, dic_start_index, dic_end_index, N1, N2);
+        auto dictionary = load_dictionary();
         auto output_img = each_image(std::execution::seq, input_img, std::get<0>(dictionary), std::get<1>(dictionary));
         auto output_path = std::string(argv[2]);
         std::cout << "Save output to " << output_path << '\n';
