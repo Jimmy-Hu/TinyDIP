@@ -105,7 +105,9 @@ constexpr auto each_image( ExPo execution_policy,
 template<TinyDIP::arithmetic ElementT = double>
 constexpr auto load_dictionary( const std::string_view dictionary_path = "Dictionary",
                                 const std::size_t dic_start_index = 80,
-                                const std::size_t dic_end_index = 99)
+                                const std::size_t dic_end_index = 99,
+                                const std::size_t N1 = 8,
+                                const std::size_t N2 = 8)
 {
     //***Load dictionary***
     std::vector<TinyDIP::Image<ElementT>> x, y;
