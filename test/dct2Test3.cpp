@@ -134,7 +134,7 @@ constexpr auto load_dictionary(const std::string_view dictionary_path = "Diction
     }
     auto xy_diff = TinyDIP::recursive_transform([&](auto&& element1, auto&& element2) { return TinyDIP::subtract(element2, element1); }, x, y);
     std::cout << "x count: " << x.size() << "\txy_diff count: " << xy_diff.size() << '\n';
-    std::map<std::vector<TinyDIP::Image<ElementT>>, std::vector<TinyDIP::Image<ElementT>>> output{x, xy_diff};
+    std::tuple<std::vector<TinyDIP::Image<ElementT>>, std::vector<TinyDIP::Image<ElementT>>> output{x, xy_diff};
     return output;
 }
 
