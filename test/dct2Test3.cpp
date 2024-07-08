@@ -171,6 +171,16 @@ int main(int argc, char* argv[])
 {
     auto start = std::chrono::system_clock::now();
     std::cout << std::to_string(argc) << '\n';
+    if(argc == 2)
+    {
+        auto input_path = std::string(argv[1]);
+        auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
+        auto dictionary = load_dictionary(dictionary_path, dic_start_index, dic_end_index, N1, N2);
+        auto output_img = each_image(std::execution::seq, input_img, std::get<0>(dictionary), std::get<1>(dictionary));
+        auto output_path = std::string(argv[2]);
+        std::cout << "Save output to " << output_path << '\n';
+        TinyDIP::bmp_write(output_path.c_str(), output_img);
+    }
     if (argc == 6)
     {
         //    example: ./build/dct2Test3 
