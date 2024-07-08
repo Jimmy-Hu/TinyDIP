@@ -101,6 +101,13 @@ constexpr auto each_image( ExPo execution_policy,
     return output_img;
 }
 
+//    get_dictionary Template Function Implementation
+template<>
+constexpr auto get_dictionary(const std::string_view dictionary_path = "Dictionary")
+{
+    
+}
+
 //    dct2Test3 Template Function Implementation
 void dct2Test3( const std::string& input_folder, const std::string& output_folder,
                 const std::string& dictionary_path,
