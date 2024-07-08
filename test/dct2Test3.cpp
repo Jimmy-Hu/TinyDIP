@@ -152,7 +152,7 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
     std::cout << "dct2Test3 program..." << '\n';
     std::cout << "sigma = " << std::to_string(sigma) << '\n';
     
-    auto dictionary = load_dictionary(dictionary_path, dic_start_index, dic_end_index);
+    auto dictionary = load_dictionary(dictionary_path, dic_start_index, dic_end_index, N1, N2);
     
     for (std::size_t i = start_index; i <= end_index; ++i)
     {
