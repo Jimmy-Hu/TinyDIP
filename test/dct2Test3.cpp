@@ -156,11 +156,11 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
     
     for (std::size_t i = start_index; i <= end_index; ++i)
     {
-        std::string fullpath = input_folder + "/" + std::to_string(i);
-        std::cout << "fullpath: " << fullpath << '\n';
-        std::string output_path = output_folder + "/" + std::to_string(i);
+        std::string input_path = input_folder + "/" + std::to_string(i);
+        std::cout << "input_path: " << input_path << '\n';
         auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
         auto output_img = each_image(std::execution::seq, input_img, std::get<0>(dictionary), std::get<1>(dictionary), N1, N2, sigma);
+        std::string output_path = output_folder + "/" + std::to_string(i);
         std::cout << "Save output to " << output_path << '\n';
         TinyDIP::bmp_write(output_path.c_str(), output_img);
     }
