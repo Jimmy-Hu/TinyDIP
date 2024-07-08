@@ -59,15 +59,14 @@ constexpr static auto get_offset( ExPo execution_policy,
 }
 
 //	each_image Template Function Implementation
-template<class ExPo, class ElementT>
+template<class ExPo, class ElementT1, class ElementT2>
 requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-void each_image( ExPo execution_policy, 
-	             const std::string input_path, const std::string output_path,
-	             std::vector<TinyDIP::Image<ElementT>>& dictionary_x,
-	             std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
-	             const std::size_t N1 = 8, const std::size_t N2 = 8, const ElementT sigma = 0.1) noexcept
+constexpr auto each_image( ExPo execution_policy, 
+	             const TinyDIP::Image<ElementT2>& input_img,
+	             std::vector<TinyDIP::Image<ElementT1>>& dictionary_x,
+	             std::vector<TinyDIP::Image<ElementT1>>& dictionary_y,
+	             const std::size_t N1 = 8, const std::size_t N2 = 8, const ElementT1 sigma = 0.1) noexcept
 {
-	auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
 	auto input_hsv = TinyDIP::rgb2hsv(input_img);
 	auto h_plane = TinyDIP::getHplane(input_hsv);
 	auto s_plane = TinyDIP::getSplane(input_hsv);
@@ -87,7 +86,7 @@ void each_image( ExPo execution_policy,
 		[&](auto&& element) { return TinyDIP::plus(element, get_offset(std::execution::seq, element, dictionary_x, dictionary_y, sigma, std::pow(10, -30))); },
 		input_dct_blocks
 		);
-	std::cout << "Save output to " << output_path << '\n';
+	
 	auto output_img = TinyDIP::hsv2rgb(TinyDIP::constructHSV(
 		h_plane,
 		s_plane,
@@ -99,7 +98,7 @@ void each_image( ExPo execution_policy,
 					output_dct_blocks)),
 			image_255)
 	));
-	TinyDIP::bmp_write(output_path.c_str(), output_img);
+	return output_img;
 }
 
 //	dct2Test3 Template Function Implementation
