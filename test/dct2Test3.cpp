@@ -148,6 +148,7 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
     std::cout << "dct2Test3 program..." << '\n';
     std::cout << "sigma = " << std::to_string(sigma) << '\n';
     
+    auto dictionary = load_dictionary(dictionary_path);
     
     for (std::size_t i = start_index; i <= end_index; ++i)
     {
@@ -155,7 +156,7 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
         std::cout << "fullpath: " << fullpath << '\n';
         std::string output_path = output_folder + "/" + std::to_string(i);
         auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
-        auto output_img = each_image(std::execution::seq, input_img, x, xy_diff, N1, N2, sigma);
+        auto output_img = each_image(std::execution::seq, input_img, std::get<0>(dictionary), std::get<1>(dictionary), N1, N2, sigma);
         std::cout << "Save output to " << output_path << '\n';
         TinyDIP::bmp_write(output_path.c_str(), output_img);
     }
