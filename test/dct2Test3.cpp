@@ -103,7 +103,9 @@ constexpr auto each_image( ExPo execution_policy,
 
 //    load_dictionary Template Function Implementation
 template<TinyDIP::arithmetic ElementT = double>
-constexpr auto load_dictionary(const std::string_view dictionary_path = "Dictionary")
+constexpr auto load_dictionary( const std::string_view dictionary_path = "Dictionary",
+                                const std::size_t dic_start_index = 80,
+                                const std::size_t dic_end_index = 99)
 {
     //***Load dictionary***
     std::vector<TinyDIP::Image<ElementT>> x, y;
@@ -148,7 +150,7 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
     std::cout << "dct2Test3 program..." << '\n';
     std::cout << "sigma = " << std::to_string(sigma) << '\n';
     
-    auto dictionary = load_dictionary(dictionary_path);
+    auto dictionary = load_dictionary(dictionary_path, dic_start_index, dic_end_index);
     
     for (std::size_t i = start_index; i <= end_index; ++i)
     {
