@@ -111,7 +111,7 @@ constexpr auto load_dictionary( const std::string_view dictionary_path = "Dictio
     std::vector<TinyDIP::Image<ElementT>> x, y;
     for (std::size_t i = dic_start_index; i <= dic_end_index; ++i)
     {
-        std::string fullpath = dictionary_path + "/" + std::to_string(i);
+        std::string fullpath = std::string(dictionary_path) + "/" + std::to_string(i);
         std::cout << "Dictionary path: " << fullpath << '\n';
         auto input_dbmp = TinyDIP::double_image::read(fullpath.c_str(), false);
         auto dct_block_x = TinyDIP::split(input_dbmp, input_dbmp.getWidth() / N1, input_dbmp.getHeight() / N2);
@@ -123,7 +123,7 @@ constexpr auto load_dictionary( const std::string_view dictionary_path = "Dictio
             },
             dct_block_x);
 
-        std::string fullpath_gt = dictionary_path + "/GT";
+        std::string fullpath_gt = std::string(dictionary_path) + "/GT";
         auto input_dbmp_gt = TinyDIP::double_image::read(fullpath_gt.c_str(), false);
         auto dct_block_y = TinyDIP::split(input_dbmp_gt, input_dbmp_gt.getWidth() / N1, input_dbmp_gt.getHeight() / N2);
         TinyDIP::recursive_for_each<2>(
