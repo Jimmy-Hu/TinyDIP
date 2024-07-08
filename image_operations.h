@@ -174,8 +174,8 @@ namespace TinyDIP
                             std::sin(2 * std::numbers::pi_v<long double> * (x * m / static_cast<long double>(input.getWidth()) + y * n / static_cast<long double>(input.getHeight())));
                     }
                 }
-                output.at(x, y).real(normalization_factor * sum_real);
-                output.at(x, y).imag(normalization_factor * sum_imag);
+                output.at_without_boundary_check(x, y).real(normalization_factor * sum_real);
+                output.at_without_boundary_check(x, y).imag(normalization_factor * sum_imag);
             }
         }
         return output;
