@@ -102,7 +102,7 @@ constexpr auto each_image( ExPo execution_policy,
 }
 
 //    load_dictionary Template Function Implementation
-template<arithmetic ElementT = double>
+template<TinyDIP::arithmetic ElementT = double>
 constexpr auto load_dictionary(const std::string_view dictionary_path = "Dictionary")
 {
     //***Load dictionary***
