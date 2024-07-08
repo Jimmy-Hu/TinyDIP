@@ -101,11 +101,41 @@ constexpr auto each_image( ExPo execution_policy,
     return output_img;
 }
 
-//    get_dictionary Template Function Implementation
-template<>
-constexpr auto get_dictionary(const std::string_view dictionary_path = "Dictionary")
+//    load_dictionary Template Function Implementation
+template<arithmetic ElementT = double>
+constexpr auto load_dictionary(const std::string_view dictionary_path = "Dictionary")
 {
-    
+    //***Load dictionary***
+    std::vector<TinyDIP::Image<ElementT>> x, y;
+    for (std::size_t i = dic_start_index; i <= dic_end_index; ++i)
+    {
+        std::string fullpath = dictionary_path + "/" + std::to_string(i);
+        std::cout << "Dictionary path: " << fullpath << '\n';
+        auto input_dbmp = TinyDIP::double_image::read(fullpath.c_str(), false);
+        auto dct_block_x = TinyDIP::split(input_dbmp, input_dbmp.getWidth() / N1, input_dbmp.getHeight() / N2);
+        TinyDIP::recursive_for_each<2>(
+            std::execution::seq,
+            [&](auto&& element) 
+            {
+                x.push_back(element);
+            },
+            dct_block_x);
+
+        std::string fullpath_gt = dictionary_path + "/GT";
+        auto input_dbmp_gt = TinyDIP::double_image::read(fullpath_gt.c_str(), false);
+        auto dct_block_y = TinyDIP::split(input_dbmp_gt, input_dbmp_gt.getWidth() / N1, input_dbmp_gt.getHeight() / N2);
+        TinyDIP::recursive_for_each<2>(
+            std::execution::seq,
+            [&](auto&& element)
+            {
+                y.push_back(element);
+            },
+            dct_block_y);
+    }
+    auto xy_diff = TinyDIP::recursive_transform([&](auto&& element1, auto&& element2) { return TinyDIP::subtract(element2, element1); }, x, y);
+    std::cout << "x count: " << x.size() << "\txy_diff count: " << xy_diff.size() << '\n';
+    std::map<std::vector<TinyDIP::Image<ElementT>>, std::vector<TinyDIP::Image<ElementT>>> output{x, xy_diff};
+    return output;
 }
 
 //    dct2Test3 Template Function Implementation
