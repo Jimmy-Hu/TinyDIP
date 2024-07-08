@@ -102,10 +102,11 @@ void each_image( ExPo execution_policy,
 	TinyDIP::bmp_write(output_path.c_str(), output_img);
 }
 
+//	dct2Test3 Template Function Implementation
 void dct2Test3( const std::string& input_folder, const std::string& output_folder,
 	            const std::string& dictionary_path,
 	            const std::size_t start_index = 1, const std::size_t end_index = 1,
-	            const std::size_t dic_start_index = 80, const std::size_t dic_end_index = 100,
+	            const std::size_t dic_start_index = 80, const std::size_t dic_end_index = 99,
 	            const std::size_t N1 = 8, const std::size_t N2 = 8, const double sigma = 0.1) noexcept
 {
 	std::cout << "dct2Test3 program..." << '\n';
