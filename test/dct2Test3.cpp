@@ -72,7 +72,7 @@ constexpr auto each_image( ExPo execution_policy,
 
     auto input_hsv = TinyDIP::subimage(
                         TinyDIP::rgb2hsv(input_img),
-                        input_img.getWidth() - mod_x, x.getHeight() - mod_y,
+                        input_img.getWidth() - mod_x, input_img.getHeight() - mod_y,
                         static_cast<double>(input_img.getWidth()) / 2.0, static_cast<double>(input_img.getHeight()) / 2.0
                         );
     auto h_plane = TinyDIP::getHplane(input_hsv);
