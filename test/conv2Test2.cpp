@@ -23,7 +23,7 @@ int main()
     auto output_image = TinyDIP::conv2(TinyDIP::im2double(image1), mask, true);
     TinyDIP::bmp_write("OutputImages/1", TinyDIP::im2uint8(output_image));
     TinyDIP::bmp_write("OutputImages/1_difference",
-                        TinyDIP::im2uint8(TinyDIP::difference(double_image, output_image))
+                        TinyDIP::im2uint8(TinyDIP::multiplies(TinyDIP::difference(double_image, output_image), 3))
                         );
 
     auto end = std::chrono::system_clock::now();
