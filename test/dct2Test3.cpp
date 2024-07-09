@@ -67,7 +67,14 @@ constexpr auto each_image( ExPo execution_policy,
                  std::vector<TinyDIP::Image<ElementT1>>& dictionary_y,
                  const std::size_t N1 = 8, const std::size_t N2 = 8, const ElementT1 sigma = 0.1) noexcept
 {
-    auto input_hsv = TinyDIP::rgb2hsv(input_img);
+    auto mod_x = std::fmod(static_cast<double>(input_img.getWidth()), static_cast<double>(N1));
+    auto mod_y = std::fmod(static_cast<double>(input_img.getHeight()), static_cast<double>(N2));
+
+    auto input_hsv = TinyDIP::subimage(
+                        TinyDIP::rgb2hsv(input_img),
+                        input_img.getWidth() - mod_x, x.getHeight() - mod_y,
+                        static_cast<double>(input_img.getWidth()) / 2.0, static_cast<double>(input_img.getHeight()) / 2.0
+                        );
     auto h_plane = TinyDIP::getHplane(input_hsv);
     auto s_plane = TinyDIP::getSplane(input_hsv);
     auto image_255 = TinyDIP::Image<double>(input_img.getWidth(), input_img.getHeight());
