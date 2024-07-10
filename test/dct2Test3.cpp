@@ -90,7 +90,7 @@ constexpr auto each_image( ExPo execution_policy,
 
     auto output_dct_blocks = TinyDIP::recursive_transform<2>(
         execution_policy,
-        [&](auto&& element) { return TinyDIP::plus(element, get_offset(std::execution::seq, element, dictionary_x, dictionary_y, sigma, std::pow(10, -30))); },
+        [&](auto&& element) { return TinyDIP::plus(element, get_offset(execution_policy, element, dictionary_x, dictionary_y, sigma, std::pow(10, -30))); },
         input_dct_blocks
         );
     
