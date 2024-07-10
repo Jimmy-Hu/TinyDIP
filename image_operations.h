@@ -1294,19 +1294,21 @@ namespace TinyDIP
         return pixelwiseOperation([](auto&& element1, auto&& element2) { return std::abs(element1 - element2); }, input1, input2);
     }
 
-    //  difference Function Implementation
-    constexpr static auto difference(const Image<RGB_DOUBLE>& input1, const Image<RGB_DOUBLE>& input2)
+    //  difference Template Function Implementation
+    template<class InputT>
+    requires((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>))
+    constexpr static auto difference(const Image<InputT>& input1, const Image<InputT>& input2)
     {
         return pixelwiseOperation(
-            [](RGB_DOUBLE element1, RGB_DOUBLE element2)
+            [](InputT element1, InputT element2)
             {
-                RGB_DOUBLE rgb_double;
+                InputT output;
                 for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
                 {
-                    rgb_double.channels[channel_index] = 
+                    output.channels[channel_index] = 
                         std::abs(element1.channels[channel_index] - element2.channels[channel_index]);
                 }
-                return rgb_double;
+                return output;
             }, input1, input2);
     }
 
