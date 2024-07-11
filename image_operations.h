@@ -1414,6 +1414,10 @@ namespace TinyDIP
     template<arithmetic ElementT, std::integral T = int>
     constexpr static auto gaussian_fisheye(const Image<ElementT>& input, T D0)
     {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
         return gaussian_fisheye(input, static_cast<double>(D0));
     }
 
