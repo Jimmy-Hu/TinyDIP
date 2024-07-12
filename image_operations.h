@@ -1703,7 +1703,7 @@ namespace TinyDIP
     //  imgaussfilt template function implementation
     template<typename ElementT, typename SigmaT = double, std::integral SizeT = int>
     requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
-    constexpr static auto imgaussfilt(const Image<ElementT>& input, SigmaT sigma = 0.5, SizeT filter_size = 3, bool is_size_same = true)
+    constexpr static auto imgaussfilt(const Image<ElementT>& input, SigmaT sigma, SizeT filter_size, bool is_size_same = true)
     {
         auto filter_mask = gaussianFigure2D(
                                     filter_size,
