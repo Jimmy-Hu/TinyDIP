@@ -1703,6 +1703,18 @@ namespace TinyDIP
     //  imgaussfilt template function implementation
     template<typename ElementT, typename SigmaT = double, std::integral SizeT = int>
     requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
+    constexpr static auto imgaussfilt(const Image<ElementT>& input, SigmaT sigma, SizeT filter_size, bool is_size_same = true)
+    {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        return imgaussfilt(input, sigma, sigma, filter_size, is_size_same);
+    }
+
+    //  imgaussfilt template function implementation
+    template<typename ElementT, typename SigmaT = double, std::integral SizeT = int>
+    requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
     constexpr static auto imgaussfilt(const Image<ElementT>& input, SigmaT sigma1, SigmaT sigma2, SizeT filter_size, bool is_size_same = true)
     {
         auto filter_mask = gaussianFigure2D(
