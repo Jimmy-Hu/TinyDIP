@@ -14,8 +14,16 @@
 void imgaussfiltTest(std::string_view input_image_path = "InputImages/1", std::string_view output_image_path = "OutputImages/imgaussfiltTest")
 {
     auto input_img = TinyDIP::bmp_read(std::string(input_image_path).c_str(), false);
-    auto output_img = TinyDIP::im2uint8(TinyDIP::imgaussfilt(TinyDIP::im2double(input_img)));
-    TinyDIP::bmp_write(std::string(output_image_path).c_str(), output_img);
+    for(int sigma = 1; sigma < 10; ++sigma)
+    {
+        auto output_img = TinyDIP::im2uint8(
+                                TinyDIP::imgaussfilt(TinyDIP::im2double(input_img), sigma)
+                                );
+        TinyDIP::bmp_write(
+            (std::string(output_image_path) + std::string("_sigma=") + std::to_string(sigma)).c_str(),
+            output_img);
+    }
+    
 }
 
 int main(int argc, char* argv[])
