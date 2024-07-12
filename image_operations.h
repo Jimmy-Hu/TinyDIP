@@ -1142,6 +1142,15 @@ namespace TinyDIP
             }, input1, input2);
     }
 
+    //  divides Template Function Implementation
+    template<class InputT>
+    constexpr static auto divides(const Image<InputT>& input1, const InputT input2)
+    {
+        auto image_for_divides = Image<InputT>(input1.getImageData(), input1.getSize());
+        image_for_divides.setAllValue(input2);
+        return divides(input1, image_for_divides);
+    }
+
     template<class ExPo, class InputT>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static Image<InputT> divides(ExPo execution_policy, const Image<InputT>& input1, const Image<InputT>& input2)
