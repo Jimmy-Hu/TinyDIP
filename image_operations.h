@@ -1697,7 +1697,7 @@ namespace TinyDIP
         {
             throw std::runtime_error("Unsupported dimension!");
         }
-        return imgaussfilt(input, sigma, 2 * std::ceil(2*sigma) + 1, is_size_same);
+        return imgaussfilt(input, sigma, static_cast<int>(2 * std::ceil(2 * sigma) + 1), is_size_same);
     }
 
     //  imgaussfilt template function implementation
