@@ -1288,6 +1288,14 @@ namespace TinyDIP
         return pixelwiseOperation(execution_policy, [](auto&& element) { return std::abs(element); }, input);
     }
 
+    //  abs template function implementation
+    template<class InputT>
+    requires((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>))
+    constexpr static auto abs(const Image<InputT>& input)
+    {
+        return apply_each(input, [&](auto&& planes) { return abs(planes); });
+    }
+
     template<arithmetic ElementT = double>
     constexpr static auto difference(const Image<ElementT>& input1, const Image<ElementT>& input2)
     {
