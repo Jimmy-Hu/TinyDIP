@@ -1692,19 +1692,6 @@ namespace TinyDIP
                                     sigma);
         return conv2(input, filter_mask, is_size_same);
     }
-
-    //  imgaussfilt template function implementation
-    template<typename ElementT, typename SigmaT = double, std::integral SizeT = int>
-    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
-    constexpr static auto imgaussfilt(const Image<ElementT>& input, SigmaT sigma = 0.5, SizeT filter_size = 3, bool is_size_same = true)
-    {
-        if (input.getDimensionality()!=2)
-        {
-            throw std::runtime_error("Unsupported dimension!");
-        }
-        return apply_each(input, [&](auto&& planes) { return imgaussfilt(planes, sigma, filter_size, is_size_same); });
-    }
-
 }
 
 #endif
