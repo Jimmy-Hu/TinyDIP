@@ -1689,9 +1689,8 @@ namespace TinyDIP
     }
 
     //  imgaussfilt template function implementation
-    template<typename ElementT, typename SigmaT = double>
-    requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
-    constexpr static auto imgaussfilt(const Image<ElementT>& input, SigmaT sigma = 0.5, bool is_size_same = true)
+    template<typename ElementT>
+    constexpr static auto imgaussfilt(const Image<ElementT>& input, double sigma = 0.5, bool is_size_same = true)
     {
         if (input.getDimensionality()!=2)
         {
