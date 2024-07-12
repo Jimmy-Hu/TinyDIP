@@ -1699,6 +1699,8 @@ namespace TinyDIP
                                     (static_cast<double>(filter_size) + 1.0) / 2.0,
                                     (static_cast<double>(filter_size) + 1.0) / 2.0,
                                     sigma);
+        auto sum_result = sum(filter_mask);
+        filter_mask = divides(filter_mask, sum_result);
         return conv2(input, filter_mask, is_size_same);
     }
 }
