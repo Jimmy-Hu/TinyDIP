@@ -1440,7 +1440,7 @@ namespace TinyDIP
 
     //  gaussian_fisheye template function implementation
     template<typename ElementT, class FloatingType = double>
-    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, HSV>))
+    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
     constexpr static auto gaussian_fisheye(const Image<ElementT>& input, FloatingType D0)
     {
         return apply_each(input, [&](auto&& planes) { return gaussian_fisheye(planes, D0); });
