@@ -368,7 +368,7 @@ namespace TinyDIP
         auto image_data_g = g.getImageData();
         auto image_data_b = b.getImageData();
         std::vector<OutputT> new_data;
-        for (size_t index = 0; index < r.count(); ++index)
+        for (std::size_t index = 0; index < r.count(); ++index)
         {
             OutputT rgb_double { image_data_r[index],
                                     image_data_g[index],
