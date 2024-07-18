@@ -1058,6 +1058,27 @@ namespace TinyDIP
             );
     }
 
+    //  subtract Template Function Implementation
+    template<class InputT>
+    requires((std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>))
+    constexpr static auto subtract(const Image<InputT>& input1, const Image<InputT>& input2)
+    {
+        check_size_same(input1, input2);
+        return pixelwiseOperation(
+                [](InputT x, InputT y)
+                {
+                    InputT output;
+                    for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
+                    {
+                        output.channels[channel_index] = x.channels[channel_index] - y.channels[channel_index];
+                    }
+                    return output;
+                },
+                input1,
+                input2
+            );
+    }
+
     //  pixelwise_multiplies Template Function Implementation
     template<class InputT1, class InputT2>
     constexpr static auto pixelwise_multiplies(const Image<InputT1>& input1, const Image<InputT2>& input2)
