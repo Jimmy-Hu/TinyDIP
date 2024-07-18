@@ -17,8 +17,13 @@ void differenceOfGaussianTest(std::string_view input_image_path = "InputImages/1
     for(int sigma = 1; sigma < 10; ++sigma)
     {
         auto output_img = TinyDIP::im2uint8(
-                                TinyDIP::difference_of_gaussian(TinyDIP::im2double(input_img), static_cast<double>(sigma), 1.0)
-                                );
+                                TinyDIP::multiplies(
+                                    TinyDIP::abs(
+                                        TinyDIP::difference_of_gaussian(TinyDIP::im2double(input_img), static_cast<double>(sigma), 1.0)
+                                    ),
+                                    3
+                                )
+                            );
         TinyDIP::bmp_write(
             (std::string(output_image_path) + std::string("_sigma=") + std::to_string(sigma)).c_str(),
             output_img);
