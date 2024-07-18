@@ -918,26 +918,18 @@ namespace TinyDIP
     //  multiple standard deviations
     template<class InputT>
     constexpr static Image<InputT> gaussianFigure2D(
-        const size_t xsize, const size_t ysize, 
-        const size_t centerx, const size_t centery,
+        const std::size_t xsize, const std::size_t ysize, 
+        const std::size_t centerx, const std::size_t centery,
         const InputT standard_deviation_x, const InputT standard_deviation_y)
     {
         auto output = Image<InputT>(xsize, ysize);
-        auto row_vector_x = Image<InputT>(xsize, std::size_t{1});
-        for (size_t x = 0; x < xsize; ++x)
-        {
-            row_vector_x.at(x, 0) = normalDistribution1D(static_cast<InputT>(x) - static_cast<InputT>(centerx), standard_deviation_x);
-        }
+        auto row_vector_x = gaussianFigure1D(xsize, centerx, standard_deviation_x);
 
-        auto row_vector_y = Image<InputT>(ysize, std::size_t{1});
-        for (size_t y = 0; y < ysize; ++y)
-        {
-            row_vector_y.at(y, 0) = normalDistribution1D(static_cast<InputT>(y) - static_cast<InputT>(centery), standard_deviation_y);
-        }
+        auto row_vector_y = gaussianFigure1D(ysize, centery, standard_deviation_y);
         
-        for (size_t y = 0; y < ysize; ++y)
+        for (std::size_t y = 0; y < ysize; ++y)
         {
-            for (size_t x = 0; x < xsize; ++x)
+            for (std::size_t x = 0; x < xsize; ++x)
             {
                 output.at(x, y) = row_vector_x.at(x, 0) * row_vector_y.at(y, 0);
             }
