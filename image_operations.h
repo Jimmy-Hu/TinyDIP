@@ -1732,6 +1732,14 @@ namespace TinyDIP
         filter_mask = divides(filter_mask, sum_result);
         return conv2(input, filter_mask, is_size_same);
     }
+
+    //  difference_of_gaussian template function implementation
+    template<typename ElementT, typename SigmaT = double>
+    requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
+    constexpr static auto difference_of_gaussian(const Image<ElementT>& input, SigmaT sigma1, SigmaT sigma2, bool is_size_same = true)
+    {
+        return subtract(imgaussfilt(input, sigma1, is_size_same), imgaussfilt(input, sigma2, is_size_same));
+    }
 }
 
 #endif
