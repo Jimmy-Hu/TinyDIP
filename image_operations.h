@@ -1709,7 +1709,7 @@ namespace TinyDIP
         {
             return imgaussfilt(input, sigma, sigma, static_cast<int>(2 * std::ceil(2 * sigma) + 1), is_size_same);
         }
-        return imgaussfilt(input, sigma, sigma, filter_size, is_size_same);
+        return imgaussfilt(input, sigma, sigma, filter_size, filter_size, is_size_same);
     }
 
     //  imgaussfilt template function implementation
