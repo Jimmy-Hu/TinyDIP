@@ -1734,8 +1734,8 @@ namespace TinyDIP
                                         sigma2));
         sum_result = sum(filter_mask_y);
         filter_mask_y = divides(filter_mask_y, sum_result);             //  Normalization
-        auto output = conv2(input, filter_mask_y, is_size_same);
-        return ;
+        auto output = conv2(output, filter_mask_y, is_size_same);
+        return output;
     }
 
     //  difference_of_gaussian template function implementation
