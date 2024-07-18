@@ -11,7 +11,7 @@
 #include "../image_io.h"
 #include "../image_operations.h"
 
-void differenceOfGaussianTest(std::string_view input_image_path = "InputImages/1", std::string_view output_image_path = "OutputImages/imgaussfiltTest")
+void differenceOfGaussianTest(std::string_view input_image_path = "InputImages/1", std::string_view output_image_path = "OutputImages/differenceOfGaussianTest")
 {
     auto input_img = TinyDIP::bmp_read(std::string(input_image_path).c_str(), false);
     for(int sigma = 1; sigma < 10; ++sigma)
