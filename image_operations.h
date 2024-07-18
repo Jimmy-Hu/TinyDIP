@@ -1729,14 +1729,14 @@ namespace TinyDIP
         }
         auto filter_mask_x = gaussianFigure1D(
                                     filter_size1,
-                                    (static_cast<double>(filter_size) + 1.0) / 2.0,
+                                    (static_cast<double>(filter_size1) + 1.0) / 2.0,
                                     sigma1);
         auto sum_result = sum(filter_mask_x);
         filter_mask_x = divides(filter_mask_x, sum_result);             //  Normalization
         auto output = conv2(input, filter_mask_x, is_size_same);
         auto filter_mask_y = transpose(gaussianFigure1D(
                                         filter_size2,
-                                        (static_cast<double>(filter_size) + 1.0) / 2.0,
+                                        (static_cast<double>(filter_size2) + 1.0) / 2.0,
                                         sigma2));
         sum_result = sum(filter_mask_y);
         filter_mask_y = divides(filter_mask_y, sum_result);             //  Normalization
