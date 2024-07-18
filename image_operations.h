@@ -1717,15 +1717,25 @@ namespace TinyDIP
     requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
     constexpr static auto imgaussfilt(const Image<ElementT>& input, SigmaT sigma1, SigmaT sigma2, SizeT filter_size, bool is_size_same = true)
     {
-        auto filter_mask = gaussianFigure2D(
-                                    filter_size,
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        auto filter_mask_x = gaussianFigure1D(
                                     filter_size,
                                     (static_cast<double>(filter_size) + 1.0) / 2.0,
-                                    (static_cast<double>(filter_size) + 1.0) / 2.0,
-                                    sigma1, sigma2);
-        auto sum_result = sum(filter_mask);
-        filter_mask = divides(filter_mask, sum_result);
-        return conv2(input, filter_mask, is_size_same);
+                                    sigma1);
+        auto sum_result = sum(filter_mask_x);
+        filter_mask_x = divides(filter_mask_x, sum_result);             //  Normalization
+        auto output = conv2(input, filter_mask_x, is_size_same);
+        auto filter_mask_y = transpose(gaussianFigure1D(
+                                        filter_size,
+                                        (static_cast<double>(filter_size) + 1.0) / 2.0,
+                                        sigma2));
+        sum_result = sum(filter_mask_y);
+        filter_mask_y = divides(filter_mask_y, sum_result);             //  Normalization
+        auto output = conv2(input, filter_mask_y, is_size_same);
+        return ;
     }
 
     //  difference_of_gaussian template function implementation
