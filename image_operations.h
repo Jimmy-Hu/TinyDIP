@@ -1695,24 +1695,18 @@ namespace TinyDIP
     }
 
     //  imgaussfilt template function implementation
-    template<typename ElementT>
-    constexpr static auto imgaussfilt(const Image<ElementT>& input, double sigma = 0.5, bool is_size_same = true)
+    //  https://codereview.stackexchange.com/q/292985/231235
+    template<typename ElementT, typename SigmaT = double, std::integral SizeT = int>
+    requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
+    constexpr static auto imgaussfilt(const Image<ElementT>& input, SigmaT sigma, SizeT filter_size = 0, bool is_size_same = true)
     {
         if (input.getDimensionality()!=2)
         {
             throw std::runtime_error("Unsupported dimension!");
         }
-        return imgaussfilt(input, sigma, static_cast<int>(2 * std::ceil(2 * sigma) + 1), is_size_same);
-    }
-
-    //  imgaussfilt template function implementation
-    template<typename ElementT, typename SigmaT = double, std::integral SizeT = int>
-    requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
-    constexpr static auto imgaussfilt(const Image<ElementT>& input, SigmaT sigma, SizeT filter_size, bool is_size_same = true)
-    {
-        if (input.getDimensionality()!=2)
+        if (filter_size == 0)
         {
-            throw std::runtime_error("Unsupported dimension!");
+            return imgaussfilt(input, sigma, static_cast<int>(2 * std::ceil(2 * sigma) + 1), is_size_same);
         }
         return imgaussfilt(input, sigma, sigma, filter_size, is_size_same);
     }
