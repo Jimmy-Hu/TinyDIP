@@ -901,6 +901,20 @@ namespace TinyDIP
         });
     }
 
+
+    //  gaussianFigure1D template function implementation
+    template<class InputT>
+    constexpr static Image<InputT> gaussianFigure1D(
+        const std::size_t size, const std::size_t center, const InputT standard_deviation)
+    {
+        auto row_vector = Image<InputT>(size, std::size_t{1});
+        for (std::size_t x = 0; x < size; ++x)
+        {
+            row_vector.at(x, 0) = normalDistribution1D(static_cast<InputT>(x) - static_cast<InputT>(center), standard_deviation);
+        }
+        return row_vector;
+    }
+
     //  multiple standard deviations
     template<class InputT>
     constexpr static Image<InputT> gaussianFigure2D(
