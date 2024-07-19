@@ -19,7 +19,7 @@ void differenceOfGaussianTest(std::string_view input_image_path = "InputImages/1
         auto output_img = TinyDIP::im2uint8(
                                 TinyDIP::multiplies(
                                     TinyDIP::abs(
-                                        TinyDIP::difference_of_gaussian(TinyDIP::im2double(input_img), static_cast<double>(sigma), 1.0)
+                                        TinyDIP::difference_of_gaussian(TinyDIP::im2double(input_img), static_cast<double>(sigma), static_cast<double>(sigma) - 1.0)
                                     ),
                                     3
                                 )
