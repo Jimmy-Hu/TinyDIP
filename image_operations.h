@@ -1715,6 +1715,13 @@ namespace TinyDIP
         return output;
     }
 
+    //  computeFilterSizeFromSigma template function implementation
+    template<typename ElementT>
+    constexpr static auto computeFilterSizeFromSigma(ElementT sigma)
+    {
+        return 2 * std::ceil(2 * sigma) + 1;
+    }
+
     //  imgaussfilt template function implementation
     //  https://codereview.stackexchange.com/q/292985/231235
     //  giving filter_size a default value of 0, and having the function compute an appropriate size unless the user specifies a positive value.
