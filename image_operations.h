@@ -1778,8 +1778,8 @@ namespace TinyDIP
     constexpr static auto difference_of_gaussian(const Image<ElementT>& input, SigmaT sigma1, SigmaT sigma2, bool is_size_same = true)
     {
         return subtract(
-            imgaussfilt(input, sigma1, static_cast<int>(2 * std::ceil(2 * sigma1) + 1), is_size_same),
-            imgaussfilt(input, sigma2, static_cast<int>(2 * std::ceil(2 * sigma2) + 1), is_size_same)
+            imgaussfilt(input, sigma1, static_cast<int>(computeFilterSizeFromSigma(sigma1)), is_size_same),
+            imgaussfilt(input, sigma2, static_cast<int>(computeFilterSizeFromSigma(sigma2)), is_size_same)
             );
     }
 }
