@@ -214,6 +214,12 @@ namespace TinyDIP
             return size;
         }
 
+        //  getSize function implementation
+        constexpr auto getSize(std::size_t index) const noexcept
+        {
+            return size[index];
+        }
+
         std::vector<ElementT> const& getImageData() const noexcept { return image_data; }      //  expose the internal data
 
         void print(std::string separator = "\t", std::ostream& os = std::cout) const
