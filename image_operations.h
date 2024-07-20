@@ -151,6 +151,38 @@ namespace TinyDIP
         return apply_each(input1, [&](auto&& planes) { return conv2(planes, input2, is_size_same); });
     }
 
+    //  conv3 template function implementation
+    template<typename ElementT>
+    requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
+    constexpr auto conv3(const Image<ElementT>& x, const Image<ElementT>& y, bool is_size_same = false)
+    {
+        auto output = Image<ElementT>(
+                                x.getSize(0) + y.getSize(0) - 1,
+                                x.getSize(1) + y.getSize(1) - 1,
+                                x.getSize(2) + y.getSize(2) - 1);
+
+        for (std::size_t z2 = 0; z2 < y.getSize(2); ++z2)
+        {
+            for (std::size_t z1 = 0; z1 < x.getSize(2); ++z1)
+            {
+                for (std::size_t y2 = 0; y2 < y.getSize(1); ++y2)
+                {
+                    for (std::size_t y1 = 0; y1 < x.getSize(1); ++y1)
+                    {
+                        for (std::size_t x2 = 0; x2 < y.getSize(0); ++x2)
+                        {
+                            for (std::size_t x1 = 0; x1 < x.getSize(0); ++x1)
+                            {
+                                output.at(x1 + x2, y1 + y2, z1 + z2) = output.at(x1 + x2, y1 + y2, z1 + z2) + x.at(x1, y1, z1) * y.at(x2, y2, z2);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return output;
+    }
+
     //  two dimensional discrete fourier transform template function implementation
     template<typename ElementT, typename ComplexType = std::complex<long double>>
     requires(std::floating_point<ElementT> || std::integral<ElementT>)
