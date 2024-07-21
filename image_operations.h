@@ -117,6 +117,14 @@ namespace TinyDIP
         check_height_same(x, y);
     }
 
+    //  zeros template function implementation
+    template<typename ElementT, std::same_as<std::size_t>... Sizes>
+    constexpr static auto zeros(Sizes... sizes)
+    {
+        auto output = Image<ElementT>(sizes...);
+        return output;
+    }
+
     //  conv2 template function implementation
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
