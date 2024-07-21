@@ -125,6 +125,15 @@ namespace TinyDIP
         return output;
     }
 
+    //  ones template function implementation
+    template<typename ElementT, std::same_as<std::size_t>... Sizes>
+    constexpr static auto ones(Sizes... sizes)
+    {
+        auto output = zeros<ElementT>(sizes...);
+        output.setAllValue(1);
+        return output;
+    }
+
     //  conv2 template function implementation
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
