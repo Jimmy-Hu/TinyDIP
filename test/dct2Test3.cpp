@@ -10,6 +10,7 @@
 #include "../image_io.h"
 #include "../image_operations.h"
 
+//  get_offset template function implementation
 template<class ExPo, class ElementT>
 requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
 constexpr static auto get_offset( ExPo execution_policy, 
@@ -18,7 +19,7 @@ constexpr static auto get_offset( ExPo execution_policy,
                                   const std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
                                   const ElementT sigma, const ElementT threshold) noexcept
 {
-    auto output = TinyDIP::Image<ElementT>(input.getWidth(), input.getHeight());
+    auto output = TinyDIP::zeros<ElementT>(input.getWidth(), input.getHeight());
     auto weights = TinyDIP::recursive_transform<1>(
         execution_policy,
         [&](auto&& element)
