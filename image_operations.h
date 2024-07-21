@@ -171,7 +171,7 @@ namespace TinyDIP
     //  conv3 template function implementation
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
-    constexpr auto conv3(const Image<ElementT>& x, const Image<ElementT>& y, bool is_size_same = false)
+    constexpr static auto conv3(const Image<ElementT>& x, const Image<ElementT>& y, bool is_size_same = false)
     {
         auto output = Image<ElementT>(
                                 x.getSize(0) + y.getSize(0) - 1,
