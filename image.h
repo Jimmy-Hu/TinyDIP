@@ -249,6 +249,7 @@ namespace TinyDIP
 
         std::vector<ElementT> const& getImageData() const noexcept { return image_data; }      //  expose the internal data
 
+        //  print function implementation
         void print(std::string separator = "\t", std::ostream& os = std::cout) const
         {
             if(size.size() == 1)
@@ -283,6 +284,28 @@ namespace TinyDIP
                         {
                             //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
                             os << +at(x, y, z) << separator;
+                        }
+                        os << "\n";
+                    }
+                    os << "\n";
+                }
+                os << "\n";
+            }
+            else if (size.size() == 4)
+            {
+                for(std::size_t a = 0; a < size[3]; ++a)
+                {
+                    os << "group = " << a << "\n";
+                    for(std::size_t z = 0; z < size[2]; ++z)
+                    {
+                        for (std::size_t y = 0; y < size[1]; ++y)
+                        {
+                            for (std::size_t x = 0; x < size[0]; ++x)
+                            {
+                                //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
+                                os << +at(a, x, y, z) << separator;
+                            }
+                            os << "\n";
                         }
                         os << "\n";
                     }
