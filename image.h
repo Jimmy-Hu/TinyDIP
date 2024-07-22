@@ -232,6 +232,21 @@ namespace TinyDIP
             return size[index];
         }
 
+        //  getStride function implementation
+        constexpr std::size_t getStride(std::size_t index) const noexcept
+        {
+            if(index == 0)
+            {
+                return std::size_t{1};
+            }
+            std::size_t output = std::size_t{1};
+            for(std::size_t i = 0; i < index; ++i)
+            {
+                output *= size[i];
+            }
+            return output;
+        }
+
         std::vector<ElementT> const& getImageData() const noexcept { return image_data; }      //  expose the internal data
 
         void print(std::string separator = "\t", std::ostream& os = std::cout) const
