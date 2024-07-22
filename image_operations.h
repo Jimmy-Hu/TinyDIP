@@ -168,7 +168,42 @@ namespace TinyDIP
         return apply_each(input1, [&](auto&& planes) { return conv2(planes, input2, is_size_same); });
     }
 
-    //  
+    //  convn_detail template function implementation
+    template<typename ElementT>
+    requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
+    constexpr static void convn_detail(
+                const Image<ElementT>& x,
+                const Image<ElementT>& y,
+                Image<ElementT>& output,
+                std::size_t level = 0,
+                std::size_t index1 = 0,
+                std::size_t index2 = 0,
+                std::size_t index3 = 0)
+    {
+        for (std::size_t i = 0; i < y.getSize(level); ++i)
+        {
+            for (std::size_t j = 0; j < x.getSize(level); ++j)
+            {
+                index1 += (i + j) * output.getStride(level);
+                index2 += j * x.getStride(level);
+                index3 += i * y.getStride(level);
+                if(level == 0)
+                {
+                    output.set(index1) = 
+                            output.get(index1) +
+                            x.get(index2) *
+                            y.get(index3);
+                }
+                else
+                {
+                    convn_detail(x, y, output, level - 1, index1, index2, index3);
+                }
+                index1 -= (i + j) * output.getStride(level);
+                index2 -= j * x.getStride(level);
+                index3 -= i * y.getStride(level);
+            }
+        }
+    }
 
     //  convn template function implementation
     template<typename ElementT>
