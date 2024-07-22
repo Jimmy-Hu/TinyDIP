@@ -53,7 +53,7 @@ namespace TinyDIP
         Image(Sizes... sizes)
         {
             size.reserve(sizeof...(sizes));
-            (size.push_back(sizes), ...);
+            (size.emplace_back(sizes), ...);
             image_data.resize(
                 std::reduce(
                     std::ranges::cbegin(size),
