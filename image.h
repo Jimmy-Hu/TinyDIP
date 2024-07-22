@@ -172,6 +172,13 @@ namespace TinyDIP
             return image_data[position];
         }
 
+        //  set function implementation
+        constexpr Image<ElementT>& set(ElementT element, std::size_t index)
+        {
+            image_data[index] = element;
+            return *this;
+        }
+
         //  cast template function implementation
         template<typename TargetT>
         constexpr Image<TargetT> cast()
