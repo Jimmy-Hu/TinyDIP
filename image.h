@@ -303,7 +303,7 @@ namespace TinyDIP
                             for (std::size_t x = 0; x < size[0]; ++x)
                             {
                                 //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                                os << +at(a, x, y, z) << separator;
+                                os << +at(x, y, z, a) << separator;
                             }
                             os << "\n";
                         }
