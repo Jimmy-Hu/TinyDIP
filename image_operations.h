@@ -173,10 +173,23 @@ namespace TinyDIP
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
     constexpr static auto conv3(const Image<ElementT>& x, const Image<ElementT>& y)
     {
-        Image<ElementT> output(
-                                x.getSize(0) + y.getSize(0) - 1,
-                                x.getSize(1) + y.getSize(1) - 1,
-                                x.getSize(2) + y.getSize(2) - 1);
+        std::vector<std::size_t> output_size;
+        auto xsize = x.getSize();
+        auto ysize = y.getSize();
+        std::transform(
+            std::ranges::cbegin(xsize),
+            std::ranges::cend(xsize),
+            std::ranges::cbegin(ysize),
+            std::back_inserter(output_size),
+            [](auto input1, auto input2) { return input1 + input2 - 1; });
+        std::vector<ElementT> data;
+        data.resize(
+            std::reduce(
+                std::ranges::cbegin(output_size),
+                std::ranges::cend(output_size),
+                1,
+                std::multiplies<>{}));
+        Image<ElementT> output(data, output_size);
         convn(x, y, output, 2);
         return output;
     }
