@@ -168,10 +168,12 @@ namespace TinyDIP
         return apply_each(input1, [&](auto&& planes) { return conv2(planes, input2, is_size_same); });
     }
 
-    //  conv3 template function implementation
+    //  
+
+    //  convn template function implementation
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
-    constexpr static auto conv3(const Image<ElementT>& x, const Image<ElementT>& y)
+    constexpr static auto convn(const Image<ElementT>& x, const Image<ElementT>& y)
     {
         std::vector<std::size_t> output_size;
         auto xsize = x.getSize();
