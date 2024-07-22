@@ -179,10 +179,9 @@ namespace TinyDIP
         }
 
         //  set function implementation
-        constexpr Image<ElementT>& set(ElementT element, std::size_t index) const noexcept
+        constexpr ElementT& set(const std::size_t index) noexcept
         {
-            image_data[index] = element;
-            return *this;
+            return image_data[index];
         }
 
         //  cast template function implementation
