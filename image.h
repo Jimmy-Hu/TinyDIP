@@ -172,6 +172,12 @@ namespace TinyDIP
             return image_data[position];
         }
 
+        //  get function implementation
+        constexpr ElementT get(std::size_t index) const noexcept
+        {
+            return image_data[index];
+        }
+
         //  set function implementation
         constexpr Image<ElementT>& set(ElementT element, std::size_t index) const noexcept
         {
