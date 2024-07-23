@@ -212,25 +212,7 @@ namespace TinyDIP
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
     constexpr static auto convn(const Image<ElementT>& x, const Image<ElementT>& y)
     {
-        std::vector<std::size_t> output_size;
-        auto xsize = x.getSize();
-        auto ysize = y.getSize();
-        std::transform(
-            std::ranges::cbegin(xsize),
-            std::ranges::cend(xsize),
-            std::ranges::cbegin(ysize),
-            std::back_inserter(output_size),
-            [](auto input1, auto input2) { return input1 + input2 - 1; });
-        std::vector<ElementT> data;
-        data.resize(
-            std::reduce(
-                std::ranges::cbegin(output_size),
-                std::ranges::cend(output_size),
-                1,
-                std::multiplies<>{}));
-        Image<ElementT> output(data, output_size);
-        impl::convn_detail(x, y, output, xsize.size() - 1);
-        return output;
+        return convn(std::execution::seq, x, y);
     }
 
     //  two dimensional discrete fourier transform template function implementation
