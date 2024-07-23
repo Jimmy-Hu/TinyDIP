@@ -11,7 +11,7 @@ int main()
 {
     auto start = std::chrono::system_clock::now();
     auto image1 = TinyDIP::ones<double>(std::size_t{2}, std::size_t{2}, std::size_t{2}, std::size_t{2});
-    TinyDIP::convn(image1, image1).print();
+    TinyDIP::convolution(image1, image1).print();
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
