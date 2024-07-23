@@ -1589,6 +1589,7 @@ namespace TinyDIP
                     output.at(x_location + x, y_location + y) = target.at_without_boundary_check(x, y);
                 }
             }
+            return output;
         }
         else
         {
