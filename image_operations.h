@@ -244,9 +244,10 @@ namespace TinyDIP
     }
 
     //  two dimensional discrete fourier transform template function implementation
+    //  https://codereview.stackexchange.com/q/292276/231235
     template<typename ElementT, typename ComplexType = std::complex<long double>>
     requires(std::floating_point<ElementT> || std::integral<ElementT>)
-    constexpr auto dft2(const Image<ElementT>& input)
+    constexpr static auto dft2(const Image<ElementT>& input)
     {
         auto output = Image<ComplexType>(input.getWidth(), input.getHeight());
         auto normalization_factor = std::sqrt(1.0 / static_cast<long double>(input.getWidth() * input.getHeight()));
