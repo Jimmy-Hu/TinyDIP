@@ -169,37 +169,40 @@ namespace TinyDIP
     }
 
     namespace impl {
-        //  convn_detail template function implementation
-        template<typename ElementT>
-        requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
-        constexpr static void convn_detail(
-                    const Image<ElementT>& image,
-                    const Image<ElementT>& kernel,
-                    Image<ElementT>& output,
+        //  convolution_detail template function implementation
+        template<class ExecutionPolicy, typename ImageT, typename KernelT,
+                 typename F = std::multiplies<std::common_type_t<ImageT, KernelT>>>
+        requires((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+                 && std::regular_invocable<F, ImageT, KernelT>)
+        constexpr static void convolution_detail(
+                    ExecutionPolicy&& execution_policy,
+                    const Image<ImageT>& image,
+                    const Image<KernelT>& kernel,
+                    Image<ImageT>& output,
                     std::size_t level = 0,
-                    std::size_t index1 = 0,
+                    std::size_t output_index = 0,
                     std::size_t index2 = 0,
-                    std::size_t index3 = 0)
+                    std::size_t index3 = 0,
+                    F f = {})
         {
             for (std::size_t i = 0; i < kernel.getSize(level); ++i)
             {
                 for (std::size_t j = 0; j < image.getSize(level); ++j)
                 {
-                    index1 += (i + j) * output.getStride(level);
+                    output_index += (i + j) * output.getStride(level);
                     index2 += j * image.getStride(level);
                     index3 += i * kernel.getStride(level);
                     if(level == 0)
                     {
-                        output.set(index1) = 
-                                output.get(index1) +
-                                image.get(index2) *
-                                kernel.get(index3);
+                        output.set(output_index) = 
+                                output.get(output_index) +
+                                std::invoke(f, image.get(index2), kernel.get(index3));
                     }
                     else
                     {
-                        convn_detail(image, kernel, output, level - 1, index1, index2, index3);
+                        convolution_detail(execution_policy, image, kernel, output, level - 1, output_index, index2, index3, f);
                     }
-                    index1 -= (i + j) * output.getStride(level);
+                    output_index -= (i + j) * output.getStride(level);
                     index2 -= j * image.getStride(level);
                     index3 -= i * kernel.getStride(level);
                 }
@@ -207,28 +210,38 @@ namespace TinyDIP
         }
     }
 
-    //  convn template function implementation
+    //  convolution template function implementation
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
-    constexpr static auto convn(const Image<ElementT>& image, const Image<ElementT>& kernel)
+    constexpr static auto convolution(const Image<ElementT>& image, const Image<ElementT>& kernel)
     {
-        return convn(std::execution::seq, image, kernel);
+        return convolution(std::execution::seq, image, kernel);
     }
 
-    //  convn template function implementation (with Execution Policy)
+    //  convolution template function implementation (with Execution Policy)
     template<class ExecutionPolicy, typename ElementT>
     requires((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) &&
              (std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value))
-    constexpr static auto convn(ExecutionPolicy&& execution_policy, const Image<ElementT>& image, const Image<ElementT>& kernel)
+    constexpr static auto convolution(ExecutionPolicy&& execution_policy, const Image<ElementT>& image, const Image<ElementT>& kernel)
     {
+        /*  ranges::to support list: https://stackoverflow.com/a/74662256/6667035
         auto output_size =
             std::views::zip_transform(
                 [](auto lhs, auto rhs){ return lhs + rhs - 1; },
                 image.getSize(),
                 kernel.getSize()
                 ) | std::ranges::to<std::vector>();
+        */
+        std::vector<std::size_t> output_size;
+        std::ranges::transform(
+            image.getSize(),
+            kernel.getSize(),
+            std::back_inserter(output_size),
+            [](auto lhs, auto rhs){ return lhs + rhs - 1; }
+        );
+        
         Image<ElementT> output(output_size);
-        impl::convn_detail(image, kernel, output, image.getSize().size() - 1);
+        impl::convolution_detail(execution_policy, image, kernel, output, image.getSize().size() - 1);
         return output;
     }
 
