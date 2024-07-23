@@ -1875,6 +1875,15 @@ namespace TinyDIP
             imgaussfilt(input, sigma2, static_cast<int>(computeFilterSizeFromSigma(sigma2)), is_size_same)
             );
     }
+
+    //  imbilatfilt template function implementation
+    template<typename ElementT, typename SigmaT = double>
+    requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
+    constexpr static auto imbilatfilt(const Image<ElementT>& input)
+    {
+
+    }
+
 }
 
 #endif
