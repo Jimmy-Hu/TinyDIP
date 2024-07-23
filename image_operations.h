@@ -1570,6 +1570,14 @@ namespace TinyDIP
     template<typename ElementT>
     constexpr static auto paste2D(const Image<ElementT>& background, const Image<ElementT>& target, std::size_t x_location, std::size_t y_location, ElementT default_value = 0)
     {
+        return paste2D(std::execution::seq, background, target, x_location, y_location, default_value);
+    }
+
+    //  paste2D template function implementation (with execution policy)
+    template<class ExecutionPolicy, typename ElementT>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr static auto paste2D(ExecutionPolicy&& execution_policy, const Image<ElementT>& background, const Image<ElementT>& target, std::size_t x_location, std::size_t y_location, ElementT default_value = 0)
+    {
         if (background.getDimensionality()!=2)
         {
             throw std::runtime_error("Unsupported dimension!");
@@ -1595,7 +1603,7 @@ namespace TinyDIP
         {
             std::vector<ElementT> data;
             data.resize((target.getWidth() + x_location) * (target.getHeight() + y_location));
-            std::fill(std::ranges::begin(data), std::ranges::end(data), default_value);
+            std::fill(execution_policy, std::ranges::begin(data), std::ranges::end(data), default_value);
             Image<ElementT> output(data, (target.getWidth() + x_location), (target.getHeight() + y_location));
             for (std::size_t y = 0; y < background.getHeight(); ++y)
             {
