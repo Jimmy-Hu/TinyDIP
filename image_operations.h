@@ -173,35 +173,35 @@ namespace TinyDIP
         template<typename ElementT>
         requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
         constexpr static void convn_detail(
-                    const Image<ElementT>& x,
-                    const Image<ElementT>& y,
+                    const Image<ElementT>& image,
+                    const Image<ElementT>& kernel,
                     Image<ElementT>& output,
                     std::size_t level = 0,
                     std::size_t index1 = 0,
                     std::size_t index2 = 0,
                     std::size_t index3 = 0)
         {
-            for (std::size_t i = 0; i < y.getSize(level); ++i)
+            for (std::size_t i = 0; i < kernel.getSize(level); ++i)
             {
-                for (std::size_t j = 0; j < x.getSize(level); ++j)
+                for (std::size_t j = 0; j < image.getSize(level); ++j)
                 {
                     index1 += (i + j) * output.getStride(level);
-                    index2 += j * x.getStride(level);
-                    index3 += i * y.getStride(level);
+                    index2 += j * image.getStride(level);
+                    index3 += i * kernel.getStride(level);
                     if(level == 0)
                     {
                         output.set(index1) = 
                                 output.get(index1) +
-                                x.get(index2) *
-                                y.get(index3);
+                                image.get(index2) *
+                                kernel.get(index3);
                     }
                     else
                     {
-                        convn_detail(x, y, output, level - 1, index1, index2, index3);
+                        convn_detail(image, kernel, output, level - 1, index1, index2, index3);
                     }
                     index1 -= (i + j) * output.getStride(level);
-                    index2 -= j * x.getStride(level);
-                    index3 -= i * y.getStride(level);
+                    index2 -= j * image.getStride(level);
+                    index3 -= i * kernel.getStride(level);
                 }
             }
         }
