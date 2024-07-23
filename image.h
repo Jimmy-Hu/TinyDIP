@@ -64,6 +64,18 @@ namespace TinyDIP
             );
         }
 
+        Image(const std::vector<std::size_t>& sizes)
+        {
+            size = std::move(sizes);
+            image_data.resize(
+                std::reduce(
+                    std::ranges::cbegin(sizes),
+                    std::ranges::cend(sizes),
+                    std::size_t{1},
+                    std::multiplies<>()
+                    ));
+        }
+
         template<std::ranges::input_range Range,
                  std::same_as<std::size_t>... Sizes>
         Image(const Range& input, Sizes... sizes):
