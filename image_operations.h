@@ -1570,22 +1570,48 @@ namespace TinyDIP
     template<typename ElementT>
     constexpr static auto paste2D(const Image<ElementT>& background, const Image<ElementT>& target, std::size_t x_location, std::size_t y_location, ElementT default_value = 0)
     {
-        if (input.getDimensionality()!=2)
+        if (background.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        if (target.getDimensionality()!=2)
         {
             throw std::runtime_error("Unsupported dimension!");
         }
         if((background.getWidth() >= target.getWidth() + x_location) &&
            (background.getHeight() >= target.getHeight() + y_location))
         {
-            for (std::size_t y = 0; y < output.getHeight(); ++y)
+            auto output = background;
+            for (std::size_t y = 0; y < target.getHeight(); ++y)
             {
-                for (std::size_t x = 0; x < output.getWidth(); ++x)
+                for (std::size_t x = 0; x < target.getWidth(); ++x)
                 {
-                    output.at(x, y) = input.at(cornerx + x, cornery + y);
+                    output.at(x_location + x, y_location + y) = target.at_without_boundary_check(x, y);
                 }
             }
         }
-        
+        else
+        {
+            std::vector<ElementT> data;
+            data.resize((target.getWidth() + x_location) * (target.getHeight() + y_location));
+            std::fill(std::ranges::begin(data), std::ranges::end(data), default_value);
+            Image<ElementT> output(data, (target.getWidth() + x_location), (target.getHeight() + y_location));
+            for (std::size_t y = 0; y < background.getHeight(); ++y)
+            {
+                for (std::size_t x = 0; x < background.getWidth(); ++x)
+                {
+                    output.at(x, y) = background.at_without_boundary_check(x, y);
+                }
+            }
+            for (std::size_t y = 0; y < target.getHeight(); ++y)
+            {
+                for (std::size_t x = 0; x < target.getWidth(); ++x)
+                {
+                    output.at(x_location + x, y_location + y) = target.at_without_boundary_check(x, y);
+                }
+            }
+            return output;
+        }
     }
 
     //  rotate_detail template function implementation
