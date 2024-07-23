@@ -1602,9 +1602,15 @@ namespace TinyDIP
         else
         {
             std::vector<ElementT> data;
-            data.resize((target.getWidth() + x_location) * (target.getHeight() + y_location));
+            auto xsize = (background.getWidth() >= target.getWidth() + x_location)?
+                    background.getWidth():
+                    (target.getWidth() + x_location);
+            auto ysize = (background.getHeight() >= target.getHeight() + y_location)?
+                    background.getHeight():
+                    (target.getHeight() + y_location);
+            data.resize(xsize * ysize);
             std::fill(execution_policy, std::ranges::begin(data), std::ranges::end(data), default_value);
-            Image<ElementT> output(data, (target.getWidth() + x_location), (target.getHeight() + y_location));
+            Image<ElementT> output(data, xsize, ysize);
             for (std::size_t y = 0; y < background.getHeight(); ++y)
             {
                 for (std::size_t x = 0; x < background.getWidth(); ++x)
