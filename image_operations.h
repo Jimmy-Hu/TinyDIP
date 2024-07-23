@@ -210,9 +210,9 @@ namespace TinyDIP
     //  convn template function implementation
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
-    constexpr static auto convn(const Image<ElementT>& x, const Image<ElementT>& y)
+    constexpr static auto convn(const Image<ElementT>& image, const Image<ElementT>& kernel)
     {
-        return convn(std::execution::seq, x, y);
+        return convn(std::execution::seq, image, kernel);
     }
 
     //  convn template function implementation (with Execution Policy)
