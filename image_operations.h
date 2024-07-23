@@ -1629,6 +1629,18 @@ namespace TinyDIP
         }
     }
 
+    //  paste2D template function implementation
+    template<typename ElementT>
+    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
+    constexpr static auto paste2D(const Image<ElementT>& background, const Image<ElementT>& target, std::size_t x_location, std::size_t y_location, ElementT default_value = ElementT{})
+    {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        return apply_each(input, [&](auto&& planes) { return paste2D(background, target, x_location, y_location, default_value); });
+    }
+
     //  rotate_detail template function implementation
     //  rotate_detail template function performs image rotation between 0° to 90°
     template<arithmetic ElementT, std::floating_point FloatingType = double>
