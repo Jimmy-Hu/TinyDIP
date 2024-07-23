@@ -229,7 +229,7 @@ namespace TinyDIP
                 1,
                 std::multiplies<>{}));
         Image<ElementT> output(data, output_size);
-        convn_detail(x, y, output, xsize.size() - 1);
+        impl::convn_detail(x, y, output, xsize.size() - 1);
         return output;
     }
 
