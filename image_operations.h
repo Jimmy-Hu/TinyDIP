@@ -1566,6 +1566,28 @@ namespace TinyDIP
         return apply_each(input, [&](auto&& planes) { return gaussian_fisheye(planes, D0); });
     }
 
+    //  paste2D template function implementation
+    template<typename ElementT>
+    constexpr static auto paste2D(const Image<ElementT>& background, const Image<ElementT>& target, std::size_t x_location, std::size_t y_location, ElementT default_value = 0)
+    {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        if((background.getWidth() >= target.getWidth() + x_location) &&
+           (background.getHeight() >= target.getHeight() + y_location))
+        {
+            for (std::size_t y = 0; y < output.getHeight(); ++y)
+            {
+                for (std::size_t x = 0; x < output.getWidth(); ++x)
+                {
+                    output.at(x, y) = input.at(cornerx + x, cornery + y);
+                }
+            }
+        }
+        
+    }
+
     //  rotate_detail template function implementation
     //  rotate_detail template function performs image rotation between 0° to 90°
     template<arithmetic ElementT, std::floating_point FloatingType = double>
