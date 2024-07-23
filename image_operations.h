@@ -1568,15 +1568,16 @@ namespace TinyDIP
 
     //  paste2D template function implementation
     template<typename ElementT>
-    constexpr static auto paste2D(const Image<ElementT>& background, const Image<ElementT>& target, std::size_t x_location, std::size_t y_location, ElementT default_value = 0)
+    constexpr static auto paste2D(const Image<ElementT>& background, const Image<ElementT>& target, std::size_t x_location, std::size_t y_location, ElementT default_value = ElementT{})
     {
         return paste2D(std::execution::seq, background, target, x_location, y_location, default_value);
     }
 
     //  paste2D template function implementation (with execution policy)
+    //  Test: https://godbolt.org/z/5hjns1nGP
     template<class ExecutionPolicy, typename ElementT>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
-    constexpr static auto paste2D(ExecutionPolicy&& execution_policy, const Image<ElementT>& background, const Image<ElementT>& target, std::size_t x_location, std::size_t y_location, ElementT default_value = 0)
+    constexpr static auto paste2D(ExecutionPolicy&& execution_policy, const Image<ElementT>& background, const Image<ElementT>& target, std::size_t x_location, std::size_t y_location, ElementT default_value = ElementT{})
     {
         if (background.getDimensionality()!=2)
         {
