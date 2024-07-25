@@ -1,4 +1,6 @@
 /* Developed by Jimmy Hu */
+//  Online Test: https://godbolt.org/z/77qTv3KhG
+
 
 #include <cassert>
 #include "../base_types.h"
