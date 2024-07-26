@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <execution>
+#include <map>
 #include <omp.h>
 #include <sstream>
 #include "../base_types.h"
