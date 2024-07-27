@@ -2006,6 +2006,20 @@ namespace TinyDIP
             input.getWidth() + width_expansion - 1,
             height_expansion,
             default_value);
+        auto flipped_horizontal_vertical = flip_horizontal_vertical(input);
+        output = paste2D(
+            execution_policy,
+            output,
+            subimage2(
+                flipped_horizontal_vertical,
+                flipped_horizontal_vertical.getWidth() - width_expansion - 1,
+                flipped_horizontal_vertical.getWidth() - 1,
+                flipped_horizontal_vertical.getHeight() - height_expansion - 1,
+                flipped_horizontal_vertical.getHeight() - 1),
+            0,
+            0,
+            default_value);
+        flipped_horizontal_vertical.print();
         return output;
     }
 
