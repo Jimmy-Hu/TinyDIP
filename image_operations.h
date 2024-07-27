@@ -1875,6 +1875,21 @@ namespace TinyDIP
         return output;
     }
 
+    //  flip_horizontal template function implementation
+    template<typename ElementT>
+    constexpr static auto flip_horizontal(const Image<ElementT>& input)
+    {
+        Image<ElementT> output = input;
+        for(std::size_t y = 0; y < input.getHeight(); ++y)
+        {
+            for(std::size_t x = 0; x < input.getWidth(); ++x)
+            {
+                output.at_without_boundary_check(input.getWidth() - x - 1, y) = input.at_without_boundary_check(x, y);
+            }
+        }
+        return output;
+    }
+
     //  computeFilterSizeFromSigma template function implementation
     template<typename ElementT>
     constexpr static auto computeFilterSizeFromSigma(ElementT sigma)
