@@ -1954,6 +1954,19 @@ namespace TinyDIP
         return output;
     }
 
+    //  generate_mirror_padding_image template function implementation
+    template<typename ElementT>
+    constexpr static auto generate_mirror_padding_image(
+        const Image<ElementT> input,
+        std::size_t width_expansion,
+        std::size_t height_expansion,
+        ElementT default_value = ElementT{})
+    {
+        return generate_mirror_padding_image(std::execution::seq, input, width_expansion, height_expansion, default_value);
+    }
+
+    
+
     //  computeFilterSizeFromSigma template function implementation
     template<typename ElementT>
     constexpr static auto computeFilterSizeFromSigma(ElementT sigma)
