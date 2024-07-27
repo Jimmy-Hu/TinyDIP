@@ -251,7 +251,7 @@ namespace TinyDIP
     requires(std::floating_point<ElementT> || std::integral<ElementT>)
     constexpr static auto dft2(const Image<ElementT>& input)
     {
-        auto output = Image<ComplexType>(input.getWidth(), input.getHeight());
+        Image<ComplexType> output(input.getWidth(), input.getHeight());
         auto normalization_factor = std::sqrt(1.0 / static_cast<long double>(input.getWidth() * input.getHeight()));
         for (std::size_t y = 0; y < input.getHeight(); ++y)
         {
