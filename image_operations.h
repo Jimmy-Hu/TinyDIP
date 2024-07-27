@@ -2031,7 +2031,30 @@ namespace TinyDIP
             input.getWidth() + width_expansion - 1,
             0,
             default_value);
-        flipped_horizontal_vertical.print();
+        output = paste2D(
+            execution_policy,
+            output,
+            subimage2(
+                flipped_horizontal_vertical,
+                flipped_horizontal_vertical.getWidth() - width_expansion - 1,
+                flipped_horizontal_vertical.getWidth() - 1,
+                0,
+                height_expansion),
+            0,
+            input.getHeight() + height_expansion - 1,
+            default_value);
+        output = paste2D(
+            execution_policy,
+            output,
+            subimage2(
+                flipped_horizontal_vertical,
+                0,
+                width_expansion,
+                0,
+                height_expansion),
+            input.getWidth() + width_expansion - 1,
+            input.getHeight() + height_expansion - 1,
+            default_value);
         return output;
     }
 
