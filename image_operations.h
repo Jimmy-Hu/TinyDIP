@@ -1923,6 +1923,26 @@ namespace TinyDIP
         return output;
     }
 
+    //  generate_constant_padding_image template function implementation (with Execution Policy)
+    template<class ExecutionPolicy, typename ElementT>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr static auto generate_constant_padding_image(
+        ExecutionPolicy&& execution_policy, 
+        const Image<ElementT> input,
+        std::size_t width_expansion,
+        std::size_t height_expansion,
+        ElementT default_value = ElementT{})
+    {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        Image<ElementT> output(input.getWidth() + 2 * width_expansion, input.getHeight() + 2 * height_expansion);
+        output.setAllValue(default_value);
+        output = paste2D(execution_policy, output, input, width_expansion, height_expansion, default_value);
+        return output;
+    }
+
     //  computeFilterSizeFromSigma template function implementation
     template<typename ElementT>
     constexpr static auto computeFilterSizeFromSigma(ElementT sigma)
