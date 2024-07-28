@@ -2073,6 +2073,56 @@ namespace TinyDIP
         return generate_replicate_padding_image(std::execution::seq, input, width_expansion, height_expansion, default_value);
     }
 
+    //  generate_replicate_padding_image template function implementation (with Execution Policy)
+    template<class ExecutionPolicy, typename ElementT>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr static auto generate_replicate_padding_image(
+        ExecutionPolicy&& execution_policy, 
+        const Image<ElementT> input,
+        std::size_t width_expansion,
+        std::size_t height_expansion,
+        ElementT default_value = ElementT{})
+    {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        auto output = generate_constant_padding_image(execution_policy, input, width_expansion, height_expansion, default_value);
+        //  Left-top corner
+        output = paste2D(
+            execution_policy,
+            output,
+            multiplies(ones<ElementT>(width_expansion, height_expansion), input.at(0, 0)),
+            0,
+            0,
+            default_value);
+        //  Right-top corner
+        output = paste2D(
+            execution_policy,
+            output,
+            multiplies(ones<ElementT>(width_expansion, height_expansion), input.at(input.getWidth() - 1, 0)),
+            width_expansion + input.getWidth(),
+            0,
+            default_value);
+        //  Left-bottom corner
+        output = paste2D(
+            execution_policy,
+            output,
+            multiplies(ones<ElementT>(width_expansion, height_expansion), input.at(0, input.getHeight() - 1)),
+            0,
+            height_expansion + input.getHeight(),
+            default_value);
+        //  Right-bottom corner
+        output = paste2D(
+            execution_policy,
+            output,
+            multiplies(ones<ElementT>(width_expansion, height_expansion), input.at(input.getWidth() - 1, input.getHeight() - 1)),
+            width_expansion + input.getWidth(),
+            height_expansion + input.getHeight(),
+            default_value);
+        return output;
+    }
+
     //  computeFilterSizeFromSigma template function implementation
     template<typename ElementT>
     constexpr static auto computeFilterSizeFromSigma(ElementT sigma)
