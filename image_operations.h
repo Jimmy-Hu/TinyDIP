@@ -2279,11 +2279,14 @@ namespace TinyDIP
     //  difference_of_gaussian template function implementation
     template<typename ElementT, typename SigmaT = double>
     requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
-    constexpr static auto difference_of_gaussian(const Image<ElementT>& input, SigmaT sigma1, SigmaT sigma2, bool is_size_same = true)
+    constexpr static auto difference_of_gaussian(
+        const Image<ElementT>& input,
+        SigmaT sigma1,
+        SigmaT sigma2)
     {
         return subtract(
-            imgaussfilt(input, sigma1, static_cast<int>(computeFilterSizeFromSigma(sigma1)), is_size_same),
-            imgaussfilt(input, sigma2, static_cast<int>(computeFilterSizeFromSigma(sigma2)), is_size_same)
+            imgaussfilt(input, sigma1, static_cast<int>(computeFilterSizeFromSigma(sigma1))),
+            imgaussfilt(input, sigma2, static_cast<int>(computeFilterSizeFromSigma(sigma2)))
             );
     }
 
