@@ -2074,6 +2074,7 @@ namespace TinyDIP
     }
 
     //  generate_replicate_padding_image template function implementation (with Execution Policy)
+    //  Test: https://godbolt.org/z/1hebz7hEh
     template<class ExecutionPolicy, typename ElementT>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
     constexpr static auto generate_replicate_padding_image(
@@ -2132,36 +2133,40 @@ namespace TinyDIP
                 height_expansion,
                 default_value);
         }
-        
+        Image<ElementT> temp(width_expansion, height_expansion);
         //  Left-top corner
+        temp.setAllValue(input.at(0, 0));
         output = paste2D(
             execution_policy,
             output,
-            multiplies(ones<ElementT>(width_expansion, height_expansion), input.at(0, 0)),
+            temp,
             0,
             0,
             default_value);
         //  Right-top corner
+        temp.setAllValue(input.at(input.getWidth() - 1, 0));
         output = paste2D(
             execution_policy,
             output,
-            multiplies(ones<ElementT>(width_expansion, height_expansion), input.at(input.getWidth() - 1, 0)),
+            temp,
             width_expansion + input.getWidth(),
             0,
             default_value);
         //  Left-bottom corner
+        temp.setAllValue(input.at(0, input.getHeight() - 1));
         output = paste2D(
             execution_policy,
             output,
-            multiplies(ones<ElementT>(width_expansion, height_expansion), input.at(0, input.getHeight() - 1)),
+            temp,
             0,
             height_expansion + input.getHeight(),
             default_value);
         //  Right-bottom corner
+        temp.setAllValue(input.at(input.getWidth() - 1, input.getHeight() - 1));
         output = paste2D(
             execution_policy,
             output,
-            multiplies(ones<ElementT>(width_expansion, height_expansion), input.at(input.getWidth() - 1, input.getHeight() - 1)),
+            temp,
             width_expansion + input.getWidth(),
             height_expansion + input.getHeight(),
             default_value);
