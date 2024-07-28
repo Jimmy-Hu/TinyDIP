@@ -20,14 +20,14 @@ void imgaussfiltTest(std::string_view input_image_path = "InputImages/1", std::s
                                 TinyDIP::imgaussfilt(
                                     TinyDIP::im2double(input_img),
                                     static_cast<double>(sigma),
-                                    TinyDIP::computeFilterSizeFromSigma(static_cast<double>(sigma)),
+                                    TinyDIP::computeFilterSizeFromSigma(sigma),
                                     TinyDIP::BoundaryCondition::mirror)
                                 );
         auto output_img_replicate = TinyDIP::im2uint8(
                                 TinyDIP::imgaussfilt(
                                     TinyDIP::im2double(input_img),
                                     static_cast<double>(sigma),
-                                    TinyDIP::computeFilterSizeFromSigma(static_cast<double>(sigma)),
+                                    TinyDIP::computeFilterSizeFromSigma(sigma),
                                     TinyDIP::BoundaryCondition::replicate)
                                 );
         TinyDIP::bmp_write(
