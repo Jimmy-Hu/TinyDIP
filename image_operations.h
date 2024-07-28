@@ -2194,34 +2194,52 @@ namespace TinyDIP
     }
 
     //  imgaussfilt template function implementation
-    template<typename ElementT, typename SigmaT = double, std::integral SizeT = int>
-    requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
+    //  https://codereview.stackexchange.com/q/292985/231235
+    template<class ExecutionPolicy, typename ElementT, typename SigmaT = double, std::integral SizeT = int>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)&&
+            (std::floating_point<SigmaT> || std::integral<SigmaT>)
     constexpr static auto imgaussfilt(
+        ExecutionPolicy&& execution_policy,
         const Image<ElementT>& input,
         SigmaT sigma1,
         SigmaT sigma2,
         SizeT filter_size1,
         SizeT filter_size2,
-        bool is_size_same = true)
+        BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
+        ElementT value_for_constant_padding = ElementT{})
     {
         if (input.getDimensionality()!=2)
         {
             throw std::runtime_error("Unsupported dimension!");
         }
+        switch(boundaryCondition)
+        {
+            case constant:
+                auto padded_image = generate_constant_padding_image(execution_policy, input, filter_size1, filter_size2, value_for_constant_padding);
+                break;
+            case mirror:
+                auto padded_image = generate_mirror_padding_image(execution_policy, input, filter_size1, filter_size2, value_for_constant_padding);
+                break;
+            case replicate:
+                auto padded_image = generate_replicate_padding_image(execution_policy, input, filter_size1, filter_size2, value_for_constant_padding);
+                break;
+        }
+        
         auto filter_mask_x = gaussianFigure1D(
                                     filter_size1,
                                     (static_cast<double>(filter_size1) + 1.0) / 2.0,
                                     sigma1);
         auto sum_result = sum(filter_mask_x);
         filter_mask_x = divides(filter_mask_x, sum_result);             //  Normalization
-        auto output = conv2(input, filter_mask_x, is_size_same);
+        auto output = conv2(padded_image, filter_mask_x, true);
         auto filter_mask_y = transpose(gaussianFigure1D(
                                         filter_size2,
                                         (static_cast<double>(filter_size2) + 1.0) / 2.0,
                                         sigma2));
         sum_result = sum(filter_mask_y);
         filter_mask_y = divides(filter_mask_y, sum_result);             //  Normalization
-        output = conv2(output, filter_mask_y, is_size_same);
+        output = conv2(output, filter_mask_y, true);
+        output = subimage(output, input.getWidth(), input.getHeight(), static_cast<double>(output.getWidth()) / 2.0, static_cast<double>(output.getHeight()) / 2.0);
         return output;
     }
 
