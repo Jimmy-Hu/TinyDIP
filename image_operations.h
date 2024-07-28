@@ -280,7 +280,7 @@ namespace TinyDIP
     template<typename ElementT, typename ComplexType = std::complex<long double>>
     constexpr auto idft2(const Image<ElementT>& input)
     {
-        auto output = Image<ComplexType>(input.getWidth(), input.getHeight());
+        Image<ComplexType> output(input.getWidth(), input.getHeight());
         auto normalization_factor = std::sqrt(1.0 / static_cast<long double>(input.getWidth() * input.getHeight()));
         for (std::size_t y = 0; y < input.getHeight(); ++y)
         {
