@@ -2099,6 +2099,28 @@ namespace TinyDIP
                 y,
                 default_value);
         }
+        //  Bottom block
+        for(std::size_t y = input.getHeight() + height_expansion; y < input.getHeight() + 2 * height_expansion; ++y)
+        {
+            output = paste2D(
+                execution_policy,
+                output,
+                subimage2(input, 0, input.getWidth() - 1, input.getHeight() - 1, input.getHeight() - 1),
+                width_expansion,
+                y,
+                default_value);
+        }
+        //  Left block
+        for(std::size_t x = 0; x < width_expansion; ++x)
+        {
+            output = paste2D(
+                execution_policy,
+                output,
+                subimage2(input, 0, 0, 0, input.getHeight() - 1),
+                x,
+                height_expansion,
+                default_value);
+        }
         
         //  Left-top corner
         output = paste2D(
