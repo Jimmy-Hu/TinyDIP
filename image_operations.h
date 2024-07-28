@@ -2237,9 +2237,9 @@ namespace TinyDIP
         {
             throw std::runtime_error("Unsupported dimension!");
         }
+        Image<ElementT> padded_image;
         switch(boundaryCondition)
         {
-            Image<ElementT> padded_image;
             case constant:
                 padded_image = generate_constant_padding_image(execution_policy, input, filter_size1, filter_size2, value_for_constant_padding);
                 break;
