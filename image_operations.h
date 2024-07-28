@@ -2180,7 +2180,12 @@ namespace TinyDIP
     //  giving filter_size a default value of 0, and having the function compute an appropriate size unless the user specifies a positive value.
     template<typename ElementT, typename SigmaT = double, std::integral SizeT = int>
     requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
-    constexpr static auto imgaussfilt(const Image<ElementT>& input, SigmaT sigma, SizeT filter_size = 0, bool is_size_same = true)
+    constexpr static auto imgaussfilt(
+        const Image<ElementT>& input,
+        SigmaT sigma,
+        SizeT filter_size = 0,
+        BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
+        ElementT value_for_constant_padding = ElementT{})
     {
         if (input.getDimensionality()!=2)
         {
@@ -2188,9 +2193,23 @@ namespace TinyDIP
         }
         if (filter_size == 0)
         {
-            return imgaussfilt(input, sigma, sigma, static_cast<int>(computeFilterSizeFromSigma(sigma)), static_cast<int>(computeFilterSizeFromSigma(sigma)), is_size_same);
+            return imgaussfilt(
+                input,
+                sigma,
+                sigma,
+                static_cast<int>(computeFilterSizeFromSigma(sigma)),
+                static_cast<int>(computeFilterSizeFromSigma(sigma)),
+                boundaryCondition,
+                value_for_constant_padding);
         }
-        return imgaussfilt(input, sigma, sigma, filter_size, filter_size, is_size_same);
+        return imgaussfilt(
+                        input,
+                        sigma,
+                        sigma,
+                        filter_size,
+                        filter_size,
+                        boundaryCondition,
+                        value_for_constant_padding);
     }
 
     //  imgaussfilt template function implementation
