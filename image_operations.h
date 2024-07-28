@@ -2088,6 +2088,18 @@ namespace TinyDIP
             throw std::runtime_error("Unsupported dimension!");
         }
         auto output = generate_constant_padding_image(execution_policy, input, width_expansion, height_expansion, default_value);
+        //  Top block
+        for(std::size_t y = 0; y < height_expansion; ++y)
+        {
+            output = paste2D(
+                execution_policy,
+                output,
+                subimage2(input, 0, input.getWidth() - 1, 0, 0),
+                width_expansion,
+                y,
+                default_value);
+        }
+        
         //  Left-top corner
         output = paste2D(
             execution_policy,
