@@ -16,12 +16,26 @@ void imgaussfiltTest(std::string_view input_image_path = "InputImages/1", std::s
     auto input_img = TinyDIP::bmp_read(std::string(input_image_path).c_str(), false);
     for(int sigma = 1; sigma < 10; ++sigma)
     {
-        auto output_img = TinyDIP::im2uint8(
-                                TinyDIP::imgaussfilt(TinyDIP::im2double(input_img), static_cast<double>(sigma))
+        auto output_img_mirror = TinyDIP::im2uint8(
+                                TinyDIP::imgaussfilt(
+                                    TinyDIP::im2double(input_img),
+                                    static_cast<double>(sigma),
+                                    TinyDIP::computeFilterSizeFromSigma(static_cast<double>(sigma)),
+                                    TinyDIP::BoundaryCondition::mirror)
+                                );
+        auto output_img_replicate = TinyDIP::im2uint8(
+                                TinyDIP::imgaussfilt(
+                                    TinyDIP::im2double(input_img),
+                                    static_cast<double>(sigma),
+                                    TinyDIP::computeFilterSizeFromSigma(static_cast<double>(sigma)),
+                                    TinyDIP::BoundaryCondition::replicate)
                                 );
         TinyDIP::bmp_write(
-            (std::string(output_image_path) + std::string("_sigma=") + std::to_string(sigma)).c_str(),
-            output_img);
+            (std::string(output_image_path) + std::string("_sigma=") + std::to_string(sigma) + std::string("_mirror")).c_str(),
+            output_img_mirror);
+        TinyDIP::bmp_write(
+            (std::string(output_image_path) + std::string("_sigma=") + std::to_string(sigma) + std::string("_replicate")).c_str(),
+            output_img_replicate);
     }
     
 }
