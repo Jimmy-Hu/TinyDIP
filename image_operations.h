@@ -2239,14 +2239,15 @@ namespace TinyDIP
         }
         switch(boundaryCondition)
         {
+            Image<ElementT> padded_image;
             case constant:
-                auto padded_image = generate_constant_padding_image(execution_policy, input, filter_size1, filter_size2, value_for_constant_padding);
+                padded_image = generate_constant_padding_image(execution_policy, input, filter_size1, filter_size2, value_for_constant_padding);
                 break;
             case mirror:
-                auto padded_image = generate_mirror_padding_image(execution_policy, input, filter_size1, filter_size2, value_for_constant_padding);
+                padded_image = generate_mirror_padding_image(execution_policy, input, filter_size1, filter_size2, value_for_constant_padding);
                 break;
             case replicate:
-                auto padded_image = generate_replicate_padding_image(execution_policy, input, filter_size1, filter_size2, value_for_constant_padding);
+                padded_image = generate_replicate_padding_image(execution_policy, input, filter_size1, filter_size2, value_for_constant_padding);
                 break;
         }
         
