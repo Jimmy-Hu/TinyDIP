@@ -2200,6 +2200,7 @@ namespace TinyDIP
         if (filter_size == 0)
         {
             return imgaussfilt(
+                std::execution::seq,
                 input,
                 sigma,
                 sigma,
@@ -2209,6 +2210,7 @@ namespace TinyDIP
                 value_for_constant_padding);
         }
         return imgaussfilt(
+                        std::execution::seq,
                         input,
                         sigma,
                         sigma,
