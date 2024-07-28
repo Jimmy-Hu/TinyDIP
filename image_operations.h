@@ -2121,6 +2121,17 @@ namespace TinyDIP
                 height_expansion,
                 default_value);
         }
+        //  Right block
+        for(std::size_t x = input.getWidth() + width_expansion; x < input.getWidth() + 2 * width_expansion; ++x)
+        {
+            output = paste2D(
+                execution_policy,
+                output,
+                subimage2(input, input.getWidth() - 1, input.getWidth() - 1, 0, input.getHeight() - 1),
+                x,
+                height_expansion,
+                default_value);
+        }
         
         //  Left-top corner
         output = paste2D(
