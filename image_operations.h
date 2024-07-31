@@ -1524,6 +1524,13 @@ namespace TinyDIP
         return std::ranges::count(input.getImageData(), target);
     }
 
+    //  unique_value template function implementation
+    template<typename ElementT>
+    constexpr static bool unique_value(const Image<ElementT>& input, ElementT target)
+    {
+        return count(input, target) == 1;
+    }
+
     //  butterworth_fisheye template function implementation
     template<arithmetic ElementT, std::floating_point FloatingType = double>
     constexpr static auto butterworth_fisheye(const Image<ElementT>& input, ElementT D0, ElementT N)
