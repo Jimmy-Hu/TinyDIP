@@ -2331,6 +2331,36 @@ namespace TinyDIP
             );
     }
 
+    namespace SIFT_impl {
+        /*  is_it_extremum template function implementation
+            input1, input2 and input3 are 3 * 3 images. If the center pixel (at location (1,1) ) of input2 is the largest / smallest one, 
+            return true; otherwise, return false.
+        */
+        template<typename ElementT>
+        constexpr static bool is_it_extremum(Image<ElementT> input1, Image<ElementT> input2, Image<ElementT> input3, double threshold = -1.0)
+        {
+            auto center_pixel = input2.at(1, 1);
+            auto input2_img_data = input2.getImageData();
+            input2_img_data.erase(input2_img_data.begin() + 4);
+            if (std::abs(center_pixel) > threshold)
+            {
+                if (std::ranges::all_of(input1.getImageData(), [&](ElementT i) { return center_pixel > i; }) &&
+                    std::ranges::all_of(input3.getImageData(), [&](ElementT i) { return center_pixel > i; }) &&
+                    std::ranges::all_of(input2_img_data, [&](ElementT i) { return center_pixel > i; }))
+                {
+                    return true;
+                }
+                if (std::ranges::all_of(input1.getImageData(), [&](ElementT i) { return center_pixel < i; }) &&
+                    std::ranges::all_of(input3.getImageData(), [&](ElementT i) { return center_pixel < i; }) &&
+                    std::ranges::all_of(input2_img_data, [&](ElementT i) { return center_pixel < i; }))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    
     //  SIFT_get_potential_keypoint template function implementation
     template<typename ElementT, typename SigmaT = double>
     requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
