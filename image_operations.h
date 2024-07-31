@@ -2437,6 +2437,47 @@ namespace TinyDIP
                 static_cast<std::size_t>(height_percentage * static_cast<double>(target_height))
             );
         }
+
+        //  get_potential_keypoint template function implementation
+        template<typename ElementT, typename SigmaT = double>
+        requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
+        constexpr static auto get_potential_keypoint(
+            const Image<ElementT>& input,
+            std::size_t octaves_count = 4,
+            std::size_t number_of_scale_levels = 5,
+            SigmaT initial_sigma = 1.6,
+            double k = 1.4142135623730950488016887242097)
+        {
+            //  Generate octaves
+            std::vector<std::vector<Image<ElementT>>> octaves;
+            octaves.reserve(octaves_count);
+            Image<ElementT> base_image = input;
+            for (std::size_t octave_index = 0; octave_index < octaves_count; ++octave_index)
+            {
+                octaves.emplace_back(generate_octave(base_image, number_of_scale_levels, initial_sigma, k));
+                base_image = copyResizeBicubic(
+                    base_image,
+                    static_cast<std::size_t>(static_cast<double>(base_image.getWidth()) / 2.0),
+                    static_cast<std::size_t>(static_cast<double>(base_image.getHeight()) / 2.0));
+            }
+
+            //  Find KeyPoints
+            for (std::size_t octave_index = 0; octave_index < octaves_count; ++octave_index)
+            {
+                auto each_octave = octaves[octave_index];
+                for (std::size_t scale_index = 0; scale_index < each_octave.size() - 2; ++scale_index)
+                {
+                    for (auto&& keypoint_location :
+                        find_local_extrema(each_octave[scale_index], each_octave[scale_index + 1], each_octave[scale_index + 2], input.getWidth(), input.getHeight()))
+                    {
+                        std::cout 
+                            << "x = " << std::get<0>(keypoint_location)
+                            << ", y = " << std::get<1>(keypoint_location) << "\n";
+                    }
+                }
+            }
+
+        }
     }
 
     //  imbilatfilt template function implementation
