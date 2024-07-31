@@ -944,7 +944,7 @@ namespace TinyDIP
         auto x4 = cubicPolate( ndata[12], ndata[13], ndata[14], ndata[15], fracx );
 
         return std::clamp(
-                    cubicPolate( x1, x2, x3, x4, fracy ), 
+                    static_cast<InputT>(cubicPolate(x1, x2, x3, x4, fracy)),
                     static_cast<InputT>(std::numeric_limits<ElementT>::min()),
                     static_cast<InputT>(std::numeric_limits<ElementT>::max()));
     }
