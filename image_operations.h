@@ -2390,24 +2390,25 @@ namespace TinyDIP
             }
             return output;
         }
-    }
-    
-    //  SIFT_get_potential_keypoint template function implementation
-    template<typename ElementT, typename SigmaT = double>
-    requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
-    constexpr static auto SIFT_get_potential_keypoint(
-        const Image<ElementT>& input,
-        std::size_t number_of_scale_levels = 5,
-        SigmaT initial_sigma = 1.6,
-        double k = 1.4142135623730950488016887242097)
-    {
-        std::vector<Image<ElementT>> difference_of_gaussian_images;
-        difference_of_gaussian_images.reserve(number_of_scale_levels - 1);
-        SigmaT sigma = initial_sigma;
-        for(std::size_t index = 0; index < number_of_scale_levels - 1; ++index)
+
+        //  generate_octave template function implementation
+        template<typename ElementT, typename SigmaT = double>
+        requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
+        constexpr static auto generate_octave(
+            const Image<ElementT>& input,
+            std::size_t number_of_scale_levels = 5,
+            SigmaT initial_sigma = 1.6,
+            double k = 1.4142135623730950488016887242097)
         {
-            difference_of_gaussian_images.emplace_back(difference_of_gaussian(input, sigma, sigma * k));
-            sigma *= k;
+            std::vector<Image<ElementT>> difference_of_gaussian_images;
+            difference_of_gaussian_images.reserve(number_of_scale_levels - 1);
+            SigmaT sigma = initial_sigma;
+            for (std::size_t index = 0; index < number_of_scale_levels - 1; ++index)
+            {
+                difference_of_gaussian_images.emplace_back(difference_of_gaussian(input, sigma, sigma * k));
+                sigma *= k;
+            }
+            return difference_of_gaussian_images;
         }
     }
 
