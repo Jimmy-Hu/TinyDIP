@@ -2361,6 +2361,22 @@ namespace TinyDIP
             return false;
         }
 
+        //  mapping_point function implementation
+        std::tuple<std::size_t, std::size_t> mapping_point(
+            std::tuple<std::size_t, std::size_t> input_location,
+            std::size_t input_width,
+            std::size_t input_height,
+            std::size_t target_width,
+            std::size_t target_height)
+        {
+            double width_percentage = static_cast<double>(std::get<0>(input_location)) / static_cast<double>(input_width);
+            double height_percentage = static_cast<double>(std::get<1>(input_location)) / static_cast<double>(input_height);
+            return std::make_tuple(
+                static_cast<std::size_t>(width_percentage * static_cast<double>(target_width)),
+                static_cast<std::size_t>(height_percentage * static_cast<double>(target_height))
+            );
+        }
+
         //  find_local_extrema template function implementation
         template<typename ElementT>
         constexpr static auto find_local_extrema(
@@ -2420,22 +2436,6 @@ namespace TinyDIP
                 sigma *= k;
             }
             return difference_of_gaussian_images;
-        }
-
-        //  mapping_point function implementation
-        std::tuple<std::size_t, std::size_t> mapping_point(
-            std::tuple<std::size_t, std::size_t> input_location,
-            std::size_t input_width,
-            std::size_t input_height,
-            std::size_t target_width,
-            std::size_t target_height)
-        {
-            double width_percentage = static_cast<double>(std::get<0>(input_location)) / static_cast<double>(input_width);
-            double height_percentage = static_cast<double>(std::get<1>(input_location)) / static_cast<double>(input_height);
-            return std::make_tuple(
-                static_cast<std::size_t>(width_percentage * static_cast<double>(target_width)),
-                static_cast<std::size_t>(height_percentage * static_cast<double>(target_height))
-            );
         }
 
         //  get_potential_keypoint template function implementation
