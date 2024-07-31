@@ -1510,6 +1510,13 @@ namespace TinyDIP
         return std::ranges::max(input.getImageData());
     }
 
+    //  minmax template function implementation
+    template<typename ElementT = double>
+    constexpr static auto minmax(const Image<ElementT>& input)
+    {
+        return std::ranges::minmax(input.getImageData());
+    }
+
     //  butterworth_fisheye template function implementation
     template<arithmetic ElementT, std::floating_point FloatingType = double>
     constexpr static auto butterworth_fisheye(const Image<ElementT>& input, ElementT D0, ElementT N)
