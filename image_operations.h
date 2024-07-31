@@ -2335,6 +2335,7 @@ namespace TinyDIP
         /*  is_it_extremum template function implementation
             input1, input2 and input3 are 3 * 3 images. If the center pixel (at location (1,1) ) of input2 is the largest / smallest one, 
             return true; otherwise, return false.
+            Test: https://godbolt.org/z/Kb34EW5Yj
         */
         template<typename ElementT>
         constexpr static bool is_it_extremum(Image<ElementT> input1, Image<ElementT> input2, Image<ElementT> input3, double threshold = -1.0)
