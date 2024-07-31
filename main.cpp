@@ -232,6 +232,7 @@ int main()
     bmp1 = copyResizeBicubic(bmp1, bmp1.getWidth() * 2, bmp1.getHeight() * 2);
     bmp1 = gaussian_fisheye(bmp1, 800.0);
     auto output_img = TinyDIP::subimage2(bmp1, 0, bmp1.getWidth() - 1, 0, bmp1.getHeight() - 1);
+    TinyDIP::SIFT_impl::get_potential_keypoint(TinyDIP::getRplane(output_img));
     auto cv_mat = TinyDIP::to_cv_mat(output_img);
     cv::imshow("Image", cv_mat);
     cv::waitKey(0);
