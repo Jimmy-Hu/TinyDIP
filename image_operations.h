@@ -1478,11 +1478,12 @@ namespace TinyDIP
     }
 
     //  sum template function implementation
-    template<arithmetic ElementT = double>
-    constexpr static auto sum(const Image<ElementT>& input)
+    template<typename ElementT = double, typename F = std::plus<std::common_type_t<ElementT, ElementT>>>
+    requires(std::regular_invocable<F, ElementT, ElementT>)
+    constexpr static auto sum(const Image<ElementT>& input, F f = {})
     {
         auto image_data = input.getImageData();
-        return std::reduce(std::ranges::cbegin(image_data), std::ranges::cend(image_data), ElementT{}, std::plus());
+        return std::reduce(std::ranges::cbegin(image_data), std::ranges::cend(image_data), ElementT{}, f);
     }
 
     //  sum template function implementation with execution policy
