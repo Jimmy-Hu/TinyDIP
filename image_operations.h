@@ -1452,10 +1452,14 @@ namespace TinyDIP
             }, input1, input2);
     }
 
+    //  manhattan_distance Template Function Implementation
     template<arithmetic ElementT = double>
     constexpr static ElementT manhattan_distance(const Image<ElementT>& input1, const Image<ElementT>& input2)
     {
-        check_size_same(input1, input2);
+        if(input1.getSize() != input2.getSize())
+        {
+            throw std::runtime_error("Size mismatched!");
+        }
         return recursive_reduce(difference(input1, input2).getImageData(), ElementT{});
     }
 
