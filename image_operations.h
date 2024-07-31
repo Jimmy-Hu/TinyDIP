@@ -2360,6 +2360,36 @@ namespace TinyDIP
             }
             return false;
         }
+
+        //  find_local_extrema template function implementation
+        template<typename ElementT>
+        constexpr static auto find_local_extrema(Image<ElementT> input1, Image<ElementT> input2, Image<ElementT> input3)
+        {
+            if (input1.getSize() != input2.getSize())
+            {
+                throw std::runtime_error("Size mismatched!");
+            }
+            if (input2.getSize() != input3.getSize())
+            {
+                throw std::runtime_error("Size mismatched!");
+            }
+            const int block_size = 3;
+            std::vector<std::tuple<std::size_t, std::size_t>> output;
+            for (std::size_t y = 1; y < input1.getHeight() - 1; ++y)
+            {
+                for (std::size_t x = 1; x < input1.getHeight() - 1; ++x)
+                {
+                    auto subimage1 = subimage(input1, block_size, block_size, x, y);
+                    auto subimage2 = subimage(input2, block_size, block_size, x, y);
+                    auto subimage3 = subimage(input3, block_size, block_size, x, y);
+                    if (is_it_extremum(subimage1, subimage2, subimage3))
+                    {
+                        output.emplace_back(std::make_tuple(x, y));
+                    }
+                }
+            }
+            return output;
+        }
     }
     
     //  SIFT_get_potential_keypoint template function implementation
