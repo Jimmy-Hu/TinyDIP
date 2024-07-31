@@ -2363,7 +2363,12 @@ namespace TinyDIP
 
         //  find_local_extrema template function implementation
         template<typename ElementT>
-        constexpr static auto find_local_extrema(Image<ElementT> input1, Image<ElementT> input2, Image<ElementT> input3)
+        constexpr static auto find_local_extrema(
+            Image<ElementT> input1,
+            Image<ElementT> input2,
+            Image<ElementT> input3,
+            std::size_t origin_width,
+            std::size_t origin_height)
         {
             if (input1.getSize() != input2.getSize())
             {
@@ -2384,7 +2389,13 @@ namespace TinyDIP
                     auto subimage3 = subimage(input3, block_size, block_size, x, y);
                     if (is_it_extremum(subimage1, subimage2, subimage3))
                     {
-                        output.emplace_back(std::make_tuple(x, y));
+                        output.emplace_back(
+                            mapping_point(
+                                std::make_tuple(x, y),
+                                input1.getWidth(),
+                                input1.getHeight(),
+                                origin_width,
+                                origin_height));
                     }
                 }
             }
