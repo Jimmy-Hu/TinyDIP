@@ -2397,9 +2397,10 @@ namespace TinyDIP
             }
             const int block_size = 3;
             std::vector<std::tuple<std::size_t, std::size_t>> output;
-            for (std::size_t y = 1; y < input1.getHeight() - 1; ++y)
+            #pragma omp parallel for collapse(2)
+            for (int y = 1; y < input1.getHeight() - 1; ++y)
             {
-                for (std::size_t x = 1; x < input1.getHeight() - 1; ++x)
+                for (int x = 1; x < input1.getWidth() - 1; ++x)
                 {
                     auto subimage1 = subimage(input1, block_size, block_size, x, y);
                     auto subimage2 = subimage(input2, block_size, block_size, x, y);
