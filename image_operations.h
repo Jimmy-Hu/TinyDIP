@@ -2463,21 +2463,18 @@ namespace TinyDIP
             }
 
             //  Find KeyPoints
-            for (std::size_t octave_index = 0; octave_index < octaves_count; ++octave_index)
+            std::vector<std::tuple<std::size_t, std::size_t>> keypoints;
+            #pragma omp parallel for
+            for (int octave_index = 0; octave_index < octaves_count; ++octave_index)
             {
                 auto each_octave = octaves[octave_index];
-                for (std::size_t scale_index = 0; scale_index < each_octave.size() - 2; ++scale_index)
+                #pragma omp parallel for
+                for (int scale_index = 0; scale_index < each_octave.size() - 2; ++scale_index)
                 {
-                    for (auto&& keypoint_location :
-                        find_local_extrema(each_octave[scale_index], each_octave[scale_index + 1], each_octave[scale_index + 2], input.getWidth(), input.getHeight()))
-                    {
-                        std::cout 
-                            << "x = " << std::get<0>(keypoint_location)
-                            << ", y = " << std::get<1>(keypoint_location) << "\n";
-                    }
+                    keypoints.append_range(find_local_extrema(each_octave[scale_index], each_octave[scale_index + 1], each_octave[scale_index + 2], input.getWidth(), input.getHeight()));
                 }
             }
-
+            return keypoints;
         }
     }
 
