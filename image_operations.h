@@ -2429,12 +2429,11 @@ namespace TinyDIP
             double k = 1.4142135623730950488016887242097)
         {
             std::vector<Image<ElementT>> difference_of_gaussian_images;
-            difference_of_gaussian_images.reserve(number_of_scale_levels - 1);
-            SigmaT sigma = initial_sigma;
-            for (std::size_t index = 0; index < number_of_scale_levels - 1; ++index)
+            difference_of_gaussian_images.resize(number_of_scale_levels - 1);
+            #pragma omp parallel for
+            for (int index = 0; index < number_of_scale_levels - 1; ++index)
             {
-                difference_of_gaussian_images.emplace_back(difference_of_gaussian(input, sigma, sigma * k));
-                sigma *= k;
+                difference_of_gaussian_images[index] = (difference_of_gaussian(input, initial_sigma * std::pow(k, index), initial_sigma * std::pow(k, index + 1)));
             }
             return difference_of_gaussian_images;
         }
