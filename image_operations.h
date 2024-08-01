@@ -2362,6 +2362,14 @@ namespace TinyDIP
             return false;
         }
 
+        //  keypoint_refinement template function implementation
+        //  refine the given keypoint's location using Taylor expansion
+        template<typename ElementT>
+        constexpr static auto keypoint_refinement(Image<ElementT> input, std::size_t x, std::size_t y)
+        {
+
+        }
+
         //  mapping_point function implementation
         std::tuple<std::size_t, std::size_t> mapping_point(
             std::tuple<std::size_t, std::size_t> input_location,
