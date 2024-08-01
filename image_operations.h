@@ -185,6 +185,7 @@ namespace TinyDIP
                     std::size_t index3 = 0,
                     F f = {})
         {
+            #pragma omp parallel for collapse(2)
             for (std::size_t i = 0; i < kernel.getSize(level); ++i)
             {
                 for (std::size_t j = 0; j < image.getSize(level); ++j)
