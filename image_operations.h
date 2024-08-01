@@ -2373,6 +2373,15 @@ namespace TinyDIP
             ElementT second_derivative_x = (input.at(2, 1) + input.at(0, 1) - 2.0 * input.at(1, 1));
             ElementT second_derivative_y = (input.at(1, 2) + input.at(1, 0) - 2.0 * input.at(1, 1));
             ElementT second_derivative_xy = (input.at(2, 2) - input.at(2, 0) - input.at(0, 2) + input.at(0, 0)) / 4.0;
+            ElementT A = -second_derivative_x / (second_derivative_x * second_derivative_y - second_derivative_xy * second_derivative_xy);
+            ElementT B = second_derivative_xy / (second_derivative_x * second_derivative_y - second_derivative_xy * second_derivative_xy);
+            ElementT C = B;
+            ElementT D = -second_derivative_y / (second_derivative_x * second_derivative_y - second_derivative_xy * second_derivative_xy);
+            ElementT offset_x = A * first_derivative_x + B * first_derivative_y;
+            ElementT offset_y = C * first_derivative_x + D * first_derivative_y;
+            return std::make_tuple(
+                static_cast<ElementT>(x) + offset_x,
+                static_cast<ElementT>(y) + offset_y);
         }
 
         //  mapping_point function implementation
