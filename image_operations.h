@@ -2462,7 +2462,7 @@ namespace TinyDIP
         }
 
         //  get_potential_keypoint template function implementation
-        template<typename ElementT, typename SigmaT = double>
+        template<typename ElementT = double, typename SigmaT = double>
         requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
         constexpr static auto get_potential_keypoint(
             const Image<ElementT>& input,
@@ -2484,8 +2484,10 @@ namespace TinyDIP
                     static_cast<std::size_t>(static_cast<double>(base_image.getHeight()) / 2.0));
             }
 
-            //  Find KeyPoints
-            std::vector<std::tuple<std::size_t, std::size_t>> keypoints;
+            //  Find potential KeyPoints
+            /*  KeyPoint structure: octave_index, scale_index + 1, location_x, location_y
+            */
+            std::vector<std::tuple<std::size_t, std::size_t, ElementT, ElementT>> keypoints;
             #pragma omp parallel for
             for (int octave_index = 0; octave_index < octaves_count; ++octave_index)
             {
@@ -2493,10 +2495,34 @@ namespace TinyDIP
                 #pragma omp parallel for
                 for (int scale_index = 0; scale_index < each_octave.size() - 2; ++scale_index)
                 {
-                    keypoints.append_range(find_local_extrema(each_octave[scale_index], each_octave[scale_index + 1], each_octave[scale_index + 2], input.getWidth(), input.getHeight()));
+                    keypoints.append_range(
+                        find_local_extrema(
+                            each_octave[scale_index],
+                            each_octave[scale_index + 1],
+                            each_octave[scale_index + 2],
+                            octave_index,
+                            scale_index)
+                    );
                 }
             }
-            return keypoints;
+
+            //  
+            std::vector<std::tuple<std::size_t, std::size_t>> mapped_keypoints;
+            for (auto&& each_keypoint : keypoints)
+            {
+                auto input_width = octaves[std::get<0>(each_keypoint)][0].getWidth();
+                auto input_height = octaves[std::get<0>(each_keypoint)][0].getHeight();
+                mapped_keypoints.emplace_back(
+                    mapping_point(
+                        std::make_tuple(std::get<2>(each_keypoint), std::get<3>(each_keypoint)),
+                        input_width,
+                        input_height,
+                        input.getWidth(),
+                        input.getHeight()
+                    ));
+            }
+
+            return mapped_keypoints;
         }
     }
 
