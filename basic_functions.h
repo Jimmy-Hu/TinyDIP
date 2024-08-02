@@ -1403,6 +1403,31 @@ namespace TinyDIP
             return Container(times, n_dim_container_generator<dim - 1, T, Container>(input, times));
         }
     }
+
+    namespace impl {
+        struct recursive_flatten_fn
+        {
+            //  recursive_flatten template function implementation
+            template<std::ranges::range T, class OutputContainer>
+            constexpr auto operator()(const T& input, OutputContainer output_container) const
+            {
+                output_container.append_range(input);
+                return output_container;
+            }
+
+            template<std::ranges::range Container, class OutputContainer>
+            requires (std::ranges::range<std::ranges::range_value_t<Container>>)
+            constexpr auto operator()(const Container& input, OutputContainer output_container) const
+            {
+                for (const auto& element : input) {
+                    output_container = operator()(element, output_container);
+                }
+                return output_container;
+            }
+        };
+
+        inline constexpr recursive_flatten_fn recursive_flatten;
+    }
 }
 
 #endif
