@@ -701,17 +701,18 @@ namespace TinyDIP
         return apply_each(input, [width, height, xcenter, ycenter](auto&& planes) { return subimage(planes, width, height, xcenter, ycenter); });
     }
 
+    //  subimage2 template function implementation
     template<typename ElementT>
     constexpr static auto subimage2(const Image<ElementT>& input, const std::size_t startx, const std::size_t endx, const std::size_t starty, const std::size_t endy)
     {
         assert(startx <= endx);
         assert(starty <= endy);
-        auto output = Image<ElementT>(endx - startx + 1, endy - starty + 1);
+        Image<ElementT> output(endx - startx + 1, endy - starty + 1);
         for (std::size_t y = 0; y < output.getHeight(); ++y)
         {
             for (std::size_t x = 0; x < output.getWidth(); ++x)
             {
-                output.at(x, y) = input.at(startx + x, starty + y);
+                output.at_without_boundary_check(x, y) = input.at_without_boundary_check(startx + x, starty + y);
             }
         }
         return output;
