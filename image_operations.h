@@ -2428,8 +2428,8 @@ namespace TinyDIP
             Image<ElementT> input1,
             Image<ElementT> input2,
             Image<ElementT> input3,
-            std::size_t origin_width,
-            std::size_t origin_height)
+            std::size_t octave_index,
+            std::size_t scale_index)
         {
             if (input1.getSize() != input2.getSize())
             {
@@ -2440,24 +2440,26 @@ namespace TinyDIP
                 throw std::runtime_error("Size mismatched!");
             }
             const int block_size = 3;
-            std::vector<std::tuple<std::size_t, std::size_t>> output;
+            std::vector<std::tuple<std::size_t, std::size_t, ElementT, ElementT>> output;
+            auto width = input1.getWidth() - 1;
+            auto height = input1.getHeight() - 1;
             #pragma omp parallel for collapse(2)
-            for (int y = 1; y < input1.getHeight() - 1; ++y)
+            for (std::size_t y = 1; y < height; ++y)
             {
-                for (int x = 1; x < input1.getWidth() - 1; ++x)
+                for (std::size_t x = 1; x < width; ++x)
                 {
                     auto subimage1 = subimage(input1, block_size, block_size, x, y);
                     auto subimage2 = subimage(input2, block_size, block_size, x, y);
                     auto subimage3 = subimage(input3, block_size, block_size, x, y);
-                    if (is_it_extremum(subimage1, subimage2, subimage3))
+                    if (is_it_extremum(subimage1, subimage2, subimage3) && keypoint_filtering(subimage2))
                     {
+                        auto new_location = keypoint_refinement(subimage2, x, y);
                         output.emplace_back(
-                            mapping_point(
-                                std::make_tuple(x, y),
-                                input1.getWidth(),
-                                input1.getHeight(),
-                                origin_width,
-                                origin_height));
+                            std::make_tuple(
+                                octave_index,
+                                scale_index,
+                                std::get<0>(new_location),
+                                std::get<1>(new_location)));
                     }
                 }
             }
