@@ -2366,7 +2366,10 @@ namespace TinyDIP
         //  keypoint_refinement template function implementation
         //  refine the given keypoint's location using Taylor expansion
         template<typename ElementT = double>
-        constexpr static auto keypoint_refinement(Image<ElementT> input, std::size_t x, std::size_t y)
+        constexpr static auto keypoint_refinement(
+            Image<ElementT>& input,
+            std::size_t x,
+            std::size_t y)
         {
             //  Calculate the gradient at the keypoint (x, y)
             ElementT first_derivative_x = (input.at(2, 1) - input.at(0, 1)) / 2.0;
