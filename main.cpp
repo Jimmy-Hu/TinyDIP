@@ -232,7 +232,19 @@ int main()
     bmp1 = copyResizeBicubic(bmp1, bmp1.getWidth() * 2, bmp1.getHeight() * 2);
     bmp1 = gaussian_fisheye(bmp1, 800.0);
     auto output_img = TinyDIP::subimage2(bmp1, 0, bmp1.getWidth() - 1, 0, bmp1.getHeight() - 1);
-    TinyDIP::SIFT_impl::get_potential_keypoint(TinyDIP::getRplane(TinyDIP::im2double(output_img)));
+    auto SIFT_keypoints = TinyDIP::SIFT_impl::get_potential_keypoint(TinyDIP::getRplane(TinyDIP::im2double(output_img)));
+    std::cout << "SIFT_keypoints = " << SIFT_keypoints.size() << "\n";
+    for (auto&& each_keypoint : SIFT_keypoints)
+    {
+        auto x = std::get<0>(each_keypoint);
+        auto y = std::get<1>(each_keypoint);
+        if (x > output_img.getWidth() || y > output_img.getHeight())
+        {
+            continue;
+        }
+        for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
+            output_img.at(x, y).channels[channel_index] = 255;
+    }
     auto cv_mat = TinyDIP::to_cv_mat(output_img);
     cv::imshow("Image", cv_mat);
     cv::waitKey(0);
