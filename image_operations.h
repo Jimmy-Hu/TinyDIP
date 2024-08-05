@@ -2522,6 +2522,7 @@ namespace TinyDIP
                 #pragma omp parallel for
                 for (int scale_index = 0; scale_index < each_octave.size() - 2; ++scale_index)
                 {
+                    /*
                     keypoints.append_range(
                         find_local_extrema(
                             each_octave[scale_index],
@@ -2530,6 +2531,17 @@ namespace TinyDIP
                             octave_index,
                             scale_index)
                     );
+                    */
+
+                    for (auto&& element : find_local_extrema(
+                        each_octave[scale_index],
+                        each_octave[scale_index + 1],
+                        each_octave[scale_index + 2],
+                        octave_index,
+                        scale_index))
+                    {
+                        keypoints.emplace_back(element);
+                    }
                 }
             }
 
