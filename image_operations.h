@@ -1356,6 +1356,7 @@ namespace TinyDIP
         return output;
     }
 
+    //  idct3_one_plane template function implementation
     template<std::floating_point ElementT = double, std::floating_point OutputT = ElementT>
     Image<OutputT> idct3_one_plane(const std::vector<Image<ElementT>>& input, const std::size_t plane_index)
     {
@@ -1363,6 +1364,7 @@ namespace TinyDIP
         auto N2 = static_cast<OutputT>(input[0].getHeight());
         auto N3 = input.size();
         auto output = Image<OutputT>(input[plane_index].getWidth(), input[plane_index].getHeight());
+        #pragma omp parallel for collapse(2)
         for (std::size_t y = 0; y < output.getHeight(); ++y)
         {
             for (std::size_t x = 0; x < output.getWidth(); ++x)
