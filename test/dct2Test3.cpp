@@ -127,22 +127,24 @@ constexpr auto load_dictionary( const std::string_view dictionary_path = "Dictio
         std::cout << "Dictionary path: " << fullpath << '\n';
         auto input_dbmp = TinyDIP::double_image::read(fullpath.c_str(), false);
         auto dct_block_x = TinyDIP::split(input_dbmp, input_dbmp.getWidth() / N1, input_dbmp.getHeight() / N2);
+        x.reserve(dct_block_x.size() * dct_block_x.at(0).size());
         TinyDIP::recursive_for_each<2>(
             std::execution::seq,
             [&](auto&& element) 
             {
-                x.push_back(element);
+                x.emplace_back(element);
             },
             dct_block_x);
 
         std::string fullpath_gt = std::string(dictionary_path) + "/GT";
         auto input_dbmp_gt = TinyDIP::double_image::read(fullpath_gt.c_str(), false);
         auto dct_block_y = TinyDIP::split(input_dbmp_gt, input_dbmp_gt.getWidth() / N1, input_dbmp_gt.getHeight() / N2);
+        y.reserve(dct_block_y.size() * dct_block_y.at(0).size());
         TinyDIP::recursive_for_each<2>(
             std::execution::seq,
             [&](auto&& element)
             {
-                y.push_back(element);
+                y.emplace_back(element);
             },
             dct_block_y);
     }
