@@ -1315,6 +1315,7 @@ namespace TinyDIP
         auto N3 = input.size();
         auto alpha1 = (plane_index == 0) ? (std::numbers::sqrt2_v<OutputT> / 2) : (OutputT{1.0});
         auto output = Image<OutputT>(input[plane_index].getWidth(), input[plane_index].getHeight());
+        #pragma omp parallel for
         for (std::size_t y = 0; y < output.getHeight(); ++y)
         {
             OutputT alpha2 = (y == 0) ? (std::numbers::sqrt2_v<OutputT> / 2) : (OutputT{1.0});
