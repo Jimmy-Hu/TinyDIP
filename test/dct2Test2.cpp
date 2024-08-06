@@ -75,7 +75,7 @@ void imageSuperResolutionExperiment(
 {
     std::cout << "imageSuperResolutionExperiment function...\n";
     std::size_t n_zero = 4;
-    std::size_t start_index = 10, end_index = 20;
+    std::size_t start_index = 1, end_index = 10;
     #pragma omp parallel for
     for (std::size_t i = start_index; i <= end_index; i++)
     {
