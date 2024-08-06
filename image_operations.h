@@ -1193,6 +1193,10 @@ namespace TinyDIP
     template<class InputT1, class InputT2>
     constexpr static auto pixelwise_multiplies(const Image<InputT1>& input1, const Image<InputT2>& input2)
     {
+        if (input1.getSize() != input2.getSize())
+        {
+            throw std::runtime_error("Size mismatched!");
+        }
         return pixelwiseOperation(std::multiplies<>{}, input1, input2);
     }
 
