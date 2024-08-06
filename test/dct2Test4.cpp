@@ -89,9 +89,28 @@ constexpr auto each_plane(
     );
     auto output_dct_blocks = TinyDIP::recursive_transform<2>(
         execution_policy,
-        [&](auto&& element) { return get_offset(execution_policy, element, dictionary, sigma, std::pow(10, -30)); },
+        [&](auto&& element)
+        {
+            return get_block_output(
+                execution_policy,
+                element,
+                std::get<0>(dictionary),
+                std::get<1>(dictionary),
+                sigma,
+                std::pow(10, -30)
+            );
+        },
         input_dct_blocks
     );
+    auto output_img = TinyDIP::pixelwise_multiplies(
+        TinyDIP::concat(
+            TinyDIP::recursive_transform<2>(
+                execution_policy,
+                [](auto&& element) { return TinyDIP::idct2(element); },
+                output_dct_blocks)
+        ),
+        image_255);
+    return output_img;
 }
 
 //  each_image Template Function Implementation
