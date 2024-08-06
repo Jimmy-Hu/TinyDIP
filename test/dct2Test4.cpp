@@ -13,7 +13,57 @@
 #include "../image_io.h"
 #include "../image_operations.h"
 
-
+//  get_block_output template function implementation
+template<class ExPo, class ElementT>
+requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+constexpr static auto get_block_output(
+    ExPo execution_policy, 
+    const TinyDIP::Image<ElementT>& input,
+    const std::vector<TinyDIP::Image<ElementT>>& dictionary_x,
+    const std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
+    const ElementT sigma,
+    const ElementT threshold
+) noexcept
+{
+    auto output = TinyDIP::zeros<ElementT>(dictionary_y.at(0).getWidth(), dictionary_y.at(0).getHeight());
+    auto weights = TinyDIP::recursive_transform<1>(
+        execution_policy,
+        [&](auto&& element)
+        { 
+            return TinyDIP::normalDistribution1D(TinyDIP::manhattan_distance(input, element), sigma);
+        }, dictionary_x);
+    auto sum_of_weights = TinyDIP::recursive_reduce(weights, ElementT{});
+    std::cout << "sum_of_weights: " << std::to_string(sum_of_weights) << '\n';
+    if (sum_of_weights < threshold)
+    {
+        return output;
+    }
+    //std::cout << "#weights: " << std::to_string(weights.size()) << "\t#dictionary_y: " << std::to_string(dictionary_y.size()) << '\n';
+    if constexpr(true)    //    Use OpenMP
+    {
+        std::vector<TinyDIP::Image<ElementT>> outputs;
+        outputs.resize(dictionary_y.size());
+        #pragma omp parallel for
+        for (std::size_t i = 0; i < dictionary_y.size(); ++i)
+        {
+            outputs[i] = dictionary_y[i] * weights[i];
+        }
+        output = TinyDIP::recursive_reduce(outputs, output);
+    }
+    else
+    {
+        auto outputs = TinyDIP::recursive_transform<1>(
+        [&](auto&& input1, auto&& input2)
+        {
+            return input1 * input2;
+        }, dictionary_y, weights);
+        output =  TinyDIP::recursive_reduce(outputs, output);
+    }
+    auto image_for_divides = TinyDIP::Image<ElementT>(output.getWidth(), output.getHeight());
+    image_for_divides.setAllValue(sum_of_weights);
+    output = TinyDIP::divides(output, image_for_divides);
+    return output;
+}
 
 //  each_plane Template Function Implementation
 template<class ExPo, class ElementT1, class ElementT2>
