@@ -720,9 +720,12 @@ namespace TinyDIP
         assert(startx <= endx);
         assert(starty <= endy);
         Image<ElementT> output(endx - startx + 1, endy - starty + 1);
-        for (std::size_t y = 0; y < output.getHeight(); ++y)
+        auto width = output.getWidth();
+        auto height = output.getHeight();
+        #pragma omp parallel for collapse(2)
+        for (std::size_t y = 0; y < height; ++y)
         {
-            for (std::size_t x = 0; x < output.getWidth(); ++x)
+            for (std::size_t x = 0; x < width; ++x)
             {
                 output.at_without_boundary_check(x, y) = input.at_without_boundary_check(startx + x, starty + y);
             }
