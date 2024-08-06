@@ -132,10 +132,13 @@ constexpr auto each_image( ExPo execution_policy,
                         );
     auto Rplane = TinyDIP::im2double(TinyDIP::getRplane(input_subimage));
     auto Rplane_output = each_plane(execution_policy, Rplane, dictionary, low_res_N1, low_res_N2, sigma);
+    std::cout << "Rplane_output calculation done\n";
     auto Gplane = TinyDIP::im2double(TinyDIP::getGplane(input_subimage));
     auto Gplane_output = each_plane(execution_policy, Gplane, dictionary, low_res_N1, low_res_N2, sigma);
+    std::cout << "Gplane_output calculation done\n";
     auto Bplane = TinyDIP::im2double(TinyDIP::getBplane(input_subimage));
     auto Bplane_output = each_plane(execution_policy, Bplane, dictionary, low_res_N1, low_res_N2, sigma);
+    std::cout << "Bplane_output calculation done\n";
     return TinyDIP::constructRGB(
         TinyDIP::im2uint8(Rplane_output),
         TinyDIP::im2uint8(Gplane_output),
