@@ -58,6 +58,27 @@ void dct2Test2( std::string arg1, std::string arg2,
     return;
 }
 
+//  imageSuperResolutionExperiment Function Implementation
+void imageSuperResolutionExperiment(
+    std::string input_high_res_img_path = "InputImages/HighRes",
+    std::string output_high_res_img_path = "Dictionary/HighRes",
+    std::size_t N1 = 80,
+    std::size_t N2 = 80)
+{
+    std::cout << "imageSuperResolutionExperiment function...\n";
+    std::size_t n_zero = 4;
+    std::size_t start_index = 1, end_index = 9;
+    #pragma omp parallel for
+    for (std::size_t i = start_index; i <= end_index; i++)
+    {
+        std::string old_str = std::to_string(i);
+        std::string fullpath = input_high_res_img_path + std::string("/") + std::string(n_zero - std::min(n_zero, old_str.length()), '0') + old_str;;
+        std::cout << fullpath << '\n';
+        auto output_path = output_high_res_img_path + std::string("/") + std::to_string(i);
+        each_image(fullpath, output_path, N1, N2);
+    }
+}
+
 int main(int argc, char* argv[])
 {
     auto start = std::chrono::system_clock::now();
