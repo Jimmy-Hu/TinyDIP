@@ -641,6 +641,12 @@ namespace TinyDIP
         return convert_image<RGB>(input);
     }
 
+    //  im2uint8 function implementation
+    constexpr static auto im2uint8(Image<double> input)
+    {
+        return input.cast<GrayScale>();
+    }
+
     //  print_with_latex function implementation
     static void print_with_latex(Image<RGB> input)
     {
