@@ -196,7 +196,7 @@ constexpr auto load_dictionary(
 int main(int argc, char* argv[])
 {
     auto start = std::chrono::system_clock::now();
-    std::cout << std::to_string(argc) << '\n';
+    std::cout << "argc = " << std::to_string(argc) << '\n';
     if(argc == 2)
     {
         
@@ -204,17 +204,12 @@ int main(int argc, char* argv[])
     else
     {
         auto dictionary = load_dictionary();
-        for(std::size_t sigma = 1; sigma < 10; ++sigma)
-        {
-            std::string input_path = "InputImages/RainVideos/2.bmp";
-            auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
-            
-            //auto output_img = each_image(std::execution::seq, input_img, std::get<0>(dictionary), std::get<1>(dictionary), 8, 8, static_cast<double>(sigma) / 10.0);
-            //auto output_path = std::string("OutputImages/2_") + std::to_string(static_cast<double>(sigma) / 10.0);
-            //std::cout << "Save output to " << output_path << '\n';
-            //TinyDIP::bmp_write(output_path.c_str(), output_img);
-            //TinyDIP::bmp_write((output_path + std::string("_difference")).c_str(), output_img);
-        }
+        std::string input_path = "InputImages/RainVideos/2.bmp";
+        auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
+        auto output_img = each_image(std::execution::seq, input_img, dictionary, 8, 8, 10.0);
+        auto output_path = std::string("OutputImages/2_superres") + std::to_string(10);
+        std::cout << "Save output to " << output_path << '\n';
+        TinyDIP::bmp_write(output_path.c_str(), output_img);
         
 
     }
