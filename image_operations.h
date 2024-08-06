@@ -1952,7 +1952,12 @@ namespace TinyDIP
     template<typename ElementT>
     constexpr static auto flip_horizontal_vertical(const Image<ElementT>& input)
     {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
         Image<ElementT> output = input;
+        #pragma omp parallel for collapse(2)
         for(std::size_t y = 0; y < input.getHeight(); ++y)
         {
             for(std::size_t x = 0; x < input.getWidth(); ++x)
