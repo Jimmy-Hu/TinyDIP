@@ -13,6 +13,37 @@
 #include "../image_io.h"
 #include "../image_operations.h"
 
+
+
+//  each_plane Template Function Implementation
+template<class ExPo, class ElementT1, class ElementT2>
+requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+constexpr auto each_plane(
+    ExPo execution_policy,
+    const TinyDIP::Image<ElementT2>& input_img,
+    std::tuple<std::vector<TinyDIP::Image<ElementT1>>, std::vector<TinyDIP::Image<ElementT1>>>& dictionary,
+    const std::size_t low_res_N1 = 8, const std::size_t low_res_N2 = 8, const ElementT1 sigma = 0.1
+) noexcept
+{
+    auto image_255 = TinyDIP::Image<double>(input_img.getSize());
+    image_255.setAllValue(255);
+    auto input_dct_blocks = TinyDIP::recursive_transform<2>(
+        std::execution::seq,
+        [](auto&& element) { return TinyDIP::dct2(element); },
+        TinyDIP::split(
+            TinyDIP::divides(
+                input_img,
+                image_255),
+            input_img.getWidth() / low_res_N1,
+            input_img.getHeight() / low_res_N2)
+    );
+    auto output_dct_blocks = TinyDIP::recursive_transform<2>(
+        execution_policy,
+        [&](auto&& element) { return get_offset(execution_policy, element, dictionary, sigma, std::pow(10, -30)); },
+        input_dct_blocks
+    );
+}
+
 //  each_image Template Function Implementation
 template<class ExPo, class ElementT1, class ElementT2>
 requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
