@@ -102,14 +102,14 @@ constexpr auto each_plane(
         },
         input_dct_blocks
     );
-    auto output_img = TinyDIP::pixelwise_multiplies(
-        TinyDIP::concat(
-            TinyDIP::recursive_transform<2>(
-                execution_policy,
-                [](auto&& element) { return TinyDIP::idct2(element); },
-                output_dct_blocks)
-        ),
-        image_255);
+    auto output_img = TinyDIP::concat(
+        TinyDIP::recursive_transform<2>(
+            execution_policy,
+            [](auto&& element) { return TinyDIP::idct2(element); },
+            output_dct_blocks)
+    );
+    image_255 = TinyDIP::Image<double>(output_img.getSize());
+    output_img = TinyDIP::pixelwise_multiplies(output_img, image_255);
     return output_img;
 }
 
