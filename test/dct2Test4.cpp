@@ -109,6 +109,7 @@ constexpr auto each_plane(
             output_dct_blocks)
     );
     image_255 = TinyDIP::Image<double>(output_img.getSize());
+    image_255.setAllValue(255);
     output_img = TinyDIP::pixelwise_multiplies(output_img, image_255);
     return output_img;
 }
