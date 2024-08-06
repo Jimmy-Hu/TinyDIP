@@ -1371,10 +1371,12 @@ namespace TinyDIP
         auto N2 = static_cast<OutputT>(input[0].getHeight());
         auto N3 = input.size();
         auto output = Image<OutputT>(input[plane_index].getWidth(), input[plane_index].getHeight());
+        auto height = output.getHeight();
+        auto width = output.getWidth();
         #pragma omp parallel for collapse(2)
-        for (std::size_t y = 0; y < output.getHeight(); ++y)
+        for (std::size_t y = 0; y < height; ++y)
         {
-            for (std::size_t x = 0; x < output.getWidth(); ++x)
+            for (std::size_t x = 0; x < width; ++x)
             {
                 OutputT sum{};
                 for (std::size_t inner_z = 0; inner_z < N3; ++inner_z)
