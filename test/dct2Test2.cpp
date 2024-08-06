@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-        
+        imageSuperResolutionExperiment();
     }
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
