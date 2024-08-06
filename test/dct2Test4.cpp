@@ -118,8 +118,7 @@ template<class ExPo, class ElementT1, class ElementT2>
 requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
 constexpr auto each_image( ExPo execution_policy, 
                  const TinyDIP::Image<ElementT2>& input_img,
-                 std::vector<TinyDIP::Image<ElementT1>>& dictionary_x,
-                 std::vector<TinyDIP::Image<ElementT1>>& dictionary_y,
+                 std::tuple<std::vector<TinyDIP::Image<ElementT1>>, std::vector<TinyDIP::Image<ElementT1>>>& dictionary,
                  const std::size_t low_res_N1 = 8, const std::size_t low_res_N2 = 8, const ElementT1 sigma = 0.1) noexcept
 {
     std::cout << "Call each_image function..." << '\n';
@@ -131,47 +130,17 @@ constexpr auto each_image( ExPo execution_policy,
                         input_img.getWidth() - mod_x, input_img.getHeight() - mod_y,
                         static_cast<double>(input_img.getWidth()) / 2.0, static_cast<double>(input_img.getHeight()) / 2.0
                         );
-    auto image_255 = TinyDIP::Image<double>(input_subimage.getWidth(), input_subimage.getHeight());
-    image_255.setAllValue(255);
     auto Rplane = TinyDIP::im2double(TinyDIP::getRplane(input_subimage));
-    auto input_dct_blocks = TinyDIP::recursive_transform<2>(
-        std::execution::seq,
-        [](auto&& element) { return TinyDIP::dct2(element); },
-        TinyDIP::split(
-            TinyDIP::divides(
-                Rplane,
-                image_255),
-            Rplane.getWidth() / low_res_N1,
-            Rplane.getHeight() / low_res_N2)
+    auto Rplane_output = each_plane(execution_policy, Rplane, dictionary, low_res_N1, low_res_N2, sigma);
+    auto Gplane = TinyDIP::im2double(TinyDIP::getGplane(input_subimage));
+    auto Gplane_output = each_plane(execution_policy, Gplane, dictionary, low_res_N1, low_res_N2, sigma);
+    auto Bplane = TinyDIP::im2double(TinyDIP::getBplane(input_subimage));
+    auto Bplane_output = each_plane(execution_policy, Bplane, dictionary, low_res_N1, low_res_N2, sigma);
+    return TinyDIP::constructRGB(
+        TinyDIP::im2uint8(Rplane_output),
+        TinyDIP::im2uint8(Gplane_output),
+        TinyDIP::im2uint8(Bplane_output)
     );
-    dct2_results.at(0).at(0).print();
-    /*
-    
-    auto input_dct_blocks = TinyDIP::recursive_transform<2>(
-        execution_policy,
-        [](auto&& element) { return TinyDIP::dct2(element); },
-        TinyDIP::split(v_plane, v_plane.getWidth() / N1, v_plane.getHeight() / N2)
-        );
-
-    auto output_dct_blocks = TinyDIP::recursive_transform<2>(
-        execution_policy,
-        [&](auto&& element) { return TinyDIP::plus(element, get_offset(execution_policy, element, dictionary_x, dictionary_y, sigma, std::pow(10, -30))); },
-        input_dct_blocks
-        );
-    
-    auto output_img = TinyDIP::hsv2rgb(TinyDIP::constructHSV(
-        h_plane,
-        s_plane,
-        TinyDIP::pixelwise_multiplies(
-            TinyDIP::concat(
-                TinyDIP::recursive_transform<2>(
-                    execution_policy,
-                    [](auto&& element) { return TinyDIP::idct2(element); },
-                    output_dct_blocks)),
-            image_255)
-    ));
-    */
-    return input_img;
 }
 
 //    load_dictionary Template Function Implementation
