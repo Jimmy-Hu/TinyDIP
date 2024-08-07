@@ -135,7 +135,7 @@ void imageSuperResolutionExperiment(
         std::string fullpath = input_high_res_img_path + std::string("/") + std::string(n_zero - std::min(n_zero, old_str.length()), '0') + old_str;;
         std::cout << fullpath << '\n';
         auto output_path = output_high_res_img_path + std::string("/") + std::to_string(i);
-        each_image(fullpath, output_path, high_res_N1, high_res_N2);
+        each_image_SuperResolution(fullpath, output_path, high_res_N1, high_res_N2);
     }
     #pragma omp parallel for
     for (std::size_t i = start_index; i <= end_index; i++)
@@ -144,7 +144,7 @@ void imageSuperResolutionExperiment(
         std::string fullpath = input_low_res_img_path + std::string("/") + std::string(n_zero - std::min(n_zero, old_str.length()), '0') + old_str;;
         std::cout << fullpath << '\n';
         auto output_path = output_low_res_img_path + std::string("/") + std::to_string(i);
-        each_image(fullpath, output_path, low_res_N1, low_res_N2);
+        each_image_SuperResolution(fullpath, output_path, low_res_N1, low_res_N2);
     }
 }
 
