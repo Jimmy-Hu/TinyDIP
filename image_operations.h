@@ -2397,8 +2397,8 @@ namespace TinyDIP
         template<typename ElementT = double>
         constexpr static auto keypoint_refinement(
             Image<ElementT>& input,
-            std::size_t x,
-            std::size_t y)
+            std::tuple<std::size_t, std::size_t> point
+            )
         {
             //  Calculate the gradient at the keypoint (x, y)
             ElementT first_derivative_x = (input.at(2, 1) - input.at(0, 1)) / 2.0;
@@ -2413,8 +2413,8 @@ namespace TinyDIP
             ElementT offset_x = A * first_derivative_x + B * first_derivative_y;
             ElementT offset_y = C * first_derivative_x + D * first_derivative_y;
             return std::make_tuple(
-                static_cast<ElementT>(x) + offset_x,
-                static_cast<ElementT>(y) + offset_y);
+                static_cast<ElementT>(std::get<0>(point)) + offset_x,
+                static_cast<ElementT>(std::get<1>(point)) + offset_y);
         }
 
         //  keypoint_filtering template function implementation
