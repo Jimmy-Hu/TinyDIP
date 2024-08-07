@@ -62,6 +62,27 @@ void dct2Test2( std::string arg1, std::string arg2,
     return;
 }
 
+//  dct2_split_divides_255 Template Function Implementation
+template<class ElementT>
+constexpr static auto dct2_split_divides_255(
+    const TinyDIP::Image<ElementT>& input,
+    std::size_t N1 = 8,
+    std::size_t N2 = 8)
+{
+    auto image_255 = TinyDIP::Image<double>(input.getWidth(), input.getHeight());
+    image_255.setAllValue(255);
+    return TinyDIP::recursive_transform<2>(
+        std::execution::seq,
+        [](auto&& element) { return TinyDIP::dct2(element); },
+        TinyDIP::split(
+            TinyDIP::divides(
+                input,
+                image_255),
+            input.getWidth() / N1,
+            input.getHeight() / N2)
+    );
+}
+
 //  each_image_SuperResolution Function Implementation
 /*
 * each_image_SuperResolution Function performs block based DCT on each channel of a RGB image
