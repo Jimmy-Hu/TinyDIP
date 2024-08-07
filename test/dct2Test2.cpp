@@ -82,20 +82,12 @@ void each_image_SuperResolution(
         input_img.getWidth() - mod_x, input_img.getHeight() - mod_y,
         static_cast<double>(input_img.getWidth()) / 2.0, static_cast<double>(input_img.getHeight()) / 2.0
     );
-    auto image_255 = TinyDIP::Image<double>(input_img.getWidth(), input_img.getHeight());
-    image_255.setAllValue(255);
-    auto dct2_R_results = TinyDIP::recursive_transform<2>(
-        std::execution::seq,
-        [](auto&& element) { return TinyDIP::dct2(element); },
-        TinyDIP::split(
-            TinyDIP::divides(
-                TinyDIP::im2double(TinyDIP::getRplane(input_img)),
-                image_255),
-            input_img.getWidth() / N1,
-            input_img.getHeight() / N2)
-    );
-    auto dct2_R_combined = TinyDIP::concat(dct2_R_results);
+    auto dct2_R_combined = TinyDIP::concat(dct2_split_divides_255(TinyDIP::im2double(TinyDIP::getRplane(input_img))));
     TinyDIP::double_image::write((output_path + std::string("_R")).c_str(), dct2_R_combined);
+    auto dct2_G_combined = TinyDIP::concat(dct2_split_divides_255(TinyDIP::im2double(TinyDIP::getGplane(input_img))));
+    TinyDIP::double_image::write((output_path + std::string("_G")).c_str(), dct2_G_combined);
+    auto dct2_B_combined = TinyDIP::concat(dct2_split_divides_255(TinyDIP::im2double(TinyDIP::getBplane(input_img))));
+    TinyDIP::double_image::write((output_path + std::string("_B")).c_str(), dct2_B_combined);
 }
 
 //  imageSuperResolutionExperiment Function Implementation
