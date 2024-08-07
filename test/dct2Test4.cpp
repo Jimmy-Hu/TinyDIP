@@ -192,6 +192,72 @@ namespace impl{
         }
         return std::make_tuple(x, y);
     }
+
+    //    load_dictionary_RGB Template Function Implementation
+    template<TinyDIP::arithmetic ElementT = double>
+    constexpr auto load_dictionary_RGB( 
+        const std::string_view dictionary_path = "Dictionary",
+        const std::size_t dic_start_index = 1,
+        const std::size_t dic_end_index = 10,
+        std::size_t high_res_N1 = 80,
+        std::size_t high_res_N2 = 80,
+        std::size_t low_res_N1 = 8,
+        std::size_t low_res_N2 = 8)
+    {
+        //***Load dictionary***
+        std::vector<TinyDIP::Image<ElementT>> x, y;
+        for (std::size_t i = dic_start_index; i <= dic_end_index; ++i)
+        {
+            std::string low_res_fullpath = std::string(dictionary_path) + "/LowRes/Bucubic0.1/" + std::to_string(i) + std::string("_R");
+            std::string high_res_fullpath = std::string(dictionary_path) + "/HighRes/" + std::to_string(i) + std::string("_R");
+            auto dictionary_R = load_dictionary_RGB_each_channel(
+                low_res_fullpath,
+                high_res_fullpath,
+                dic_start_index,
+                dic_end_index,
+                high_res_N1,
+                high_res_N2,
+                low_res_N1,
+                low_res_N2);
+            for(auto&& each_x : std::get<0>(dictionary_R))
+                x.emplace_back(each_x);
+            for(auto&& each_y : std::get<1>(dictionary_R))
+                y.emplace_back(each_y);
+            low_res_fullpath = std::string(dictionary_path) + "/LowRes/Bucubic0.1/" + std::to_string(i) + std::string("_G");
+            high_res_fullpath = std::string(dictionary_path) + "/HighRes/" + std::to_string(i) + std::string("_G");
+            auto dictionary_G = load_dictionary_RGB_each_channel(
+                low_res_fullpath,
+                high_res_fullpath,
+                dic_start_index,
+                dic_end_index,
+                high_res_N1,
+                high_res_N2,
+                low_res_N1,
+                low_res_N2);
+            for(auto&& each_x : std::get<0>(dictionary_G))
+                x.emplace_back(each_x);
+            for(auto&& each_y : std::get<1>(dictionary_G))
+                y.emplace_back(each_y);
+            low_res_fullpath = std::string(dictionary_path) + "/LowRes/Bucubic0.1/" + std::to_string(i) + std::string("_B");
+            high_res_fullpath = std::string(dictionary_path) + "/HighRes/" + std::to_string(i) + std::string("_B");
+            auto dictionary_B = load_dictionary_RGB_each_channel(
+                low_res_fullpath,
+                high_res_fullpath,
+                dic_start_index,
+                dic_end_index,
+                high_res_N1,
+                high_res_N2,
+                low_res_N1,
+                low_res_N2);
+            for(auto&& each_x : std::get<0>(dictionary_B))
+                x.emplace_back(each_x);
+            for(auto&& each_y : std::get<1>(dictionary_B))
+                y.emplace_back(each_y);
+        }
+        std::cout << "x count: " << x.size() << "\ty count: " << y.size() << '\n';
+        std::tuple<std::vector<TinyDIP::Image<ElementT>>, std::vector<TinyDIP::Image<ElementT>>> output{x, y};
+        return output;
+    }
 }
 
 //    load_dictionary Template Function Implementation
