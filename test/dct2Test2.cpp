@@ -82,11 +82,14 @@ void each_image_SuperResolution(
         input_img.getWidth() - mod_x, input_img.getHeight() - mod_y,
         static_cast<double>(input_img.getWidth()) / 2.0, static_cast<double>(input_img.getHeight()) / 2.0
     );
-    auto dct2_R_combined = TinyDIP::concat(dct2_split_divides_255(TinyDIP::im2double(TinyDIP::getRplane(input_img))));
+    auto dct2_R_combined = 
+        TinyDIP::concat(dct2_split_divides_255(TinyDIP::im2double(TinyDIP::getRplane(input_img)), N1, N2));
     TinyDIP::double_image::write((output_path + std::string("_R")).c_str(), dct2_R_combined);
-    auto dct2_G_combined = TinyDIP::concat(dct2_split_divides_255(TinyDIP::im2double(TinyDIP::getGplane(input_img))));
+    auto dct2_G_combined = 
+        TinyDIP::concat(dct2_split_divides_255(TinyDIP::im2double(TinyDIP::getGplane(input_img)), N1, N2));
     TinyDIP::double_image::write((output_path + std::string("_G")).c_str(), dct2_G_combined);
-    auto dct2_B_combined = TinyDIP::concat(dct2_split_divides_255(TinyDIP::im2double(TinyDIP::getBplane(input_img))));
+    auto dct2_B_combined = 
+        TinyDIP::concat(dct2_split_divides_255(TinyDIP::im2double(TinyDIP::getBplane(input_img)), N1, N2));
     TinyDIP::double_image::write((output_path + std::string("_B")).c_str(), dct2_B_combined);
 }
 
