@@ -147,6 +147,53 @@ constexpr auto each_image( ExPo execution_policy,
     );
 }
 
+namespace impl{
+    //  load_dictionary_RGB_each_channel Template Function Implementation 
+    template<TinyDIP::arithmetic ElementT = double>
+    constexpr static auto load_dictionary_RGB_each_channel(
+        std::string low_res_fullpath,
+        std::string high_res_fullpath,
+        const std::size_t dic_start_index = 1,
+        const std::size_t dic_end_index = 10,
+        std::size_t high_res_N1 = 80,
+        std::size_t high_res_N2 = 80,
+        std::size_t low_res_N1 = 8,
+        std::size_t low_res_N2 = 8
+
+    )
+    {
+        std::vector<TinyDIP::Image<ElementT>> x, y;
+        std::cout << "LowRes image path: " << low_res_fullpath << '\n';
+        auto input_dbmp = TinyDIP::double_image::read(low_res_fullpath.c_str(), false);
+        auto dct_block_x = TinyDIP::split(input_dbmp, input_dbmp.getWidth() / low_res_N1, input_dbmp.getHeight() / low_res_N2);
+        std::cout << "HighRes image path: " << high_res_fullpath << '\n';
+        input_dbmp = TinyDIP::double_image::read(high_res_fullpath.c_str(), false);
+        auto dct_block_y = TinyDIP::split(input_dbmp, input_dbmp.getWidth() / high_res_N1, input_dbmp.getHeight() / high_res_N2);
+        if (dct_block_x.size() == dct_block_y.size() && dct_block_x.at(0).size() == dct_block_y.at(0).size())
+        {
+            x.reserve(dct_block_x.size() * dct_block_x.at(0).size());
+            TinyDIP::recursive_for_each<2>(
+                std::execution::seq,
+                [&](auto&& element)
+                {
+                    x.emplace_back(element);
+                },
+                dct_block_x);
+
+
+            y.reserve(dct_block_y.size() * dct_block_y.at(0).size());
+            TinyDIP::recursive_for_each<2>(
+                std::execution::seq,
+                [&](auto&& element)
+                {
+                    y.emplace_back(element);
+                },
+                dct_block_y);
+        }
+        return std::make_tuple(x, y);
+    }
+}
+
 //    load_dictionary Template Function Implementation
 template<TinyDIP::arithmetic ElementT = double>
 constexpr auto load_dictionary( 
