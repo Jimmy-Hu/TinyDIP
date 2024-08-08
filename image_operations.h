@@ -2468,7 +2468,7 @@ namespace TinyDIP
         }
 
         //  mapping_point function implementation
-        std::tuple<std::size_t, std::size_t> mapping_point(
+        constexpr static std::tuple<std::size_t, std::size_t> mapping_point(
             std::tuple<double, double> input_location,
             std::size_t input_width,
             std::size_t input_height,
