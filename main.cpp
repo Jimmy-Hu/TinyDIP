@@ -236,14 +236,8 @@ int main()
     std::cout << "SIFT_keypoints = " << SIFT_keypoints.size() << "\n";
     for (auto&& each_keypoint : SIFT_keypoints)
     {
-        auto x = std::get<0>(each_keypoint);
-        auto y = std::get<1>(each_keypoint);
-        if (x > output_img.getWidth() || y > output_img.getHeight())
-        {
-            continue;
-        }
-        for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
-            output_img.at(x, y).channels[channel_index] = 255;
+        RGB rgb{ 255, 255, 255 };
+        output_img = TinyDIP::draw_point(output_img, 3, each_keypoint, rgb);
     }
     auto cv_mat = TinyDIP::to_cv_mat(output_img);
     cv::imshow("Image", cv_mat);
