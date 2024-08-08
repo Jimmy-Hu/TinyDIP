@@ -968,16 +968,16 @@ namespace TinyDIP
 
     //  copyResizeBicubic template function implementation
     template<class FloatingType = float, arithmetic ElementT>
-    Image<ElementT> copyResizeBicubic(Image<ElementT>& image, size_t width, size_t height)
+    constexpr static Image<ElementT> copyResizeBicubic(Image<ElementT>& image, std::size_t width, std::size_t height)
     {
         auto output = Image<ElementT>(width, height);
         //  get used to the C++ way of casting
         auto ratiox = static_cast<FloatingType>(image.getWidth()) / static_cast<FloatingType>(width);
         auto ratioy = static_cast<FloatingType>(image.getHeight()) / static_cast<FloatingType>(height);
-        
-        for (size_t y = 0; y < height; ++y)
+        #pragma omp parallel for collapse(2)
+        for (std::size_t y = 0; y < height; ++y)
         {
-            for (size_t x = 0; x < width; ++x)
+            for (std::size_t x = 0; x < width; ++x)
             {
                 FloatingType xMappingToOrigin = static_cast<FloatingType>(x) * ratiox;
                 FloatingType yMappingToOrigin = static_cast<FloatingType>(y) * ratioy;
