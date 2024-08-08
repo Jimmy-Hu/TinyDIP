@@ -2362,6 +2362,35 @@ namespace TinyDIP
             );
     }
 
+    //  draw_point template function implementation
+    template<typename ElementT>
+    constexpr static auto draw_point(
+        const Image<ElementT>& input,
+        std::size_t radius,
+        std::tuple<std::size_t, std::size_t> point,
+        ElementT draw_value = ElementT{}
+        )
+    {
+        auto point_x = std::get<0>(point);
+        auto point_y = std::get<1>(point);
+        auto output = input;
+        auto height = input.getHeight();
+        auto width = input.getWidth();
+        #pragma omp parallel for collapse(2)
+        for (std::size_t y = 0; y < height; ++y)
+        {
+            for (std::size_t x = 0; x < width; ++x)
+            {
+                if(std::pow(static_cast<double>(x) - static_cast<double>(point_x), 2.0) +
+                   std::pow(static_cast<double>(y) - static_cast<double>(point_y), 2.0) < std::pow(radius, 2))
+                {
+                    output.at_without_boundary_check(x, y) = draw_value;
+                }
+            }
+        }
+        return output;
+    }
+
     namespace SIFT_impl {
         /*  is_it_extremum template function implementation
             input1, input2 and input3 are 3 * 3 images. If the center pixel (at location (1,1) ) of input2 is the largest / smallest one, 
