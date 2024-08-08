@@ -2485,7 +2485,7 @@ namespace TinyDIP
                     auto subimage3 = subimage(input3, block_size, block_size, x, y);
                     if (is_it_extremum(subimage1, subimage2, subimage3) && keypoint_filtering(subimage2))
                     {
-                        auto new_location = keypoint_refinement(subimage2, x, y);
+                        auto new_location = keypoint_refinement(subimage2, std::make_tuple(x, y));
                         output.emplace_back(
                             std::make_tuple(
                                 octave_index,
