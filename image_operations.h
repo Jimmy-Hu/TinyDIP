@@ -2450,7 +2450,7 @@ namespace TinyDIP
         template<typename ElementT = double>
         constexpr static bool keypoint_filtering(
             Image<ElementT>& input,
-            ElementT contrast_check_threshold = 0.03,
+            ElementT contrast_check_threshold = 8,
             ElementT edge_response_threshold = 12.1)
         {
             //  Calculate Hessian matrix at the keypoint (x, y)
