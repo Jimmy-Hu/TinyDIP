@@ -2490,7 +2490,9 @@ namespace TinyDIP
             Image<ElementT> input2,
             Image<ElementT> input3,
             std::size_t octave_index,
-            std::size_t scale_index)
+            std::size_t scale_index,
+            ElementT contrast_check_threshold = 8,
+            ElementT edge_response_threshold = 12.1)
         {
             if (input1.getSize() != input2.getSize())
             {
@@ -2512,7 +2514,7 @@ namespace TinyDIP
                     auto subimage1 = subimage(input1, block_size, block_size, x, y);
                     auto subimage2 = subimage(input2, block_size, block_size, x, y);
                     auto subimage3 = subimage(input3, block_size, block_size, x, y);
-                    if (is_it_extremum(subimage1, subimage2, subimage3) && keypoint_filtering(subimage2))
+                    if (is_it_extremum(subimage1, subimage2, subimage3, contrast_check_threshold) && keypoint_filtering(subimage2, contrast_check_threshold, edge_response_threshold))
                     {
                         auto new_location = keypoint_refinement(subimage2, std::make_tuple(x, y));
                         output.emplace_back(
