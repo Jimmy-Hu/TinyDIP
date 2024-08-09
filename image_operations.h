@@ -2398,8 +2398,20 @@ namespace TinyDIP
             Test: https://godbolt.org/z/Kb34EW5Yj
         */
         template<typename ElementT>
-        constexpr static bool is_it_extremum(Image<ElementT> input1, Image<ElementT> input2, Image<ElementT> input3, double threshold = -1.0)
+        constexpr static bool is_it_extremum(Image<ElementT> input1, Image<ElementT> input2, Image<ElementT> input3, double threshold = 0.03)
         {
+            if (input1.getDimensionality() != 2)
+            {
+                throw std::runtime_error("Unsupported dimension!");
+            }
+            if (input2.getDimensionality() != 2)
+            {
+                throw std::runtime_error("Unsupported dimension!");
+            }
+            if (input3.getDimensionality() != 2)
+            {
+                throw std::runtime_error("Unsupported dimension!");
+            }
             auto center_pixel = input2.at(1, 1);
             auto input2_img_data = input2.getImageData();
             input2_img_data.erase(input2_img_data.begin() + 4);                         //  https://stackoverflow.com/a/875117/6667035
