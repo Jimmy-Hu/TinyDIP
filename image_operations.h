@@ -2366,9 +2366,9 @@ namespace TinyDIP
     template<typename ElementT>
     constexpr static auto draw_point(
         const Image<ElementT>& input,
-        std::size_t radius,
         std::tuple<std::size_t, std::size_t> point,
-        ElementT draw_value = ElementT{}
+        ElementT draw_value = ElementT{},
+        std::size_t radius = 3
         )
     {
         auto point_x = std::get<0>(point);
