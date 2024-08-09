@@ -2395,6 +2395,23 @@ namespace TinyDIP
         return output;
     }
 
+    //  draw_points template function implementation
+    template<typename ElementT>
+    constexpr static auto draw_points(
+        const Image<ElementT>& input,
+        std::vector<std::tuple<std::size_t, std::size_t>> points,
+        ElementT draw_value = ElementT{},
+        std::size_t radius = 3
+    )
+    {
+        auto output = input;
+        for (auto&& each_point : points)
+        {
+            output = draw_point(output, each_point, draw_value, radius);
+        }
+        return output;
+    }
+
     namespace SIFT_impl {
         /*  is_it_extremum template function implementation
             input1, input2 and input3 are 3 * 3 images. If the center pixel (at location (1,1) ) of input2 is the largest / smallest one, 
