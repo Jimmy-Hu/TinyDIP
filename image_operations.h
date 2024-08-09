@@ -2580,7 +2580,9 @@ namespace TinyDIP
             std::size_t octaves_count = 4,
             std::size_t number_of_scale_levels = 5,
             SigmaT initial_sigma = 1.6,
-            double k = 1.4142135623730950488016887242097)
+            double k = 1.4142135623730950488016887242097,
+            ElementT contrast_check_threshold = 8,
+            ElementT edge_response_threshold = 12.1)
         {
             //  Generate octaves
             std::vector<std::vector<Image<ElementT>>> octaves;
@@ -2606,14 +2608,16 @@ namespace TinyDIP
                 #pragma omp parallel for
                 for (int scale_index = 0; scale_index < each_octave.size() - 2; ++scale_index)
                 {
-                    /*
+                    /* if `append_range` function is supported
                     keypoints.append_range(
                         find_local_extrema(
                             each_octave[scale_index],
                             each_octave[scale_index + 1],
                             each_octave[scale_index + 2],
                             octave_index,
-                            scale_index)
+                            scale_index,
+                            contrast_check_threshold,
+                            edge_response_threshold)
                     );
                     */
 
@@ -2622,14 +2626,16 @@ namespace TinyDIP
                         each_octave[scale_index + 1],
                         each_octave[scale_index + 2],
                         octave_index,
-                        scale_index))
+                        scale_index,
+                        contrast_check_threshold,
+                        edge_response_threshold))
                     {
                         keypoints.emplace_back(element);
                     }
                 }
             }
 
-            //  
+            //  mapping keypoints in different scale to the original image
             std::vector<std::tuple<std::size_t, std::size_t>> mapped_keypoints;
             for (auto&& each_keypoint : keypoints)
             {
