@@ -2377,10 +2377,14 @@ namespace TinyDIP
         auto height = input.getHeight();
         auto width = input.getWidth();
         #pragma omp parallel for collapse(2)
-        for (std::size_t y = 0; y < height; ++y)
+        for (std::size_t y = point_y - radius; y <= point_y + radius; ++y)
         {
-            for (std::size_t x = 0; x < width; ++x)
+            for (std::size_t x = point_x - radius; x <= point_x + radius; ++x)
             {
+                if (x >= width || y >= height)
+                {
+                    continue;
+                }
                 if(std::pow(static_cast<double>(x) - static_cast<double>(point_x), 2.0) +
                    std::pow(static_cast<double>(y) - static_cast<double>(point_y), 2.0) < std::pow(radius, 2))
                 {
