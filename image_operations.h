@@ -2506,6 +2506,18 @@ namespace TinyDIP
             ElementT contrast_check_threshold = 8,
             ElementT edge_response_threshold = 12.1)
         {
+            if (input1.getDimensionality() != 2)
+            {
+                throw std::runtime_error("Unsupported dimension!");
+            }
+            if (input2.getDimensionality() != 2)
+            {
+                throw std::runtime_error("Unsupported dimension!");
+            }
+            if (input3.getDimensionality() != 2)
+            {
+                throw std::runtime_error("Unsupported dimension!");
+            }
             if (input1.getSize() != input2.getSize())
             {
                 throw std::runtime_error("Size mismatched!");
