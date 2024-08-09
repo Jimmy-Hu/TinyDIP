@@ -2674,6 +2674,27 @@ namespace TinyDIP
 
             return mapped_keypoints;
         }
+
+        //  compute_each_pixel_orientation template function implementation
+        /*  input is 3 * 3 image, calculate the gradient magnitude
+        *    M(1, 1) = ((input(2, 1) - input(0, 1))^(2) + (input(1, 2) - input(1, 0))^(2))^(1/2)
+        *   orientation
+        *    θ(1, 1) = 
+        */
+        template<typename ElementT>
+        constexpr static auto compute_each_pixel_orientation(const Image<ElementT>& input)
+        {
+            double gradient_magnitude =
+                std::sqrt(
+                    std::pow((static_cast<double>(input.at_without_boundary_check(2, 1)) - static_cast<double>(input.at_without_boundary_check(0, 1))), 2.0) +
+                    std::pow((static_cast<double>(input.at_without_boundary_check(1, 2)) - static_cast<double>(input.at_without_boundary_check(1, 0))), 2.0)
+                );
+            double orientation = std::atan2(
+                    static_cast<double>(input.at_without_boundary_check(1, 2)) - static_cast<double>(input.at_without_boundary_check(1, 0)),
+                    static_cast<double>(input.at_without_boundary_check(2, 1)) - static_cast<double>(input.at_without_boundary_check(0, 1))
+                );
+            return std::make_tuple(gradient_magnitude, orientation);
+        }
     }
 
     //  imbilatfilt template function implementation
