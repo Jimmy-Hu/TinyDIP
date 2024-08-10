@@ -2047,6 +2047,10 @@ namespace TinyDIP
         std::size_t height_expansion,
         ElementT default_value = ElementT{})
     {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
         auto output = generate_constant_padding_image(execution_policy, input, width_expansion, height_expansion, default_value);
         auto flipped_vertical = flip_vertical(input);
         output = paste2D(
