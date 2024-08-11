@@ -1946,10 +1946,17 @@ namespace TinyDIP
     template<typename ElementT>
     constexpr static auto flip_horizontal(const Image<ElementT>& input)
     {
-        Image<ElementT> output = input;
-        for(std::size_t y = 0; y < input.getHeight(); ++y)
+        if (input.getDimensionality()!=2)
         {
-            for(std::size_t x = 0; x < input.getWidth(); ++x)
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        Image<ElementT> output = input;
+        auto height = input.getHeight();
+        auto width = input.getWidth();
+        #pragma omp parallel for collapse(2)
+        for(std::size_t y = 0; y < height; ++y)
+        {
+            for(std::size_t x = 0; x < width; ++x)
             {
                 output.at_without_boundary_check(input.getWidth() - x - 1, y) = input.at_without_boundary_check(x, y);
             }
