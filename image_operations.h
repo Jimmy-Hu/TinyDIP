@@ -624,10 +624,14 @@ namespace TinyDIP
         return constructRGBDOUBLE(Rplane.get(), Gplane.get(), Bplane.get());
     }
 
+    //  apply_each template function implementation
     template<class F, class... Args>
     constexpr static auto apply_each(Image<HSV> input, F operation, Args&&... args)
     {
-        return constructHSV(operation(getHplane(input), args...), operation(getSplane(input), args...), operation(getVplane(input), args...));
+        auto Hplane = std::async(std::launch::async, [&] { return operation(getHplane(input), args...); });
+        auto Splane = std::async(std::launch::async, [&] { return operation(getSplane(input), args...); });
+        auto Vplane = std::async(std::launch::async, [&] { return operation(getVplane(input), args...); });
+        return constructHSV(Hplane.get(), Splane.get(), Vplane.get());
     }
 
     //  im2double function implementation
