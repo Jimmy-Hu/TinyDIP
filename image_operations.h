@@ -110,11 +110,12 @@ namespace TinyDIP
             throw std::runtime_error("Height mismatched!");
     }
 
+    //  check_size_same template function implementation
     template<typename ElementT>
     constexpr void check_size_same(const Image<ElementT>& x, const Image<ElementT>& y)
     {
-        check_width_same(x, y);
-        check_height_same(x, y);
+        if(x.getSize() != y.getSize())
+            throw std::runtime_error("Size mismatched!");
     }
 
     //  zeros template function implementation
