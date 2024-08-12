@@ -245,7 +245,7 @@ int main()
     TinyDIP::bmp_write("test20240705", output_img);
 
     
-    return 0;
+    return EXIT_SUCCESS;
     //addLeadingZeros("../../../InputImages/", "../../../OutputImages/");
     //bicubicInterpolationTest();
     
