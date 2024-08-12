@@ -700,17 +700,33 @@ namespace TinyDIP
         return;
     }
 
+    //  subimage template function implementation
+    //  Test: https://godbolt.org/z/9vv3eGYhq
     template<typename ElementT>
-    constexpr static auto subimage(const Image<ElementT>& input, const std::size_t width, std::size_t height, std::size_t xcenter, std::size_t ycenter)
+    constexpr static auto subimage(
+        const Image<ElementT>& input,
+        const std::size_t width,
+        std::size_t height,
+        std::size_t xcenter,
+        std::size_t ycenter,
+        ElementT default_element = ElementT{}
+    )
     {
-        auto output = Image<ElementT>(width, height);
-        std::size_t cornerx = xcenter - static_cast<std::size_t>(std::floor(static_cast<double>(width) / 2));
-        std::size_t cornery = ycenter - static_cast<std::size_t>(std::floor(static_cast<double>(height) / 2));
+        Image<ElementT> output(width, height);
+        auto cornerx = xcenter - static_cast<std::size_t>(std::floor(static_cast<double>(width) / 2));
+        auto cornery = ycenter - static_cast<std::size_t>(std::floor(static_cast<double>(height) / 2));
         for (std::size_t y = 0; y < output.getHeight(); ++y)
         {
             for (std::size_t x = 0; x < output.getWidth(); ++x)
             {
-                output.at(x, y) = input.at(cornerx + x, cornery + y);
+                if (cornerx + x >= input.getWidth() || cornery + y >= input.getHeight())
+                {
+                    output.at(x, y) = default_element;
+                }
+                else
+                {
+                    output.at(x, y) = input.at(cornerx + x, cornery + y);
+                }
             }
         }
         return output;
