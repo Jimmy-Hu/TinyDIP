@@ -209,6 +209,7 @@ void print(auto comment, auto const& seq, char term = ' ') {
 
 int main()
 {
+    auto start = std::chrono::system_clock::now();
     std::string file_path = "InputImages/1";
     auto bmp1 = TinyDIP::bmp_read(file_path.c_str(), false);
     std::size_t N1 = 8, N2 = 8;
@@ -234,15 +235,16 @@ int main()
     auto output_img = TinyDIP::subimage2(bmp1, 0, bmp1.getWidth() - 1, 0, bmp1.getHeight() - 1);
     auto SIFT_keypoints = TinyDIP::SIFT_impl::get_potential_keypoint(TinyDIP::getRplane(TinyDIP::im2double(output_img)));
     std::cout << "SIFT_keypoints = " << SIFT_keypoints.size() << "\n";
-    for (auto&& each_keypoint : SIFT_keypoints)
-    {
-        RGB rgb{ 255, 255, 255 };
-        output_img = TinyDIP::draw_point(output_img, 3, each_keypoint, rgb);
-    }
+    RGB rgb{ 255, 255, 255 };
+    output_img = TinyDIP::draw_points(output_img, SIFT_keypoints, rgb);
     auto cv_mat = TinyDIP::to_cv_mat(output_img);
     cv::imshow("Image", cv_mat);
     cv::waitKey(0);
-    TinyDIP::bmp_write("test20240705", output_img);
+    TinyDIP::bmp_write("test20240812", output_img);
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+    std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << " seconds\n";
 
     
     return EXIT_SUCCESS;
