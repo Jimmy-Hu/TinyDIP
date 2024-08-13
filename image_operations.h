@@ -2711,6 +2711,7 @@ namespace TinyDIP
         *    M(1, 1) = ((input(2, 1) - input(0, 1))^(2) + (input(1, 2) - input(1, 0))^(2))^(1/2)
         *   orientation
         *    θ(1, 1) = tan^(-1)((input(1, 2) - input(1, 0)) / (input(2, 1) - input(0, 1)))
+        *   the value range of orientation is 0° ~ 360°
         */
         template<typename ElementT>
         constexpr static auto compute_each_pixel_orientation(const Image<ElementT>& input)
@@ -2727,6 +2728,7 @@ namespace TinyDIP
                     static_cast<double>(input.at_without_boundary_check(2, 1)) - static_cast<double>(input.at_without_boundary_check(0, 1))
                 );
             orientation *= (180.0 / std::numbers::pi_v<double>);
+            orientation += 180;
             return std::make_tuple(gradient_magnitude, orientation);
         }
     }
