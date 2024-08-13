@@ -2726,6 +2726,7 @@ namespace TinyDIP
                     static_cast<double>(input.at_without_boundary_check(1, 2)) - static_cast<double>(input.at_without_boundary_check(1, 0)),
                     static_cast<double>(input.at_without_boundary_check(2, 1)) - static_cast<double>(input.at_without_boundary_check(0, 1))
                 );
+            orientation *= (180.0 / std::numbers::pi_v<double>);
             return std::make_tuple(gradient_magnitude, orientation);
         }
     }
