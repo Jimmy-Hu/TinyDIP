@@ -2731,6 +2731,33 @@ namespace TinyDIP
             orientation += 180;
             return std::make_tuple(gradient_magnitude, orientation);
         }
+
+        //  get_orientation_histogram template function implementation
+        template<typename ElementT>
+        requires((std::floating_point<ElementT> || std::integral<ElementT>))
+        constexpr static auto get_orientation_histogram(
+            const Image<ElementT>& input,
+            std::tuple<std::size_t, std::size_t> point,
+            std::size_t block_size = 3
+        )
+        {
+            std::vector<double> raw_histogram;
+            raw_histogram.resize(36);
+            for (std::size_t y = std::get<1>(point) - block_size; y <= std::get<1>(point) + block_size; ++y)
+            {
+                for (std::size_t x = std::get<0>(point) - block_size; x <= std::get<0>(point) + block_size; ++x)
+                {
+                    if (x >= input.getWidth() || y >= input.getHeight())
+                    {
+                        continue;
+                    }
+                    auto each_pixel_orientation = compute_each_pixel_orientation(subimage(input, 3, 3, x, y));
+                    std::size_t bin_index = static_cast<std::size_t>(std::get<1>(each_pixel_orientation) / 10.0);
+                    raw_histogram[bin_index] += std::get<0>(each_pixel_orientation);
+                }
+            }
+            return raw_histogram;
+        }
     }
 
     //  imbilatfilt template function implementation
