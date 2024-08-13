@@ -2626,7 +2626,8 @@ namespace TinyDIP
 
         //  get_potential_keypoint template function implementation
         template<typename ElementT = double, typename SigmaT = double>
-        requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
+        requires(   (std::floating_point<ElementT> || std::integral<ElementT>) &&
+                    (std::floating_point<SigmaT> || std::integral<SigmaT>))
         constexpr static auto get_potential_keypoint(
             const Image<ElementT>& input,
             std::size_t octaves_count = 4,
