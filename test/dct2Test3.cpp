@@ -229,14 +229,14 @@ int main(int argc, char* argv[])
     }
     else
     {
-        //dct2Test3("InputImages/RainVideos/2", ".", "Dictionary", 1, 1);
+        //dct2Test3("InputImages/RainImages/2", ".", "Dictionary", 1, 1);
         for(std::size_t sigma = 1; sigma < 10; ++sigma)
         {
-            std::string input_path = "InputImages/RainVideos/2.bmp";
+            std::string input_path = "InputImages/RainImages/S__55246868.bmp";
             auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
             auto dictionary = load_dictionary();
             auto output_img = each_image(std::execution::seq, input_img, std::get<0>(dictionary), std::get<1>(dictionary), 8, 8, static_cast<double>(sigma) / 10.0);
-            auto output_path = std::string("OutputImages/RainVideos/2_") + std::to_string(static_cast<double>(sigma) / 10.0);
+            auto output_path = std::string("OutputImages/RainImages/S__55246868_") + std::to_string(static_cast<double>(sigma) / 10.0);
             std::cout << "Save output to " << output_path << '\n';
             TinyDIP::bmp_write(output_path.c_str(), output_img);
             TinyDIP::bmp_write((output_path + std::string("_difference")).c_str(), TinyDIP::difference(input_img, output_img));
