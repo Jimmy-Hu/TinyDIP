@@ -2743,7 +2743,7 @@ namespace TinyDIP
         )
         {
             std::vector<double> raw_histogram;
-            raw_histogram.resize(36);
+            raw_histogram.resize(37);
             for (std::size_t y = std::get<1>(point) - block_size; y <= std::get<1>(point) + block_size; ++y)
             {
                 for (std::size_t x = std::get<0>(point) - block_size; x <= std::get<0>(point) + block_size; ++x)
