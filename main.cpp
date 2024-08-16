@@ -242,7 +242,7 @@ int main()
         RGB rgb{ 255, 255, 255 };
         bmp1 = TinyDIP::draw_circle(bmp1, each_SIFT_keypoint, TinyDIP::recursive_max(orientation_histogram), rgb);
     }
-    auto cv_mat = TinyDIP::to_cv_mat(output_img);
+    auto cv_mat = TinyDIP::to_cv_mat(bmp1);
     cv::imshow("Image", cv_mat);
     cv::waitKey(0);
     TinyDIP::bmp_write("test20240816", bmp1);
