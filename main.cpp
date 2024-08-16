@@ -235,12 +235,17 @@ int main()
     auto v_plane = TinyDIP::getVplane(TinyDIP::rgb2hsv(bmp1));
     auto SIFT_keypoints = TinyDIP::SIFT_impl::get_potential_keypoint(v_plane);
     std::cout << "SIFT_keypoints = " << SIFT_keypoints.size() << "\n";
-    RGB rgb{ 255, 255, 255 };
-    output_img = TinyDIP::draw_points(output_img, SIFT_keypoints, rgb);
+    bmp1 = TinyDIP::draw_points(bmp1, SIFT_keypoints);
+    for (auto&& each_SIFT_keypoint : SIFT_keypoints)
+    {
+        auto orientation_histogram = TinyDIP::SIFT_impl::get_orientation_histogram(v_plane, each_SIFT_keypoint);
+        RGB rgb{ 255, 255, 255 };
+        bmp1 = TinyDIP::draw_circle(bmp1, each_SIFT_keypoint, TinyDIP::recursive_max(orientation_histogram), rgb);
+    }
     auto cv_mat = TinyDIP::to_cv_mat(output_img);
     cv::imshow("Image", cv_mat);
     cv::waitKey(0);
-    TinyDIP::bmp_write("test20240812", output_img);
+    TinyDIP::bmp_write("test20240816", bmp1);
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
