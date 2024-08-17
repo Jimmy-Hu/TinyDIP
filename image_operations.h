@@ -505,12 +505,14 @@ namespace TinyDIP
     {
         auto image_data = input.getImageData();
         std::vector<DstT> new_data;
-        for (size_t index = 0; index < input.count(); ++index)
+        new_data.resize(input.count());
+        #pragma omp parallel for
+        for (std::size_t index = 0; index < input.count(); ++index)
         {
-            DstT rgb_double { static_cast<double>(image_data[index].channels[0]),
-                                    static_cast<double>(image_data[index].channels[1]),
-                                    static_cast<double>(image_data[index].channels[2])};
-            new_data.emplace_back(rgb_double);
+            DstT dst { static_cast<double>(image_data[index].channels[0]),
+                       static_cast<double>(image_data[index].channels[1]),
+                       static_cast<double>(image_data[index].channels[2])};
+            new_data[index] = dst;
         }
         Image<DstT> output(new_data, input.getSize());
         return output;
