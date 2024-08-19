@@ -993,7 +993,7 @@ namespace TinyDIP
     template<class FloatingType = float, arithmetic ElementT>
     constexpr static Image<ElementT> copyResizeBicubic(Image<ElementT>& image, std::size_t width, std::size_t height)
     {
-        auto output = Image<ElementT>(width, height);
+        Image<ElementT> output(width, height);
         //  get used to the C++ way of casting
         auto ratiox = static_cast<FloatingType>(image.getWidth()) / static_cast<FloatingType>(width);
         auto ratioy = static_cast<FloatingType>(image.getHeight()) / static_cast<FloatingType>(height);
