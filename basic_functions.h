@@ -1357,6 +1357,16 @@ namespace TinyDIP
         return std::pow(population_variance(execution_policy, input), 0.5);
     }
 
+    //  square_sum template function implementation
+    template<class ExecutionPolicy, class Container>
+    constexpr auto square_sum(ExecutionPolicy execution_policy, const Container& input)
+    {
+        return recursive_transform_reduce(execution_policy,
+            input, T{}, [&](auto& element) {
+                return std::pow(element, 2);
+            }, std::plus<T>());
+    }
+
     template<std::size_t dim, class T>
     constexpr auto n_dim_vector_generator(T input, std::size_t times)
     {
