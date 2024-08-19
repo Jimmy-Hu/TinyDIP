@@ -1319,6 +1319,23 @@ namespace TinyDIP
             }, std::plus<T>()) / recursive_size(input);
     }
 
+    //  population_variance function implementation (with recursive_transform_reduce template function, execution policy)
+    template<class ExecutionPolicy, class T = double, is_recursive_sizeable Container>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
+                can_calculate_variance_of<recursive_iter_value_t<Container>>)
+    constexpr auto population_variance(ExecutionPolicy execution_policy, const Container& input)
+    {
+        if (recursive_size(input) == 0) //  Check the case of dividing by zero exception
+        {
+            throw std::logic_error("Divide by zero exception"); //  Handle the case of dividing by zero exception
+        }
+        auto mean = arithmetic_mean<T>(input);
+        return recursive_transform_reduce(execution_policy,
+            input, T{}, [mean](auto& element) {
+                return std::pow(element - mean, 2);
+            }, std::plus<T>()) / recursive_size(input);
+    }
+
     //  population_standard_deviation implementation
     template<class T = double, is_recursive_sizeable Container>
     requires (can_calculate_variance_of<recursive_iter_value_t<Container>>)
