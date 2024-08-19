@@ -1336,16 +1336,12 @@ namespace TinyDIP
             }, std::plus<T>()) / recursive_size(input);
     }
 
-    //  population_standard_deviation implementation
+    //  population_standard_deviation template function implementation
     template<class T = double, is_recursive_sizeable Container>
     requires (can_calculate_variance_of<recursive_iter_value_t<Container>>)
     constexpr auto population_standard_deviation(const Container& input)
     {
-        if (recursive_size(input) == 0) //  Check the case of dividing by zero exception
-        {
-            throw std::logic_error("Divide by zero exception"); //  Handle the case of dividing by zero exception
-        }
-        return std::pow(population_variance(input), 0.5);
+        return population_standard_deviation(std::execution::par, input);
     }
 
     //  population_standard_deviation template function implementation
