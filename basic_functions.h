@@ -1367,6 +1367,13 @@ namespace TinyDIP
             }, std::plus<T>());
     }
 
+    //  square_sum template function implementation
+    template<class Container>
+    constexpr auto square_sum(const Container& input)
+    {
+        return square_sum(std::execution::seq, input);
+    }
+
     template<std::size_t dim, class T>
     constexpr auto n_dim_vector_generator(T input, std::size_t times)
     {
