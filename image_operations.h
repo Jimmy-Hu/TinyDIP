@@ -467,12 +467,14 @@ namespace TinyDIP
         auto image_data_g = g.getImageData();
         auto image_data_b = b.getImageData();
         std::vector<OutputT> new_data;
+        new_data.resize(r.count());
+        #pragma omp parallel for
         for (std::size_t index = 0; index < r.count(); ++index)
         {
             OutputT rgb_double { image_data_r[index],
                                     image_data_g[index],
                                     image_data_b[index]};
-            new_data.emplace_back(rgb_double);
+            new_data[index] = rgb_double;
         }
         Image<OutputT> output(new_data, r.getSize());
         return output;
