@@ -2457,26 +2457,64 @@ namespace TinyDIP
         ElementT draw_value = ElementT{}
     )
     {
+        if (input.getDimensionality() != 2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
         auto point_x = std::get<0>(central_point);
         auto point_y = std::get<1>(central_point);
         auto output = input;
         auto height = input.getHeight();
         auto width = input.getWidth();
-        #pragma omp parallel for collapse(2)
-        for (std::size_t y = point_y - radius; y <= point_y + radius; ++y)
+        std::size_t l = static_cast<std::size_t>(radius) * std::cos(std::numbers::pi_v<double> / 4.0);
+        for (std::size_t x = 0; x <= l; ++x)
         {
-            for (std::size_t x = point_x - radius; x <= point_x + radius; ++x)
+            std::size_t y = static_cast<std::size_t>(std::sqrt(radius * radius - x * x));
+            std::size_t location_x1 = point_x + x;
+            std::size_t location_y1 = point_y + y;
+            std::size_t location_x2 = point_x + x;
+            std::size_t location_y2 = point_y - y;
+            std::size_t location_x3 = point_x - x;
+            std::size_t location_y3 = point_y + y;
+            std::size_t location_x4 = point_x - x;
+            std::size_t location_y4 = point_y - y;
+            std::size_t location_x5 = point_x + y;
+            std::size_t location_y5 = point_y + x;
+            std::size_t location_x6 = point_x + y;
+            std::size_t location_y6 = point_y - x;
+            std::size_t location_x7 = point_x - y;
+            std::size_t location_y7 = point_y + x;
+            std::size_t location_x8 = point_x - y;
+            std::size_t location_y8 = point_y - x;
+
+
+            if (location_x1 >= output.getWidth() ||
+                location_y1 >= output.getHeight() ||
+                location_x2 >= output.getWidth() ||
+                location_y2 >= output.getHeight() ||
+                location_x3 >= output.getWidth() ||
+                location_y3 >= output.getHeight() ||
+                location_x4 >= output.getWidth() ||
+                location_y4 >= output.getHeight() ||
+                location_x5 >= output.getWidth() ||
+                location_y5 >= output.getHeight() ||
+                location_x6 >= output.getWidth() ||
+                location_y6 >= output.getHeight() ||
+                location_x7 >= output.getWidth() ||
+                location_y7 >= output.getHeight() ||
+                location_x8 >= output.getWidth() ||
+                location_y8 >= output.getHeight())
             {
-                if (x >= width || y >= height)
-                {
-                    continue;
-                }
-                if(std::abs(std::pow(static_cast<double>(x) - static_cast<double>(point_x), 2.0) +
-                std::pow(static_cast<double>(y) - static_cast<double>(point_y), 2.0) - std::pow(radius, 2)) < radius * 2)
-                {
-                    output.at_without_boundary_check(x, y) = draw_value;
-                }
+                continue;
             }
+            output.at_without_boundary_check(location_x1, location_y1) = draw_value;
+            output.at_without_boundary_check(location_x2, location_y2) = draw_value;
+            output.at_without_boundary_check(location_x3, location_y3) = draw_value;
+            output.at_without_boundary_check(location_x4, location_y4) = draw_value;
+            output.at_without_boundary_check(location_x5, location_y5) = draw_value;
+            output.at_without_boundary_check(location_x6, location_y6) = draw_value;
+            output.at_without_boundary_check(location_x7, location_y7) = draw_value;
+            output.at_without_boundary_check(location_x8, location_y8) = draw_value;
         }
         return output;
     }
