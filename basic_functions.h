@@ -1383,6 +1383,12 @@ namespace TinyDIP
         return std::sqrt(square_sum(execution_policy, input) / recursive_size(input));
     }
 
+    //  root_mean_square template function implementation
+    template<is_recursive_sizeable Container>
+    constexpr static auto root_mean_square(const Container& input)
+    {
+        return root_mean_square(std::execution::seq, input);
+    }
 
     template<std::size_t dim, class T>
     constexpr auto n_dim_vector_generator(T input, std::size_t times)
