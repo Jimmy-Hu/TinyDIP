@@ -2818,6 +2818,10 @@ namespace TinyDIP
             std::size_t block_size = 3
         )
         {
+            if (input.getDimensionality() != 2)
+            {
+                throw std::runtime_error("Unsupported dimension!");
+            }
             std::vector<double> raw_histogram;
             raw_histogram.resize(37);
             for (std::size_t y = std::get<1>(point) - block_size; y <= std::get<1>(point) + block_size; ++y)
