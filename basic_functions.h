@@ -1359,7 +1359,7 @@ namespace TinyDIP
     }
 
     //  square_sum template function implementation
-    template<class ExecutionPolicy, class Container>
+    template<class ExecutionPolicy, class T = double, std::ranges::input_range Container>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
     constexpr auto square_sum(ExecutionPolicy execution_policy, const Container& input)
     {
