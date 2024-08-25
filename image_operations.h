@@ -1294,9 +1294,14 @@ namespace TinyDIP
             }, input1, inputs...);
     }
 
+    //  divides Template Function Implementation
     template<class InputT>
     constexpr static Image<InputT> divides(const Image<InputT>& input1, const Image<InputT>& input2)
     {
+        if (input1.getSize() != input2.getSize())
+        {
+            throw std::runtime_error("Size mismatched!");
+        }
         return pixelwiseOperation(std::divides<>{}, input1, input2);
     }
 
