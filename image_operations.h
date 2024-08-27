@@ -1079,8 +1079,8 @@ namespace TinyDIP
     //  f(x, y) = A*e^(-a(x - x0)^2 + 2b(x - x0)(y - y0)+c(y - y0)^2)
     template<class InputT>
     constexpr static auto gaussianFigure2D(
-        const size_t xsize, const size_t ysize,
-        const size_t centerx, const size_t centery,
+        const std::size_t xsize, const std::size_t ysize,
+        const std::size_t centerx, const std::size_t centery,
         const InputT a, const InputT b,
         const InputT c, const InputT normalize_factor = 1.0)
     {
