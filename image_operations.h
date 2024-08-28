@@ -1998,6 +1998,10 @@ namespace TinyDIP
     template<typename ElementT>
     constexpr static auto flip_vertical(const Image<ElementT>& input)
     {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
         Image<ElementT> output = input;
         for(std::size_t y = 0; y < input.getHeight(); ++y)
         {
