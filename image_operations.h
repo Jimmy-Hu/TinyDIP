@@ -2458,6 +2458,8 @@ namespace TinyDIP
     }
 
     //  draw_circle template function implementation
+    //  https://codereview.stackexchange.com/q/293417/231235
+    //  Test: 
     template<typename ElementT>
     constexpr static auto draw_circle(
         const Image<ElementT>& input,
@@ -2475,55 +2477,28 @@ namespace TinyDIP
         auto output = input;
         auto height = input.getHeight();
         auto width = input.getWidth();
-        std::size_t l = static_cast<std::size_t>(radius) * std::cos(std::numbers::pi_v<double> / 4.0);
-        for (std::size_t x = 0; x <= l; ++x)
+        if (radius <= 0)
         {
-            std::size_t y = static_cast<std::size_t>(std::sqrt(radius * radius - x * x));
-            std::size_t location_x1 = point_x + x;
-            std::size_t location_y1 = point_y + y;
-            std::size_t location_x2 = point_x + x;
-            std::size_t location_y2 = point_y - y;
-            std::size_t location_x3 = point_x - x;
-            std::size_t location_y3 = point_y + y;
-            std::size_t location_x4 = point_x - x;
-            std::size_t location_y4 = point_y - y;
-            std::size_t location_x5 = point_x + y;
-            std::size_t location_y5 = point_y + x;
-            std::size_t location_x6 = point_x + y;
-            std::size_t location_y6 = point_y - x;
-            std::size_t location_x7 = point_x - y;
-            std::size_t location_y7 = point_y + x;
-            std::size_t location_x8 = point_x - y;
-            std::size_t location_y8 = point_y - x;
-
-
-            if (location_x1 >= output.getWidth() ||
-                location_y1 >= output.getHeight() ||
-                location_x2 >= output.getWidth() ||
-                location_y2 >= output.getHeight() ||
-                location_x3 >= output.getWidth() ||
-                location_y3 >= output.getHeight() ||
-                location_x4 >= output.getWidth() ||
-                location_y4 >= output.getHeight() ||
-                location_x5 >= output.getWidth() ||
-                location_y5 >= output.getHeight() ||
-                location_x6 >= output.getWidth() ||
-                location_y6 >= output.getHeight() ||
-                location_x7 >= output.getWidth() ||
-                location_y7 >= output.getHeight() ||
-                location_x8 >= output.getWidth() ||
-                location_y8 >= output.getHeight())
+            // early out avoids y going negative in loop
+            return output;
+        }
+        for (std::ptrdiff_t x = 0, y = radius; x <= y; x++)
+        {
+            // try to decrement y, then accept or revert
+            y--;
+            if (x * x + y * y < radius * radius)
             {
-                continue;
+                y++;
             }
-            output.at_without_boundary_check(location_x1, location_y1) = draw_value;
-            output.at_without_boundary_check(location_x2, location_y2) = draw_value;
-            output.at_without_boundary_check(location_x3, location_y3) = draw_value;
-            output.at_without_boundary_check(location_x4, location_y4) = draw_value;
-            output.at_without_boundary_check(location_x5, location_y5) = draw_value;
-            output.at_without_boundary_check(location_x6, location_y6) = draw_value;
-            output.at_without_boundary_check(location_x7, location_y7) = draw_value;
-            output.at_without_boundary_check(location_x8, location_y8) = draw_value;
+            // do nothing if out of bounds, otherwise draw
+            draw_if_possible(output, draw_value, point_x + x, point_y + y);
+            draw_if_possible(output, draw_value, point_x - x, point_y + y);
+            draw_if_possible(output, draw_value, point_x + x, point_y - y);
+            draw_if_possible(output, draw_value, point_x - x, point_y - y);
+            draw_if_possible(output, draw_value, point_x + y, point_y + x);
+            draw_if_possible(output, draw_value, point_x - y, point_y + x);
+            draw_if_possible(output, draw_value, point_x + y, point_y - x);
+            draw_if_possible(output, draw_value, point_x - y, point_y - x);
         }
         return output;
     }
