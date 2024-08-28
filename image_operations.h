@@ -2457,6 +2457,24 @@ namespace TinyDIP
         return output;
     }
 
+    //  draw_if_possible template function implementation
+    template<typename ElementT>
+    constexpr static void draw_if_possible(
+        Image<ElementT>& input,
+        ElementT draw_value,
+        std::ptrdiff_t x,
+        std::ptrdiff_t y
+    )
+    {
+        if (x < 0 || x >= input.getWidth() ||
+            y < 0 || y >= input.getHeight())
+        {
+            return;
+        }
+        input.at_without_boundary_check(x, y) = draw_value;
+        return;
+    }
+    
     //  draw_circle template function implementation
     //  https://codereview.stackexchange.com/q/293417/231235
     //  Test: 
