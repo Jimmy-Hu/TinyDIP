@@ -2477,7 +2477,7 @@ namespace TinyDIP
     
     //  draw_circle template function implementation
     //  https://codereview.stackexchange.com/q/293417/231235
-    //  Test: 
+    //  Test: https://godbolt.org/z/7zKfhG3x9
     template<typename ElementT>
     constexpr static auto draw_circle(
         const Image<ElementT>& input,
