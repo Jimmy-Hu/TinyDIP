@@ -670,7 +670,7 @@ namespace TinyDIP
         std::cout << "\\begin{tikzpicture}[x=1cm,y=0.4cm]\n";
         for (std::size_t y = 0; y < input.getHeight(); ++y)
         {
-            for (size_t x = 0; x < input.getWidth(); x++)
+            for (std::size_t x = 0; x < input.getWidth(); ++x)
             {
                 auto R = input.at(x, y).channels[0];
                 auto G = input.at(x, y).channels[1];
