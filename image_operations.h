@@ -490,12 +490,14 @@ namespace TinyDIP
         auto image_data_s = s.getImageData();
         auto image_data_v = v.getImageData();
         std::vector<OutputT> new_data;
-        for (size_t index = 0; index < h.count(); ++index)
+        new_data.resize(h.count());
+        #pragma omp parallel for
+        for (std::size_t index = 0; index < h.count(); ++index)
         {
             OutputT hsv {   image_data_h[index],
                         image_data_s[index],
                         image_data_v[index]};
-            new_data.emplace_back(hsv);
+            new_data[index] = hsv;
         }
         Image<OutputT> output(new_data, h.getSize());
         return output;
