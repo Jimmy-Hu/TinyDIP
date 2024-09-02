@@ -1125,7 +1125,7 @@ namespace TinyDIP
         auto output = std::vector<Image<InputT>>();
         output.reserve(zsize);
         auto gaussian_image2d = gaussianFigure2D(xsize, ysize, centerx, centery, standard_deviation_x, standard_deviation_y);
-        for (size_t z = 0; z < zsize; ++z)
+        for (std::size_t z = 0; z < zsize; ++z)
         {
             output.emplace_back(
                 gaussian_image2d *
