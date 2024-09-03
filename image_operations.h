@@ -1078,6 +1078,7 @@ namespace TinyDIP
         return output;
     }
 
+    //  gaussianFigure2D Template Function Implementation
     //  General two-dimensional elliptical Gaussian
     //  f(x, y) = A*e^(-a(x - x0)^2 + 2b(x - x0)(y - y0)+c(y - y0)^2)
     template<class InputT>
@@ -1088,9 +1089,9 @@ namespace TinyDIP
         const InputT c, const InputT normalize_factor = 1.0)
     {
         auto output = Image<InputT>(xsize, ysize);
-        for (size_t y = 0; y < ysize; ++y)
+        for (std::size_t y = 0; y < ysize; ++y)
         {
-            for (size_t x = 0; x < xsize; ++x)
+            for (std::size_t x = 0; x < xsize; ++x)
             {
                 output.at(x, y) = normalize_factor*
                     std::exp(
