@@ -509,6 +509,21 @@ namespace TinyDIP
             std::apply([&](auto&&... args) {((function(args)), ...);}, location);
         }
 
+        //  tuple_location_to_index template function implementation
+        template<class TupleT>
+        constexpr std::size_t tuple_location_to_index(TupleT location)
+        {
+            std::size_t i = 0;
+            std::size_t stride = 1;
+            std::size_t position = 0;
+            auto update_position = [&](auto index) {
+                    position += index * stride;
+                    stride *= size[i++];
+                };
+            std::apply([&](auto&&... args) {((update_position(args)), ...);}, location);
+            return position;
+        }
+
 #ifdef USE_BOOST_SERIALIZATION
         friend class boost::serialization::access;
         template<class Archive>
