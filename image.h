@@ -196,7 +196,7 @@ namespace TinyDIP
             return image_data[index];
         }
 
-        constexpr void set(const std::tuple<std::size_t, std::size_t> location, const ElementT draw_value) noexcept
+        constexpr bool set(const std::tuple<std::size_t, std::size_t> location, const ElementT draw_value)
         {
             if (size.size() != 2)
             {
@@ -207,9 +207,10 @@ namespace TinyDIP
             if (std::cmp_greater_equal(x, getWidth()) ||
                 std::cmp_greater_equal(y, getHeight()))
             {
-                return;
+                return false;
             }
             image_data[y * getWidth() + x] = draw_value;
+            return true;
         }
 
         //  cast template function implementation
