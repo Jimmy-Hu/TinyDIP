@@ -196,7 +196,7 @@ namespace TinyDIP
             return image_data[index];
         }
 
-        constexpr void set(std::tuple<std::size_t, std::size_t> location, ElementT draw_value)
+        constexpr void set(std::tuple<std::size_t, std::size_t> location, ElementT draw_value) noexcept
         {
             if (size.size() != 2)
             {
