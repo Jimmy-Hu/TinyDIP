@@ -213,6 +213,25 @@ namespace TinyDIP
             return true;
         }
 
+        constexpr bool set(const std::tuple<std::size_t, std::size_t, std::size_t> location, const ElementT draw_value)
+        {
+            if (size.size() != 3)
+            {
+                throw std::runtime_error("Dimensionality mismatched!");
+            }
+            auto x = std::get<0>(location);
+            auto y = std::get<1>(location);
+            auto z = std::get<2>(location);
+            if (std::cmp_greater_equal(x, size[0]) ||
+                std::cmp_greater_equal(y, size[1]) ||
+                std::cmp_greater_equal(z, size[2]))
+            {
+                return false;
+            }
+            image_data[(z * size[1] + y) * size[0] + x] = draw_value;
+            return true;
+        }
+
         //  cast template function implementation
         template<typename TargetT>
         constexpr Image<TargetT> cast()
