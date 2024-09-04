@@ -198,11 +198,10 @@ namespace TinyDIP
 
         //  set template function implementation
         template<class TupleT>
-        constexpr bool set(const TupleT location, const ElementT draw_value)
+        constexpr void set(const TupleT location, const ElementT draw_value)
         {
             checkBoundaryTuple(location);
             image_data[tuple_location_to_index(location)] = draw_value;
-            return true;
         }
 
         //  cast template function implementation
