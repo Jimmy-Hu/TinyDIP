@@ -204,8 +204,8 @@ namespace TinyDIP
             }
             auto x = std::get<0>(location);
             auto y = std::get<1>(location);
-            if (x < 0 || x >= getWidth() ||
-                y < 0 || y >= getHeight())
+            if (std::cmp_greater_equal(x, getWidth()) ||
+                std::cmp_greater_equal(y, getHeight()))
             {
                 return;
             }
