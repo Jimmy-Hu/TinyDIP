@@ -465,7 +465,7 @@ namespace TinyDIP
 
         //  checkBoundaryTuple template function implementation
         template<class TupleT>
-        void checkBoundaryTuple(const TupleT location)
+        bool checkBoundaryTuple(const TupleT location)
         {
             constexpr std::size_t n = std::tuple_size<TupleT>{};
             if(n != size.size())
@@ -475,10 +475,11 @@ namespace TinyDIP
             std::size_t parameter_pack_index = 0;
             auto function = [&](auto index) {
                 if (std::cmp_greater_equal(index, size[parameter_pack_index]))
-                    throw std::out_of_range("Given index out of range!");
+                    return false;
                 parameter_pack_index = parameter_pack_index + 1;
+                return true;
             };
-            std::apply([&](auto&&... args) {((function(args)), ...);}, location);
+            return std::apply([&](auto&&... args) { return ((function(args))&& ...);}, location);
         }
 
         //  tuple_location_to_index template function implementation
