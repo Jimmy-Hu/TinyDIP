@@ -491,6 +491,24 @@ namespace TinyDIP
             (function(indexInput), ...);
         }
 
+        //  checkBoundaryTuple template function implementation
+        template<class TupleT>
+        void checkBoundaryTuple(const TupleT location)
+        {
+            constexpr std::size_t n = std::tuple_size<TupleT>{};
+            if(n != size.size())
+            {
+                throw std::runtime_error("Dimensionality mismatched!");
+            }
+            std::size_t parameter_pack_index = 0;
+            auto function = [&](auto index) {
+                if (std::cmp_greater_equal(index, size[parameter_pack_index]))
+                    throw std::out_of_range("Given index out of range!");
+                parameter_pack_index = parameter_pack_index + 1;
+            };
+            std::apply([&](auto&&... args) {((function(args)), ...);}, location);
+        }
+
 #ifdef USE_BOOST_SERIALIZATION
         friend class boost::serialization::access;
         template<class Archive>
