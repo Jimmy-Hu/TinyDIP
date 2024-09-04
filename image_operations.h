@@ -1348,6 +1348,14 @@ namespace TinyDIP
         return pixelwiseOperation(std::negate<>{}, input1);
     }
 
+    //  negate template function implementation
+    template<class ExPo, class InputT>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static Image<InputT> negate(ExPo execution_policy, const Image<InputT>& input1)
+    {
+        return pixelwiseOperation(execution_policy, std::negate<>{}, input1);
+    }
+
     template<std::floating_point ElementT = double, std::floating_point OutputT = ElementT>
     Image<OutputT> dct3_one_plane(const std::vector<Image<ElementT>>& input, const std::size_t plane_index)
     {
