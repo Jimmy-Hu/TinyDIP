@@ -1707,7 +1707,7 @@ namespace TinyDIP
             {
                 for (std::size_t x = 0; x < target.getWidth(); ++x)
                 {
-                    output.at(x_location + x, y_location + y) = target.at_without_boundary_check(x, y);
+                    output.at_without_boundary_check(x_location + x, y_location + y) = target.at_without_boundary_check(x, y);
                 }
             }
             return output;
@@ -1728,14 +1728,14 @@ namespace TinyDIP
             {
                 for (std::size_t x = 0; x < background.getWidth(); ++x)
                 {
-                    output.at(x, y) = background.at_without_boundary_check(x, y);
+                    output.at_without_boundary_check(x, y) = background.at_without_boundary_check(x, y);
                 }
             }
             for (std::size_t y = 0; y < target.getHeight(); ++y)
             {
                 for (std::size_t x = 0; x < target.getWidth(); ++x)
                 {
-                    output.at(x_location + x, y_location + y) = target.at_without_boundary_check(x, y);
+                    output.at_without_boundary_check(x_location + x, y_location + y) = target.at_without_boundary_check(x, y);
                 }
             }
             return output;
