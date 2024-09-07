@@ -1675,6 +1675,10 @@ namespace TinyDIP
     requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
     constexpr static auto gaussian_fisheye(const Image<ElementT>& input, FloatingType D0)
     {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
         return apply_each(input, [&](auto&& planes) { return gaussian_fisheye(planes, D0); });
     }
 
