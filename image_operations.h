@@ -1104,11 +1104,12 @@ namespace TinyDIP
         return output;
     }
 
+    //  gaussianFigure2D Template Function Implementation
     //  single standard deviation
     template<class InputT>
     constexpr static Image<InputT> gaussianFigure2D(
-        const size_t xsize, const size_t ysize,
-        const size_t centerx, const size_t centery,
+        const std::size_t xsize, const std::size_t ysize,
+        const std::size_t centerx, const std::size_t centery,
         const InputT standard_deviation)
     {
         return gaussianFigure2D(xsize, ysize, centerx, centery, standard_deviation, standard_deviation);
