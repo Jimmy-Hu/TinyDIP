@@ -1120,8 +1120,8 @@ namespace TinyDIP
     template<class InputT>
     requires(std::floating_point<InputT> || std::integral<InputT>)
     constexpr static auto gaussianFigure3D(
-        const size_t xsize, const size_t ysize, const size_t zsize,
-        const size_t centerx, const size_t centery, const size_t centerz,
+        const std::size_t xsize, const std::size_t ysize, const std::size_t zsize,
+        const std::size_t centerx, const std::size_t centery, const std::size_t centerz,
         const InputT standard_deviation_x, const InputT standard_deviation_y, const InputT standard_deviation_z)
     {
         auto output = std::vector<Image<InputT>>();
