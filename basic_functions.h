@@ -101,6 +101,13 @@ namespace TinyDIP
     template <typename T>
     struct is_complex<std::complex<T>> : std::true_type {};
 
+    //  Reference: https://stackoverflow.com/a/48458312/6667035
+    template <typename>
+    struct is_tuple : std::false_type {};
+
+    template <typename ...T>
+    struct is_tuple<std::tuple<T...>> : std::true_type {};
+
     //  recursive_unwrap_type_t struct implementation
     template<std::size_t, typename, typename...>
     struct recursive_unwrap_type { };
