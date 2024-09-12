@@ -490,6 +490,7 @@ namespace TinyDIP
 
         //  tuple_location_to_index template function implementation
         template<class TupleT>
+        requires(is_tuple<TupleT>::value)
         constexpr std::size_t tuple_location_to_index(TupleT location)
         {
             std::size_t i = 0;
