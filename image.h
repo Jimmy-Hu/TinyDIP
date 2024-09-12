@@ -470,6 +470,7 @@ namespace TinyDIP
 
         //  checkBoundaryTuple template function implementation
         template<class TupleT>
+        requires(is_tuple<TupleT>::value)
         constexpr bool checkBoundaryTuple(const TupleT location)
         {
             constexpr std::size_t n = std::tuple_size<TupleT>{};
