@@ -1937,7 +1937,7 @@ namespace TinyDIP
 
     //  rotate template function implementation
     template<typename ElementT, class FloatingType = double>
-    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, HSV>))
+    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
     constexpr static auto rotate(const Image<ElementT>& input, FloatingType radians)
     {
         if (input.getDimensionality()!=2)
