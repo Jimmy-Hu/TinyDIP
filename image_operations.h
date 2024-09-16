@@ -2092,6 +2092,10 @@ namespace TinyDIP
         std::size_t height_expansion,
         ElementT default_value = ElementT{})
     {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
         return generate_mirror_padding_image(std::execution::seq, input, width_expansion, height_expansion, default_value);
     }
 
