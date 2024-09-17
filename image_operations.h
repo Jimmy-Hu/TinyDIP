@@ -2481,6 +2481,7 @@ namespace TinyDIP
     //  draw_circle template function implementation
     //  https://codereview.stackexchange.com/q/293417/231235
     //  Test: https://godbolt.org/z/7zKfhG3x9
+    //  Test with output.set: https://godbolt.org/z/1GYdrbs5q
     template<typename ElementT>
     constexpr static auto draw_circle(
         const Image<ElementT>& input,
@@ -2512,14 +2513,14 @@ namespace TinyDIP
                 y++;
             }
             // do nothing if out of bounds, otherwise draw
-            draw_if_possible(output, draw_value, point_x + x, point_y + y);
-            draw_if_possible(output, draw_value, point_x - x, point_y + y);
-            draw_if_possible(output, draw_value, point_x + x, point_y - y);
-            draw_if_possible(output, draw_value, point_x - x, point_y - y);
-            draw_if_possible(output, draw_value, point_x + y, point_y + x);
-            draw_if_possible(output, draw_value, point_x - y, point_y + x);
-            draw_if_possible(output, draw_value, point_x + y, point_y - x);
-            draw_if_possible(output, draw_value, point_x - y, point_y - x);
+            output.set(std::make_tuple(point_x + x, point_y + y), draw_value);
+            output.set(std::make_tuple(point_x - x, point_y + y), draw_value);
+            output.set(std::make_tuple(point_x + x, point_y - y), draw_value);
+            output.set(std::make_tuple(point_x - x, point_y - y), draw_value);
+            output.set(std::make_tuple(point_x + y, point_y + x), draw_value);
+            output.set(std::make_tuple(point_x - y, point_y + x), draw_value);
+            output.set(std::make_tuple(point_x + y, point_y - x), draw_value);
+            output.set(std::make_tuple(point_x - y, point_y - x), draw_value);
         }
         return output;
     }
