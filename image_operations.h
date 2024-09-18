@@ -2020,7 +2020,10 @@ namespace TinyDIP
             throw std::runtime_error("Unsupported dimension!");
         }
         Image<ElementT> output = input;
-        for(std::size_t y = 0; y < input.getHeight(); ++y)
+        auto height = input.getHeight();
+        auto width = input.getWidth();
+        #pragma omp parallel for collapse(2)
+        for(std::size_t y = 0; y < height; ++y)
         {
             for(std::size_t x = 0; x < input.getWidth(); ++x)
             {
