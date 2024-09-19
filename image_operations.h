@@ -2025,7 +2025,7 @@ namespace TinyDIP
         #pragma omp parallel for collapse(2)
         for(std::size_t y = 0; y < height; ++y)
         {
-            for(std::size_t x = 0; x < input.getWidth(); ++x)
+            for(std::size_t x = 0; x < width; ++x)
             {
                 output.at_without_boundary_check(x, input.getHeight() - y - 1) = input.at_without_boundary_check(x, y);
             }
