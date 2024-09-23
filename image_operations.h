@@ -2551,6 +2551,18 @@ namespace TinyDIP
             {
                 throw std::runtime_error("Unsupported dimension!");
             }
+            if (input1.getWidth() != 3 || input1.getHeight() != 3)
+            {
+                throw std::runtime_error("Size error!");
+            }
+            if (input2.getWidth() != 3 || input2.getHeight() != 3)
+            {
+                throw std::runtime_error("Size error!");
+            }
+            if (input3.getWidth() != 3 || input3.getHeight() != 3)
+            {
+                throw std::runtime_error("Size error!");
+            }
             auto center_pixel = input2.at(1, 1);
             auto input2_img_data = input2.getImageData();
             input2_img_data.erase(input2_img_data.begin() + 4);                         //  https://stackoverflow.com/a/875117/6667035
