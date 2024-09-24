@@ -2736,6 +2736,10 @@ namespace TinyDIP
             ElementT contrast_check_threshold = 8,
             ElementT edge_response_threshold = 12.1)
         {
+            if (input.getDimensionality() != 2)
+            {
+                throw std::runtime_error("Unsupported dimension!");
+            }
             //  Generate octaves
             std::vector<std::vector<Image<ElementT>>> octaves;
             octaves.reserve(octaves_count);
