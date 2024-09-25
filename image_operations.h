@@ -2820,6 +2820,10 @@ namespace TinyDIP
         template<typename ElementT>
         constexpr static auto compute_each_pixel_orientation(const Image<ElementT>& input)
         {
+            if (input.getDimensionality() != 2)
+            {
+                throw std::runtime_error("Unsupported dimension!");
+            }
             if (input.getWidth() != 3 || input.getHeight() != 3)
                 throw std::runtime_error("Input size error!");
             double gradient_magnitude =
