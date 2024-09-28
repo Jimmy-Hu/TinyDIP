@@ -324,8 +324,8 @@ int main(int argc, char* argv[])
         auto dictionary = impl::load_dictionary_RGB();
         std::string input_path = "InputImages/LowRes/Bucubic0.1/0012.bmp";
         auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
-        auto output_img = each_image(std::execution::seq, input_img, dictionary, 8, 8, 0.1);
-        auto output_path = std::string("OutputImages/0001_superres") + std::to_string(0.1);
+        auto output_img = each_image(std::execution::seq, input_img, dictionary, 8, 8, 1.2);
+        auto output_path = std::string("OutputImages/0012_superres") + std::to_string(1.2);
         std::cout << "Save output to " << output_path << '\n';
         TinyDIP::bmp_write(output_path.c_str(), output_img);
         
