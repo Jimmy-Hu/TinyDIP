@@ -238,9 +238,7 @@ int main()
     bmp1 = TinyDIP::draw_points(bmp1, SIFT_keypoints);
     for (auto&& each_SIFT_keypoint : SIFT_keypoints)
     {
-        auto orientation_histogram = TinyDIP::SIFT_impl::get_orientation_histogram(v_plane, each_SIFT_keypoint);
-        RGB rgb{ 255, 255, 255 };
-        bmp1 = TinyDIP::draw_circle(bmp1, each_SIFT_keypoint, TinyDIP::recursive_max(orientation_histogram), rgb);
+        TinyDIP::SIFT_impl::get_keypoint_descriptor(v_plane, each_SIFT_keypoint);
     }
     auto cv_mat = TinyDIP::to_cv_mat(bmp1);
     cv::imshow("Image", cv_mat);
