@@ -13,6 +13,9 @@ int main()
     TinyDIP::Image<double> I1(5, 5);
     for(std::size_t y = 0; y < I1.getHeight(); ++y)
     {
+        for(std::size_t x = 0; x < I1.getWidth(); ++x)
+        {
+        }
     }
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
