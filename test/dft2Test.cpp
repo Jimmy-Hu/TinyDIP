@@ -15,6 +15,7 @@ int main()
     {
         for(std::size_t x = 0; x < I1.getWidth(); ++x)
         {
+            I1.at(x, y) = y * I1.getWidth() + x + 1;
         }
     }
     auto end = std::chrono::system_clock::now();
