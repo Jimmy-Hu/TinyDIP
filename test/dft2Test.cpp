@@ -20,6 +20,7 @@ int main()
     }
     I1.print();
     auto output = TinyDIP::dft2(I1);
+    output.print();
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
