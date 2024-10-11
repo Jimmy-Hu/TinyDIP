@@ -8,6 +8,7 @@ void doubleImageIOTest();
 
 int main()
 {
+    auto start = std::chrono::system_clock::now();
     doubleImageIOTest();
     return 0;
 }
