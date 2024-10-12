@@ -11,6 +11,7 @@ int main()
     auto start = std::chrono::system_clock::now();
     doubleImageIOTest();
     return 0;
+    auto end = std::chrono::system_clock::now();
 }
 
 void doubleImageIOTest()
