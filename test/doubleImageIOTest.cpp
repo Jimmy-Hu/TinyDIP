@@ -11,6 +11,7 @@ int main()
     auto start = std::chrono::system_clock::now();
     doubleImageIOTest();
     auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
     return EXIT_SUCCESS;
 }
 
