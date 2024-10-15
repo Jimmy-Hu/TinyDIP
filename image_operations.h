@@ -436,6 +436,17 @@ namespace TinyDIP
         return output;
     }
 
+    //  Grayscale2RGB function implementation
+    //  Grayscale2RGB function returns RGB pixel which represents GrayScale input in hue color scale. 
+    static auto Grayscale2RGB(GrayScale input)
+    {
+        HSV hsv;
+        hsv.channels[0] = static_cast<double>(input) / 256.0 * 360;
+        hsv.channels[1] = 1.0;
+        hsv.channels[2] = 255.0;
+        return hsv2rgb(hsv);
+    }
+
     //  constructRGB template function implementation
     template<typename OutputT = RGB>
     constexpr static auto constructRGB(Image<GrayScale> r, Image<GrayScale> g, Image<GrayScale> b)
