@@ -11,7 +11,9 @@
 #include "base_types.h"
 #include "basic_functions.h"
 #include "image.h"
+#ifdef USE_OPENCV
 #include <opencv2/opencv.hpp>
+#endif
 
 namespace TinyDIP
 {
