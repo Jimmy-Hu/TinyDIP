@@ -447,6 +447,15 @@ namespace TinyDIP
         return hsv2rgb(hsv);
     }
 
+    //  Grayscale2RGB function implementation
+    static auto Grayscale2RGB(Image<GrayScale> input)
+    {
+        auto input_data = input.getImageData();
+        auto output_data = TinyDIP::recursive_transform([](auto&& input) { return Grayscale2RGB(input); }, input_data);
+        Image<RGB> output(output_data, input.getSize());
+        return output;
+    }
+
     //  constructRGB template function implementation
     template<typename OutputT = RGB>
     constexpr static auto constructRGB(Image<GrayScale> r, Image<GrayScale> g, Image<GrayScale> b)
