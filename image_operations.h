@@ -306,7 +306,8 @@ namespace TinyDIP
         }
         return output;
     }
-
+    
+    #ifdef USE_OPENCV
     //  to_cv_mat function implementation
     constexpr auto to_cv_mat(const Image<RGB>& input)
     {
@@ -340,6 +341,7 @@ namespace TinyDIP
         }
         return output;
     }
+    #endif
 
     //  rgb2hsv function implementation
     constexpr static auto rgb2hsv(RGB input)
