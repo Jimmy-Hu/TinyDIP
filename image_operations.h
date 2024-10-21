@@ -711,7 +711,7 @@ namespace TinyDIP
     }
 
     //  print_with_latex_to_file function implementation
-    constexpr static void print_with_latex_to_file(Image<RGB> input, std::string filename)
+    static void print_with_latex_to_file(Image<RGB> input, std::string filename)
     {
         std::ofstream newfile;
         newfile.open(filename);
