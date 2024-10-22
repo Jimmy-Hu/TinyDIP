@@ -40,7 +40,7 @@ constexpr static auto get_offset( ExPo execution_policy,
         outputs.resize(dictionary_y.size());
         #pragma omp parallel for
         //  C3016 'i': index variable in OpenMP 'for' statement must have signed integral type
-        for (int i = 0; i < dictionary_y.size(); ++i)
+        for (std::size_t i = 0; i < dictionary_y.size(); ++i)
         {
             outputs[i] = dictionary_y[i] * weights[i];
         }
