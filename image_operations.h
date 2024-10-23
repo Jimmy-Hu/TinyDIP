@@ -1080,6 +1080,7 @@ namespace TinyDIP
         return row_vector;
     }
 
+    //  gaussianFigure2D template function implementation
     //  multiple standard deviations
     template<class InputT>
     constexpr static Image<InputT> gaussianFigure2D(
