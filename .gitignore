@@ -46,3 +46,4 @@ Debug/
 ignored_files/ 
 *.bmp
 *.dbmp
+*.DS_Store
