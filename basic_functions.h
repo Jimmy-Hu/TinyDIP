@@ -1,7 +1,7 @@
 /* Developed by Jimmy Hu */
 
-#ifndef BasicFunctions_H
-#define BasicFunctions_H
+#ifndef TINYDIP_BASIC_FUNCTIONS_H
+#define TINYDIP_BASIC_FUNCTIONS_H
 
 #include <algorithm>
 #include <array>
