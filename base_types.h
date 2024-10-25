@@ -1,7 +1,7 @@
 /* Developed by Jimmy Hu */
 
-#ifndef BASE_H
-#define BASE_H
+#ifndef TINYDIP_BASE_TYPES_H  // base_types.h header guard, follow the suggestion from https://codereview.stackexchange.com/a/293832/231235
+#define TINYDIP_BASE_TYPES_H
 
 #include <cstdint>
 #include <filesystem>
