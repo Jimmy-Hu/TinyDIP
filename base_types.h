@@ -11,7 +11,7 @@
 #include <string>
 #include <utility>
 
-struct RGB
+namespace TinyDIP
 {
     std::uint8_t channels[3];
 };
