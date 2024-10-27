@@ -13,8 +13,10 @@
 
 namespace TinyDIP
 {
-    std::uint8_t channels[3];
-};
+    struct RGB
+    {
+        std::uint8_t channels[3];
+    };
 
 struct RGB_DOUBLE
 {
