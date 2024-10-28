@@ -18,10 +18,10 @@ namespace TinyDIP
         std::uint8_t channels[3];
     };
 
-struct RGB_DOUBLE
-{
-    double channels[3];
-};
+    struct RGB_DOUBLE
+    {
+        double channels[3];
+    };
 
 using GrayScale = std::uint8_t;
 
