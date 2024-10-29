@@ -23,7 +23,7 @@ namespace TinyDIP
         double channels[3];
     };
 
-using GrayScale = std::uint8_t;
+    using GrayScale = std::uint8_t;
 
 struct HSV
 {
