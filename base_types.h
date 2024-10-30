@@ -25,10 +25,10 @@ namespace TinyDIP
 
     using GrayScale = std::uint8_t;
 
-struct HSV
-{
-    double channels[3];    //  Range: 0 <= H < 360, 0 <= S <= 1, 0 <= V <= 255
-};
+    struct HSV
+    {
+        double channels[3];    //  Range: 0 <= H < 360, 0 <= S <= 1, 0 <= V <= 255
+    };
 
 struct BMPIMAGE
 {
