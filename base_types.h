@@ -30,13 +30,14 @@ namespace TinyDIP
         double channels[3];    //  Range: 0 <= H < 360, 0 <= S <= 1, 0 <= V <= 255
     };
 
-struct BMPIMAGE
-{
-    std::filesystem::path FILENAME;
-    
-    unsigned int XSIZE;
-    unsigned int YSIZE;
-    std::uint8_t FILLINGBYTE;
-    std::uint8_t*IMAGE_DATA;
-};
+    struct BMPIMAGE
+    {
+        std::filesystem::path FILENAME;
+
+        unsigned int XSIZE;
+        unsigned int YSIZE;
+        std::uint8_t FILLINGBYTE;
+        std::uint8_t* IMAGE_DATA;
+    };
+}
 #endif
