@@ -337,9 +337,10 @@ void test()
     return;   
 }
 
+//  bicubicInterpolationTest function implementation
 void bicubicInterpolationTest()
 {
-    TinyDIP::Image<GrayScale> image1(3, 3);
+    TinyDIP::Image<TinyDIP::GrayScale> image1(3, 3);
     image1.setAllValue(1);
     std::cout << "Width: " + std::to_string(image1.getWidth()) + "\n";
     std::cout << "Height: " + std::to_string(image1.getHeight()) + "\n";
