@@ -23,5 +23,5 @@ int main()
     assert(TinyDIP::get_from_variadic_template<3>(A, B, C, D, E) == C);
     assert(TinyDIP::get_from_variadic_template<4>(A, B, C, D, E) == D);
     assert(TinyDIP::get_from_variadic_template<5>(A, B, C, D, E) == E);
-    return 0;
+    return EXIT_SUCCESS;
 }
