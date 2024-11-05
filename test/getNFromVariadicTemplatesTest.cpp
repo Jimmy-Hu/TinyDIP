@@ -6,6 +6,7 @@
 
 int main()
 {
+    auto start = std::chrono::system_clock::now();
     static_assert(TinyDIP::get_from_variadic_template<1>(1, 2, 3, 4, 5) == 1);
     static_assert(TinyDIP::get_from_variadic_template<2>(1, 2, 3, 4, 5) == 2);
     static_assert(TinyDIP::get_from_variadic_template<3>(1, 2, 3, 4, 5) == 3);
