@@ -12,6 +12,7 @@ int main()
     auto start = std::chrono::system_clock::now();
     gaussianFigure2DTest();
     auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
     return EXIT_SUCCESS;
 }
 
