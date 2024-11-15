@@ -17,6 +17,7 @@ int main()
     if (elapsed_seconds.count() != 1)
     {
         std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << " seconds.\n";
+    }
     return EXIT_SUCCESS;
 }
 
