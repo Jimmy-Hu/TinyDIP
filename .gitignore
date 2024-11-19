@@ -35,6 +35,7 @@
 build/
 x64/
 Debug/
+enc_temp_folder/
 
 # VS folder
 .vs/
