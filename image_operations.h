@@ -1,7 +1,7 @@
 /* Developed by Jimmy Hu */
 
-#ifndef ImageOperations_H
-#define ImageOperations_H
+#ifndef TINYDIP_IMAGE_OPERATIONS_H
+#define TINYDIP_IMAGE_OPERATIONS_H
 
 #include <concepts>
 #include <execution>
