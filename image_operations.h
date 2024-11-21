@@ -1184,6 +1184,7 @@ namespace TinyDIP
             }, input1, inputs...);
     }
 
+    //  subtract Template Function Implementation
     template<class InputT>
     constexpr static Image<InputT> subtract(const Image<InputT>& input1, const Image<InputT>& input2)
     {
