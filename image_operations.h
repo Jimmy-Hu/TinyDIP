@@ -1192,6 +1192,7 @@ namespace TinyDIP
         return pixelwiseOperation(std::minus<>{}, input1, input2);
     }
 
+    //  subtract Template Function Implementation
     template<class InputT>
     constexpr static auto subtract(const std::vector<Image<InputT>>& input1, const std::vector<Image<InputT>>& input2)
     {
