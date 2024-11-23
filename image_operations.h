@@ -2897,6 +2897,17 @@ namespace TinyDIP
             }
             return raw_histogram;
         }
+
+        //  get_keypoint_descriptor template function implementation
+        template<typename ElementT>
+        requires((std::floating_point<ElementT> || std::integral<ElementT>))
+        constexpr static auto get_keypoint_descriptor(
+            const Image<ElementT>& input,
+            std::tuple<std::size_t, std::size_t> keypoint_location,
+            std::size_t block_size = 8
+        )
+        {
+        }
     }
 
     //  imbilatfilt template function implementation
