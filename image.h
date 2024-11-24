@@ -1,7 +1,7 @@
 /* Developed by Jimmy Hu */
 
-#ifndef TinyDIP_Image_H
-#define TinyDIP_Image_H
+#ifndef TINYDIP_IMAGE_H       // image.h header guard, follow the suggestion from https://codereview.stackexchange.com/a/293832/231235
+#define TINYDIP_IMAGE_H
 
 #include <algorithm>
 #include <array>
