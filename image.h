@@ -66,6 +66,10 @@ namespace TinyDIP
 
         Image(const std::vector<std::size_t>& sizes)
         {
+            if (sizes.empty())
+            {
+                throw std::runtime_error("Image size vector is empty!");
+            }
             size = std::move(sizes);
             image_data.resize(
                 std::reduce(
