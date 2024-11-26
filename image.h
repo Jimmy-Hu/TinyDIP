@@ -94,6 +94,10 @@ namespace TinyDIP
         Image(std::vector<ElementT>&& input, Sizes... sizes):
             size{sizes...}, image_data(begin(input), end(input))
         {
+            if (input.empty())
+            {
+                throw std::runtime_error("Input vector is empty!");
+            }
             if (image_data.size() != (1 * ... * sizes)) {
                 throw std::runtime_error("Image data input and the given size are mismatched!");
             }
