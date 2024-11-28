@@ -106,6 +106,7 @@ namespace TinyDIP
         Image(const std::vector<ElementT>& input, const std::vector<std::size_t>& sizes)
         {
             if (input.empty())
+            {
             size = std::move(sizes);
             image_data = std::move(input);
             auto count = std::reduce(std::ranges::cbegin(sizes), std::ranges::cend(sizes), 1, std::multiplies());
