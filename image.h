@@ -108,6 +108,7 @@ namespace TinyDIP
             if (input.empty())
             {
                 throw std::runtime_error("Input vector is empty!");
+            }
             size = std::move(sizes);
             image_data = std::move(input);
             auto count = std::reduce(std::ranges::cbegin(sizes), std::ranges::cend(sizes), 1, std::multiplies());
