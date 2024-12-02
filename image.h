@@ -121,6 +121,7 @@ namespace TinyDIP
         Image(const std::vector<ElementT>& input, std::size_t newWidth, std::size_t newHeight)
         {
             if (input.empty())
+            {
             size.reserve(2);
             size.emplace_back(newWidth);
             size.emplace_back(newHeight);
