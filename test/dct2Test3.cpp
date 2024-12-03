@@ -119,11 +119,25 @@ constexpr auto load_dictionary( const std::string_view dictionary_path = "Dictio
                                 const std::size_t N1 = 8,
                                 const std::size_t N2 = 8)
 {
+    auto dictionary_path_temp = dictionary_path;
+    //  https://stackoverflow.com/a/63622202/6667035
+    if (!std::filesystem::is_directory(dictionary_path_temp))
+    {
+        dictionary_path_temp = "../Dictionary";
+    }
+    if (!std::filesystem::is_directory(dictionary_path_temp))
+    {
+        dictionary_path_temp = "../../Dictionary";
+    }
+    if (!std::filesystem::is_directory(dictionary_path_temp))
+    {
+        dictionary_path_temp = "../../../Dictionary";
+    }
     //***Load dictionary***
     std::vector<TinyDIP::Image<ElementT>> x, y;
     for (std::size_t i = dic_start_index; i <= dic_end_index; ++i)
     {
-        std::string fullpath = std::string(dictionary_path) + "/" + std::to_string(i);
+        std::string fullpath = std::string(dictionary_path_temp) + "/" + std::to_string(i);
         std::cout << "Dictionary path: " << fullpath << '\n';
         auto input_dbmp = TinyDIP::double_image::read(fullpath.c_str(), false);
         auto dct_block_x = TinyDIP::split(input_dbmp, input_dbmp.getWidth() / N1, input_dbmp.getHeight() / N2);
@@ -136,7 +150,7 @@ constexpr auto load_dictionary( const std::string_view dictionary_path = "Dictio
             },
             dct_block_x);
 
-        std::string fullpath_gt = std::string(dictionary_path) + "/GT";
+        std::string fullpath_gt = std::string(dictionary_path_temp) + "/GT";
         auto input_dbmp_gt = TinyDIP::double_image::read(fullpath_gt.c_str(), false);
         auto dct_block_y = TinyDIP::split(input_dbmp_gt, input_dbmp_gt.getWidth() / N1, input_dbmp_gt.getHeight() / N2);
         y.reserve(dct_block_y.size() * dct_block_y.at(0).size());
@@ -182,7 +196,7 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
 int main(int argc, char* argv[])
 {
     auto start = std::chrono::system_clock::now();
-    std::cout << std::to_string(argc) << '\n';
+    std::cout << "argc parameter: " << std::to_string(argc) << '\n';
     if(argc == 2)
     {
         auto input_path = std::string(argv[1]);
@@ -233,9 +247,38 @@ int main(int argc, char* argv[])
         for(std::size_t sigma = 1; sigma < 10; ++sigma)
         {
             std::string input_path = "InputImages/RainImages/S__55246868.bmp";
+            if (!std::filesystem::is_regular_file(input_path))
+            {
+                input_path = "../InputImages/RainImages/S__55246868.bmp";
+            }
+            if (!std::filesystem::is_regular_file(input_path))
+            {
+                input_path = "../../InputImages/RainImages/S__55246868.bmp";
+            }
+            if (!std::filesystem::is_regular_file(input_path))
+            {
+                input_path = "../../../InputImages/RainImages/S__55246868.bmp";
+            }
             auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
             auto dictionary = load_dictionary();
             auto output_img = each_image(std::execution::seq, input_img, std::get<0>(dictionary), std::get<1>(dictionary), 8, 8, static_cast<double>(sigma) / 10.0);
+            std::error_code ec;
+            if (!std::filesystem::is_directory("OutputImages"))
+            {
+                std::filesystem::create_directories("OutputImages", ec);
+            }
+            if (ec)
+            {
+                std::cerr << ec.message();
+            }
+            if (!std::filesystem::is_directory("OutputImages/RainImages"))
+            {
+                std::filesystem::create_directories("OutputImages/RainImages", ec);
+            }
+            if (ec)
+            {
+                std::cerr << ec.message();
+            }
             auto output_path = std::string("OutputImages/RainImages/S__55246868_") + std::to_string(static_cast<double>(sigma) / 10.0);
             std::cout << "Save output to " << output_path << '\n';
             TinyDIP::bmp_write(output_path.c_str(), output_img);
