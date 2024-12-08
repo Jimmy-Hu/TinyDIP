@@ -138,6 +138,7 @@ namespace TinyDIP
         {
             if (input.empty())
             {
+                throw std::runtime_error("Input vector is empty!");
             size.reserve(2);
             size.emplace_back(input[0].size());
             size.emplace_back(input.size());
