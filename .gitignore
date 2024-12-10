@@ -33,6 +33,7 @@
 
 # Build output
 build/
+[Dd]ebug/
 x64/
 Debug/
 enc_temp_folder/
