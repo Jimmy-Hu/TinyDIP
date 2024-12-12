@@ -35,6 +35,7 @@
 build/
 [Dd]ebug/
 [Dd]ebugPublic/
+[Rr]elease/
 x64/
 Debug/
 enc_temp_folder/
