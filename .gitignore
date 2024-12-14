@@ -38,7 +38,7 @@ build/
 [Rr]elease/
 [Rr]eleases/
 x64/
-Debug/
+x86/
 enc_temp_folder/
 
 # VS folder
