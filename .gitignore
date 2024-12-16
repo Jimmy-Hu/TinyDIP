@@ -40,6 +40,7 @@ build/
 x64/
 x86/
 [Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
 enc_temp_folder/
 
 # VS folder
