@@ -17,6 +17,13 @@
 
 namespace TinyDIP
 {
+    template<typename T>
+    concept image_element_standard_floating_point_type =
+        std::same_as<double, T>
+        or std::same_as<float, T>
+        or std::same_as<long double, T>
+        ;
+
     //  all_of template function implementation
     template<typename ElementT, class UnaryPredicate>
     constexpr auto all_of(const Image<ElementT>& input, UnaryPredicate p)
