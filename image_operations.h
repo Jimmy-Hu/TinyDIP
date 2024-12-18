@@ -137,6 +137,13 @@ namespace TinyDIP
         return output;
     }
 
+    //  rand template function implementation
+    template<typename ElementT = double, std::same_as<std::size_t>... Size>
+    inline auto rand(Size... size)
+    {
+        return rand<ElementT>(std::mt19937{std::random_device{}()}, size...);
+    }
+
     //  conv2 template function implementation
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
