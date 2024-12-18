@@ -21,6 +21,7 @@
 #include <variant>
 #include <vector>
 #include "base_types.h"
+#include "basic_functions.h"
 
 #ifdef USE_BOOST_SERIALIZATION
 #include <boost/archive/binary_oarchive.hpp>
@@ -218,7 +219,7 @@ namespace TinyDIP
 
         //  set template function implementation
         template<class TupleT>
-        requires(is_tuple<TupleT>::value)
+        requires(TinyDIP::is_tuple<TupleT>::value)
         constexpr bool set(const TupleT location, const ElementT draw_value)
         {
             if (checkBoundaryTuple(location))
@@ -490,7 +491,7 @@ namespace TinyDIP
 
         //  checkBoundaryTuple template function implementation
         template<class TupleT>
-        requires(is_tuple<TupleT>::value)
+        requires(TinyDIP::is_tuple<TupleT>::value)
         constexpr bool checkBoundaryTuple(const TupleT location)
         {
             constexpr std::size_t n = std::tuple_size<TupleT>{};
@@ -510,7 +511,7 @@ namespace TinyDIP
 
         //  tuple_location_to_index template function implementation
         template<class TupleT>
-        requires(is_tuple<TupleT>::value)
+        requires(TinyDIP::is_tuple<TupleT>::value)
         constexpr std::size_t tuple_location_to_index(TupleT location)
         {
             std::size_t i = 0;
