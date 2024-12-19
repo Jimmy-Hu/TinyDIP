@@ -145,6 +145,31 @@ namespace TinyDIP
     }
 
     //  rand template function implementation
+    template<image_element_standard_floating_point_type ElementT = double, typename Urbg, std::same_as<std::size_t>... Sizes>
+    requires std::uniform_random_bit_generator<std::remove_reference_t<Urbg>>
+    constexpr static auto rand(Urbg&& mersenne_engine, Sizes... sizes)
+    {
+        if constexpr (sizeof...(Sizes) == 1)
+        {
+            return rand(mersenne_engine, sizes..., sizes...);
+        }
+        else
+        {
+            std::vector<ElementT> image_data((... * sizes));
+            //  Reference: https://stackoverflow.com/a/23143753/6667035
+            //  Reference: https://codereview.stackexchange.com/a/294739/231235
+            std::uniform_real_distribution<ElementT> dist {0, 1};
+            
+            auto gen = [&](){
+                        return dist(mersenne_engine);
+                    };
+            std::generate(std::ranges::begin(image_data), std::ranges::end(image_data), gen);
+            auto output = Image<ElementT>(image_data, sizes...);
+            return output;
+        }
+    }
+
+    //  rand template function implementation
     template<image_element_standard_floating_point_type ElementT = double, std::same_as<std::size_t>... Size>
     inline auto rand(Size... size)
     {
