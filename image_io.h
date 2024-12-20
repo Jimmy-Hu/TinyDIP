@@ -1,7 +1,7 @@
 /* Developed by Jimmy Hu */
 
-#ifndef IMAGEIO_H
-#define IMAGEIO_H
+#ifndef TINYDIP_IMAGE_IO_H       // image_io.h header guard, follow the suggestion from https://codereview.stackexchange.com/a/293832/231235
+#define TINYDIP_IMAGE_IO_H
 
 #include <cstring>
 #include <iostream>
