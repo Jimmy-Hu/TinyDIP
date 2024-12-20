@@ -146,7 +146,7 @@ namespace TinyDIP
             size.emplace_back(input.size());
             for (auto& rows : input)
             {
-                image_data.insert(image_data.end(), std::ranges::begin(input), std::ranges::end(input));    //  flatten
+                image_data.insert(image_data.end(), std::ranges::begin(rows), std::ranges::end(rows));    //  flatten
             }
             return;
         }
