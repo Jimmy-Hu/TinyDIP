@@ -883,10 +883,7 @@ namespace TinyDIP
     constexpr static auto pixelwiseOperation(auto op, const Args&... inputs)
     {
         auto transformed_data = recursive_transform<unwrap_level>(
-                [&](auto&& element1, auto&&... elements) 
-                    {
-                        return op(element1, elements...);
-                    },
+                op,
                 inputs.getImageData()...);
         auto output = Image<recursive_unwrap_type_t<unwrap_level, decltype(transformed_data)>>(
             transformed_data,
@@ -901,10 +898,7 @@ namespace TinyDIP
     {
         auto transformed_data = recursive_transform<unwrap_level>(
                                     execution_policy,
-                                    [&](auto&& element1) 
-                                        {
-                                            return op(element1);
-                                        },
+                                    op,
                                     (input1.getImageData()));
         auto output = Image<recursive_unwrap_type_t<unwrap_level, decltype(transformed_data)>>(
             transformed_data,
