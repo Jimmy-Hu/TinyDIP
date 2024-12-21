@@ -1366,6 +1366,7 @@ namespace TinyDIP
     }
 
     //  divides Template Function Implementation
+    /*
     template<class ExPo, class InputT>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static Image<InputT> divides(ExPo execution_policy, const Image<InputT>& input1, const Image<InputT>& input2)
@@ -1380,11 +1381,12 @@ namespace TinyDIP
     {
         assert(input1.size() == input2.size());
         return recursive_transform<1>(
-            [](auto&& input1_element, auto&& input2_element)
+            [&](auto&& input1_element, auto&& input2_element)
             {
                 return divides(execution_policy, input1_element, input2_element);
             }, input1, input2);
     }
+    */
 
     //  divides Template Function Implementation
     template<class InputT>
@@ -1411,7 +1413,7 @@ namespace TinyDIP
     template<class InputT>
     constexpr static Image<InputT> divides(const Image<InputT>& input1, const Image<InputT>& input2)
     {
-        return divides(std::execution::seq, input1, input2);
+        return pixelwiseOperation(std::divides<>{}, input1, input2);
     }
     
     template<class InputT>
