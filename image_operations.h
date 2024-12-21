@@ -1366,16 +1366,14 @@ namespace TinyDIP
     }
 
     //  divides Template Function Implementation
-    template<class InputT>
-    constexpr static Image<InputT> divides(const Image<InputT>& input1, const Image<InputT>& input2)
+    template<class ExPo, class InputT>
+        requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static Image<InputT> divides(ExPo execution_policy, const Image<InputT>& input1, const Image<InputT>& input2)
     {
-        if (input1.getSize() != input2.getSize())
-        {
-            throw std::runtime_error("Size mismatched!");
-        }
-        return pixelwiseOperation(std::divides<>{}, input1, input2);
+        return pixelwiseOperation(execution_policy, std::divides<>{}, input1, input2);
     }
 
+    //  divides Template Function Implementation
     template<class InputT>
     constexpr static auto divides(const std::vector<Image<InputT>>& input1, const std::vector<Image<InputT>>& input2)
     {
@@ -1396,11 +1394,11 @@ namespace TinyDIP
         return divides(input1, image_for_divides);
     }
 
-    template<class ExPo, class InputT>
-    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr static Image<InputT> divides(ExPo execution_policy, const Image<InputT>& input1, const Image<InputT>& input2)
+    //  divides Template Function Implementation
+    template<class InputT>
+    constexpr static Image<InputT> divides(const Image<InputT>& input1, const Image<InputT>& input2)
     {
-        return pixelwiseOperation(execution_policy, std::divides<>{}, input1, input2);
+        return divides(std::execution::seq, input1, input2);
     }
     
     template<class InputT>
