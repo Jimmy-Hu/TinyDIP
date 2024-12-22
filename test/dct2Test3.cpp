@@ -91,11 +91,16 @@ constexpr auto each_image( ExPo execution_policy,
         TinyDIP::split(v_plane, v_plane.getWidth() / N1, v_plane.getHeight() / N2)
         );
 
-    auto output_dct_blocks = TinyDIP::recursive_transform<2>(
-        execution_policy,
-        [&](auto&& element) { return TinyDIP::plus(element, get_offset(execution_policy, element, dictionary_x, dictionary_y, sigma, std::pow(10, -30))); },
-        input_dct_blocks
-        );
+    auto output_dct_blocks = input_dct_blocks;
+    for (std::size_t y = 0; y < input_dct_blocks.size(); ++y)
+    {
+        for (std::size_t x = 0; x < input_dct_blocks[0].size(); ++x)
+        {
+            auto function = [&](auto&& element) { return TinyDIP::plus(element, get_offset(execution_policy, element, dictionary_x, dictionary_y, sigma, std::pow(10, -30))); };
+            output_dct_blocks[y][x] = std::invoke(function, input_dct_blocks[y][x]);
+            std::cout << "x = " << x << " / " << input_dct_blocks[0].size() << ", y = " << y  << " / " << input_dct_blocks.size() << " block done.\n";
+        }
+    }
     
     auto output_img = TinyDIP::hsv2rgb(TinyDIP::constructHSV(
         h_plane,
