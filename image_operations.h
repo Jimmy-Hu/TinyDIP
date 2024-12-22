@@ -569,6 +569,7 @@ namespace TinyDIP
     //  convert_image template function implementation
     //  Reference: https://codereview.stackexchange.com/a/292847/231235
     template<typename DstT, typename SrcT>
+    requires(std::same_as<DstT, RGB_DOUBLE> or std::same_as<DstT, HSV>)
     constexpr static auto convert_image(Image<SrcT> input)
     {
         auto image_data = input.getImageData();
@@ -580,6 +581,27 @@ namespace TinyDIP
             DstT dst { static_cast<double>(image_data[index].channels[0]),
                        static_cast<double>(image_data[index].channels[1]),
                        static_cast<double>(image_data[index].channels[2])};
+            new_data[index] = dst;
+        }
+        Image<DstT> output(new_data, input.getSize());
+        return output;
+    }
+
+    //  convert_image template function implementation
+    //  Reference: https://codereview.stackexchange.com/a/292847/231235
+    template<typename DstT, typename SrcT>
+    requires(std::same_as<DstT, RGB>)
+    constexpr static auto convert_image(Image<SrcT> input)
+    {
+        auto image_data = input.getImageData();
+        std::vector<DstT> new_data;
+        new_data.resize(input.count());
+        #pragma omp parallel for
+        for (std::size_t index = 0; index < input.count(); ++index)
+        {
+            DstT dst { static_cast<GrayScale>(image_data[index].channels[0]),
+                       static_cast<GrayScale>(image_data[index].channels[1]),
+                       static_cast<GrayScale>(image_data[index].channels[2])};
             new_data[index] = dst;
         }
         Image<DstT> output(new_data, input.getSize());
