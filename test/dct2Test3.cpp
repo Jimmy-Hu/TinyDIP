@@ -28,7 +28,7 @@ constexpr static auto get_offset( ExPo execution_policy,
             return TinyDIP::normalDistribution1D(TinyDIP::manhattan_distance(input, element), sigma);
         }, dictionary_x);
     auto sum_of_weights = TinyDIP::recursive_reduce(weights, ElementT{});
-    std::cout << "sum_of_weights: " << std::to_string(sum_of_weights) << '\n';
+    std::cout << "sum_of_weights: " << std::format("{}", sum_of_weights) << '\n';
     if (sum_of_weights < threshold)
     {
         return output;
