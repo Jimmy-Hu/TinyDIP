@@ -24,6 +24,7 @@
 #include <numeric>
 #include <optional>
 #include <ranges>
+#include <random>
 #include <stdexcept>
 #include <string>
 #include <tuple>
