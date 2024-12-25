@@ -1617,8 +1617,9 @@ namespace TinyDIP
     }
 
     //  manhattan_distance Template Function Implementation
+    //  https://codereview.stackexchange.com/q/270857/231235
     template<arithmetic ElementT = double>
-    constexpr static ElementT manhattan_distance(const Image<ElementT>& input1, const Image<ElementT>& input2)
+    constexpr static auto manhattan_distance(const Image<ElementT>& input1, const Image<ElementT>& input2)
     {
         if(input1.getSize() != input2.getSize())
         {
