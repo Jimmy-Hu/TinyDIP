@@ -1315,11 +1315,10 @@ namespace TinyDIP
         {
             throw std::runtime_error("Size mismatched!");
         }
-        T output = init;
         auto transformed = std::views::zip(input1, input2)
-                         | std::views::transform([&](auto input) {
-                            return binop1(std::get<0>(input), std::get<1>(input));
-                        });
+                     | std::views::transform([&](auto input) {
+                           return std::invoke(binop1, std::get<0>(input), std::get<1>(input));
+                       });
         return std::reduce(
             execution_policy,
             transformed.begin(), transformed.end(),
