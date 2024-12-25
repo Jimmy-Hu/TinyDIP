@@ -238,7 +238,7 @@ namespace TinyDIP
 
     //  Reference: https://stackoverflow.com/a/58067611/6667035
     template <typename T>
-    concept arithmetic = std::is_arithmetic_v<T>;
+    concept arithmetic = std::is_arithmetic_v<T> or is_complex<T>::value;
 
     constexpr bool is_integer()
     {
