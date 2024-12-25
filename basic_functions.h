@@ -1293,6 +1293,41 @@ namespace TinyDIP
         }
     }
 
+    //  two_input_map_reduce Template Function Implementation
+    template<
+        class ExecutionPolicy,
+        std::ranges::input_range Input1,
+        std::ranges::input_range Input2,
+        class T,
+        class BinaryOp1 = std::minus<T>,
+        class BinaryOp2 = std::plus<T>
+    >
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr auto two_input_map_reduce(
+        ExecutionPolicy execution_policy,
+        const Input1& input1,
+        const Input2& input2,
+        const T init = {},
+        const BinaryOp1& binop1 = std::minus<T>(),
+        const BinaryOp2& binop2 = std::plus<T>())
+    {
+        if (input1.size() != input2.size())
+        {
+            throw std::runtime_error("Size mismatched!");
+        }
+        T output = init;
+        auto transformed = std::views::zip(input1, input2)
+                         | std::views::transform([&](auto input) {
+                            return binop1(std::get<0>(input), std::get<1>(input));
+                        });
+        return std::reduce(
+            execution_policy,
+            transformed.begin(), transformed.end(),
+            init,
+            binop2
+        );
+    }
+
     template<typename T>
     concept can_calculate_variance_of = requires(const T & value)
     {
