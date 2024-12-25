@@ -1627,6 +1627,25 @@ namespace TinyDIP
         return recursive_reduce(difference(input1, input2).getImageData(), ElementT{});
     }
 
+    //  euclidean_distance Template Function Implementation
+    template<class ExPo, arithmetic ElementT = double>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static ElementT euclidean_distance(
+        ExPo execution_policy,
+        const Image<ElementT>& input1,
+        const Image<ElementT>& input2
+        )
+    {
+        if (input1.getSize() != input2.getSize())
+        {
+            throw std::runtime_error("Size mismatched!");
+        }
+        return std::pow(two_input_map_reduce(execution_policy, input1.getImageData(), input2.getImageData(), ElementT{},
+            [](auto&& element1, auto&& element2) {
+                return std::pow(element1 - element2, 2.0);
+            }), 0.5);
+    }
+
     template<arithmetic ElementT = double, arithmetic ExpT = double>
     constexpr static auto pow(const Image<ElementT>& input, ExpT exp)
     {
