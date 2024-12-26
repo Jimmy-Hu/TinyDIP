@@ -305,7 +305,7 @@ namespace TinyDIP
     }
     #endif
 
-    //  recursive_depth function implementation
+    //  recursive_depth template function implementation
     template<typename T>
     constexpr std::size_t recursive_depth()
     {
@@ -697,7 +697,7 @@ namespace TinyDIP
             );
     }
 
-    //  recursive_print implementation
+    //  recursive_print template function implementation
     template<typename T>
     constexpr void recursive_print(const T& input, const std::size_t level = 0)
     {
