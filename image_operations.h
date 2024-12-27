@@ -172,6 +172,15 @@ namespace TinyDIP
         return rand<ElementT>(std::mt19937{std::random_device{}()}, size...);
     }
 
+    //  rand template function implementation
+    template<image_element_standard_floating_point_type ElementT = double, typename Urbg>
+    requires std::uniform_random_bit_generator<std::remove_reference_t<Urbg>>
+    constexpr auto rand(Urbg&& urbg) -> ElementT
+    {
+        auto dist = std::uniform_real_distribution<ElementT>{};
+        return dist(urbg);
+    }
+
     //  conv2 template function implementation
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
