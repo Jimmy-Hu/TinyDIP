@@ -2650,6 +2650,18 @@ namespace TinyDIP
         return output;
     }
 
+    //  to_complex template function implementation
+    template<typename ElementT = double>
+    constexpr static auto to_complex(const Image<ElementT>& input)
+    {
+        Image<std::complex<ElementT>> output_image(
+            TinyDIP::recursive_transform<1>([](auto&& _input) { return std::complex{ _input, ElementT{} }; }, input.getImageData()),
+            input.getSize()
+        );
+        return output_image;
+    }
+
+
     namespace SIFT_impl {
         /*  is_it_extremum template function implementation
             input1, input2 and input3 are 3 * 3 images. If the center pixel (at location (1,1) ) of input2 is the largest / smallest one, 
