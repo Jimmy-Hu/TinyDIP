@@ -110,6 +110,15 @@ namespace TinyDIP
     template <typename ...T>
     struct is_tuple<std::tuple<T...>> : std::true_type {};
 
+    template <typename, typename>
+    struct check_tuple_element_type {};
+
+    template <typename TargetType, typename ...ElementT>
+    struct check_tuple_element_type<TargetType, std::tuple<ElementT...>>
+        : std::bool_constant<(std::is_same_v<ElementT, TargetType> || ...)>
+    {
+    };
+
     //  recursive_unwrap_type_t struct implementation
     template<std::size_t, typename, typename...>
     struct recursive_unwrap_type { };
