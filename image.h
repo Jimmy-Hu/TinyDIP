@@ -219,8 +219,8 @@ namespace TinyDIP
 
         //  set template function implementation
         template<class TupleT>
-        requires(TinyDIP::is_tuple<TupleT>::value and
-                 check_tuple_element_type<std::size_t, TupleT>)
+        requires(is_tuple<TupleT>::value and
+                 check_tuple_element_type<std::size_t, TupleT>::value)
         constexpr bool set(const TupleT location, const ElementT draw_value)
         {
             if (checkBoundaryTuple(location))
