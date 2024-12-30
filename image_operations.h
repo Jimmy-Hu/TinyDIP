@@ -732,6 +732,16 @@ namespace TinyDIP
 
     //  apply_each template function implementation
     template<class F, class... Args>
+    constexpr static auto apply_each(const Image<HSV>& input, F operation, Args&&... args)
+    {
+        auto Hplane = std::async(std::launch::async, [&] { return std::invoke(operation, getHplane(input), args...); });
+        auto Splane = std::async(std::launch::async, [&] { return std::invoke(operation, getSplane(input), args...); });
+        auto Vplane = std::async(std::launch::async, [&] { return std::invoke(operation, getVplane(input), args...); });
+        return constructHSV(Hplane.get(), Splane.get(), Vplane.get());
+    }
+
+    //  apply_each template function implementation
+    template<class F, class... Args>
     constexpr static auto apply_each(const Image<RGB_DOUBLE>& input1, const Image<RGB_DOUBLE>& input2, F operation, Args&&... args)
     {
         auto Rplane = std::async(std::launch::async, [&] { return std::invoke(operation, getRplane(input1), getRplane(input2), args...); });
