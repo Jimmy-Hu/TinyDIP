@@ -1603,6 +1603,7 @@ namespace TinyDIP
         return pixelwiseOperation([](auto&& element) { return std::abs(element); }, input);
     }
 
+    //  abs template function implementation
     template<class ExPo, arithmetic ElementT = double>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto abs(ExPo execution_policy, const Image<ElementT>& input)
@@ -1616,6 +1617,15 @@ namespace TinyDIP
     constexpr static auto abs(const Image<InputT>& input)
     {
         return apply_each(input, [&](auto&& planes) { return abs(planes); });
+    }
+
+    //  abs template function implementation
+    template<class ExPo, class InputT>
+    requires((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>)) and
+            (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static auto abs(ExPo execution_policy, const Image<InputT>& input)
+    {
+        return apply_each(input, [&](auto&& planes) { return abs(execution_policy, planes); });
     }
 
     template<arithmetic ElementT = double>
