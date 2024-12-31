@@ -364,7 +364,7 @@ namespace TinyDIP
 
         //  Enable this function if ElementT = RGB or RGB_DOUBLE or HSV
         void print(std::string separator = "\t", std::ostream& os = std::cout) const
-        requires(std::same_as<ElementT, RGB> or std::same_as<ElementT, RGB_DOUBLE> or std::same_as<ElementT, HSV>)
+        requires(std::same_as<ElementT, RGB> or std::same_as<ElementT, RGB_DOUBLE> or std::same_as<ElementT, HSV>) or is_MultiChannel<ElementT>::value
         {
             for (std::size_t y = 0; y < size[1]; ++y)
             {
