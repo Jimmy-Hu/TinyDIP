@@ -28,6 +28,28 @@ namespace TinyDIP
     struct HSV
     {
         double channels[3];    //  Range: 0 <= H < 360, 0 <= S <= 1, 0 <= V <= 255
+
+        inline HSV operator+(const HSV& input) const
+        {
+            return HSV{
+                input.channels[0] + channels[0],
+                input.channels[1] + channels[1],
+                input.channels[2] + channels[2] };
+        }
+
+        inline HSV operator-(const HSV& input) const
+        {
+            return HSV{
+                channels[0] - input.channels[0],
+                channels[1] - input.channels[1],
+                channels[2] - input.channels[2] };
+        }
+
+        friend std::ostream& operator<<(std::ostream& out, const HSV& _myStruct)
+        {
+            out << '{' << +_myStruct.channels[0] << ", " << +_myStruct.channels[1] << ", " << +_myStruct.channels[2] << '}';
+            return out;
+        }
     };
 
     struct BMPIMAGE
