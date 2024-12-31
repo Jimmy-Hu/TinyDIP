@@ -2722,6 +2722,15 @@ namespace TinyDIP
         return output_image;
     }
 
+    //  to_complex template function implementation (multi-channel case)
+    template<typename ElementT = RGB>
+    requires((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
+    constexpr static auto to_complex(const Image<ElementT>& input)
+    {
+        return apply_each(input, [&](auto&& planes) { return to_complex(planes); });
+    }
+
+
 
     namespace SIFT_impl {
         /*  is_it_extremum template function implementation
