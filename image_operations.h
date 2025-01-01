@@ -501,7 +501,7 @@ namespace TinyDIP
     }
 
     //  Grayscale2RGB function implementation
-    static auto Grayscale2RGB(Image<GrayScale> input)
+    static auto Grayscale2RGB(const Image<GrayScale>& input)
     {
         auto input_data = input.getImageData();
         auto output_data = TinyDIP::recursive_transform([](auto&& input) { return Grayscale2RGB(input); }, input_data);
