@@ -52,6 +52,35 @@ namespace TinyDIP
         }
     };
 
+    //  MultiChannel struct implementation
+    template<class ElementT>
+    struct MultiChannel
+    {
+        ElementT channels[3];
+
+        inline MultiChannel operator+(const MultiChannel& input) const
+        {
+            return MultiChannel{
+                input.channels[0] + channels[0],
+                input.channels[1] + channels[1],
+                input.channels[2] + channels[2] };
+        }
+
+        inline MultiChannel operator-(const MultiChannel& input) const
+        {
+            return MultiChannel{
+                channels[0] - input.channels[0],
+                channels[1] - input.channels[1],
+                channels[2] - input.channels[2] };
+        }
+
+        friend std::ostream& operator<<(std::ostream& out, const MultiChannel& _myStruct)
+        {
+            out << '{' << +_myStruct.channels[0] << ", " << +_myStruct.channels[1] << ", " << +_myStruct.channels[2] << '}';
+            return out;
+        }
+    };
+
     struct BMPIMAGE
     {
         std::filesystem::path FILENAME;
