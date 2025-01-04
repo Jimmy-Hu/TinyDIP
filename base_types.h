@@ -13,9 +13,32 @@
 
 namespace TinyDIP
 {
+    //  RGB struct implementation
     struct RGB
     {
         std::uint8_t channels[3];
+
+        inline RGB operator+(const RGB& input) const
+        {
+            return RGB{
+                static_cast<std::uint8_t>(input.channels[0] + channels[0]),
+                static_cast<std::uint8_t>(input.channels[1] + channels[1]),
+                static_cast<std::uint8_t>(input.channels[2] + channels[2]) };
+        }
+
+        inline RGB operator-(const RGB& input) const
+        {
+            return RGB{
+                static_cast<std::uint8_t>(channels[0] - input.channels[0]),
+                static_cast<std::uint8_t>(channels[1] - input.channels[1]),
+                static_cast<std::uint8_t>(channels[2] - input.channels[2]) };
+        }
+
+        friend std::ostream& operator<<(std::ostream& out, const RGB& _myStruct)
+        {
+            out << '{' << +_myStruct.channels[0] << ", " << +_myStruct.channels[1] << ", " << +_myStruct.channels[2] << '}';
+            return out;
+        }
     };
 
     struct RGB_DOUBLE
