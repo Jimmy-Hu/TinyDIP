@@ -1574,6 +1574,13 @@ namespace TinyDIP
     {
         return std::sqrt((std::pow(args, 2.0) + ...));
     }
+
+    //  Multichannel Concept Implementation
+    template<typename T>
+    concept Multichannel = requires(T a)
+    {
+        { a.channels }; // or whatever is best to check for multiple channels
+    };
 }
 
 #endif
