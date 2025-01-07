@@ -1567,6 +1567,13 @@ namespace TinyDIP
 
         inline constexpr recursive_flatten_fn recursive_flatten;
     }
+
+    //  hypot Template Function Implementation
+    template<typename... Args>
+    constexpr auto hypot(Args... args)
+    {
+        return std::sqrt((std::pow(args, 2.0) + ...));
+    }
 }
 
 #endif
