@@ -1582,6 +1582,18 @@ namespace TinyDIP
         { a.channels }; // or whatever is best to check for multiple channels
     };
 
+    //  apply_multichannel Template Function Implementation
+    template<Multichannel T, class Lambda, std::size_t channel_count = 3>
+    constexpr auto apply_multichannel(const T& input, Lambda f)
+    {
+        MultiChannel<decltype(std::invoke(f, input.channels[0])), channel_count> output;
+        for (std::size_t i = 0; i < channel_count; ++i)
+        {
+            output.channels[i] = std::invoke(f, input.channels[i]);
+        }
+        return output;
+    }
+    
     //  sqrt Template Function Implementation
     template<typename T, std::size_t channel_count = 3>
     constexpr auto sqrt(const T& input)
