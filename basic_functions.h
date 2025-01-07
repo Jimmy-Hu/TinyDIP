@@ -322,6 +322,23 @@ namespace TinyDIP
         return output;
     }
     #endif
+    
+    //  print_tuple template function implementation
+    //  Copy from https://stackoverflow.com/a/41171552
+    template<class TupType, std::size_t... I>
+    void print_tuple(const TupType& _tup, std::index_sequence<I...>)
+    {
+        std::cout << "(";
+        (..., (std::cout << (I == 0 ? "" : ", ") << std::format("{}", std::get<I>(_tup))));
+        std::cout << ")\n";
+    }
+
+    //  print_tuple template function implementation
+    template<class... T>
+    void print_tuple(const std::tuple<T...>& _tup)
+    {
+        print_tuple(_tup, std::make_index_sequence<sizeof...(T)>());
+    }
 
     //  recursive_depth template function implementation
     template<typename T>
