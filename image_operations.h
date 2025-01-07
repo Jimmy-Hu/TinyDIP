@@ -2739,19 +2739,18 @@ namespace TinyDIP
     template<typename ElementT = double>
     constexpr static auto to_complex(const Image<ElementT>& input)
     {
-        Image<std::complex<ElementT>> output_image(
-            TinyDIP::recursive_transform<1>([](auto&& _input) { return std::complex{ _input, ElementT{} }; }, input.getImageData()),
-            input.getSize()
-        );
-        return output_image;
-    }
-
-    //  to_complex template function implementation (multi-channel case)
-    template<typename ElementT = RGB>
-    requires((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
-    constexpr static auto to_complex(const Image<ElementT>& input)
-    {
-        return apply_each(input, [&](auto&& planes) { return to_complex(planes); });
+        if constexpr ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
+        {
+            return apply_each(input, [&](auto&& planes) { return to_complex(planes); });
+        }
+        else
+        {
+            Image<std::complex<ElementT>> output_image(
+                TinyDIP::recursive_transform<1>([](auto&& _input) { return std::complex{ _input, ElementT{} }; }, input.getImageData()),
+                input.getSize()
+            );
+            return output_image;
+        }
     }
 
     //  to_string template function implementation
