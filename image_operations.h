@@ -1716,7 +1716,6 @@ namespace TinyDIP
     //  euclidean_distance Template Function Implementation for multiple channel image
     template<
         class ExPo,
-        arithmetic OutputT = double,
         class ElementT1,
         class ElementT2
         >
@@ -1726,8 +1725,7 @@ namespace TinyDIP
     constexpr static auto euclidean_distance(
         ExPo execution_policy,
         const Image<ElementT1>& input1,
-        const Image<ElementT2>& input2,
-        const OutputT output = 0.0
+        const Image<ElementT2>& input2
         )
     {
         return sqrt(two_input_map_reduce(execution_policy, input1.getImageData(), input2.getImageData(), MultiChannel<double>{},
