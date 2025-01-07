@@ -1600,12 +1600,7 @@ namespace TinyDIP
     {
         if constexpr (Multichannel<T>)
         {
-            MultiChannel<double> output;
-            for (std::size_t i = 0; i < channel_count; ++i)
-            {
-                output.channels[i] = std::sqrt(input.channels[i]);
-            }
-            return output;
+            return apply_multichannel(input, [](auto&& input) {return std::sqrt(input); });
         }
         else
         {
