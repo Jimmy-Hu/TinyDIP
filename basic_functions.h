@@ -1581,6 +1581,25 @@ namespace TinyDIP
     {
         { a.channels }; // or whatever is best to check for multiple channels
     };
+
+    //  sqrt Template Function Implementation
+    template<typename T, std::size_t channel_count = 3>
+    constexpr auto sqrt(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            MultiChannel<double> output;
+            for (std::size_t i = 0; i < channel_count; ++i)
+            {
+                output.channels[i] = std::sqrt(input.channels[i]);
+            }
+            return output;
+        }
+        else
+        {
+            return std::sqrt(input);
+        }
+    }
 }
 
 #endif
