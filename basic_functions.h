@@ -1593,6 +1593,20 @@ namespace TinyDIP
         }
         return output;
     }
+
+    //  pow Template Function Implementation
+    template<std::size_t channel_count = 3, typename T, typename ExpT = double>
+    constexpr auto pow(const T& input, ExpT exp)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel<channel_count>(input, [&](auto&& input) {return std::pow(input, exp); });
+        }
+        else
+        {
+            return std::pow(input);
+        }
+    }
     
     //  sqrt Template Function Implementation
     template<typename T, std::size_t channel_count = 3>
