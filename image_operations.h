@@ -2754,6 +2754,16 @@ namespace TinyDIP
         return apply_each(input, [&](auto&& planes) { return to_complex(planes); });
     }
 
+    //  to_string template function implementation
+    template<typename ElementT = double>
+    constexpr static auto to_string(const Image<ElementT>& input)
+    {
+        Image<std::string> output_image(
+            TinyDIP::recursive_transform<1>([](auto&& _input) { return std::to_string(_input); }, input.getImageData()),
+            input.getSize()
+        );
+        return output_image;
+    }
 
 
     namespace SIFT_impl {
