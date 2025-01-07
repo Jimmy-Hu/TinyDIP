@@ -1734,7 +1734,21 @@ namespace TinyDIP
             }));
     }
 
-    
+    //  euclidean_distance Template Function Implementation for multiple channel image
+    template<
+        class ElementT1,
+        class ElementT2
+        >
+    requires((std::same_as<ElementT1, RGB>) || (std::same_as<ElementT1, RGB_DOUBLE>) || (std::same_as<ElementT1, HSV>) || (is_MultiChannel<ElementT1>::value)) and
+            ((std::same_as<ElementT2, RGB>) || (std::same_as<ElementT2, RGB_DOUBLE>) || (std::same_as<ElementT2, HSV>) || (is_MultiChannel<ElementT2>::value))
+    constexpr static auto euclidean_distance(
+        const Image<ElementT1>& input1,
+        const Image<ElementT2>& input2
+        )
+    {
+        return euclidean_distance(std::execution::seq, input1, input2);
+    }
+
     template<arithmetic ElementT = double, arithmetic ExpT = double>
     constexpr static auto pow(const Image<ElementT>& input, ExpT exp)
     {
