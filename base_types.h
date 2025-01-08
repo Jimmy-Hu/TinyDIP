@@ -76,17 +76,19 @@ namespace TinyDIP
     };
 
     //  MultiChannel struct implementation
-    template<class ElementT>
+    template<class ElementT, std::size_t channel_count = 3>
     struct MultiChannel
     {
-        ElementT channels[3];
+        std::array<ElementT, channel_count> channels;
 
         inline MultiChannel operator+(const MultiChannel& input) const
         {
-            return MultiChannel{
-                input.channels[0] + channels[0],
-                input.channels[1] + channels[1],
-                input.channels[2] + channels[2] };
+            std::array<ElementT, channel_count> channels_output;
+            for(std::size_t i = 0; i < channels.size(); ++i)
+            {
+                channels_output[i] = channels[i] + input.channels[i];
+            }
+            return MultiChannel{channels_output};
         }
 
         inline MultiChannel operator-(const MultiChannel& input) const
