@@ -534,7 +534,7 @@ namespace TinyDIP
 
     //  constructRGBDOUBLE template function implementation
     template<typename OutputT = RGB_DOUBLE>
-    constexpr static auto constructRGBDOUBLE(Image<double> r, Image<double> g, Image<double> b)
+    constexpr static auto constructRGBDOUBLE(const Image<double>& r, const Image<double>& g, const Image<double>& b)
     {
         check_size_same(r, g);
         check_size_same(g, b);
