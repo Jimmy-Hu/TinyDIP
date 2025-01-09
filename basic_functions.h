@@ -1592,6 +1592,16 @@ namespace TinyDIP
         return output;
     }
 
+    //  apply_multichannel Template Function Implementation (the version with execution policy)
+    template<std::size_t channel_count = 3, class ExecutionPolicy, Multichannel T, class Lambda, typename... Args>
+    [[nodiscard]] constexpr static auto apply_multichannel(ExecutionPolicy execution_policy, const T& input, Lambda f, Args... args)
+    {
+        MultiChannel<decltype(std::invoke(f, input.channels[0], args...)), channel_count> output;
+        std::transform(execution_policy, std::ranges::cbegin(input.channels), std::ranges::cend(input.channels), std::ranges::begin(output.channels),
+            [&](auto&& input) { return std::invoke(f, input, args...); });
+        return output;
+    }
+
     //  pow Template Function Implementation
     template<std::size_t channel_count = 3, typename T, typename ExpT = double>
     constexpr auto pow(const T& input, ExpT exp)
