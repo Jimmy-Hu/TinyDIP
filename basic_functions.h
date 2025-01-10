@@ -1603,6 +1603,20 @@ namespace TinyDIP
         return output;
     }
 
+    //  abs Template Function Implementation
+    template<std::size_t channel_count = 3, typename T>
+    [[nodiscard]] constexpr static auto abs(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel<channel_count>(input, [&](auto&& input) {return std::abs(input); });
+        }
+        else
+        {
+            return std::abs(input);
+        }
+    }
+
     //  pow Template Function Implementation
     template<std::size_t channel_count = 3, typename T, typename ExpT = double>
     [[nodiscard]] constexpr static auto pow(const T& input, const ExpT exp)
