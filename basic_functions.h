@@ -116,8 +116,8 @@ namespace TinyDIP
     template <typename>
     struct is_MultiChannel : std::false_type {};
 
-    template <typename ...T>
-    struct is_MultiChannel<MultiChannel<T...>> : std::true_type {};
+    template <std::size_t N, typename T>
+    struct is_MultiChannel<MultiChannel<T, N>> : std::true_type {};
 
     template <typename, typename>
     struct check_tuple_element_type {};
