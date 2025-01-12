@@ -1611,7 +1611,7 @@ namespace TinyDIP
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel<channel_count>(input, [&](auto&& input) {return std::abs(input); });
+            return apply_multichannel<channel_count>(input, [&](auto&& _input) {return std::abs(_input); });
         }
         else
         {
