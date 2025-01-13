@@ -1162,7 +1162,7 @@ namespace TinyDIP
     #ifdef USE_BOOST_ITERATOR
     #include <boost/iterator/zip_iterator.hpp>
 
-    //  recursive_transform for the binary operation cases (the version with unwrap_level, with execution policy)
+    //  recursive_transform template function for the binary operation cases (the version with unwrap_level, with execution policy)
     template<std::size_t unwrap_level = 1, class ExPo, class T1, class T2, class F>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>> &&
               unwrap_level <= recursive_depth<T>())
@@ -1195,7 +1195,7 @@ namespace TinyDIP
         }
         else
         {
-            return f(input1, input2);
+            return std::invoke(f, input1, input2);
         }
     }
     #endif
