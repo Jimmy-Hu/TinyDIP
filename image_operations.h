@@ -1719,8 +1719,8 @@ namespace TinyDIP
         class ElementT1,
         class ElementT2
         >
-    requires((std::same_as<ElementT1, RGB>) || (std::same_as<ElementT1, RGB_DOUBLE>) || (std::same_as<ElementT1, HSV>) || (is_MultiChannel<ElementT1>::value)) and
-            ((std::same_as<ElementT2, RGB>) || (std::same_as<ElementT2, RGB_DOUBLE>) || (std::same_as<ElementT2, HSV>) || (is_MultiChannel<ElementT2>::value)) and
+    requires((std::same_as<ElementT1, RGB>) || (std::same_as<ElementT1, RGB_DOUBLE>) || (std::same_as<ElementT1, HSV>)) and
+            ((std::same_as<ElementT2, RGB>) || (std::same_as<ElementT2, RGB_DOUBLE>) || (std::same_as<ElementT2, HSV>)) and
             (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto euclidean_distance(
         ExPo execution_policy,
@@ -1728,9 +1728,9 @@ namespace TinyDIP
         const Image<ElementT2>& input2
         )
     {
-        return sqrt(two_input_map_reduce(execution_policy, input1.getImageData(), input2.getImageData(), MultiChannel<double>{},
+        return sqrt(execution_policy, two_input_map_reduce(execution_policy, input1.getImageData(), input2.getImageData(), MultiChannel<double>{},
             [&](auto&& element1, auto&& element2) {
-                return pow(element1 - element2, 2.0);
+                return pow(execution_policy, element1 - element2, 2.0);
             }));
     }
 
