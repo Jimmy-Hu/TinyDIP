@@ -1129,7 +1129,7 @@ namespace TinyDIP
         }
     }
 
-    //  recursive_transform implementation (the version with unwrap_level, with execution policy)
+    //  recursive_transform template function implementation (the version with unwrap_level, with execution policy)
     template<std::size_t unwrap_level = 1, class ExPo, class T, class F>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>> &&
               unwrap_level <= recursive_depth<T>())
@@ -1154,7 +1154,8 @@ namespace TinyDIP
         }
         else
         {
-            static_assert(!std::regular_invocable<F, T>, "Uninvocable?");
+            static_assert(!std::regular_invocable<F, T>,    "The function passed to recursive_transform() cannot be invoked"
+                                                            "with the element types at the given recursion level.");
         }
     }
 
