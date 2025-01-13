@@ -1341,7 +1341,7 @@ namespace TinyDIP
         class BinaryOp2 = std::plus<T>
     >
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
-    constexpr auto two_input_map_reduce(
+    constexpr static auto two_input_map_reduce(
         ExecutionPolicy execution_policy,
         const Input1& input1,
         const Input2& input2,
