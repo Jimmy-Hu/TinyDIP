@@ -1636,12 +1636,12 @@ namespace TinyDIP
     }
 
     //  pow Template Function Implementation
-    template<std::size_t channel_count = 3, typename T, typename ExpT = double>
+    template<typename T, typename ExpT = double>
     [[nodiscard]] constexpr static auto pow(const T& input, const ExpT exp)
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel<channel_count>(input, [&](auto&& _input, auto&& input_exp) {return std::pow(_input, input_exp); }, exp);
+            return apply_multichannel(input, [&](auto&& _input, auto&& input_exp) {return std::pow(_input, input_exp); }, exp);
         }
         else
         {
