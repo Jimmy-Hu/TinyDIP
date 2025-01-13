@@ -1607,12 +1607,12 @@ namespace TinyDIP
     }
 
     //  abs Template Function Implementation
-    template<std::size_t channel_count = 3, typename T>
+    template<typename T>
     [[nodiscard]] constexpr static auto abs(const T& input)
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel<channel_count>(input, [&](auto&& _input) {return std::abs(_input); });
+            return apply_multichannel(input, [&](auto&& _input) {return std::abs(_input); });
         }
         else
         {
