@@ -1586,8 +1586,8 @@ namespace TinyDIP
     };
 
     //  apply_multichannel Template Function Implementation
-    template<std::size_t channel_count = 3, Multichannel T, class Lambda, typename... Args>
-    [[nodiscard]] constexpr static auto apply_multichannel(const T& input, Lambda f, Args... args)
+    template<std::size_t channel_count = 3, class ElementT, class Lambda, typename... Args>
+    [[nodiscard]] constexpr static auto apply_multichannel(const MultiChannel<ElementT, channel_count>& input, Lambda f, Args... args)
     {
         MultiChannel<decltype(std::invoke(f, input.channels[0], args...)), channel_count> output;
         std::transform(std::ranges::cbegin(input.channels), std::ranges::cend(input.channels), std::ranges::begin(output.channels),
