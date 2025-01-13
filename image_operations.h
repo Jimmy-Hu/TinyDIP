@@ -144,6 +144,15 @@ namespace TinyDIP
         return output;
     }
 
+    //  nan template function implementation
+    template<typename ElementT = double, std::same_as<std::size_t>... Sizes>
+    constexpr static auto nan(Sizes... sizes)
+    {
+        auto output = zeros<ElementT>(sizes...);
+        output.setAllValue(std::numeric_limits<double>::quiet_NaN());
+        return output;
+    }
+
     //  rand template function implementation
     template<image_element_standard_floating_point_type ElementT = double, typename Urbg, std::same_as<std::size_t>... Sizes>
     requires std::uniform_random_bit_generator<std::remove_reference_t<Urbg>>
