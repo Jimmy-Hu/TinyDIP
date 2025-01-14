@@ -587,6 +587,30 @@ namespace TinyDIP
         return output;
     }
 
+    //  constructMultiChannel template function implementation
+    template<typename ElementT>
+    constexpr static auto constructMultiChannel(const Image<ElementT>& input1, const Image<ElementT>& input2, const Image<ElementT>& input3)
+    {
+        check_size_same(input1, input2);
+        check_size_same(input2, input3);
+        auto image_data1 = input1.getImageData();
+        auto image_data2 = input2.getImageData();
+        auto image_data3 = input3.getImageData();
+        std::vector<MultiChannel<ElementT>> new_data;
+        new_data.resize(input1.count());
+        #pragma omp parallel for
+        for (std::size_t index = 0; index < input1.count(); ++index)
+        {
+            MultiChannel<ElementT> output_element 
+                    {   image_data1[index],
+                        image_data2[index],
+                        image_data3[index]};
+            new_data[index] = output_element;
+        }
+        Image<MultiChannel<ElementT>> output(new_data, input1.getSize());
+        return output;
+    }
+
     //  convert_image template function implementation
     //  Reference: https://codereview.stackexchange.com/a/292847/231235
     template<typename DstT, typename SrcT>
