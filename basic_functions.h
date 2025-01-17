@@ -1644,13 +1644,13 @@ namespace TinyDIP
     }
 
     //  abs Template Function Implementation (the version with execution policy)
-    template<std::size_t channel_count = 3, class ExecutionPolicy, typename T>
+    template<class ExecutionPolicy, typename T>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
     [[nodiscard]] constexpr static auto abs(ExecutionPolicy&& execution_policy, const T& input)
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel<channel_count>(execution_policy, input, [&](auto&& _input) {return std::abs(_input); });
+            return apply_multichannel(execution_policy, input, [&](auto&& _input) {return std::abs(_input); });
         }
         else
         {
