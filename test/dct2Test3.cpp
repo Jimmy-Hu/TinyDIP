@@ -92,9 +92,12 @@ constexpr auto each_image( ExPo execution_policy,
         );
 
     auto output_dct_blocks = input_dct_blocks;
-    for (std::size_t y = 0; y < input_dct_blocks.size(); ++y)
+    auto y_size = input_dct_blocks.size();
+    auto x_size = input_dct_blocks[0].size();
+    #pragma omp parallel for collapse(2)
+    for (std::size_t y = 0; y < y_size; ++y)
     {
-        for (std::size_t x = 0; x < input_dct_blocks[0].size(); ++x)
+        for (std::size_t x = 0; x < x_size; ++x)
         {
             auto function = [&](auto&& element) { return TinyDIP::plus(element, get_offset(execution_policy, element, dictionary_x, dictionary_y, sigma, std::pow(10, -30))); };
             output_dct_blocks[y][x] = std::invoke(function, input_dct_blocks[y][x]);
