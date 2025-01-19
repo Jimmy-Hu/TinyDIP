@@ -655,7 +655,7 @@ namespace TinyDIP
 
     //  getPlane template function implementation
     template<class OutputT = unsigned char>
-    constexpr static auto getPlane(Image<RGB> input, std::size_t index)
+    constexpr static auto getPlane(const Image<RGB>& input, std::size_t index)
     {
         auto input_data = input.getImageData();
         std::vector<OutputT> output_data;
