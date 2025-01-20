@@ -686,6 +686,22 @@ namespace TinyDIP
         return output;
     }
 
+    //  getPlane template function implementation
+    template<std::size_t channel_count = 3, class T>
+    constexpr static auto getPlane(const Image<MultiChannel<T, channel_count>>& input, std::size_t index)
+    {
+        auto input_data = input.getImageData();
+        std::vector<T> output_data;
+        output_data.resize(input.count());
+        #pragma omp parallel for
+        for (std::size_t i = 0; i < input.count(); ++i)
+        {
+            output_data[i] = input_data[i].channels[index];
+        }
+        auto output = Image<T>(output_data, input.getSize());
+        return output;
+    }
+
     //  getRplane function implementation
     constexpr static auto getRplane(Image<RGB> input)
     {
