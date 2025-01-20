@@ -12,7 +12,7 @@
 #include "../image_operations.h"
 
 //  get_offset template function implementation
-template<class ExPo, class ElementT>
+template<class ExPo, class ElementT, class DistanceFunction>
 requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
 constexpr static auto get_offset( ExPo execution_policy, 
                                   const TinyDIP::Image<ElementT>& input,
