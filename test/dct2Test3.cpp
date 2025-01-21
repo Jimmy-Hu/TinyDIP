@@ -18,7 +18,10 @@ constexpr static auto get_offset( ExPo execution_policy,
                                   const TinyDIP::Image<ElementT>& input,
                                   const std::vector<TinyDIP::Image<ElementT>>& dictionary_x,
                                   const std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
-                                  const ElementT sigma, const ElementT threshold) noexcept
+                                  const ElementT sigma, const ElementT threshold,
+                                  const DistanceFunction distance_function,
+                                  bool display_sum_of_weights = false
+                                ) noexcept
 {
     auto output = TinyDIP::zeros<ElementT>(input.getWidth(), input.getHeight());
     auto weights = TinyDIP::recursive_transform<1>(
