@@ -1746,12 +1746,18 @@ namespace TinyDIP
     }
 
     //  euclidean_distance Template Function Implementation
-    template<arithmetic OutputT = double, class ExPo, arithmetic ElementT = double>
+    template<
+        arithmetic OutputT = double,
+        class ExPo,
+        arithmetic ElementT1 = double,
+        arithmetic ElementT2 = double
+        >
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto euclidean_distance(
         ExPo execution_policy,
-        const Image<ElementT>& input1,
-        const Image<ElementT>& input2
+        const Image<ElementT1>& input1,
+        const Image<ElementT2>& input2,
+        const OutputT output = 0.0
         )
     {
         if (input1.getSize() != input2.getSize())
