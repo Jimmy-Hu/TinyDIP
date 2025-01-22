@@ -1764,6 +1764,21 @@ namespace TinyDIP
             }));
     }
 
+    //  euclidean_distance Template Function Implementation
+    template<
+        arithmetic OutputT = double,
+        arithmetic ElementT1 = double,
+        arithmetic ElementT2 = double
+        >
+    constexpr static auto euclidean_distance(
+        const Image<ElementT1>& input1,
+        const Image<ElementT2>& input2,
+        const OutputT output = 0.0
+        )
+    {
+        return euclidean_distance(std::execution::seq, input1, input2, output);
+    }
+
     //  euclidean_distance Template Function Implementation for multiple channel image
     template<
         class ExPo,
