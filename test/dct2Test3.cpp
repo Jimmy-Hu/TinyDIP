@@ -28,10 +28,13 @@ constexpr static auto get_offset( ExPo execution_policy,
         execution_policy,
         [&](auto&& element)
         { 
-            return TinyDIP::normalDistribution1D(TinyDIP::manhattan_distance(input, element), sigma);
+            return TinyDIP::normalDistribution1D(std::invoke(distance_function, input, element), sigma);
         }, dictionary_x);
     auto sum_of_weights = TinyDIP::recursive_reduce(weights, ElementT{});
-    std::cout << "sum_of_weights: " << std::format("{}", sum_of_weights) << '\n';
+    if (display_sum_of_weights)
+    {
+        std::cout << "sum_of_weights: " << std::format("{}", sum_of_weights) << '\n';
+    }
     if (sum_of_weights < threshold)
     {
         return output;
