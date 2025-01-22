@@ -105,10 +105,20 @@ constexpr auto each_image( ExPo execution_policy,
     {
         for (std::size_t x = 0; x < x_size; ++x)
         {
-            auto function = [&](auto&& element) { return TinyDIP::plus(element, get_offset(execution_policy, element, dictionary_x, dictionary_y, sigma, std::pow(10, -30))); };
+            auto function = [&](auto&& element) {
+                return TinyDIP::plus(element,
+                    get_offset(
+                        execution_policy,
+                        element,
+                        dictionary_x,
+                        dictionary_y,
+                        sigma,
+                        std::pow(10, -30),
+                        [&](auto&& input1, auto&& input2) { return TinyDIP::euclidean_distance(input1, input2); }
+                    )); };
             output_dct_blocks[y][x] = std::invoke(function, input_dct_blocks[y][x]);
-            std::cout << "x = " << x << " / " << input_dct_blocks[0].size() << ", y = " << y  << " / " << input_dct_blocks.size() << " block done.\n";
         }
+        std::cout << "y = " << y << " / " << input_dct_blocks.size() << " block done.\n";
     }
     
     auto output_img = TinyDIP::hsv2rgb(TinyDIP::constructHSV(
