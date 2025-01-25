@@ -240,10 +240,12 @@ int main()
     {
         TinyDIP::SIFT_impl::get_keypoint_descriptor(v_plane, each_SIFT_keypoint);
     }
+    #ifdef USE_OPENCV
     auto cv_mat = TinyDIP::to_cv_mat(bmp1);
     cv::imshow("Image", cv_mat);
     cv::waitKey(0);
-    TinyDIP::bmp_write("test20240816", bmp1);
+    #endif
+    TinyDIP::bmp_write("test20241026", bmp1);
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
