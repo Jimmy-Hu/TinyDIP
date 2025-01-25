@@ -217,6 +217,15 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
     return;
 }
 
+//  remove_extension Function Implementation
+//  Copy from: https://stackoverflow.com/a/6417908/6667035
+std::string remove_extension(const std::string& filename)
+{
+    size_t lastdot = filename.find_last_of(".");
+    if (lastdot == std::string::npos) return filename;
+    return filename.substr(0, lastdot);
+}
+
 int main(int argc, char* argv[])
 {
     auto start = std::chrono::system_clock::now();
