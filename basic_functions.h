@@ -1671,6 +1671,21 @@ namespace TinyDIP
             return std::pow(input);
         }
     }
+
+    //  pow Template Function Implementation (the version with execution policy)
+    template<class ExecutionPolicy, typename T, typename ExpT = double>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    [[nodiscard]] constexpr static auto pow(ExecutionPolicy&& execution_policy, const T& input, const ExpT exp)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(execution_policy, input, [&](auto&& _input, auto&& input_exp) {return std::pow(_input, input_exp); }, exp);
+        }
+        else
+        {
+            return std::pow(input);
+        }
+    }
     
     //  sqrt Template Function Implementation
     template<typename T>
