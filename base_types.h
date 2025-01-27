@@ -41,9 +41,32 @@ namespace TinyDIP
         }
     };
 
+    //  RGB_DOUBLE struct implementation
     struct RGB_DOUBLE
     {
         double channels[3];
+
+        inline RGB_DOUBLE operator+(const RGB_DOUBLE& input) const
+        {
+            return RGB_DOUBLE{
+                input.channels[0] + channels[0],
+                input.channels[1] + channels[1],
+                input.channels[2] + channels[2] };
+        }
+
+        inline RGB_DOUBLE operator-(const RGB_DOUBLE& input) const
+        {
+            return RGB_DOUBLE{
+                channels[0] - input.channels[0],
+                channels[1] - input.channels[1],
+                channels[2] - input.channels[2] };
+        }
+
+        friend std::ostream& operator<<(std::ostream& out, const RGB_DOUBLE& _myStruct)
+        {
+            out << '{' << +_myStruct.channels[0] << ", " << +_myStruct.channels[1] << ", " << +_myStruct.channels[2] << '}';
+            return out;
+        }
     };
 
     using GrayScale = std::uint8_t;
