@@ -116,10 +116,12 @@ namespace TinyDIP
 
         inline MultiChannel operator-(const MultiChannel& input) const
         {
-            return MultiChannel{
-                channels[0] - input.channels[0],
-                channels[1] - input.channels[1],
-                channels[2] - input.channels[2] };
+            std::array<ElementT, channel_count> channels_output;
+            for(std::size_t i = 0; i < channels.size(); ++i)
+            {
+                channels_output[i] = channels[i] - input.channels[i];
+            }
+            return MultiChannel{channels_output};
         }
 
         friend std::ostream& operator<<(std::ostream& out, const MultiChannel& _myStruct)
