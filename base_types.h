@@ -126,7 +126,12 @@ namespace TinyDIP
 
         friend std::ostream& operator<<(std::ostream& out, const MultiChannel& _myStruct)
         {
-            out << '{' << +_myStruct.channels[0] << ", " << +_myStruct.channels[1] << ", " << +_myStruct.channels[2] << '}';
+            out << '{';
+            for(std::size_t i = 0; i < channel_count; ++i)
+            {
+                out << +_myStruct.channels[i] << ", ";
+            }
+            out << '}';
             return out;
         }
     };
