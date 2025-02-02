@@ -1747,7 +1747,7 @@ namespace TinyDIP
 
     //  euclidean_distance Template Function Implementation
     template <typename OutputT = double, typename T, size_t N>
-    OutputT euclidean_distance(const std::array<T, N>& p1, const std::array<T, N>& p2)
+    constexpr static OutputT euclidean_distance(const std::array<T, N>& p1, const std::array<T, N>& p2)
     {
         std::array<OutputT, N> diff;  // Use float for intermediate calculations
 
