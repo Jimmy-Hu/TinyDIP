@@ -34,13 +34,13 @@ constexpr static auto get_offset( ExPo execution_policy,
     auto sum_of_weights = TinyDIP::recursive_reduce(weights, ElementT{});
     if (display_sum_of_weights)
     {
-        std::cout << "sum_of_weights: " << std::format("{}", sum_of_weights) << '\n';
+        os << "sum_of_weights: " << std::format("{}", sum_of_weights) << '\n';
     }
     if (sum_of_weights < threshold)
     {
         return output;
     }
-    //std::cout << "#weights: " << std::to_string(weights.size()) << "\t#dictionary_y: " << std::to_string(dictionary_y.size()) << '\n';
+    //os << "#weights: " << std::to_string(weights.size()) << "\t#dictionary_y: " << std::to_string(dictionary_y.size()) << '\n';
     if constexpr(true)    //    Use OpenMP
     {
         std::vector<TinyDIP::Image<ElementT>> outputs;
@@ -71,11 +71,14 @@ constexpr static auto get_offset( ExPo execution_policy,
 //    each_image Template Function Implementation
 template<class ExPo, class ElementT1, class ElementT2>
 requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-constexpr auto each_image( ExPo execution_policy, 
-                 const TinyDIP::Image<ElementT2>& input_img,
-                 std::vector<TinyDIP::Image<ElementT1>>& dictionary_x,
-                 std::vector<TinyDIP::Image<ElementT1>>& dictionary_y,
-                 const std::size_t N1 = 8, const std::size_t N2 = 8, const ElementT1 sigma = 0.1) noexcept
+constexpr auto each_image(  ExPo execution_policy, 
+                            const TinyDIP::Image<ElementT2>& input_img,
+                            std::vector<TinyDIP::Image<ElementT1>>& dictionary_x,
+                            std::vector<TinyDIP::Image<ElementT1>>& dictionary_y,
+                            const std::size_t N1 = 8,
+                            const std::size_t N2 = 8,
+                            const ElementT1 sigma = 0.1,
+                            std::ostream& os = std::cout) noexcept
 {
     auto mod_x = std::fmod(static_cast<double>(input_img.getWidth()), static_cast<double>(N1));
     auto mod_y = std::fmod(static_cast<double>(input_img.getHeight()), static_cast<double>(N2));
@@ -91,7 +94,7 @@ constexpr auto each_image( ExPo execution_policy,
     image_255.setAllValue(255);
     auto v_plane = TinyDIP::divides(TinyDIP::getVplane(input_hsv), image_255);
 
-    std::cout << "Call dct2 function..." << '\n';
+    os << "Call dct2 function..." << '\n';
     auto input_dct_blocks = TinyDIP::recursive_transform<2>(
         execution_policy,
         [](auto&& element) { return TinyDIP::dct2(element); },
@@ -115,11 +118,13 @@ constexpr auto each_image( ExPo execution_policy,
                         dictionary_y,
                         sigma,
                         std::pow(10, -30),
-                        [&](auto&& input1, auto&& input2) { return TinyDIP::euclidean_distance(input1, input2); }
+                        [&](auto&& input1, auto&& input2) { return TinyDIP::euclidean_distance(input1, input2); },
+                        false,
+                        os
                     )); };
             output_dct_blocks[y][x] = std::invoke(function, input_dct_blocks[y][x]);
         }
-        std::cout << "y = " << y << " / " << input_dct_blocks.size() << " block done.\n";
+        os << "y = " << y << " / " << input_dct_blocks.size() << " block done.\n";
     }
     
     auto output_img = TinyDIP::hsv2rgb(TinyDIP::constructHSV(
@@ -210,7 +215,14 @@ void dct2Test3( const std::string& input_folder, const std::string& output_folde
         std::string input_path = input_folder + "/" + std::to_string(i);
         std::cout << "input_path: " << input_path << '\n';
         auto input_img = TinyDIP::bmp_read(input_path.c_str(), false);
-        auto output_img = each_image(std::execution::seq, input_img, std::get<0>(dictionary), std::get<1>(dictionary), N1, N2, sigma);
+        auto output_img = each_image(
+            std::execution::seq,
+            input_img,
+            std::get<0>(dictionary),
+            std::get<1>(dictionary),
+            N1,
+            N2,
+            sigma);
         std::string output_path = output_folder + "/" + std::to_string(i);
         std::cout << "Save output to " << output_path << '\n';
         TinyDIP::bmp_write(output_path.c_str(), output_img);
@@ -230,6 +242,7 @@ std::string remove_extension(const std::string& filename)
 int main(int argc, char* argv[])
 {
     auto start = std::chrono::system_clock::now();
+    omp_set_num_threads(18); // Use 18 threads for all consecutive parallel regions
     std::cout << "argc parameter: " << std::to_string(argc) << '\n';
     if(argc == 2)
     {
@@ -241,7 +254,7 @@ int main(int argc, char* argv[])
         std::cout << "Save output to " << output_path << '\n';
         TinyDIP::bmp_write(output_path.c_str(), output_img);
     }
-    if (argc == 6)
+    else if (argc == 6)
     {
         //    example: ./build/dct2Test3 
         auto arg1 = std::string(argv[1]);
@@ -278,45 +291,69 @@ int main(int argc, char* argv[])
     else
     {
         //dct2Test3("InputImages/RainImages/2", ".", "Dictionary", 1, 1);
-        for(std::size_t sigma = 1; sigma < 10; ++sigma)
+        std::string root_path = "./";
+        std::string related_filepath = "InputImages/RainImages/";
+        std::string input_image_filename = "S__55246868.bmp";
+        
+        for(double sigma = 0.01; sigma <= 1; sigma = sigma + 0.01)
         {
-            std::string input_path = "InputImages/RainImages/S__55246868.bmp";
+            std::string input_path = root_path + related_filepath + input_image_filename;
             if (!std::filesystem::is_regular_file(input_path))
             {
-                input_path = "../InputImages/RainImages/S__55246868.bmp";
+                root_path = "../";
+                input_path = root_path + related_filepath + input_image_filename;
             }
             if (!std::filesystem::is_regular_file(input_path))
             {
-                input_path = "../../InputImages/RainImages/S__55246868.bmp";
+                root_path = "../../";
+                input_path = root_path + related_filepath + input_image_filename;
             }
             if (!std::filesystem::is_regular_file(input_path))
             {
-                input_path = "../../../InputImages/RainImages/S__55246868.bmp";
+                root_path = "../../../";
+                input_path = root_path + related_filepath + input_image_filename;
             }
             auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
             auto dictionary = load_dictionary();
-            auto output_img = each_image(std::execution::seq, input_img, std::get<0>(dictionary), std::get<1>(dictionary), 8, 8, static_cast<double>(sigma) / 10.0);
+            auto output_img = each_image(std::execution::seq, input_img, std::get<0>(dictionary), std::get<1>(dictionary), 8, 8, sigma);
             std::error_code ec;
-            if (!std::filesystem::is_directory("OutputImages"))
+            if (!std::filesystem::is_directory("../OutputImages"))
             {
-                std::filesystem::create_directories("OutputImages", ec);
+                std::filesystem::create_directories("../OutputImages", ec);
             }
             if (ec)
             {
                 std::cerr << ec.message();
             }
-            if (!std::filesystem::is_directory("OutputImages/RainImages"))
+            if (!std::filesystem::is_directory("../OutputImages/RainImages"))
             {
-                std::filesystem::create_directories("OutputImages/RainImages", ec);
+                std::filesystem::create_directories("../OutputImages/RainImages", ec);
             }
             if (ec)
             {
                 std::cerr << ec.message();
             }
-            auto output_path = std::string("OutputImages/RainImages/S__55246868_") + std::to_string(static_cast<double>(sigma) / 10.0);
-            std::cout << "Save output to " << output_path << '\n';
-            TinyDIP::bmp_write(output_path.c_str(), output_img);
-            TinyDIP::bmp_write((output_path + std::string("_difference")).c_str(), TinyDIP::difference(input_img, output_img));
+            if (!std::filesystem::is_directory("../OutputImages/RainImages/euclidean_distance"))
+            {
+                std::filesystem::create_directories("../OutputImages/RainImages/euclidean_distance", ec);
+            }
+            if (ec)
+            {
+                std::cerr << ec.message();
+            }
+            auto output_path_with_sigma = "../OutputImages/RainImages/euclidean_distance/gaussian_sigma=" + std::to_string(sigma) + "/";
+            if (!std::filesystem::is_directory(output_path_with_sigma))
+            {
+                std::filesystem::create_directories(output_path_with_sigma, ec);
+            }
+            if (ec)
+            {
+                std::cerr << ec.message();
+            }
+            auto output_filename_without_extension = output_path_with_sigma + remove_extension(input_image_filename);
+            std::cout << "Save output to " << output_filename_without_extension << '\n';
+            TinyDIP::bmp_write(output_filename_without_extension.c_str(), output_img);
+            TinyDIP::bmp_write((output_filename_without_extension + std::string("_difference")).c_str(), TinyDIP::difference(input_img, output_img));
         }
         
 
