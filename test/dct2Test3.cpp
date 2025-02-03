@@ -20,7 +20,8 @@ constexpr static auto get_offset( ExPo execution_policy,
                                   const std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
                                   const ElementT sigma, const ElementT threshold,
                                   const DistanceFunction distance_function,
-                                  bool display_sum_of_weights = false
+                                  bool display_sum_of_weights = false,
+                                  std::ostream& os = std::cout
                                 ) noexcept
 {
     auto output = TinyDIP::zeros<ElementT>(input.getWidth(), input.getHeight());
