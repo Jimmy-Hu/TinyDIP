@@ -723,7 +723,7 @@ namespace TinyDIP
     }
 
     //  getGplane function implementation
-    constexpr static auto getGplane(Image<RGB_DOUBLE> input)
+    constexpr static auto getGplane(const Image<RGB_DOUBLE>& input)
     {
         return getPlane(input, 1);
     }
