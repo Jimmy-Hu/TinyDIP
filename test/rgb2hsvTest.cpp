@@ -13,7 +13,7 @@ int main()
 
 void rgb2hsvTest()
 {
-    RGB rgb1{ 100, 100, 100 };
+    TinyDIP::RGB rgb1{ 100, 100, 100 };
     auto hsv1 = TinyDIP::rgb2hsv(rgb1);
     std::cout << hsv1.channels[0] << ", " << hsv1.channels[1] << ", " << hsv1.channels[2] << '\n';
     auto rgb2 = TinyDIP::hsv2rgb(hsv1);
