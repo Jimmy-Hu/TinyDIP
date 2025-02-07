@@ -9,6 +9,7 @@ void rgb2hsvTest();
 
 int main()
 {
+    auto start = std::chrono::system_clock::now();
     rgb2hsvTest();
 	return 0;
 }
