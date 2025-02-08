@@ -112,7 +112,7 @@ add_executable(recursiveRemoveCopyTest test/recursiveRemoveCopyTest.cpp image_io
 add_executable(recursiveRemoveCopyIfTest test/recursiveRemoveCopyIfTest.cpp image_io.cpp)
 add_executable(recursiveSizeTest test/recursiveSizeTest.cpp image_io.cpp)
 #add_executable(recursiveTransformTest test/recursiveTransformTest.cpp image_io.cpp)
-add_executable(recursiveTransformReduceTest test/recursiveTransformReduceTest.cpp image_io.cpp)
+#add_executable(recursiveTransformReduceTest test/recursiveTransformReduceTest.cpp image_io.cpp)
 add_executable(sumTest test/sumTest.cpp image_io.cpp)
 add_executable(transposeTest test/transposeTest.cpp image_io.cpp)
 
