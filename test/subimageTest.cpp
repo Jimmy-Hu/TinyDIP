@@ -13,12 +13,12 @@ int main()
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
     std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 void subimageTest()
 {
-    TinyDIP::Image<GrayScale> image1(3, 3);
+    TinyDIP::Image<TinyDIP::GrayScale> image1(3, 3);
     image1.setAllValue(10);
     image1.at(2, 2) = 1;
     std::cout << "Width: " + std::to_string(image1.getWidth()) + "\n";
