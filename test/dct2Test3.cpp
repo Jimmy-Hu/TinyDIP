@@ -124,7 +124,6 @@ constexpr auto each_image(  ExPo execution_policy,
                     )); };
             output_dct_blocks[y][x] = std::invoke(function, input_dct_blocks[y][x]);
         }
-        os << "y = " << y << " / " << input_dct_blocks.size() << " block done.\n";
     }
     
     auto output_img = TinyDIP::hsv2rgb(TinyDIP::constructHSV(
@@ -149,19 +148,23 @@ constexpr auto load_dictionary( const std::string_view dictionary_path = "Dictio
                                 const std::size_t N1 = 8,
                                 const std::size_t N2 = 8)
 {
-    auto dictionary_path_temp = dictionary_path;
+    auto dictionary_path_temp = std::string(dictionary_path);
     //  https://stackoverflow.com/a/63622202/6667035
     if (!std::filesystem::is_directory(dictionary_path_temp))
     {
-        dictionary_path_temp = "../Dictionary";
+        dictionary_path_temp = "../" + std::string(dictionary_path);
     }
     if (!std::filesystem::is_directory(dictionary_path_temp))
     {
-        dictionary_path_temp = "../../Dictionary";
+        dictionary_path_temp = "../../" + std::string(dictionary_path);
     }
     if (!std::filesystem::is_directory(dictionary_path_temp))
     {
-        dictionary_path_temp = "../../../Dictionary";
+        dictionary_path_temp = "../../../" + std::string(dictionary_path);
+    }
+    if (!std::filesystem::is_directory(dictionary_path_temp))
+    {
+        dictionary_path_temp = "../../../../" + std::string(dictionary_path);
     }
     //***Load dictionary***
     std::vector<TinyDIP::Image<ElementT>> x, y;
@@ -295,7 +298,7 @@ int main(int argc, char* argv[])
         std::string related_filepath = "InputImages/RainImages/";
         std::string input_image_filename = "S__55246868.bmp";
         
-        for(double sigma = 0.01; sigma <= 1; sigma = sigma + 0.01)
+        for(double sigma = 0.001; sigma < 0.02; sigma = sigma + 0.001)
         {
             std::string input_path = root_path + related_filepath + input_image_filename;
             if (!std::filesystem::is_regular_file(input_path))
