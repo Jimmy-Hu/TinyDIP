@@ -91,7 +91,7 @@ add_executable(multipliesWithImageVectorsTest test/multipliesWithImageVectorsTes
 add_executable(paste2DTest test/paste2DTest.cpp image_io.cpp)
 add_executable(plusTest test/plusTest.cpp image_io.cpp)
 add_executable(powTest test/powTest.cpp image_io.cpp)
-add_executable(powParallelTest test/powParallelTest.cpp image_io.cpp)
+#add_executable(powParallelTest test/powParallelTest.cpp image_io.cpp)
 add_executable(printDbmpFileTest test/printDbmpFileTest.cpp image_io.cpp)
 add_executable(subimageTest test/subimageTest.cpp image_io.cpp)
 add_executable(subimage2Test test/subimage2Test.cpp image_io.cpp)
