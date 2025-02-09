@@ -299,58 +299,37 @@ namespace TinyDIP
         //  print function implementation
         void print(std::string separator = "\t", std::ostream& os = std::cout) const
         {
-            if(size.size() == 1)
+            if constexpr (is_MultiChannel<ElementT>::value)
             {
-                for(std::size_t x = 0; x < size[0]; ++x)
-                {
-                    //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                    os << +at(x) << separator;
-                }
-                os << "\n";
-            }
-            else if(size.size() == 2)
-            {
-                for (std::size_t y = 0; y < size[1]; ++y)
+                if (size.size() == 1)
                 {
                     for (std::size_t x = 0; x < size[0]; ++x)
                     {
-                        //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                        os << +at(x, y) << separator;
+                        os << at(x) << separator;
                     }
                     os << "\n";
                 }
-                os << "\n";
-            }
-            else if (size.size() == 3)
-            {
-                for(std::size_t z = 0; z < size[2]; ++z)
+                else if (size.size() == 2)
                 {
                     for (std::size_t y = 0; y < size[1]; ++y)
                     {
                         for (std::size_t x = 0; x < size[0]; ++x)
                         {
-                            //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                            os << +at(x, y, z) << separator;
+                            os << at(x, y) << separator;
                         }
                         os << "\n";
                     }
                     os << "\n";
                 }
-                os << "\n";
-            }
-            else if (size.size() == 4)
-            {
-                for(std::size_t a = 0; a < size[3]; ++a)
+                else if (size.size() == 3)
                 {
-                    os << "group = " << a << "\n";
-                    for(std::size_t z = 0; z < size[2]; ++z)
+                    for (std::size_t z = 0; z < size[2]; ++z)
                     {
                         for (std::size_t y = 0; y < size[1]; ++y)
                         {
                             for (std::size_t x = 0; x < size[0]; ++x)
                             {
-                                //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                                os << +at(x, y, z, a) << separator;
+                                os << at(x, y, z) << separator;
                             }
                             os << "\n";
                         }
@@ -358,15 +337,99 @@ namespace TinyDIP
                     }
                     os << "\n";
                 }
-                os << "\n";
+                else if (size.size() == 4)
+                {
+                    for (std::size_t a = 0; a < size[3]; ++a)
+                    {
+                        os << "group = " << a << "\n";
+                        for (std::size_t z = 0; z < size[2]; ++z)
+                        {
+                            for (std::size_t y = 0; y < size[1]; ++y)
+                            {
+                                for (std::size_t x = 0; x < size[0]; ++x)
+                                {
+                                    os << at(x, y, z, a) << separator;
+                                }
+                                os << "\n";
+                            }
+                            os << "\n";
+                        }
+                        os << "\n";
+                    }
+                    os << "\n";
+                }
+            }
+            else
+            {
+                if (size.size() == 1)
+                {
+                    for (std::size_t x = 0; x < size[0]; ++x)
+                    {
+                        //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
+                        os << +at(x) << separator;
+                    }
+                    os << "\n";
+                }
+                else if (size.size() == 2)
+                {
+                    for (std::size_t y = 0; y < size[1]; ++y)
+                    {
+                        for (std::size_t x = 0; x < size[0]; ++x)
+                        {
+                            //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
+                            os << +at(x, y) << separator;
+                        }
+                        os << "\n";
+                    }
+                    os << "\n";
+                }
+                else if (size.size() == 3)
+                {
+                    for (std::size_t z = 0; z < size[2]; ++z)
+                    {
+                        for (std::size_t y = 0; y < size[1]; ++y)
+                        {
+                            for (std::size_t x = 0; x < size[0]; ++x)
+                            {
+                                //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
+                                os << +at(x, y, z) << separator;
+                            }
+                            os << "\n";
+                        }
+                        os << "\n";
+                    }
+                    os << "\n";
+                }
+                else if (size.size() == 4)
+                {
+                    for (std::size_t a = 0; a < size[3]; ++a)
+                    {
+                        os << "group = " << a << "\n";
+                        for (std::size_t z = 0; z < size[2]; ++z)
+                        {
+                            for (std::size_t y = 0; y < size[1]; ++y)
+                            {
+                                for (std::size_t x = 0; x < size[0]; ++x)
+                                {
+                                    //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
+                                    os << +at(x, y, z, a) << separator;
+                                }
+                                os << "\n";
+                            }
+                            os << "\n";
+                        }
+                        os << "\n";
+                    }
+                    os << "\n";
+                }
             }
         }
 
         //  Enable this function if ElementT = RGB or RGB_DOUBLE or HSV
         void print(std::string separator = "\t", std::ostream& os = std::cout) const
-        requires(std::same_as<ElementT, RGB> or std::same_as<ElementT, RGB_DOUBLE> or std::same_as<ElementT, HSV>) or is_MultiChannel<ElementT>::value
+        requires(std::same_as<ElementT, RGB> or std::same_as<ElementT, RGB_DOUBLE> or std::same_as<ElementT, HSV> or is_MultiChannel<ElementT>::value)
         {
-            for (std::size_t y = 0; y < size[1]; ++y)
+            if (size.size() == 1)
             {
                 for (std::size_t x = 0; x < size[0]; ++x)
                 {
@@ -374,13 +437,30 @@ namespace TinyDIP
                     for (std::size_t channel_index = 0; channel_index < 3; ++channel_index)
                     {
                         //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                        os << +at(x, y).channels[channel_index] << separator;
+                        os << +at(x).channels[channel_index] << separator;
                     }
                     os << ")" << separator;
                 }
                 os << "\n";
             }
-            os << "\n";
+            else if (size.size() == 2)
+            {
+                for (std::size_t y = 0; y < size[1]; ++y)
+                {
+                    for (std::size_t x = 0; x < size[0]; ++x)
+                    {
+                        os << "( ";
+                        for (std::size_t channel_index = 0; channel_index < 3; ++channel_index)
+                        {
+                            //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
+                            os << +at(x, y).channels[channel_index] << separator;
+                        }
+                        os << ")" << separator;
+                    }
+                    os << "\n";
+                }
+                os << "\n";
+            }
             return;
         }
 
