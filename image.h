@@ -249,7 +249,7 @@ namespace TinyDIP
 
         constexpr std::size_t count() const noexcept
         {
-            return std::reduce(std::ranges::cbegin(size), std::ranges::cend(size), 1, std::multiplies());
+            return std::reduce(std::ranges::cbegin(size), std::ranges::cend(size), std::size_t{ 1 }, std::multiplies());
         }
   
         constexpr std::size_t getDimensionality() const noexcept
