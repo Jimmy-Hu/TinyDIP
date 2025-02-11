@@ -251,6 +251,14 @@ namespace TinyDIP
         {
             return std::reduce(std::ranges::cbegin(size), std::ranges::cend(size), std::size_t{ 1 }, std::multiplies());
         }
+
+        //  count member function implementation
+        template<class ExPo>
+        requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+        constexpr std::size_t count(ExPo execution_policy)
+        {
+            return std::reduce(execution_policy, std::ranges::cbegin(size), std::ranges::cend(size), std::size_t{ 1 }, std::multiplies());
+        }
   
         constexpr std::size_t getDimensionality() const noexcept
         {
