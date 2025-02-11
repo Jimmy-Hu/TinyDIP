@@ -766,7 +766,7 @@ namespace TinyDIP
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto apply_each_pixel(ExPo execution_policy, const Image<ElementT>& input, F operation, Args&&... args)
     {
-        auto transformed_image_data = recursive_transform<1>(execution_policy, [&](auto&& pixel_input) { return std::invoke(operation, pixel_input, args...); });
+        auto transformed_image_data = recursive_transform<1>(execution_policy, [&](auto&& pixel_input) { return std::invoke(operation, pixel_input, args...); }, input.getImageData());
         return Image<std::ranges::range_value_t<decltype(transformed_image_data)>>(transformed_image_data, input.getSize());
     }
 
