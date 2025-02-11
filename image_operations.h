@@ -781,7 +781,7 @@ namespace TinyDIP
         #pragma omp parallel for
         for (std::size_t i = 0; i < input_count; ++i)
         {
-            output_vector[i] = return std::invoke(operation, input_vector[i], args...);
+            output_vector[i] = std::invoke(operation, input_vector[i], args...);
         }
         return Image<std::invoke_result_t<F, ElementT>>(output_vector, input.getSize());
     }
