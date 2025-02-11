@@ -761,6 +761,15 @@ namespace TinyDIP
         return getPlane(input, 2);
     }
 
+    //  apply_each_pixel template function implementation
+    template<class ExPo, class F, class... Args>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static auto apply_each_pixel(ExPo execution_policy, const Image<RGB>& input, F operation, Args&&... args)
+    {
+        auto transformed_image_data = recursive_transform<1>(execution_policy, [&] { return std::invoke(operation, getRplane(input), args...); }, input.getImageData());
+        return Image<std::ranges::range_value_t<decltype(transformed_image_data)>>(transformed_image_data, input.getSize());
+    }
+
     //  apply_each template function implementation
     template<class F, class... Args>
     constexpr static auto apply_each(const Image<RGB>& input, F operation, Args&&... args)
