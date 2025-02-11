@@ -770,6 +770,22 @@ namespace TinyDIP
         return Image<std::ranges::range_value_t<decltype(transformed_image_data)>>(transformed_image_data, input.getSize());
     }
 
+    //  apply_each_pixel_openmp template function implementation
+    template<class ElementT, class F, class... Args>
+    constexpr static auto apply_each_pixel_openmp(const Image<ElementT>& input, F operation, Args&&... args)
+    {
+        std::vector<std::invoke_result_t<F, ElementT>> output_vector;
+        auto input_count = input.count();
+        auto input_vector = input.getImageData();
+        output_vector.resize(input_count);
+        #pragma omp parallel for
+        for (std::size_t i = 0; i < input_count; ++i)
+        {
+            output_vector[i] = return std::invoke(operation, input_vector[i], args...);
+        }
+        return Image<std::invoke_result_t<F, ElementT>>(output_vector, input.getSize());
+    }
+
     //  apply_each template function implementation
     template<class F, class... Args>
     constexpr static auto apply_each(const Image<RGB>& input, F operation, Args&&... args)
