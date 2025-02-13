@@ -16,7 +16,7 @@ constexpr static auto DiamondWheelAnalysisTest(
 {
 	auto hsv_image = TinyDIP::rgb2hsv(execution_policy, input);
 	auto start1 = std::chrono::system_clock::now();
-	auto processed_hsv_image = TinyDIP::apply_each_pixel(
+	auto processed_hsv_image1 = TinyDIP::apply_each_pixel(
 		std::execution::par,
 		hsv_image,
 		[&](TinyDIP::HSV pixel) -> TinyDIP::HSV
@@ -36,7 +36,7 @@ constexpr static auto DiamondWheelAnalysisTest(
 	std::chrono::duration<double> elapsed_seconds1 = end1 - start1;
 	os << "elapsed time with using parallel execution policy: " << elapsed_seconds1.count() << '\n';
 	auto start2 = std::chrono::system_clock::now();
-	processed_hsv_image = TinyDIP::apply_each_pixel_openmp(hsv_image, 
+	auto processed_hsv_image2 = TinyDIP::apply_each_pixel_openmp(hsv_image, 
 		[&](TinyDIP::HSV pixel) -> TinyDIP::HSV
 		{
 			TinyDIP::HSV pixel_for_filling;
@@ -52,7 +52,8 @@ constexpr static auto DiamondWheelAnalysisTest(
 	auto end2 = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds2 = end2 - start2;
 	os << "elapsed time with using Openmp: " << elapsed_seconds2.count() << '\n';
-	auto output_image = TinyDIP::hsv2rgb(execution_policy, processed_hsv_image);
+	os << TinyDIP::sum(TinyDIP::difference(processed_hsv_image1, processed_hsv_image2)) << '\n';
+	auto output_image = TinyDIP::hsv2rgb(execution_policy, processed_hsv_image1);
 	return output_image;
 }
 
