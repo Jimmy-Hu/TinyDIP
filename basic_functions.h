@@ -1730,6 +1730,21 @@ namespace TinyDIP
         }
     }
 
+    //  cbrt Template Function Implementation (the version with execution policy)
+    template<class ExecutionPolicy, typename T>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    [[nodiscard]] constexpr static auto cbrt(ExecutionPolicy&& execution_policy, const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(execution_policy, input, [&](auto&& _input) {return std::cbrt(_input); });
+        }
+        else
+        {
+            return std::cbrt(input);
+        }
+    }
+
 }
 
 #endif
