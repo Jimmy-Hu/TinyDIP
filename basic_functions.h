@@ -1745,6 +1745,20 @@ namespace TinyDIP
         }
     }
 
+    //  sin Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto sin(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return std::sin(_input); });
+        }
+        else
+        {
+            return std::sin(input);
+        }
+    }
+
 }
 
 #endif
