@@ -783,7 +783,7 @@ namespace TinyDIP
         {
             output_vector[i] = std::invoke(operation, input_vector[i], args...);
         }
-        return Image<std::invoke_result_t<F, ElementT>>(output_vector, input.getSize());
+        return Image<std::invoke_result_t<F, ElementT, Args...>>(output_vector, input.getSize());
     }
 
     //  apply_each template function implementation
