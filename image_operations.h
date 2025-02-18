@@ -766,8 +766,12 @@ namespace TinyDIP
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto apply_each_pixel(ExPo execution_policy, const Image<ElementT>& input, F operation, Args&&... args)
     {
-        auto transformed_image_data = recursive_transform<1>(execution_policy, [&](auto&& pixel_input) { return std::invoke(operation, pixel_input, args...); }, input.getImageData());
-        return Image<std::ranges::range_value_t<decltype(transformed_image_data)>>(transformed_image_data, input.getSize());
+        std::vector<std::invoke_result_t<F, ElementT, Args...>> output_vector;
+        auto input_count = input.count();
+        auto input_vector = input.getImageData();
+        output_vector.resize(input_count);
+        std::transform(execution_policy, input_vector.begin(), input_vector.end(), output_vector.begin(), [&](auto& elem) { return std::invoke(operation, elem, args...); });
+        return Image<std::invoke_result_t<F, ElementT, Args...>>(output_vector, input.getSize());
     }
 
     //  apply_each_pixel_openmp template function implementation
