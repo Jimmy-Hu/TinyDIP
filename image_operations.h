@@ -1920,6 +1920,15 @@ namespace TinyDIP
         return std::ranges::count(input.getImageData(), target);
     }
 
+    //  count template function implementation
+    template<class ExPo, class ElementT>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static auto count(ExPo execution_policy, const Image<ElementT>& input, const ElementT target)
+    {
+        auto image_data = input.getImageData();
+        return std::count(execution_policy, std::ranges::cbegin(image_data), std::ranges::cend(image_data), target);
+    }
+
     //  unique_value template function implementation
     template<typename ElementT>
     constexpr static bool unique_value(const Image<ElementT>& input, ElementT target)
