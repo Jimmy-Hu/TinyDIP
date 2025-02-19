@@ -761,6 +761,20 @@ namespace TinyDIP
         return getPlane(input, 2);
     }
 
+    //  histogram template function implementation
+    template<class ElementT = std::uint8_t>
+    constexpr static auto histogram(const Image<ElementT>& input)
+    {
+        std::array<std::size_t, std::numeric_limits<ElementT>::max() - std::numeric_limits<ElementT>::lowest() + 1> histogram_output;
+        std::fill(std::begin(histogram_output), std::end(histogram_output), std::size_t{ 0 });
+        auto image_data = input.getImageData();
+        for (std::size_t i = 0; i < image_data.size(); ++i)
+        {
+            histogram_output[image_data[i]] = histogram_output[image_data[i]] + 1;
+        }
+        return histogram_output;
+    }
+
     //  apply_each_pixel template function implementation
     template<class ExPo, class ElementT, class F, class... Args>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
