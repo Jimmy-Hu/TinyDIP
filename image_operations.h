@@ -740,9 +740,8 @@ namespace TinyDIP
         return getPlane(input, 2);
     }
 
-    template<class T = HSV>
-    requires (std::same_as<T, HSV>)
-    constexpr static auto getHplane(Image<T> input)
+    //  getHplane function implementation
+    constexpr static auto getHplane(const Image<HSV>& input)
     {
         return getPlane(input, 0);
     }
