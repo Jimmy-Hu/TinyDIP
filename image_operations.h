@@ -770,7 +770,7 @@ namespace TinyDIP
         auto image_data = input.getImageData();
         for (std::size_t i = 0; i < image_data.size(); ++i)
         {
-            histogram_output[image_data[i]] = histogram_output[image_data[i]] + 1;
+            ++histogram_output[image_data[i]];
         }
         return histogram_output;
     }
