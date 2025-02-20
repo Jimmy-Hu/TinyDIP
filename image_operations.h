@@ -1906,6 +1906,15 @@ namespace TinyDIP
         return std::reduce(execution_policy, std::ranges::cbegin(image_data), std::ranges::cend(image_data), ElementT{}, f);
     }
 
+    //  mean template function implementation
+    template<typename ElementT = double, typename F = std::plus<std::common_type_t<ElementT, ElementT>>>
+    requires(std::regular_invocable<F, ElementT, ElementT>)
+    constexpr static auto mean(const Image<ElementT>& input, F f = {})
+    {
+        return std::invoke(std::divides<>(), sum(input), input.count());
+    }
+
+
     //  min template function implementation
     template<typename ElementT = double>
     constexpr static auto min(const Image<ElementT>& input)
