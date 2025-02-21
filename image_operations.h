@@ -761,11 +761,11 @@ namespace TinyDIP
     }
 
     //  histogram template function implementation
+    //  https://codereview.stackexchange.com/q/295419/231235
     template<class ElementT = std::uint8_t>
     constexpr static auto histogram(const Image<ElementT>& input)
     {
-        std::array<std::size_t, std::numeric_limits<ElementT>::max() - std::numeric_limits<ElementT>::lowest() + 1> histogram_output;
-        std::fill(std::begin(histogram_output), std::end(histogram_output), std::size_t{ 0 });
+        std::array<std::size_t, std::numeric_limits<ElementT>::max() - std::numeric_limits<ElementT>::lowest() + 1> histogram_output{};
         auto image_data = input.getImageData();
         for (std::size_t i = 0; i < image_data.size(); ++i)
         {
