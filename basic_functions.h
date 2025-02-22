@@ -1803,6 +1803,20 @@ namespace TinyDIP
         }
     }
 
+    //  tan Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto tan(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return std::tan(_input); });
+        }
+        else
+        {
+            return std::tan(input);
+        }
+    }
+
 }
 
 #endif
