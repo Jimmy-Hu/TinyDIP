@@ -774,6 +774,26 @@ namespace TinyDIP
         return histogram_output;
     }
 
+    //  histogram template function implementation
+    template<class ElementT = int>
+    constexpr static auto histogram(const Image<ElementT>& input)
+    {
+        std::map<ElementT, std::size_t> histogram_output{};
+        auto image_data = input.getImageData();
+        for (std::size_t i = 0; i < image_data.size(); ++i)
+        {
+            if (histogram_output.contains(image_data[i]))
+            {
+                ++histogram_output[image_data[i]];
+            }
+            else
+            {
+                histogram_output.emplace(image_data[i], std::size_t{ 1 });
+            }
+        }
+        return histogram_output;
+    }
+
     //  apply_each_pixel template function implementation
     template<class ExPo, class ElementT, class F, class... Args>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
