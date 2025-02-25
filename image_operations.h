@@ -803,7 +803,7 @@ namespace TinyDIP
         {
             if (histogram_output.contains(image_data[i]))
             {
-                histogram_output[image_data[i]] += 1.0 / static_cast<ProbabilityType>(input.count());
+                histogram_output[image_data[i]] += (1.0 / static_cast<ProbabilityType>(input.count()));
             }
             else
             {
