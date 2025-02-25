@@ -773,6 +773,7 @@ namespace TinyDIP
     }
 
     //  histogram template function implementation
+    //  https://codereview.stackexchange.com/q/295448/231235
     template<class ElementT = int>
     constexpr static auto histogram(const Image<ElementT>& input)
     {
