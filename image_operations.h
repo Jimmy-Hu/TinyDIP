@@ -793,6 +793,26 @@ namespace TinyDIP
         return histogram_output;
     }
 
+    //  histogram_normalized template function implementation
+    template<class ElementT = int, class ProbabilityType = double>
+    constexpr static auto histogram_normalized(const Image<ElementT>& input)
+    {
+        std::map<ElementT, ProbabilityType> histogram_output{};
+        auto image_data = input.getImageData();
+        for (std::size_t i = 0; i < image_data.size(); ++i)
+        {
+            if (histogram_output.contains(image_data[i]))
+            {
+                histogram_output[image_data[i]] += 1.0 / static_cast<ProbabilityType>(input.count());
+            }
+            else
+            {
+                histogram_output.emplace(image_data[i], 1.0 / static_cast<ProbabilityType>(input.count()));
+            }
+        }
+        return histogram_output;
+    }
+
     //  apply_each_pixel template function implementation
     template<class ExPo, class ElementT, class F, class... Args>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
