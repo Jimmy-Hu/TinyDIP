@@ -829,6 +829,25 @@ namespace TinyDIP
         return histogram_output;
     }
 
+    //  histogram_with_bins template function implementation
+    template<std::size_t bins_count = 8, class ElementT = std::uint8_t>
+    requires (std::same_as<ElementT, std::uint8_t> or
+              std::same_as<ElementT, std::uint16_t>)
+    constexpr static auto histogram_with_bins(const Image<ElementT>& input)
+    {
+        std::array<std::size_t, bins_count + 1> histogram_output{};
+        auto max = std::numeric_limits<ElementT>::max();
+        auto lowest = std::numeric_limits<ElementT>::lowest();
+        
+        auto image_data = input.getImageData();
+        for (std::size_t i = 0; i < image_data.size(); ++i)
+        {
+            std::size_t bin_index = std::floor((static_cast<double>(image_data[i]) * static_cast<double>(bins_count)) / (static_cast<double>(max) - static_cast<double>(lowest)));
+            ++histogram_output[bin_index];
+        }
+        return histogram_output;
+    }
+
     //  apply_each_pixel template function implementation
     template<class ExPo, class ElementT, class F, class... Args>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
