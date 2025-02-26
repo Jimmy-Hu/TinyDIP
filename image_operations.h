@@ -794,6 +794,22 @@ namespace TinyDIP
     }
 
     //  histogram_normalized template function implementation
+    //  https://codereview.stackexchange.com/q/295419/231235
+    template<class ElementT = std::uint8_t, class ProbabilityType = double>
+    requires (std::same_as<ElementT, std::uint8_t> or
+              std::same_as<ElementT, std::uint16_t>)
+    constexpr static auto histogram_normalized(const Image<ElementT>& input)
+    {
+        std::array<ProbabilityType, std::numeric_limits<ElementT>::max() - std::numeric_limits<ElementT>::lowest() + 1> histogram_output{};
+        auto image_data = input.getImageData();
+        for (std::size_t i = 0; i < image_data.size(); ++i)
+        {
+            histogram_output[image_data[i]] += (1.0 / static_cast<ProbabilityType>(input.count()));
+        }
+        return histogram_output;
+    }
+
+    //  histogram_normalized template function implementation
     template<class ElementT = int, class ProbabilityType = double>
     constexpr static auto histogram_normalized(const Image<ElementT>& input)
     {
