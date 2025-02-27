@@ -836,8 +836,8 @@ namespace TinyDIP
     constexpr static auto histogram_with_bins(const Image<ElementT>& input)
     {
         std::array<std::size_t, bins_count + 1> histogram_output{};
-        auto max = std::numeric_limits<ElementT>::max();
-        auto lowest = std::numeric_limits<ElementT>::lowest();
+        constexpr auto max = std::numeric_limits<ElementT>::max();
+        constexpr auto lowest = std::numeric_limits<ElementT>::lowest();
         
         auto image_data = input.getImageData();
         for (std::size_t i = 0; i < image_data.size(); ++i)
