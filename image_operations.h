@@ -886,7 +886,22 @@ namespace TinyDIP
         auto Rplane = std::async(std::launch::async, [&] { return std::invoke(operation, getRplane(input), args...); });
         auto Gplane = std::async(std::launch::async, [&] { return std::invoke(operation, getGplane(input), args...); });
         auto Bplane = std::async(std::launch::async, [&] { return std::invoke(operation, getBplane(input), args...); });
-        return constructRGB(Rplane.get(), Gplane.get(), Bplane.get());
+        if constexpr ((std::is_same<Image<GrayScale>, decltype(Rplane.get())>::value) and
+                      (std::is_same<Image<GrayScale>, decltype(Gplane.get())>::value) and
+                      (std::is_same<Image<GrayScale>, decltype(Bplane.get())>::value))
+        {
+            return constructRGB(Rplane.get(), Gplane.get(), Bplane.get());
+        }
+        else if constexpr ((std::is_same<Image<double>, decltype(Rplane.get())>::value) and
+                           (std::is_same<Image<double>, decltype(Gplane.get())>::value) and
+                           (std::is_same<Image<double>, decltype(Bplane.get())>::value))
+        {
+            return constructRGBDOUBLE(Rplane.get(), Gplane.get(), Bplane.get());
+        }
+        else
+        {
+            return constructMultiChannel(Rplane.get(), Gplane.get(), Bplane.get());
+        }
     }
 
     //  apply_each template function implementation
