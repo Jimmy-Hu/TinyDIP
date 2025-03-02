@@ -60,3 +60,5 @@ ignored_files/
 *.bmp
 *.dbmp
 *.DS_Store
+*.rar
+*.zip
