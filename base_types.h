@@ -96,6 +96,14 @@ namespace TinyDIP
             out << '{' << +_myStruct.channels[0] << ", " << +_myStruct.channels[1] << ", " << +_myStruct.channels[2] << '}';
             return out;
         }
+
+        //  For applying as the key to std::map
+        bool operator<(const HSV& other) const
+        {
+            // Compare channels lexicographically
+            return std::tie(channels[0], channels[1], channels[2])
+                < std::tie(other.channels[0], other.channels[1], other.channels[2]);
+        }
     };
 
     //  MultiChannel struct implementation
