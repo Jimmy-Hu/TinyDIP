@@ -16,7 +16,21 @@ constexpr static auto HistogramTest(
 {
 	auto hsv_image = TinyDIP::rgb2hsv(execution_policy, input);
 	auto start1 = std::chrono::system_clock::now();
-	auto histogram_result1 = TinyDIP::histogram_normalized(TinyDIP::im2uint8(TinyDIP::getVplane(hsv_image)));
+	auto histogram_result1 = TinyDIP::histogram(TinyDIP::getVplane(hsv_image));
+	os << "*****  Histogram  *****\n";
+	for (const auto& [key, value] : histogram_result1 )
+	{
+		os << "key = " << key << ", value = " << value << '\n';
+	}
+	os << "*****  Normalized Histogram  *****\n";
+	auto normalized_histogram = TinyDIP::normalize_histogram(histogram_result1);
+	double sum = 0.0;
+	for (const auto& [key, value] : normalized_histogram)
+	{
+		os << "key = " << key << ", value = " << value << '\n';
+		sum += value;
+	}
+	os << "sum = " << sum << '\n';
 	auto end1 = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds1 = end1 - start1;
 	os << "elapsed time: " << elapsed_seconds1.count() << '\n';
@@ -29,15 +43,7 @@ int main()
 	std::string image_filename = "../InputImages/DiamondWheelTool/1.bmp";
 	auto image_input = TinyDIP::bmp_read(image_filename.c_str(), true);
 	image_input = TinyDIP::copyResizeBicubic(image_input, 3 * image_input.getWidth(), 3 * image_input.getHeight());
-	auto histogram_result1 = HistogramTest(std::execution::par, image_input);
-	double sum = 0.0;
-	for (std::size_t i = 0; i < histogram_result1.size(); ++i)
-	{
-		std::cout << i << " count: " << histogram_result1[i] << "\n";
-		sum += histogram_result1[i];
-	}
-	std::cout << "Sum = " << sum << '\n';
-	std::cout << "image_input.count = " << image_input.count() << '\n';
+	HistogramTest(std::execution::par, image_input);
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
 	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
