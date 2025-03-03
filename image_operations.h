@@ -850,6 +850,22 @@ namespace TinyDIP
         return histogram_output;
     }
 
+    //  get_normalized_input template function implementation
+    //  https://codereview.stackexchange.com/a/295540/231235
+    template<class ElementT, std::size_t Count, class ProbabilityType = double>
+    constexpr static auto get_normalized_input(
+        const std::array<ElementT, Count>& input,
+        const ProbabilityType& sum)
+    {
+        std::array<ProbabilityType, Count> output{};
+        std::transform(std::ranges::cbegin(input), std::ranges::cend(input), std::ranges::begin(output),
+            [&](auto&& element)
+            {
+                return static_cast<ProbabilityType>(element) / sum;
+            });
+        return output;
+    }
+
     //  normalize_histogram template function implementation for std::array
     template<class ElementT, std::size_t Count, class ProbabilityType = double>
     constexpr static auto normalize_histogram(const std::array<ElementT, Count>& input)
