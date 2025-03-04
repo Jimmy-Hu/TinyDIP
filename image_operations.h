@@ -944,32 +944,32 @@ namespace TinyDIP
             #pragma omp parallel for reduction(max:maxVariance) reduction(max:optimalThreshold)
             for (ElementT threshold = 0; threshold < std::numeric_limits<ElementT>::max(); ++threshold)
             {
-                double wB = 0.0;
-                double wF = 0.0;
-                double mB = 0.0;
-                double mF = 0.0;
+                double w_background = 0.0;
+                double w_foreground = 0.0;
+                double m_background = 0.0;
+                double m_foreground = 0.0;
 
                 for (std::size_t i = 0; i <= threshold; ++i)
                 {
-                    wB += probabilities[i];
-                    mB += i * probabilities[i];
+                    w_background += probabilities[i];
+                    m_background += i * probabilities[i];
                 }
-                if (wB != 0)
+                if (w_background != 0)
                 {
-                    mB /= wB;
+                    m_background /= w_background;
                 }
 
                 for (std::size_t i = threshold + 1; i <= std::numeric_limits<ElementT>::max(); ++i)
                 {
-                    wF += probabilities[i];
-                    mF += i * probabilities[i];
+                    w_foreground += probabilities[i];
+                    m_foreground += i * probabilities[i];
                 }
-                if (wF != 0)
+                if (w_foreground != 0)
                 {
-                    mF /= wF;
+                    m_foreground /= w_foreground;
                 }
 
-                double variance = wB * wF * (mB - mF) * (mB - mF);
+                double variance = w_background * w_foreground * (m_background - m_foreground) * (m_background - m_foreground);
                 if (variance > maxVariance)
                 {
                     maxVariance = variance;
