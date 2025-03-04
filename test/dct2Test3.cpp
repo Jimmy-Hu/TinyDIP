@@ -293,6 +293,7 @@ int main(int argc, char* argv[])
     }
     else
     {
+        auto dictionary = load_dictionary();
         //dct2Test3("InputImages/RainImages/2", ".", "Dictionary", 1, 1);
         std::string root_path = "./";
         std::string related_filepath = "InputImages/RainImages/";
@@ -317,7 +318,6 @@ int main(int argc, char* argv[])
                 input_path = root_path + related_filepath + input_image_filename;
             }
             auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
-            auto dictionary = load_dictionary();
             auto output_img = each_image(std::execution::seq, input_img, std::get<0>(dictionary), std::get<1>(dictionary), 8, 8, sigma);
             std::error_code ec;
             if (!std::filesystem::is_directory("../OutputImages"))
