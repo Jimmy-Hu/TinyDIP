@@ -919,6 +919,63 @@ namespace TinyDIP
         return output;
     }
 
+    //  otsu_threshold template function implementation (with Execution Policy)
+    template <class ExPo, std::integral ElementT>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static auto otsu_threshold(
+        ExPo execution_policy,
+        const Image<ElementT>& image)
+    {
+        auto probabilities = normalize_histogram(execution_policy, histogram(image));
+
+        double maxVariance = 0.0;
+        ElementT optimalThreshold = 0;
+        if constexpr (std::same_as<ElementT, std::uint8_t> || std::same_as<ElementT, std::uint16_t>)
+        {
+            #pragma omp parallel for reduction(max:maxVariance) reduction(max:optimalThreshold)
+            for (ElementT threshold = 0; threshold < std::numeric_limits<ElementT>::max(); ++threshold)
+            {
+                double wB = 0.0;
+                double wF = 0.0;
+                double mB = 0.0;
+                double mF = 0.0;
+
+                for (std::size_t i = 0; i <= threshold; ++i)
+                {
+                    wB += probabilities[i];
+                    mB += i * probabilities[i];
+                }
+                if (wB != 0)
+                {
+                    mB /= wB;
+                }
+
+                for (std::size_t i = threshold + 1; i <= std::numeric_limits<ElementT>::max(); ++i)
+                {
+                    wF += probabilities[i];
+                    mF += i * probabilities[i];
+                }
+                if (wF != 0)
+                {
+                    mF /= wF;
+                }
+
+                double variance = wB * wF * (mB - mF) * (mB - mF);
+                if (variance > maxVariance)
+                {
+                    maxVariance = variance;
+                    optimalThreshold = threshold;
+                }
+            }
+        }
+        else
+        {
+
+        }
+        
+        return optimalThreshold;
+    }
+
     //  apply_each_pixel template function implementation
     template<class ExPo, class ElementT, class F, class... Args>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
