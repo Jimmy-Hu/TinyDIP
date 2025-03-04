@@ -6,6 +6,35 @@
 #include "../image_io.h"
 #include "../image_operations.h"
 
+class Timer
+{
+private:
+    std::chrono::system_clock::time_point start, end;
+    std::chrono::duration<double> elapsed_seconds;
+    std::time_t end_time;
+public:
+    Timer()
+    {
+        start = std::chrono::system_clock::now();
+    }
+
+    ~Timer()
+    {
+        end = std::chrono::system_clock::now();
+        elapsed_seconds = end - start;
+        end_time = std::chrono::system_clock::to_time_t(end);
+        if (elapsed_seconds.count() != 1)
+        {
+            std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << " seconds.\n";
+        }
+        else
+        {
+            std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << " second.\n";
+        }
+    }
+
+};
+
 template<class ExPo, class ElementT>
 requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
 constexpr static auto HistogramTest(
