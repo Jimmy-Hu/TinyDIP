@@ -1830,6 +1830,18 @@ namespace TinyDIP
         return sum;
     }
 
+    //  sum_second_element Template Function Implementation
+    template <typename KeyT, typename ValueT, class Function = std::plus<ValueT>>
+    requires std::regular_invocable<Function, ValueT, ValueT>
+    constexpr static ValueT sum_second_element(const std::map<KeyT, ValueT>& map, const Function& f = Function{})
+    {
+        ValueT sum{};
+        for (const auto& [key, value] : map)
+        {
+            sum = std::invoke(f, sum, value);
+        }
+        return sum;
+    }
 }
 
 #endif
