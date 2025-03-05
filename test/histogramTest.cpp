@@ -1,5 +1,6 @@
 /* Developed by Jimmy Hu */
 #include <chrono>
+#include <ostream>
 #include "../base_types.h"
 #include "../basic_functions.h"
 #include "../image.h"
@@ -25,11 +26,11 @@ public:
         end_time = std::chrono::system_clock::to_time_t(end);
         if (elapsed_seconds.count() != 1)
         {
-            std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << " seconds.\n";
+            std::print(std::cout, "Computation finished at {} elapsed time: {} seconds.\n", std::ctime(&end_time), elapsed_seconds.count());
         }
         else
         {
-            std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << " second.\n";
+            std::print(std::cout, "Computation finished at {} elapsed time: {} second.\n", std::ctime(&end_time), elapsed_seconds.count());
         }
     }
 
@@ -44,7 +45,7 @@ constexpr static auto HistogramTest(
 )
 {
     auto hsv_image = TinyDIP::rgb2hsv(execution_policy, input);
-    auto start1 = std::chrono::system_clock::now();
+    Timer timer1;
     auto histogram_result1 = TinyDIP::histogram(TinyDIP::getVplane(hsv_image));
     os << "*****  std::map Histogram  *****\n";
     for (const auto& [key, value] : histogram_result1 )
@@ -60,7 +61,7 @@ constexpr static auto HistogramTest(
         sum += value;
     }
     os << "sum = " << sum << '\n';
-    os << "-------------------------------------------------------";
+    os << "-------------------------------------------------------\n";
     auto histogram_result2 = TinyDIP::histogram(TinyDIP::im2uint8(TinyDIP::getVplane(hsv_image)));
     os << "*****  std::array Histogram  *****\n";
     for (std::size_t i = 0; i < histogram_result2.size(); ++i)
