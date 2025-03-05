@@ -5,6 +5,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <print>
 
 namespace TinyDIP
 {
