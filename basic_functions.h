@@ -1817,6 +1817,18 @@ namespace TinyDIP
         }
     }
 
+    //  sum_second_element Template Function Implementation
+    template <typename ElementT, typename CountT>
+    constexpr static CountT sum_second_element(const std::vector<std::pair<ElementT, CountT>>& pairs)
+    {
+        CountT sum{};
+        for (auto const& [first, second] : pairs)
+        {
+            sum += second;
+        }
+        return sum;
+    }
+
 }
 
 #endif
