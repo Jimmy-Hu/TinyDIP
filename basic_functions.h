@@ -1879,10 +1879,14 @@ namespace TinyDIP
              std::regular_invocable<Function, SecondT, SecondT>)
     constexpr static SecondT sum_second_element(ExPo execution_policy, const std::vector<std::pair<FirstT, SecondT>>& pairs, const Function& f = Function{})
     {
-        std::vector<SecondT> second_elements;
-        second_elements.reserve(pairs.size());
-        std::transform(execution_policy, std::ranges::cbegin(pairs), std::ranges::cend(pairs), std::back_inserter(second_elements),
-        [](auto const& pair) { return pair.second; });
+        const std::size_t size = pairs.size();
+        std::vector<SecondT> second_elements(size);
+        std::transform(
+            execution_policy,
+            std::ranges::cbegin(pairs),
+            std::ranges::cend(pairs),
+            std::ranges::begin(second_elements),
+            [&](auto const& pair) { return pair.second; });
         return std::reduce(execution_policy, std::ranges::cbegin(second_elements), std::ranges::cend(second_elements), SecondT{}, f);
     }
 
