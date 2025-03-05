@@ -1819,7 +1819,7 @@ namespace TinyDIP
 
     //  sum_second_element Template Function Implementation
     template <typename FirstT, typename SecondT, class Function = std::plus<SecondT>>
-    requires std::regular_invocable<Function, SecondT, SecondT>
+    requires(std::regular_invocable<Function, SecondT, SecondT>)
     constexpr static SecondT sum_second_element(const std::vector<std::pair<FirstT, SecondT>>& pairs, const Function& f = Function{})
     {
         SecondT sum{};
