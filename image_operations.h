@@ -901,6 +901,14 @@ namespace TinyDIP
         return get_normalized_input(input, static_cast<ProbabilityType>(sum));
     }
 
+    //  normalize_histogram template function implementation
+    template<class ElementT, class CountT, class ProbabilityType = double>
+    requires(std::floating_point<CountT> || std::integral<CountT>)
+    constexpr static auto normalize_histogram(const std::map<ElementT, CountT>& input)
+    {
+        return normalize_histogram(std::execution::seq, input);
+    }
+
     //  normalize_histogram template function implementation (with Execution Policy)
     template<class ExecutionPolicy, class ElementT, class CountT, class ProbabilityType = double>
     requires((std::floating_point<CountT> || std::integral<CountT>) and
