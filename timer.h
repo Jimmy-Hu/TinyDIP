@@ -5,7 +5,7 @@
 
 #include <chrono>
 #include <iostream>
-#include <print>
+//#include <print>
 
 namespace TinyDIP
 {
@@ -28,11 +28,13 @@ namespace TinyDIP
             end_time = std::chrono::system_clock::to_time_t(end);
             if (elapsed_seconds.count() != 1)
             {
-                std::print(std::cout, "Computation finished at {} elapsed time: {} seconds.\n", std::ctime(&end_time), elapsed_seconds.count());
+                //std::print(std::cout, "Computation finished at {} elapsed time: {} seconds.\n", std::ctime(&end_time), elapsed_seconds.count());
+                std::cout << "Computation finished at " << std::ctime(&end_time) << " elapsed time: " << elapsed_seconds.count() << "seconds.\n";
             }
             else
             {
-                std::print(std::cout, "Computation finished at {} elapsed time: {} second.\n", std::ctime(&end_time), elapsed_seconds.count());
+                //std::print(std::cout, "Computation finished at {} elapsed time: {} second.\n", std::ctime(&end_time), elapsed_seconds.count());
+                std::cout << "Computation finished at " << std::ctime(&end_time) << " elapsed time: " << elapsed_seconds.count() << "second.\n";
             }
         }
 
