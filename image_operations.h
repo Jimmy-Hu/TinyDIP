@@ -760,7 +760,7 @@ namespace TinyDIP
 
     //  histogram template function implementation
     //  https://codereview.stackexchange.com/q/295419/231235
-    template<class ElementT = std::uint8_t>
+    template<std::integral ElementT = std::uint8_t>
     requires (std::same_as<ElementT, std::uint8_t> or
               std::same_as<ElementT, std::uint16_t>)
     constexpr static auto histogram(const Image<ElementT>& input)
