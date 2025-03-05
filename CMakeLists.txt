@@ -140,7 +140,7 @@ endif()
 target_link_libraries(TinyDIP -lm)
 #target_link_libraries(TinyDIP -lomp)
 target_link_libraries(TinyDIP -lpthread)
-target_link_libraries(TinyDIP PRIVATE TBB::tbb)
+target_link_libraries(TinyDIP tbb)
 if(APPLE)
     # Remove '-Xclang' from global flags
     string(REPLACE "-Xclang" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
