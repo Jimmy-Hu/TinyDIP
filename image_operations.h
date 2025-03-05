@@ -913,13 +913,9 @@ namespace TinyDIP
     template<class ExecutionPolicy, class ElementT, class CountT, class ProbabilityType = double>
     requires((std::floating_point<CountT> || std::integral<CountT>) and
              (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>))
-    constexpr static auto normalize_histogram(ExecutionPolicy execution_policy, const std::map<ElementT, CountT> input)
+    constexpr static auto normalize_histogram(ExecutionPolicy execution_policy, const std::map<ElementT, CountT>& input)
     {
-        CountT sum{};
-        for (const auto& [key, value] : input)
-        {
-            sum += value;
-        }
+        auto sum = sum_second_element(input);
         std::map<ElementT, ProbabilityType> output{};
         for (const auto& [key, value] : input)
         {
