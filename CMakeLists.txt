@@ -60,6 +60,9 @@ if (OPENMP_FOUND)
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
+# TBB part
+find_package(TBB REQUIRED)
+
 # add the executable
 add_executable(TinyDIP main.cpp image_io.cpp)
 add_executable(absTest test/absTest.cpp image_io.cpp)
@@ -137,6 +140,7 @@ endif()
 target_link_libraries(TinyDIP -lm)
 #target_link_libraries(TinyDIP -lomp)
 target_link_libraries(TinyDIP -lpthread)
+target_link_libraries(TinyDIP PRIVATE TBB::tbb)
 if(APPLE)
     # Remove '-Xclang' from global flags
     string(REPLACE "-Xclang" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
