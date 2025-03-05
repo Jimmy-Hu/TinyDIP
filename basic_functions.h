@@ -1818,13 +1818,14 @@ namespace TinyDIP
     }
 
     //  sum_second_element Template Function Implementation
-    template <typename ElementT, typename CountT>
-    constexpr static CountT sum_second_element(const std::vector<std::pair<ElementT, CountT>>& pairs)
+    template <typename FirstT, typename SecondT, class Function = std::plus<SecondT>>
+    requires std::regular_invocable<Function, SecondT, SecondT>
+    constexpr static SecondT sum_second_element(const std::vector<std::pair<FirstT, SecondT>>& pairs, const Function& f = Function{})
     {
-        CountT sum{};
+        SecondT sum{};
         for (auto const& [first, second] : pairs)
         {
-            sum += second;
+            sum = std::invoke(f, sum, second);
         }
         return sum;
     }
