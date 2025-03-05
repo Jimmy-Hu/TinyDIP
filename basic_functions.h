@@ -1843,6 +1843,19 @@ namespace TinyDIP
         return std::reduce(execution_policy, std::ranges::cbegin(first_elements), std::ranges::cend(first_elements), FirstT{}, f);
     }
 
+    // sum_first_element Template Function Implementation
+    template <typename KeyT, typename ValueT, class Function = std::plus<KeyT>>
+    requires(std::regular_invocable<Function, KeyT, KeyT>)
+    constexpr static KeyT sum_first_element(const std::map<KeyT, ValueT>& map, const Function& f = Function{})
+    {
+        KeyT sum{};
+        for (const auto& [key, value] : map)
+        {
+            sum = std::invoke(f, sum, key);
+        }
+        return sum;
+    }
+
     //  sum_second_element Template Function Implementation
     template <typename FirstT, typename SecondT, class Function = std::plus<SecondT>>
     requires(std::regular_invocable<Function, SecondT, SecondT>)
