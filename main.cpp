@@ -15,6 +15,7 @@
 #include "basic_functions.h"
 #include "image_io.h"
 #include "image_operations.h"
+#include "timer.h"
 
 
 //#define BOOST_TEST_DYN_LINK
