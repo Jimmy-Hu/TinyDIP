@@ -1,5 +1,6 @@
 /* Developed by Jimmy Hu */
 #include <chrono>
+#include <filesystem>
 #include <ostream>
 #include "../base_types.h"
 #include "../basic_functions.h"
@@ -28,6 +29,10 @@ int main(int argc, char* argv[])
     if (argc == 2)                                          //  User has specified input file
     {
         image_filename = std::string(argv[1]);
+    }
+    if (!std::filesystem::is_regular_file(image_filename))
+    {
+        throw std::runtime_error("Error: File not found!");
     }
     TinyDIP::Timer timer1;
     auto image_input = TinyDIP::bmp_read(image_filename.c_str(), true);
