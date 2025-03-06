@@ -898,7 +898,7 @@ namespace TinyDIP
     constexpr static auto normalize_histogram(ExecutionPolicy execution_policy, const std::array<ElementT, Count>& input)
     {
         auto sum = std::reduce(execution_policy, std::ranges::cbegin(input), std::ranges::cend(input));
-        return get_normalized_input(input, static_cast<ProbabilityType>(sum));
+        return get_normalized_input(execution_policy, input, static_cast<ProbabilityType>(sum));
     }
 
     //  normalize_histogram template function implementation
