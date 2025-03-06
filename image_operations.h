@@ -1017,6 +1017,17 @@ namespace TinyDIP
         return Image<std::invoke_result_t<F, ElementT, Args...>>(output_vector, input.getSize());
     }
 
+    //  apply_threshold_openmp template function implementation
+    template <typename ElementT>
+    constexpr static auto apply_threshold_openmp(const Image<ElementT>& image, const ElementT threshold)
+    {
+        return apply_each_pixel_openmp(image,
+            [&](const ElementT& each_pixel)
+            {
+                return (each_pixel > threshold) ? std::numeric_limits<ElementT>::max() : std::numeric_limits<ElementT>::lowest();
+            });
+    }
+
     //  apply_each template function implementation
     template<class F, class... Args>
     constexpr static auto apply_each(const Image<RGB>& input, F operation, Args&&... args)
