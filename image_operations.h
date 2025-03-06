@@ -937,7 +937,6 @@ namespace TinyDIP
         ElementT optimalThreshold = 0;
         if constexpr (std::same_as<ElementT, std::uint8_t> || std::same_as<ElementT, std::uint16_t>)
         {
-            #pragma omp parallel for reduction(max:maxVariance) reduction(max:optimalThreshold)
             for (ElementT threshold = 0; threshold < std::numeric_limits<ElementT>::max(); ++threshold)
             {
                 double w_background = 0.0;
@@ -975,7 +974,42 @@ namespace TinyDIP
         }
         else
         {
+            auto probabilityVec = std::vector<std::pair<ElementT const, double>>(std::ranges::cbegin(probabilities), std::ranges::cend(probabilities));
+            for (std::size_t i = 0; i < probabilityVec.size(); ++i)
+            {
+                auto const& [threshold, probability] = probabilityVec[i];
+                double w_background = 0.0;
+                double w_foreground = 0.0;
+                double m_background = 0.0;
+                double m_foreground = 0.0;
 
+                for (std::size_t j = 0; j <= i; ++j)
+                {
+                    w_background += probabilityVec[j].second;
+                    m_background += probabilityVec[j].first * probabilityVec[j].second;
+                }
+                if (w_background != 0)
+                {
+                    m_background /= w_background;
+                }
+
+                for (std::size_t j = i + 1; j < probabilityVec.size(); ++j)
+                {
+                    w_foreground += probabilityVec[j].second;
+                    m_foreground += probabilityVec[j].first * probabilityVec[j].second;
+                }
+                if (w_foreground != 0)
+                {
+                    m_foreground /= w_foreground;
+                }
+
+                double variance = w_background * w_foreground * (m_background - m_foreground) * (m_background - m_foreground);
+                if (variance >= maxVariance)
+                {
+                    maxVariance = variance;
+                    optimalThreshold = threshold;
+                }
+            }
         }
         
         return optimalThreshold;
