@@ -923,15 +923,7 @@ namespace TinyDIP
     {
         return normalize_histogram(std::execution::seq, input);
     }
-
-    //  otsu_threshold template function implementation
-    template <std::integral ElementT>
-    constexpr static auto otsu_threshold(const Image<ElementT>& image)
-    {
-        return otsu_threshold(std::execution::seq, image);
-    }
-
-
+        
     //  otsu_threshold template function implementation (with Execution Policy)
     template <class ExPo, std::integral ElementT>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
@@ -987,6 +979,13 @@ namespace TinyDIP
         }
         
         return optimalThreshold;
+    }
+
+    //  otsu_threshold template function implementation
+    template <std::integral ElementT>
+    constexpr static auto otsu_threshold(const Image<ElementT>& image)
+    {
+        return otsu_threshold(std::execution::seq, image);
     }
 
     //  apply_each_pixel template function implementation
