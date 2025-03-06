@@ -197,6 +197,23 @@ namespace TinyDIP
         return rand<ElementT>(std::mt19937{std::random_device{}()});
     }
 
+    //  randi template function implementation
+    template<std::integral ElementT = int, typename Urbg, std::same_as<std::size_t>... Sizes>
+    requires std::uniform_random_bit_generator<std::remove_reference_t<Urbg>>
+    constexpr static auto randi(Urbg&& urbg, ElementT max, Sizes... sizes)
+    {
+        if constexpr (sizeof...(Sizes) == 1)
+        {
+            return randi(std::forward<Urbg>(urbg), max, sizes..., sizes...);
+        }
+        else
+        {
+            std::vector<ElementT> image_data((... * sizes));
+            auto dist = std::uniform_int_distribution<ElementT>{0, max};
+            std::ranges::generate(image_data, [&dist, &urbg]() { return dist(urbg); });
+            return Image<ElementT>{std::move(image_data), sizes...};
+        }
+    }
     //  conv2 template function implementation
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
