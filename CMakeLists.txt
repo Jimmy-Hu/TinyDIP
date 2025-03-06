@@ -142,6 +142,7 @@ target_link_libraries(TinyDIP -lm)
 #target_link_libraries(TinyDIP -lomp)
 target_link_libraries(TinyDIP -lpthread)
 target_link_libraries(TinyDIP tbb)
+target_link_libraries(histogramTest tbb)
 if(APPLE)
     # Remove '-Xclang' from global flags
     string(REPLACE "-Xclang" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
