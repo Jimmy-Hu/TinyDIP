@@ -55,7 +55,7 @@ constexpr static auto HistogramTest(
 int main()
 {
     TinyDIP::Timer timer1;
-    std::string image_filename = "../InputImages/DiamondWheelTool/1.bmp";
+    std::string image_filename = "../InputImages/1.bmp";
     auto image_input = TinyDIP::bmp_read(image_filename.c_str(), true);
     image_input = TinyDIP::copyResizeBicubic(image_input, 3 * image_input.getWidth(), 3 * image_input.getHeight());
     HistogramTest(std::execution::par, image_input);
