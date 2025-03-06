@@ -17,7 +17,7 @@ constexpr static auto HistogramTest(
 )
 {
     auto hsv_image = TinyDIP::rgb2hsv(execution_policy, input);
-    Timer timer1;
+    TinyDIP::Timer timer1;
     auto histogram_result1 = TinyDIP::histogram(TinyDIP::getVplane(hsv_image));
     os << "*****  std::map Histogram  *****\n";
     for (const auto& [key, value] : histogram_result1 )
@@ -49,22 +49,15 @@ constexpr static auto HistogramTest(
         sum += normalized_histogram2[i];
     }
     os << "sum = " << sum << '\n';
-    auto end1 = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds1 = end1 - start1;
-    os << "elapsed time: " << elapsed_seconds1.count() << '\n';
-    return histogram_result1;
+    return;
 }
 
 int main()
 {
-    auto start = std::chrono::system_clock::now();
+    TinyDIP::Timer timer1;
     std::string image_filename = "../InputImages/DiamondWheelTool/1.bmp";
     auto image_input = TinyDIP::bmp_read(image_filename.c_str(), true);
     image_input = TinyDIP::copyResizeBicubic(image_input, 3 * image_input.getWidth(), 3 * image_input.getHeight());
     HistogramTest(std::execution::par, image_input);
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-    std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
     return EXIT_SUCCESS;
 }
