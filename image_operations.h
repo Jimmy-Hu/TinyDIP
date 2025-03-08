@@ -200,16 +200,16 @@ namespace TinyDIP
     //  randi template function implementation
     template<std::integral ElementT = int, typename Urbg, std::same_as<std::size_t>... Sizes>
     requires std::uniform_random_bit_generator<std::remove_reference_t<Urbg>>
-    constexpr static auto randi(Urbg&& urbg, ElementT max, Sizes... sizes)
+    constexpr static auto randi(Urbg&& urbg, std::pair<ElementT, ElementT> min_and_max, Sizes... sizes)
     {
         if constexpr (sizeof...(Sizes) == 1)
         {
-            return randi(std::forward<Urbg>(urbg), max, sizes..., sizes...);
+            return randi(std::forward<Urbg>(urbg), min_and_max, sizes..., sizes...);
         }
         else
         {
             std::vector<ElementT> image_data((... * sizes));
-            auto dist = std::uniform_int_distribution<ElementT>{0, max};
+            auto dist = std::uniform_int_distribution<ElementT>{ min_and_max.first, min_and_max.second };
             std::ranges::generate(image_data, [&dist, &urbg]() { return dist(urbg); });
             return Image<ElementT>{std::move(image_data), sizes...};
         }
