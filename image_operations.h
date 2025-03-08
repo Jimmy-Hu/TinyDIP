@@ -214,6 +214,14 @@ namespace TinyDIP
             return Image<ElementT>{std::move(image_data), sizes...};
         }
     }
+
+    // randi template function implementation
+    template<std::integral ElementT = int, std::same_as<std::size_t>... Size>
+    inline auto randi(ElementT max, Size... size)
+    {
+        return randi<ElementT>(std::mt19937{std::random_device{}()}, max, size...);
+    }
+
     //  conv2 template function implementation
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
