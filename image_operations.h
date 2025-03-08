@@ -217,9 +217,9 @@ namespace TinyDIP
 
     // randi template function implementation
     template<std::integral ElementT = int, std::same_as<std::size_t>... Size>
-    inline auto randi(ElementT max, Size... size)
+    inline auto randi(std::pair<ElementT, ElementT> min_and_max, Size... size)
     {
-        return randi<ElementT>(std::mt19937{std::random_device{}()}, max, size...);
+        return randi<ElementT>(std::mt19937{std::random_device{}()}, min_and_max, size...);
     }
 
     //  conv2 template function implementation
