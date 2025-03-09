@@ -222,6 +222,13 @@ namespace TinyDIP
         return randi<ElementT>(std::mt19937{std::random_device{}()}, min_and_max, size...);
     }
 
+    // randi template function implementation
+    template<std::integral ElementT = int, std::same_as<std::size_t>... Size>
+    inline auto randi(ElementT max, Size... size)
+    {
+        return randi<ElementT>(std::mt19937{ std::random_device{}() }, std::make_pair(1, max), size...);
+    }
+
     //  conv2 template function implementation
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
