@@ -92,9 +92,10 @@ namespace TinyDIP
             }
         }
 
+        //  Image constructor
         template<std::same_as<std::size_t>... Sizes>
         Image(std::vector<ElementT>&& input, Sizes... sizes):
-            size{sizes...}, image_data(begin(input), end(input))
+            size{sizes...}, image_data(std::move(input))
         {
             if (input.empty())
             {
