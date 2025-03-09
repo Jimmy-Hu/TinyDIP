@@ -81,10 +81,11 @@ namespace TinyDIP
                     ));
         }
 
+        //  Image constructor
         template<std::ranges::input_range Range,
                  std::same_as<std::size_t>... Sizes>
         Image(const Range& input, Sizes... sizes):
-            size{sizes...}, image_data(begin(input), end(input))
+            size{sizes...}, image_data(std::move(input))
         {
             if (image_data.size() != (1 * ... * sizes)) {
                 throw std::runtime_error("Image data input and the given size are mismatched!");
