@@ -153,6 +153,19 @@ namespace TinyDIP
         return output;
     }
 
+    //  generate template function implementation
+    //  https://codereview.stackexchange.com/a/295600/231235
+    template<typename F, std::same_as<std::size_t>... Sizes>
+    requires std::invocable<F&>
+    constexpr static auto generate(F gen, Sizes... sizes)
+    {
+        using ElementT = std::invoke_result_t<F>;
+        std::vector<ElementT> element_vector((... * sizes));
+        std::ranges::generate(element_vector, gen);
+        Image<ElementT> image(element_vector, sizes...);
+        return image;
+    }
+
     //  rand template function implementation
     template<image_element_standard_floating_point_type ElementT = double, typename Urbg, std::same_as<std::size_t>... Sizes>
     requires std::uniform_random_bit_generator<std::remove_reference_t<Urbg>>
