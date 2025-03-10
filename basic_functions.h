@@ -1817,6 +1817,20 @@ namespace TinyDIP
         }
     }
 
+    //  cot Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto cot(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return 1 / std::tan(_input); });
+        }
+        else
+        {
+            return 1 / std::tan(input);
+        }
+    }
+
     //  cot Template Function Implementation (the version with execution policy)
     template<class ExecutionPolicy, typename T>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
