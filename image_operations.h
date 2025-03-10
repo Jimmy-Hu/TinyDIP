@@ -2200,6 +2200,25 @@ namespace TinyDIP
 
     //  euclidean_distance Template Function Implementation for multiple channel image
     template<
+        class ExPo,
+        class ElementT1,
+        class ElementT2,
+        std::size_t Size
+        >
+    constexpr static auto euclidean_distance(
+        ExPo execution_policy,
+        const Image<MultiChannel<ElementT1, Size>>& input1,
+        const Image<MultiChannel<ElementT2, Size>>& input2
+        )
+    {
+        return sqrt(execution_policy, two_input_map_reduce(execution_policy, input1.getImageData(), input2.getImageData(), MultiChannel<double, Size>{},
+            [&](auto&& element1, auto&& element2) {
+                return pow(execution_policy, element1 - element2, 2.0);
+            }));
+    }
+
+    //  euclidean_distance Template Function Implementation for multiple channel image
+    template<
         class ElementT1,
         class ElementT2
         >
