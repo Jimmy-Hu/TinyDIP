@@ -1817,6 +1817,20 @@ namespace TinyDIP
         }
     }
 
+    //  asin Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto asin(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return std::asin(_input); });
+        }
+        else
+        {
+            return std::asin(input);
+        }
+    }
+
     //  asin Template Function Implementation (the version with execution policy)
     template<class ExecutionPolicy, typename T>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
