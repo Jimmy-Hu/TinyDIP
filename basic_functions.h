@@ -1860,6 +1860,20 @@ namespace TinyDIP
         }
     }
 
+    //  atan Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto atan(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return std::atan(_input); });
+        }
+        else
+        {
+            return std::atan(input);
+        }
+    }
+
     //  isnan Template Function Implementation
     template<typename T>
     [[nodiscard]] constexpr static auto isnan(const T& input)
