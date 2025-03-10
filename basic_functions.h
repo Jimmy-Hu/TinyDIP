@@ -1976,6 +1976,20 @@ namespace TinyDIP
         }
     }
 
+    //  isnormal Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto isnormal(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return std::isnormal(_input); });
+        }
+        else
+        {
+            return std::isnormal(input);
+        }
+    }
+
     // sum_first_element Template Function Implementation
     template <typename FirstT, typename SecondT, class Function = std::plus<FirstT>>
     requires(std::regular_invocable<Function, FirstT, FirstT>)
