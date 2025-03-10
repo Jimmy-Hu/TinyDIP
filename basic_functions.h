@@ -1817,6 +1817,20 @@ namespace TinyDIP
         }
     }
 
+    //  isnan Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto isnan(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return std::isnan(_input); });
+        }
+        else
+        {
+            return std::isnan(input);
+        }
+    }
+
     // sum_first_element Template Function Implementation
     template <typename FirstT, typename SecondT, class Function = std::plus<FirstT>>
     requires(std::regular_invocable<Function, FirstT, FirstT>)
