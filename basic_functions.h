@@ -1860,6 +1860,21 @@ namespace TinyDIP
         }
     }
 
+    //  isnan Template Function Implementation (the version with execution policy)
+    template<class ExecutionPolicy, typename T>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    [[nodiscard]] constexpr static auto isnan(ExecutionPolicy&& execution_policy, const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(execution_policy, input, [&](auto&& _input) {return std::isnan(_input); });
+        }
+        else
+        {
+            return std::isnan(input);
+        }
+    }
+
     // sum_first_element Template Function Implementation
     template <typename FirstT, typename SecondT, class Function = std::plus<FirstT>>
     requires(std::regular_invocable<Function, FirstT, FirstT>)
