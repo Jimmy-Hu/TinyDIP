@@ -1817,6 +1817,20 @@ namespace TinyDIP
         }
     }
 
+    //  acos Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto acos(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return std::acos(_input); });
+        }
+        else
+        {
+            return std::acos(input);
+        }
+    }
+
     //  isnan Template Function Implementation
     template<typename T>
     [[nodiscard]] constexpr static auto isnan(const T& input)
