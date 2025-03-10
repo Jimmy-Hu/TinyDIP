@@ -1184,6 +1184,16 @@ namespace TinyDIP
         return constructHSV(Hplane.get(), Splane.get(), Vplane.get());
     }
 
+    //  apply_each template function implementation
+    template<class ElementT, class F, class... Args>
+    constexpr static auto apply_each(const Image<MultiChannel<ElementT>> input1, const Image<MultiChannel<ElementT>> input2, F operation, Args&&... args)
+    {
+        auto plane1 = std::async(std::launch::async, [&] { return std::invoke(operation, getPlane(input1, 0), getPlane(input2, 0), args...); });
+        auto plane2 = std::async(std::launch::async, [&] { return std::invoke(operation, getPlane(input1, 1), getPlane(input2, 1), args...); });
+        auto plane3 = std::async(std::launch::async, [&] { return std::invoke(operation, getPlane(input1, 2), getPlane(input2, 2), args...); });
+        return constructMultiChannel(plane1.get(), plane2.get(), plane3.get());
+    }
+
     //  apply_each_single_output template function implementation
     template<class ElementT, class F, class... Args>
     constexpr static auto apply_each_single_output(const std::size_t channel_count, const Image<ElementT>& input1, const Image<ElementT>& input2, F operation, Args&&... args)
