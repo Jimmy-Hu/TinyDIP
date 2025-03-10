@@ -1889,6 +1889,20 @@ namespace TinyDIP
         }
     }
 
+    //  sinh Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto sinh(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return std::sinh(_input); });
+        }
+        else
+        {
+            return std::sinh(input);
+        }
+    }
+
     //  isnan Template Function Implementation
     template<typename T>
     [[nodiscard]] constexpr static auto isnan(const T& input)
