@@ -122,7 +122,7 @@ namespace TinyDIP
             }
             size.resize(sizes.size());
             std::transform(std::ranges::cbegin(sizes), std::ranges::cend(sizes), std::ranges::begin(size), [&](auto&& element) { return element; });
-            image_data = std::move(input);
+            image_data = input;
             auto count = std::reduce(std::ranges::cbegin(sizes), std::ranges::cend(sizes), 1, std::multiplies());
             if (image_data.size() != count) {
                 throw std::runtime_error("Image data input and the given size are mismatched!");
