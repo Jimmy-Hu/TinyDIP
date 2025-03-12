@@ -1875,6 +1875,20 @@ namespace TinyDIP
         }
     }
 
+    //  csc Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto csc(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return 1 / std::sin(_input); });
+        }
+        else
+        {
+            return 1 / std::sin(input);
+        }
+    }
+
     //  asin Template Function Implementation
     template<typename T>
     [[nodiscard]] constexpr static auto asin(const T& input)
