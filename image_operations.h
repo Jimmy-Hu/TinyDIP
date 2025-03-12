@@ -166,6 +166,20 @@ namespace TinyDIP
         return image;
     }
 
+    //  generate template function implementation
+    template<std::ranges::input_range Sizes, typename F>
+    requires((std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>) and
+             (std::invocable<F&>))
+    constexpr static auto generate(F gen, const Sizes& sizes)
+    {
+        using ElementT = std::invoke_result_t<F>;
+        auto count = std::reduce(std::ranges::cbegin(sizes), std::ranges::cend(sizes), 1, std::multiplies());
+        std::vector<ElementT> element_vector(count);
+        std::ranges::generate(element_vector, gen);
+        Image<ElementT> image(element_vector, sizes);
+        return image;
+    }
+
     //  rand template function implementation
     template<image_element_standard_floating_point_type ElementT = double, typename Urbg, std::same_as<std::size_t>... Sizes>
     requires std::uniform_random_bit_generator<std::remove_reference_t<Urbg>>
