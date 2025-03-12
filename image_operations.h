@@ -154,19 +154,6 @@ namespace TinyDIP
     }
 
     //  generate template function implementation
-    //  https://codereview.stackexchange.com/a/295600/231235
-    template<typename F, std::same_as<std::size_t>... Sizes>
-    requires std::invocable<F&>
-    constexpr static auto generate(F gen, Sizes... sizes)
-    {
-        using ElementT = std::invoke_result_t<F>;
-        std::vector<ElementT> element_vector((... * sizes));
-        std::ranges::generate(element_vector, gen);
-        Image<ElementT> image(element_vector, sizes...);
-        return image;
-    }
-
-    //  generate template function implementation
     template<std::ranges::input_range Sizes, typename F>
     requires((std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>) and
              (std::invocable<F&>))
@@ -178,6 +165,15 @@ namespace TinyDIP
         std::ranges::generate(element_vector, gen);
         Image<ElementT> image(element_vector, sizes);
         return image;
+    }
+
+    //  generate template function implementation
+    //  https://codereview.stackexchange.com/a/295600/231235
+    template<typename F, std::same_as<std::size_t>... Sizes>
+    requires std::invocable<F&>
+    constexpr static auto generate(F gen, Sizes... sizes)
+    {
+        return generate(gen, std::array{sizes...});
     }
 
     //  rand template function implementation
