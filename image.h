@@ -88,8 +88,8 @@ namespace TinyDIP
         //  Image constructor
         template<std::ranges::input_range Range,
                  std::same_as<std::size_t>... Sizes>
-        Image(const Range& input, Sizes... sizes):
-            size{sizes...}, image_data(std::move(input))
+        Image(const Range&& input, Sizes... sizes):
+            size{sizes...}, image_data(std::from_range_t, std::forward<Range>(input))
         {
             if (image_data.size() != (1 * ... * sizes)) {
                 throw std::runtime_error("Image data input and the given size are mismatched!");
