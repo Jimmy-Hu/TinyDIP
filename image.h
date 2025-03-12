@@ -125,23 +125,6 @@ namespace TinyDIP
             }
         }
 
-
-        Image(const std::vector<ElementT>& input, std::size_t newWidth, std::size_t newHeight)
-        {
-            if (input.empty())
-            {
-                throw std::runtime_error("Input vector is empty!");
-            }
-            size.reserve(2);
-            size.emplace_back(newWidth);
-            size.emplace_back(newHeight);
-            if (input.size() != newWidth * newHeight)
-            {
-                throw std::runtime_error("Image data input and the given size are mismatched!");
-            }
-            image_data = std::move(input);              //  Reference: https://stackoverflow.com/a/51706522/6667035
-        }
-
         Image(const std::vector<std::vector<ElementT>>& input)
         {
             if (input.empty())
