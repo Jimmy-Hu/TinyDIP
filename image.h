@@ -125,6 +125,21 @@ namespace TinyDIP
         }
 
         //  Image constructor
+        template<std::same_as<std::size_t>... Sizes>
+        Image(const std::vector<ElementT>& input, Sizes... sizes):
+            size{sizes...}
+        {
+            if (input.empty())
+            {
+                throw std::runtime_error("Input vector is empty!");
+            }
+            image_data = input;
+            if (image_data.size() != (1 * ... * sizes)) {
+                throw std::runtime_error("Image data input and the given size are mismatched!");
+            }
+        }
+
+        //  Image constructor
         template<std::ranges::input_range Sizes>
         requires(std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>)
         Image(const std::vector<ElementT>& input, const Sizes& sizes)
