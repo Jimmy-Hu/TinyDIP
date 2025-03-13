@@ -140,9 +140,9 @@ namespace TinyDIP
         #endif
 
         //  Image constructor
-        template<std::ranges::input_range Sizes>
+        template<std::ranges::input_range Range, std::ranges::input_range Sizes>
         requires(std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>)
-        Image(const std::vector<ElementT>& input, const Sizes& sizes)
+        Image(const Range& input, const Sizes& sizes)
         {
             if (input.empty())
             {
@@ -150,7 +150,7 @@ namespace TinyDIP
             }
             size.resize(sizes.size());
             std::transform(std::ranges::cbegin(sizes), std::ranges::cend(sizes), std::ranges::begin(size), [&](auto&& element) { return element; });
-            image_data = input;
+            image_data = std::vector(std::ranges::cbegin(input), std::ranges::cend(input));
             auto count = std::reduce(std::ranges::cbegin(sizes), std::ranges::cend(sizes), 1, std::multiplies());
             if (image_data.size() != count) {
                 throw std::runtime_error("Image data input and the given size are mismatched!");
