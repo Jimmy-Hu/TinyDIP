@@ -109,19 +109,35 @@ namespace TinyDIP
         #endif
 
         //  Image constructor
-        template<std::same_as<std::size_t>... Sizes>
-        Image(const std::vector<ElementT>& input, Sizes... sizes):
-            size{sizes...}
-        {
-            if (input.empty())
+        #ifdef __cpp_lib_containers_ranges
+            template<std::ranges::input_range Range, std::same_as<std::size_t>... Sizes>
+            Image(const Range& input, Sizes... sizes) :
+                size{ sizes... }
             {
-                throw std::runtime_error("Input vector is empty!");
+                if (input.empty())
+                {
+                    throw std::runtime_error("Input vector is empty!");
+                }
+                image_data = std::vector(std::from_range_t, input);
+                if (image_data.size() != (1 * ... * sizes)) {
+                    throw std::runtime_error("Image data input and the given size are mismatched!");
+                }
             }
-            image_data = input;
-            if (image_data.size() != (1 * ... * sizes)) {
-                throw std::runtime_error("Image data input and the given size are mismatched!");
+        #else
+            template<std::ranges::input_range Range, std::same_as<std::size_t>... Sizes>
+            Image(const Range& input, Sizes... sizes):
+                size{sizes...}
+            {
+                if (input.empty())
+                {
+                    throw std::runtime_error("Input vector is empty!");
+                }
+                image_data = std::vector(input.begin(), input.end());
+                if (image_data.size() != (1 * ... * sizes)) {
+                    throw std::runtime_error("Image data input and the given size are mismatched!");
+                }
             }
-        }
+        #endif
 
         //  Image constructor
         template<std::ranges::input_range Sizes>
