@@ -661,6 +661,19 @@ namespace TinyDIP
         return output;
     }
 
+    //  addChannel template function implementation
+    template<class ElementT, std::size_t channel_count>
+    constexpr static auto addChannel(const Image<MultiChannel<ElementT, channel_count>>& input, const Image<ElementT>& image_plane)
+    {
+        if (input.getSize() != image_plane.getSize())
+        {
+            throw std::runtime_error("Size mismatched!");
+        }
+        auto image_data1 = input.getImageData();
+        auto image_data2 = image_plane.getImageData();
+        return Image<MultiChannel<ElementT, channel_count + 1>>(addChannel(image_data1, image_data2), input.getSize());
+    }
+
     //  constructMultiChannel template function implementation
     template<typename ElementT, std::size_t channel_count = 3>
     constexpr static auto constructMultiChannel(const Image<ElementT>& input1, const Image<ElementT>& input2, const Image<ElementT>& input3)
