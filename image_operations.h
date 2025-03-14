@@ -638,7 +638,7 @@ namespace TinyDIP
     }
 
     //  constructMultiChannel template function implementation
-    template<typename ElementT>
+    template<typename ElementT, std::size_t channel_count = 3>
     constexpr static auto constructMultiChannel(const Image<ElementT>& input1, const Image<ElementT>& input2, const Image<ElementT>& input3)
     {
         check_size_same(input1, input2);
@@ -646,7 +646,7 @@ namespace TinyDIP
         auto image_data1 = input1.getImageData();
         auto image_data2 = input2.getImageData();
         auto image_data3 = input3.getImageData();
-        std::vector<MultiChannel<ElementT>> new_data;
+        std::vector<MultiChannel<ElementT, channel_count>> new_data;
         new_data.resize(input1.count());
         #pragma omp parallel for
         for (std::size_t index = 0; index < input1.count(); ++index)
