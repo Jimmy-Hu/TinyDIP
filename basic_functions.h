@@ -1668,7 +1668,7 @@ namespace TinyDIP
         }
         else
         {
-            return std::pow(input);
+            return std::pow(input, exp);
         }
     }
 
