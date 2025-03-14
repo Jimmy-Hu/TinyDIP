@@ -1637,6 +1637,14 @@ namespace TinyDIP
         return std::array<T, N + 1>{ a[I]..., t };
     }
 
+    //  append Template Function Implementation
+    //  https://stackoverflow.com/a/41398948/6667035
+    template <typename T, std::size_t N>
+    constexpr std::array<T, N + 1> append(std::array<T, N> a, T t)
+    {
+        return append_aux(a, t, std::make_index_sequence<N>());
+    }
+
     //  abs Template Function Implementation
     template<typename T>
     [[nodiscard]] constexpr static auto abs(const T& input)
