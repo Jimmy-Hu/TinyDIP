@@ -253,6 +253,13 @@ namespace TinyDIP
         return randi<ElementT>(std::forward<Urbg>(urbg), std::pair<ElementT, ElementT>{static_cast<ElementT>(1), max});
     }
 
+    // randi template function implementation
+    template<std::integral ElementT = int>
+    inline auto randi(ElementT max)
+    {
+        return randi<ElementT>(std::mt19937{std::random_device{}()}, max);
+    }
+
     //  conv2 template function implementation
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
