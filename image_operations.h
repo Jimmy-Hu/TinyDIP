@@ -181,13 +181,10 @@ namespace TinyDIP
     requires std::uniform_random_bit_generator<std::remove_reference_t<Urbg>>
     constexpr static auto rand(Urbg&& urbg, Sizes... sizes)
     {
-        std::vector<ElementT> image_data((... * sizes));
         //  Reference: https://stackoverflow.com/a/23143753/6667035
         //  Reference: https://codereview.stackexchange.com/a/294739/231235
         auto dist = std::uniform_real_distribution<ElementT>{};
-        std::ranges::generate(image_data, [&dist, &urbg]() { return dist(urbg); });
-
-        return Image<ElementT>{image_data, sizes...};
+        return generate([&dist, &urbg]() { return dist(urbg); }, sizes...);
     }
 
     //  rand template function implementation
