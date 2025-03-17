@@ -26,11 +26,20 @@ void randFunctionTest(
     std::cout << "euclidean_distance of RGBDOUBLEimage1 and RGBDOUBLEimage2: " << '\n';
     std::cout << TinyDIP::euclidean_distance(RGBDOUBLEimage1, RGBDOUBLEimage2) << "\n";
 
+    TinyDIP::MultiChannel<double, 4> multichannel1{1, 2, 3, 4};
     auto MultiChannelImage1 = TinyDIP::Image<TinyDIP::MultiChannel<double, 4>>(sizex, sizey);
-    MultiChannelImage1.setAllValue(TinyDIP::MultiChannel<double, 4>{1, 2, 3, 4});
-    auto MultiChannelImage2 = TinyDIP::Image<TinyDIP::MultiChannel<double, 4>>(sizex, sizey);
-    std::cout << "euclidean_distance of MultiChannelImage1 and MultiChannelImage2: " << '\n';
-    std::cout << TinyDIP::euclidean_distance(MultiChannelImage1, MultiChannelImage2) << "\n";
+    MultiChannelImage1.setAllValue(multichannel1);
+    auto MultiChannelImage2 = 
+        TinyDIP::addChannel(
+            MultiChannelImage1,
+            TinyDIP::multiplies(TinyDIP::ones<double>(sizex, sizey), 5.0),
+            TinyDIP::multiplies(TinyDIP::ones<double>(sizex, sizey), 6.0),
+            TinyDIP::multiplies(TinyDIP::ones<double>(sizex, sizey), 7.0),
+            TinyDIP::multiplies(TinyDIP::ones<double>(sizex, sizey), 8.0)
+        );
+    auto MultiChannelImage3 = TinyDIP::Image<TinyDIP::MultiChannel<double, 8>>(sizex, sizey);
+    std::cout << "euclidean_distance of MultiChannelImage2 and MultiChannelImage3: " << '\n';
+    std::cout << TinyDIP::euclidean_distance(MultiChannelImage2, MultiChannelImage3) << "\n";
 
     using namespace std::complex_literals;
     std::cout << "abs function with TinyDIP::MultiChannel\n";
