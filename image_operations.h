@@ -197,10 +197,10 @@ namespace TinyDIP
     //  rand template function implementation
     template<image_element_standard_floating_point_type ElementT = double, typename Urbg>
     requires std::uniform_random_bit_generator<std::remove_reference_t<Urbg>>
-    constexpr auto rand(Urbg&& urbg) -> ElementT
+    constexpr auto rand(Urbg&& urbg)
     {
         auto dist = std::uniform_real_distribution<ElementT>{};
-        return dist(urbg);
+        return Image<ElementT>(std::vector{ dist(urbg) }, 1, 1);
     }
 
     //  rand template function implementation
