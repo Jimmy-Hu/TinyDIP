@@ -718,6 +718,14 @@ namespace TinyDIP
         return output;
     }
 
+    //  constructMultiChannel template function implementation
+    template<typename ElementT, typename... Args>
+    requires(is_Image<Args>::value && ...)
+    constexpr static auto constructMultiChannel(const Image<ElementT>& input1, const Image<ElementT>& input2, const Image<ElementT>& input3, const Args... images)
+    {
+        return addChannel(constructMultiChannel(input1, input2, input3), images...);
+    }
+
     //  convert_image template function implementation
     //  Reference: https://codereview.stackexchange.com/a/292847/231235
     template<typename DstT, typename SrcT>
