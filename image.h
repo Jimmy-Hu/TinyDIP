@@ -661,8 +661,11 @@ namespace TinyDIP
 
     };
 
-    template<typename T, typename ElementT>
-    concept is_Image = std::is_same_v<T, Image<ElementT>>;
+    template <typename T>
+    struct is_Image : std::false_type {};
+
+    template <typename T>
+    struct is_Image<Image<T>> : std::true_type {};
 }
 
 
