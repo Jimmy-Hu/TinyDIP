@@ -73,14 +73,19 @@ constexpr auto load_dictionary( const std::string_view dictionary_path = "Dictio
     return output;
 }
 
-template<std::floating_point ElementT = double>
-constexpr static auto averageIntraEuclideanDistances(const std::vector<TinyDIP::Image<ElementT>>& input, std::size_t index)
+template<class ExecutionPolicy, std::floating_point ElementT = double>
+requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+constexpr static auto averageIntraEuclideanDistances(
+    ExecutionPolicy&& execution_policy,
+    const std::vector<TinyDIP::Image<ElementT>>& input,
+    std::size_t index
+)
 {
     ElementT result{};
     std::size_t count{};
     for (std::size_t i = index + 1; i < input.size(); ++i)
     {
-        result += TinyDIP::euclidean_distance(std::execution::par, input[index], input[i]);
+        result += TinyDIP::euclidean_distance(execution_policy, input[index], input[i]);
         ++count;
     }
     return result / static_cast<ElementT>(count);
@@ -90,7 +95,7 @@ constexpr static auto averageIntraEuclideanDistances(const std::vector<TinyDIP::
 void rainDictionaryAnalysis(
                 const std::string& output_folder = ".",
                 const std::string& dictionary_path = "Dictionary",
-                const std::size_t dic_start_index = 80, const std::size_t dic_end_index = 100,
+                const std::size_t dic_start_index = 80, const std::size_t dic_end_index = 99,
                 const std::size_t N1 = 8, const std::size_t N2 = 8) noexcept
 {
     std::cout << "rainDictionaryAnalysis program..." << '\n';
@@ -103,7 +108,7 @@ void rainDictionaryAnalysis(
     #pragma omp parallel for
     for (std::size_t i = 0; i < index_upper_bound; ++i)
     {
-        results[i] = averageIntraEuclideanDistances(dictionary_x, i);
+        results[i] = averageIntraEuclideanDistances(std::execution::par, dictionary_x, i);
     }
     std::cout << std::format("{}\n", TinyDIP::arithmetic_mean(results));
     return;
