@@ -708,13 +708,13 @@ namespace TinyDIP
         #pragma omp parallel for
         for (std::size_t index = 0; index < input1.count(); ++index)
         {
-            MultiChannel<ElementT> output_element 
+            MultiChannel<ElementT, channel_count> output_element 
                     {   image_data1[index],
                         image_data2[index],
                         image_data3[index]};
             new_data[index] = output_element;
         }
-        Image<MultiChannel<ElementT>> output(new_data, input1.getSize());
+        Image<MultiChannel<ElementT, channel_count>> output(new_data, input1.getSize());
         return output;
     }
 
