@@ -688,6 +688,7 @@ namespace TinyDIP
 
     //  addChannel template function implementation
     template<class ElementT, std::size_t channel_count, typename... Args>
+    requires(is_Image<Args>::value && ...)
     constexpr static auto addChannel(const Image<MultiChannel<ElementT, channel_count>>& input, const Image<ElementT>& image_plane, const Args... images)
     {
         return addChannel(addChannel(input, image_plane), images...);
