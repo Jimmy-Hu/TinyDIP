@@ -1695,11 +1695,11 @@ namespace TinyDIP
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel(execution_policy, input, [&](auto&& _input, auto&& input_exp) {return std::pow(_input, input_exp); }, exp);
+            return apply_multichannel(execution_policy, input, [&](auto&& _input, auto&& input_exp) {return pow(_input, input_exp); }, exp);
         }
         else
         {
-            return std::pow(input);
+            return std::pow(input, exp);
         }
     }
     
