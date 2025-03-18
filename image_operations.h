@@ -797,6 +797,10 @@ namespace TinyDIP
     template<std::size_t channel_count = 3, class T>
     constexpr static auto getPlane(const Image<MultiChannel<T, channel_count>>& input, std::size_t index)
     {
+        if (index >= channel_count)
+        {
+            throw std::runtime_error("Error: index must be less than channel_count.");
+        }
         auto input_data = input.getImageData();
         std::vector<T> output_data;
         output_data.resize(input.count());
