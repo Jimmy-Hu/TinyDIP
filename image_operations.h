@@ -1230,7 +1230,16 @@ namespace TinyDIP
         auto Hplane = std::async(std::launch::async, [&] { return std::invoke(operation, getHplane(input), args...); });
         auto Splane = std::async(std::launch::async, [&] { return std::invoke(operation, getSplane(input), args...); });
         auto Vplane = std::async(std::launch::async, [&] { return std::invoke(operation, getVplane(input), args...); });
-        return constructHSV(Hplane.get(), Splane.get(), Vplane.get());
+        if constexpr ((std::is_same<Image<double>, decltype(Hplane.get())>::value) and
+                      (std::is_same<Image<double>, decltype(Splane.get())>::value) and
+                      (std::is_same<Image<double>, decltype(Vplane.get())>::value))
+        {
+            return constructHSV(Hplane.get(), Splane.get(), Vplane.get());
+        }
+        else
+        {
+            return constructMultiChannel(Hplane.get(), Splane.get(), Vplane.get());
+        }
     }
 
     //  apply_each template function implementation
