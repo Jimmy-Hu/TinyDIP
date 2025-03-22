@@ -173,7 +173,7 @@ namespace TinyDIP
     requires std::invocable<F&>
     constexpr static auto generate(F gen, Sizes... sizes)
     {
-        return generate(gen, std::array{sizes...});
+        return generate(gen, std::array<std::size_t, sizeof...(Sizes)>{sizes...});
     }
 
     //  rand template function implementation
