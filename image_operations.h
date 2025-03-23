@@ -987,7 +987,7 @@ namespace TinyDIP
     template<class ExPo, class ElementT, std::size_t Count, class ProbabilityType = double>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto get_normalized_input(
-        ExPo execution_policy,
+        ExPo&& execution_policy,
         const std::array<ElementT, Count>& input,
         const ProbabilityType& sum)
     {
