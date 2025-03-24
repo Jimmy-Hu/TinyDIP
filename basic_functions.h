@@ -2094,6 +2094,20 @@ namespace TinyDIP
         }
     }
 
+    //  isinf Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto isinf(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return std::isinf(_input); });
+        }
+        else
+        {
+            return std::isinf(input);
+        }
+    }
+
     //  isinf Template Function Implementation (the version with execution policy)
     template<class ExecutionPolicy, typename T>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
