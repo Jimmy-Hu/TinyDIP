@@ -96,6 +96,24 @@ constexpr static auto averageIntraEuclideanDistances(
     return result / static_cast<ElementT>(count);
 }
 
+//  fullAverageIntraEuclideanDistances Template Function Implementation
+template<class ExecutionPolicy, std::floating_point ElementT = double>
+requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+constexpr static auto fullAverageIntraEuclideanDistances(
+    ExecutionPolicy&& execution_policy,
+    const std::vector<TinyDIP::Image<ElementT>>& input
+)
+{
+    std::vector<double> results(input.size());
+    auto index_upper_bound = input.size() - 1;
+    #pragma omp parallel for
+    for (std::size_t i = 0; i < index_upper_bound; ++i)
+    {
+        results[i] = averageIntraEuclideanDistances(execution_policy, input, i);
+    }
+    return TinyDIP::arithmetic_mean(results);
+}
+
 //    rainDictionaryAnalysis Template Function Implementation
 void rainDictionaryAnalysis(
                 const std::string& output_folder = ".",
