@@ -126,14 +126,12 @@ void rainDictionaryAnalysis(
     auto dictionary = load_dictionary(dictionary_path, dic_start_index, dic_end_index, N1, N2);
     auto dictionary_x = std::get<0>(dictionary);
     auto dictionary_y = std::get<1>(dictionary);
-    std::vector<double> results(dictionary_x.size());
-    auto index_upper_bound = dictionary_x.size() - 1;
-    #pragma omp parallel for
-    for (std::size_t i = 0; i < index_upper_bound; ++i)
-    {
-        results[i] = averageIntraEuclideanDistances(std::execution::par, dictionary_x, i);
-    }
-    std::cout << std::format("{}\n", TinyDIP::arithmetic_mean(results));
+    std::cout << std::format("Average intra-Euclidean distances for x set: {}\n", 
+        fullAverageIntraEuclideanDistances(std::execution::par, dictionary_x)
+        );
+    std::cout << std::format("Average intra-Euclidean distances for y set: {}\n",
+        fullAverageIntraEuclideanDistances(std::execution::par, dictionary_y)
+    );
     return;
 }
 
