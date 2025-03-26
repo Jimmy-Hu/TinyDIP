@@ -28,16 +28,16 @@ void randFunctionTest(
 
     auto MultiChannelImage1 =
         TinyDIP::constructMultiChannel(
-            TinyDIP::multiplies(TinyDIP::ones<double>(sizex, sizey), 1.0),
-            TinyDIP::multiplies(TinyDIP::ones<double>(sizex, sizey), 2.0),
-            TinyDIP::multiplies(TinyDIP::ones<double>(sizex, sizey), 3.0),
-            TinyDIP::multiplies(TinyDIP::ones<double>(sizex, sizey), 4.0),
-            TinyDIP::multiplies(TinyDIP::ones<double>(sizex, sizey), 5.0),
-            TinyDIP::multiplies(TinyDIP::ones<double>(sizex, sizey), 6.0),
-            TinyDIP::multiplies(TinyDIP::ones<double>(sizex, sizey), 7.0),
-            TinyDIP::multiplies(TinyDIP::ones<double>(sizex, sizey), 8.0)
+            TinyDIP::multiplies(TinyDIP::ones<std::complex<double>>(sizex, sizey), std::complex<double>{ 1.0, 1.0 }),
+            TinyDIP::multiplies(TinyDIP::ones<std::complex<double>>(sizex, sizey), std::complex<double>{ 2.0, 2.0 }),
+            TinyDIP::multiplies(TinyDIP::ones<std::complex<double>>(sizex, sizey), std::complex<double>{ 3.0, 3.0 }),
+            TinyDIP::multiplies(TinyDIP::ones<std::complex<double>>(sizex, sizey), std::complex<double>{ 4.0, 4.0 }),
+            TinyDIP::multiplies(TinyDIP::ones<std::complex<double>>(sizex, sizey), std::complex<double>{ 5.0, 5.0 }),
+            TinyDIP::multiplies(TinyDIP::ones<std::complex<double>>(sizex, sizey), std::complex<double>{ 6.0, 6.0 }),
+            TinyDIP::multiplies(TinyDIP::ones<std::complex<double>>(sizex, sizey), std::complex<double>{ 7.0, 7.0 }),
+            TinyDIP::multiplies(TinyDIP::ones<std::complex<double>>(sizex, sizey), std::complex<double>{ 8.0, 8.0 })
         );
-    auto MultiChannelImage2 = TinyDIP::Image<TinyDIP::MultiChannel<double, 8>>(sizex, sizey);
+    auto MultiChannelImage2 = TinyDIP::Image<TinyDIP::MultiChannel<std::complex<double>, 8>>(sizex, sizey);
     std::cout << "euclidean_distance of MultiChannelImage1 and MultiChannelImage2: " << '\n';
     std::cout << TinyDIP::euclidean_distance(MultiChannelImage1, MultiChannelImage2) << "\n";
 
