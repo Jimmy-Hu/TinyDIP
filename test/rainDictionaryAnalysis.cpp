@@ -90,7 +90,7 @@ constexpr static auto averageIntraEuclideanDistances(
     std::size_t count{};
     for (std::size_t i = index + 1; i < input.size(); ++i)
     {
-        result += TinyDIP::euclidean_distance(execution_policy, input[index], input[i]);
+        result += TinyDIP::euclidean_distance(std::forward<ExecutionPolicy>(execution_policy), input[index], input[i]);
         ++count;
     }
     return result / static_cast<ElementT>(count);
