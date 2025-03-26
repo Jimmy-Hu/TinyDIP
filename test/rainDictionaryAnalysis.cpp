@@ -109,7 +109,7 @@ constexpr static auto fullAverageIntraEuclideanDistances(
     #pragma omp parallel for
     for (std::size_t i = 0; i < index_upper_bound; ++i)
     {
-        results[i] = averageIntraEuclideanDistances(execution_policy, input, i);
+        results[i] = averageIntraEuclideanDistances(std::forward<ExecutionPolicy>(execution_policy), input, i);
     }
     return TinyDIP::arithmetic_mean(results);
 }
