@@ -695,6 +695,21 @@ namespace TinyDIP
     }
 
     //  constructMultiChannel template function implementation
+    template<typename ElementT, std::size_t channel_count = 1>
+    constexpr static auto constructMultiChannel(const Image<ElementT>& input1)
+    {
+        auto image_data1 = input1.getImageData();
+        std::vector<MultiChannel<ElementT, channel_count>> new_data;
+        new_data.resize(input1.count());
+        for (std::size_t index = 0; index < input1.count(); ++index)
+        {
+            new_data[index] = MultiChannel<ElementT, channel_count>{ image_data1[index] };
+        }
+        Image<MultiChannel<ElementT, channel_count>> output(new_data, input1.getSize());
+        return output;
+    }
+
+    //  constructMultiChannel template function implementation
     template<typename ElementT, std::size_t channel_count = 3>
     constexpr static auto constructMultiChannel(const Image<ElementT>& input1, const Image<ElementT>& input2, const Image<ElementT>& input3)
     {
