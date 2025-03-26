@@ -2332,7 +2332,7 @@ namespace TinyDIP
         const Image<MultiChannel<ElementT2, Size>>& input2
         )
     {
-        return sqrt(execution_policy, two_input_map_reduce(execution_policy, input1.getImageData(), input2.getImageData(), MultiChannel<double, Size>{},
+        return sqrt(execution_policy, two_input_map_reduce(execution_policy, input1.getImageData(), input2.getImageData(), MultiChannel<ElementT1, Size>{},
             [&](auto&& element1, auto&& element2) {
                 return pow(execution_policy, element1 - element2, 2.0);
             }));
