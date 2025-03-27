@@ -2123,6 +2123,20 @@ namespace TinyDIP
         }
     }
 
+    //  acosh Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto acosh(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return acosh(_input); });
+        }
+        else
+        {
+            return std::acosh(input);
+        }
+    }
+
     //  isinf Template Function Implementation
     template<typename T>
     [[nodiscard]] constexpr static auto isinf(const T& input)
