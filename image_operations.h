@@ -1275,6 +1275,17 @@ namespace TinyDIP
         }
     }
 
+    //  apply_each_impl template function implementation
+    // Helper function implementation using index_sequence
+    template<class ElementT, std::size_t Channels, class F, class... Args, std::size_t... Is>
+    constexpr static auto apply_each_impl(const Image<MultiChannel<ElementT, Channels>>& input, F operation, Args&&... args, std::index_sequence<Is...>) {
+        return constructMultiChannel(
+            std::async(std::launch::async, [&] {
+                return std::invoke(operation, getPlane(input, Is), std::forward<Args>(args)...);
+                }).get()...
+                    );
+    }
+
     //  apply_each template function implementation
     template<class ElementT, class F, class... Args>
     constexpr static auto apply_each(const Image<MultiChannel<ElementT, 3>>& input, F operation, Args&&... args)
