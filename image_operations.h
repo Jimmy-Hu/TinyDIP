@@ -913,20 +913,13 @@ namespace TinyDIP
     template<class ElementT = int>
     constexpr static auto histogram(const Image<ElementT>& input)
     {
-        std::map<ElementT, std::size_t> histogram_output{};
+        Histogram<ElementT> output;
         auto image_data = input.getImageData();
         for (std::size_t i = 0; i < image_data.size(); ++i)
         {
-            if (histogram_output.contains(image_data[i]))
-            {
-                ++histogram_output[image_data[i]];
-            }
-            else
-            {
-                histogram_output.emplace(image_data[i], std::size_t{ 1 });
-            }
+            output.addCount(image_data[i]);
         }
-        return histogram_output;
+        return output;
     }
 
     //  histogram_normalized template function implementation
