@@ -8,6 +8,7 @@
 #include <print>
 #endif
 #include <utility>
+#include "image.h"
 
 namespace TinyDIP
 {
