@@ -24,11 +24,12 @@ namespace TinyDIP
             histogram = input;
         }
 
+        //  getCount member function
         constexpr std::size_t getCount(const ElementT& input)
         {
-            if (histogram.contains(input))
+            if (auto search = histogram.find(input); search != histogram.end())
             {
-                return histogram.at(input);
+                return search->second;
             }
             else
             {
