@@ -1271,6 +1271,13 @@ namespace TinyDIP
     }
 
     //  apply_each template function implementation
+    template<class ElementT, std::size_t Channels, class F, class... Args>
+    constexpr static auto apply_each(const Image<MultiChannel<ElementT, Channels>>& input, F operation, Args&&... args)
+    {
+        return apply_each_impl(input, operation, std::forward<Args>(args)..., std::make_index_sequence<Channels>{});
+    }
+
+    //  apply_each template function implementation
     template<class ElementT, class F, class... Args>
     constexpr static auto apply_each(const Image<MultiChannel<ElementT, 3>>& input, F operation, Args&&... args)
     {
