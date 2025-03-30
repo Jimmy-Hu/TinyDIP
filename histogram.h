@@ -4,7 +4,9 @@
 #include <chrono>
 #include <iostream>
 #include <map>
+#ifdef __cpp_lib_print
 #include <print>
+#endif
 #include <utility>
 
 namespace TinyDIP
