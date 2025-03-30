@@ -58,16 +58,10 @@ namespace TinyDIP
             return output;
         }
 
+        //  addCount member function
         constexpr Histogram& addCount(const ElementT& input)
         {
-            if (histogram.contains(input))
-            {
-                ++histogram[input];
-            }
-            else
-            {
-                histogram.emplace(input, std::size_t{ 1 });
-            }
+            ++histogram[input];
             return *this;
         }
 
