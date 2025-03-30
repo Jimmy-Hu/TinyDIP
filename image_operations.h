@@ -914,12 +914,7 @@ namespace TinyDIP
     template<class ElementT = int>
     constexpr static auto histogram(const Image<ElementT>& input)
     {
-        Histogram<ElementT> output;
-        auto image_data = input.getImageData();
-        for (std::size_t i = 0; i < image_data.size(); ++i)
-        {
-            output.addCount(image_data[i]);
-        }
+        Histogram<ElementT> output(input);
         return output;
     }
 
