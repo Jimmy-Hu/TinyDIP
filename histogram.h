@@ -36,6 +36,17 @@ namespace TinyDIP
             }
         }
 
+        //  getCountSum member function
+        constexpr std::size_t getCountSum()
+        {
+            std::size_t output{};
+            for (const auto& [key, value] : histogram)
+            {
+                output += value;
+            }
+            return output;
+        }
+
         constexpr Histogram& addCount(const ElementT& input)
         {
             if (histogram.contains(input))
