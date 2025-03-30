@@ -17,38 +17,26 @@ constexpr static auto HistogramTest(
 )
 {
     auto hsv_image = TinyDIP::rgb2hsv(execution_policy, input);
+    auto v_plane = TinyDIP::getVplane(hsv_image);
     TinyDIP::Timer timer1;
-    auto histogram_result1 = TinyDIP::histogram(TinyDIP::getVplane(hsv_image));
-    os << "*****  std::map Histogram  *****\n";
-    for (const auto& [key, value] : histogram_result1 )
-    {
-        os << "key = " << key << ", value = " << value << '\n';
-    }
-    os << "*****  Normalized std::map Histogram  *****\n";
-    auto normalized_histogram1 = TinyDIP::normalize_histogram(histogram_result1);
+    os << "*****  histogram of the image  *****\n";
+    auto histogram_result = TinyDIP::histogram(v_plane);
     double sum = 0.0;
-    for (const auto& [key, value] : normalized_histogram1)
+    for (const auto& [key, value] : histogram_result)
     {
         os << "key = " << key << ", value = " << value << '\n';
         sum += value;
     }
     os << "sum = " << sum << '\n';
     os << "-------------------------------------------------------\n";
-    auto histogram_result2 = TinyDIP::histogram(TinyDIP::im2uint8(TinyDIP::getVplane(hsv_image)));
-    os << "*****  std::array Histogram  *****\n";
-    for (std::size_t i = 0; i < histogram_result2.size(); ++i)
+    auto histogram_with_bins_output =
+        TinyDIP::histogram_with_bins(v_plane, 0.0, 255.0);
+    os << "*****  histogram_with_bins Results  *****\n";
+    for (std::size_t i = 0; i < histogram_with_bins_output.size(); i++)
     {
-        std::cout << i << " count = " << histogram_result2[i] << '\n';
+        os << "Bin index = " << i << " Value = " << histogram_with_bins_output[i] << "\n";
     }
-    auto normalized_histogram2 = TinyDIP::normalize_histogram(execution_policy, histogram_result2);
-    os << "*****  Normalized std::array Histogram  *****\n";
-    sum = 0.0;
-    for (std::size_t i = 0; i < normalized_histogram2.size(); ++i)
-    {
-        std::cout << i << " count = " << normalized_histogram2[i] << '\n';
-        sum += normalized_histogram2[i];
-    }
-    os << "sum = " << sum << '\n';
+    
     return;
 }
 
