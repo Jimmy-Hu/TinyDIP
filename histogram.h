@@ -24,6 +24,16 @@ namespace TinyDIP
             histogram = input;
         }
 
+        //  Histogram constructor
+        Histogram(const Image<ElementT>& input)
+        {
+            auto image_data = input.getImageData();
+            for (std::size_t i = 0; i < image_data.size(); ++i)
+            {
+                addCount(image_data[i]);
+            }
+        }
+
         //  getCount member function
         constexpr std::size_t getCount(const ElementT& input)
         {
