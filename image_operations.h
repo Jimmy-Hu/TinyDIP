@@ -1061,7 +1061,7 @@ namespace TinyDIP
         ExPo execution_policy,
         const Image<ElementT>& image)
     {
-        auto probabilities = normalize_histogram(execution_policy, histogram(image));
+        auto probabilities = histogram(image).normalize();
 
         double maxVariance = 0.0;
         ElementT optimalThreshold = 0;
