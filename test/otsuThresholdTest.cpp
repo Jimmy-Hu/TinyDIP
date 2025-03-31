@@ -4,6 +4,7 @@
 #include <ostream>
 #include "../base_types.h"
 #include "../basic_functions.h"
+#include "../histogram.h"
 #include "../image.h"
 #include "../image_io.h"
 #include "../image_operations.h"
