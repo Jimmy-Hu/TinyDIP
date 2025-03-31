@@ -12,15 +12,15 @@
 
 namespace TinyDIP
 {
-    template<class ElementT>
+    template<class ElementT, class CountT = std::size_t>
     class Histogram
     {
     private:
-        std::map<ElementT, std::size_t> histogram;
+        std::map<ElementT, CountT> histogram;
     public:
         Histogram() = default;
 
-        Histogram(const std::map<ElementT, std::size_t>& input)
+        Histogram(const std::map<ElementT, CountT>& input)
         {
             histogram = input;
         }
@@ -66,9 +66,21 @@ namespace TinyDIP
             return *this;
         }
 
-        using iterator = typename std::map<ElementT, std::size_t>::iterator;
+        template<class ProbabilityType = double>
+        constexpr Histogram<ElementT, ProbabilityType> normalize()
+        {
+            std::map<ElementT, ProbabilityType> output;
+            auto count_sum = static_cast<ProbabilityType>(getCountSum());
+            for (const auto& [key, value] : histogram)
+            {
+                output.emplace(key, static_cast<ProbabilityType>(value) / count_sum);
+            }
+            return Histogram<ElementT, ProbabilityType>{output};
+        }
+
+        using iterator = typename std::map<ElementT, CountT>::iterator;
         using const_iterator =
-            typename std::map<ElementT, std::size_t>::const_iterator;
+            typename std::map<ElementT, CountT>::const_iterator;
 
         const_iterator cbegin() const { return histogram.cbegin(); }
         const_iterator cend() const { return histogram.cend(); }
