@@ -8,6 +8,8 @@
 #include <print>
 #endif
 #include <utility>
+#include <variant>
+#include <vector>
 #include "image.h"
 
 namespace TinyDIP
@@ -16,7 +18,7 @@ namespace TinyDIP
     class Histogram
     {
     private:
-        std::map<ElementT, CountT> histogram;
+        std::variant<std::vector<CountT>, std::map<ElementT, CountT>> histogram;
     public:
         Histogram() = default;
 
@@ -25,9 +27,19 @@ namespace TinyDIP
             histogram = input;
         }
 
+        Histogram(const std::vector<CountT>& input)
+        {
+            histogram = input;
+        }
+
         //  Histogram constructor
         Histogram(const Image<ElementT>& input)
         {
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
+                            (std::same_as<ElementT, std::uint16_t>))
+            {
+                histogram = std::vector<CountT>(std::numeric_limits<ElementT>::max() + 1);
+            }
             auto image_data = input.getImageData();
             for (std::size_t i = 0; i < image_data.size(); ++i)
             {
@@ -38,13 +50,22 @@ namespace TinyDIP
         //  getCount member function
         constexpr std::size_t getCount(const ElementT& input)
         {
-            if (auto search = histogram.find(input); search != histogram.end())
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
+                            (std::same_as<ElementT, std::uint16_t>))
             {
-                return search->second;
+                return std::get<std::vector<CountT>>(histogram).at(input);
             }
             else
             {
-                return std::size_t{ 0 };
+                if (auto search = std::get<std::map<ElementT, CountT>>(histogram).find(input);
+                    search != std::get<std::map<ElementT, CountT>>(histogram).end())
+                {
+                    return search->second;
+                }
+                else
+                {
+                    return std::size_t{ 0 };
+                }
             }
         }
 
@@ -52,70 +73,261 @@ namespace TinyDIP
         constexpr std::size_t getCountSum()
         {
             std::size_t output{};
-            for (const auto& [key, value] : histogram)
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
+                            (std::same_as<ElementT, std::uint16_t>))
             {
-                output += value;
+                auto get_result = std::get<std::vector<CountT>>(histogram);
+                for (std::size_t i = 0; i < get_result.size(); i++)
+                {
+                    output += get_result[i];
+                }
+                return output;
             }
-            return output;
+            else
+            {
+                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                for (const auto& [key, value] : get_result)
+                {
+                    output += value;
+                }
+                return output;
+            }
         }
 
         //  addCount member function
         constexpr Histogram& addCount(const ElementT& input)
         {
-            ++histogram[input];
-            return *this;
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
+                            (std::same_as<ElementT, std::uint16_t>))
+            {
+                auto get_result = std::get<std::vector<CountT>>(histogram);
+                ++get_result[input];
+                histogram = get_result;
+                return *this;
+            }
+            else
+            {
+                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                ++get_result[input];
+                histogram = get_result;
+                return *this;
+            }
+            
         }
 
         template<class ProbabilityType = double>
         constexpr Histogram<ElementT, ProbabilityType> normalize()
         {
-            std::map<ElementT, ProbabilityType> output;
             auto count_sum = static_cast<ProbabilityType>(getCountSum());
-            for (const auto& [key, value] : histogram)
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
+                            (std::same_as<ElementT, std::uint16_t>))
             {
-                output.emplace(key, static_cast<ProbabilityType>(value) / count_sum);
+                std::vector<ProbabilityType> output(std::numeric_limits<ElementT>::max() + 1);
+                auto get_result = std::get<std::vector<CountT>>(histogram);
+                for (std::size_t i = 0; i < get_result.size(); i++)
+                {
+                    output[i] = static_cast<ProbabilityType>(get_result[i]) / count_sum;
+                }
+                return Histogram<ElementT, ProbabilityType>{output};
             }
-            return Histogram<ElementT, ProbabilityType>{output};
+            else
+            {
+                std::map<ElementT, ProbabilityType> output;
+                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                for (const auto& [key, value] : get_result)
+                {
+                    output.emplace(key, static_cast<ProbabilityType>(value) / count_sum);
+                }
+                return Histogram<ElementT, ProbabilityType>{output};
+            }
         }
 
-        using iterator = typename std::map<ElementT, CountT>::iterator;
-        using const_iterator =
-            typename std::map<ElementT, CountT>::const_iterator;
-
-        const_iterator cbegin() const { return histogram.cbegin(); }
-        const_iterator cend() const { return histogram.cend(); }
-        const_iterator begin() const { return histogram.cbegin(); }
-        const_iterator end() const { return histogram.cend(); }
-        iterator begin() { return histogram.begin(); }
-        iterator end() { return histogram.end(); }
+        auto cbegin() const 
+        {
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
+                            (std::same_as<ElementT, std::uint16_t>))
+            {
+                auto get_result = std::get<std::vector<CountT>>(histogram);
+                return get_result.cbegin();
+            }
+            else
+            {
+                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                return get_result.cbegin();
+            }
+        }
+        auto cend() const
+        {
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
+                            (std::same_as<ElementT, std::uint16_t>))
+            {
+                auto get_result = std::get<std::vector<CountT>>(histogram);
+                return get_result.cend();
+            }
+            else
+            {
+                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                return get_result.cend();
+            }
+        }
+        auto begin() const
+        {
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
+                            (std::same_as<ElementT, std::uint16_t>))
+            {
+                auto get_result = std::get<std::vector<CountT>>(histogram);
+                return get_result.cbegin();
+            }
+            else
+            {
+                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                return get_result.cbegin();
+            }
+        }
+        auto end() const
+        {
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
+                            (std::same_as<ElementT, std::uint16_t>))
+            {
+                auto get_result = std::get<std::vector<CountT>>(histogram);
+                return get_result.cend();
+            }
+            else
+            {
+                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                return get_result.cend();
+            }
+        }
+        auto begin()
+        {
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
+                            (std::same_as<ElementT, std::uint16_t>))
+            {
+                auto get_result = std::get<std::vector<CountT>>(histogram);
+                return get_result.begin();
+            }
+            else
+            {
+                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                return get_result.begin();
+            }
+        }
+        auto end()
+        {
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
+                            (std::same_as<ElementT, std::uint16_t>))
+            {
+                auto get_result = std::get<std::vector<CountT>>(histogram);
+                return get_result.end();
+            }
+            else
+            {
+                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                return get_result.end();
+            }
+        }
 
         // + operator to add two Histograms
         Histogram operator+(const Histogram& other) const
         {
-            Histogram result = *this;
-            for (const auto& [key, value] : other.histogram)
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
+                            (std::same_as<ElementT, std::uint16_t>))
             {
-                result.histogram[key] += value;
+                auto get_result = std::get<std::vector<CountT>>(histogram);
+                auto get_result_other = std::get<std::vector<CountT>>(other.histogram);
+                if (get_result.size() != get_result_other.size())
+                {
+                    throw std::runtime_error("Size mismatched!");
+                }
+                for (std::size_t i = 0; i < get_result.size(); i++)
+                {
+                    get_result[i] += get_result_other[i];
+                }
+                histogram = get_result;
+                return *this;
             }
-            return result;
+            else
+            {
+                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                auto get_result_other = std::get<std::map<ElementT, CountT>>(other.histogram);
+                for (const auto& [key, value] : get_result_other)
+                {
+                    get_result[key] += value;
+                }
+                histogram = get_result;
+                return *this;
+            }
         }
 
         // - operator to subtract two Histograms
         Histogram operator-(const Histogram& other) const
         {
-            Histogram result = *this;
-            for (const auto& [key, value] : other.histogram) {
-                if (result.histogram.contains(key)) {
-                    if (result.histogram[key] >= value) {
-                        result.histogram[key] -= value;
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) ||
+                            (std::same_as<ElementT, std::uint16_t>))
+            {
+                auto get_result = std::get<std::vector<CountT>>(histogram);
+                auto get_result_other = std::get<std::vector<CountT>>(other.histogram);
+                if (get_result.size() != get_result_other.size())
+                {
+                    throw std::runtime_error("Size mismatched!");
+                }
+                std::vector<CountT> result_data = get_result;
+                for (std::size_t i = 0; i < result_data.size(); i++)
+                {
+                    if (result_data[i] >= get_result_other[i])
+                    {
+                        result_data[i] -= get_result_other[i];
                     }
-                    else {
-                        result.histogram[key] = 0;
+                    else
+                    {
+                        result_data[i] = 0;
                     }
                 }
+                return Histogram<ElementT, CountT>{ result_data };
             }
-            return result;
+            else {
+                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                auto get_result_other = std::get<std::map<ElementT, CountT>>(other.histogram);
+                std::map<ElementT, CountT> result_data = get_result;
+                for (const auto& [key, value] : get_result_other)
+                {
+                    if (result_data.contains(key))
+                    {
+                        if (result_data.at(key) >= value)
+                        {
+                            result_data[key] -= value;
+                        }
+                        else
+                        {
+                            result_data[key] = 0;
+                        }
+                    }
+                }
+                return Histogram<ElementT, CountT>{ result_data };
+            }
         }
+
+        // operator[] to access and modify counts
+        CountT& operator[](const ElementT& key)
+        {
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) ||
+                            (std::same_as<ElementT, std::uint16_t>))
+            {
+                auto get_result = std::get<std::vector<CountT>>(histogram);
+                if (static_cast<std::size_t>(key) >=
+                    get_result.size())
+                {
+                    std::cerr << "key = " << +key << '\n';
+                    throw std::out_of_range("Index out of range");
+                }
+                return get_result[key];
+            }
+            else
+            {
+                return std::get<std::map<ElementT, CountT>>(histogram)[key];
+            }
+        }
+        
     };
 }
 
