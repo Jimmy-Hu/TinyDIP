@@ -77,7 +77,7 @@ namespace TinyDIP
                             (std::same_as<ElementT, std::uint16_t>))
             {
                 auto get_result = std::get<std::vector<CountT>>(histogram);
-                for (std::size_t i = 0; i < get_result.size(); i++)
+                for (std::size_t i = 0; i < get_result.size(); ++i)
                 {
                     output += get_result[i];
                 }
@@ -124,7 +124,7 @@ namespace TinyDIP
             {
                 std::vector<ProbabilityType> output(std::numeric_limits<ElementT>::max() + 1);
                 auto get_result = std::get<std::vector<CountT>>(histogram);
-                for (std::size_t i = 0; i < get_result.size(); i++)
+                for (std::size_t i = 0; i < get_result.size(); ++i)
                 {
                     output[i] = static_cast<ProbabilityType>(get_result[i]) / count_sum;
                 }
