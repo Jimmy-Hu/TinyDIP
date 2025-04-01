@@ -21,7 +21,7 @@ constexpr static auto otsuThresholdTest(
     auto hsv_image = TinyDIP::rgb2hsv(execution_policy, input);
     TinyDIP::Timer timer1;
     auto unit8_image = TinyDIP::im2uint8(TinyDIP::getVplane(hsv_image));
-    return TinyDIP::apply_threshold_openmp(unit8_image, TinyDIP::otsu_threshold(execution_policy, unit8_image));
+    return TinyDIP::apply_threshold_openmp(unit8_image, static_cast<TinyDIP::GrayScale>(TinyDIP::otsu_threshold(execution_policy, unit8_image)));
 }
 
 int main(int argc, char* argv[])
