@@ -1110,6 +1110,14 @@ namespace TinyDIP
         return otsu_threshold(execution_policy, Histogram<ElementT>(input).to_probabilities_vector());
     }
 
+    //  otsu_threshold template function implementation
+    template<class ElementT>
+    constexpr static auto otsu_threshold(
+        const Image<ElementT>& input)
+    {
+        return otsu_threshold(std::execution::seq, Histogram<ElementT>(input).to_probabilities_vector());
+    }
+
     //  apply_each_pixel template function implementation
     template<class ExPo, class ElementT, class F, class... Args>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
