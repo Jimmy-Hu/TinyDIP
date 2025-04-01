@@ -1094,10 +1094,10 @@ namespace TinyDIP
     }
 
     //  otsu_threshold template function implementation
-    template <std::integral ElementT>
-    constexpr static auto otsu_threshold(const Image<ElementT>& image)
+    template <class ElementT>
+    constexpr static auto otsu_threshold(const std::vector<ElementT>& histogram)
     {
-        return otsu_threshold(std::execution::seq, image);
+        return otsu_threshold(std::execution::seq, histogram);
     }
 
     //  apply_each_pixel template function implementation
