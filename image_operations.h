@@ -1055,94 +1055,42 @@ namespace TinyDIP
     }
         
     //  otsu_threshold template function implementation (with Execution Policy)
-    template <class ExPo, std::integral ElementT>
+    template <class ExPo, class ElementT, class FloatingType = double>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto otsu_threshold(
         ExPo execution_policy,
-        const Image<ElementT>& image)
+        const std::vector<ElementT>& histogram)
     {
-        auto probabilities = histogram(image).normalize();
-
-        double maxVariance = 0.0;
-        ElementT optimalThreshold = 0;
-        if constexpr (std::same_as<ElementT, std::uint8_t> || std::same_as<ElementT, std::uint16_t>)
+        FloatingType w1{};
+        FloatingType w2{};
+        FloatingType m1{};
+        FloatingType m2{};
+        for (std::size_t ii = 0; ii < histogram.size(); ++ii)
         {
-            for (ElementT threshold = 0; threshold < std::numeric_limits<ElementT>::max(); ++threshold)
+            w2 += static_cast<FloatingType>(histogram[ii]);
+            m2 += static_cast<FloatingType>(histogram[ii]) * static_cast<FloatingType>(ii);
+        }
+        FloatingType ssMax = -1e6;
+        std::size_t maxInd{};
+        for (std::size_t ii = 0; ii < histogram.size(); ++ii)
+        {
+            FloatingType tmp = static_cast<FloatingType>(histogram[ii]);
+            w1 += tmp;
+            w2 -= tmp;
+            tmp *= static_cast<FloatingType>(ii);
+            m1 += tmp;
+            m2 -= tmp;
+            FloatingType c1 = m1 / w1;
+            FloatingType c2 = m2 / w2;
+            FloatingType c = c1 - c2;
+            FloatingType ss = w1 * w2 * c * c;
+            if (ss > ssMax)
             {
-                double w_background = 0.0;
-                double w_foreground = 0.0;
-                double m_background = 0.0;
-                double m_foreground = 0.0;
-
-                for (std::size_t i = 0; i <= threshold; ++i)
-                {
-                    w_background += probabilities[i];
-                    m_background += i * probabilities[i];
-                }
-                if (w_background != 0)
-                {
-                    m_background /= w_background;
-                }
-
-                for (std::size_t i = threshold + 1; i <= std::numeric_limits<ElementT>::max(); ++i)
-                {
-                    w_foreground += probabilities[i];
-                    m_foreground += i * probabilities[i];
-                }
-                if (w_foreground != 0)
-                {
-                    m_foreground /= w_foreground;
-                }
-
-                double variance = w_background * w_foreground * (m_background - m_foreground) * (m_background - m_foreground);
-                if (variance > maxVariance)
-                {
-                    maxVariance = variance;
-                    optimalThreshold = threshold;
-                }
+                ssMax = ss;
+                maxInd = ii;
             }
         }
-        else
-        {
-            auto probabilityVec = std::vector<std::pair<ElementT const, double>>(std::ranges::cbegin(probabilities), std::ranges::cend(probabilities));
-            for (std::size_t i = 0; i < probabilityVec.size(); ++i)
-            {
-                auto const& [threshold, probability] = probabilityVec[i];
-                double w_background = 0.0;
-                double w_foreground = 0.0;
-                double m_background = 0.0;
-                double m_foreground = 0.0;
-
-                for (std::size_t j = 0; j <= i; ++j)
-                {
-                    w_background += probabilityVec[j].second;
-                    m_background += probabilityVec[j].first * probabilityVec[j].second;
-                }
-                if (w_background != 0)
-                {
-                    m_background /= w_background;
-                }
-
-                for (std::size_t j = i + 1; j < probabilityVec.size(); ++j)
-                {
-                    w_foreground += probabilityVec[j].second;
-                    m_foreground += probabilityVec[j].first * probabilityVec[j].second;
-                }
-                if (w_foreground != 0)
-                {
-                    m_foreground /= w_foreground;
-                }
-
-                double variance = w_background * w_foreground * (m_background - m_foreground) * (m_background - m_foreground);
-                if (variance >= maxVariance)
-                {
-                    maxVariance = variance;
-                    optimalThreshold = threshold;
-                }
-            }
-        }
-        
-        return optimalThreshold;
+        return (ssMax == -1e6) ? histogram.size() : maxInd;
     }
 
     //  otsu_threshold template function implementation
