@@ -48,7 +48,7 @@ namespace TinyDIP
         }
 
         //  getCount member function
-        constexpr std::size_t getCount(const ElementT& input)
+        constexpr std::size_t getCount(const ElementT& input) const
         {
             if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
                             (std::same_as<ElementT, std::uint16_t>))
@@ -70,7 +70,7 @@ namespace TinyDIP
         }
 
         //  getCountSum member function
-        constexpr std::size_t getCountSum()
+        constexpr std::size_t getCountSum() const
         {
             std::size_t output{};
             if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
@@ -140,6 +140,58 @@ namespace TinyDIP
                 }
                 return Histogram<ElementT, ProbabilityType>{output};
             }
+        }
+
+        constexpr auto size() const
+        {
+            if constexpr (  std::same_as<ElementT, std::uint8_t> ||
+                            std::same_as<ElementT, std::uint16_t>)
+            {
+                auto get_result = std::get<std::vector<CountT>>(histogram);
+                return get_result.size();
+            }
+            else
+            {
+                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                return get_result.size();
+            }
+        }
+
+        template<class FloatingType = double>
+        constexpr std::vector<FloatingType> to_probabilities_vector() const
+        {
+            std::vector<FloatingType> probabilities;
+            if constexpr (  std::same_as<ElementT, std::uint8_t> ||
+                            std::same_as<ElementT, std::uint16_t>)
+            {
+                probabilities.resize(std::numeric_limits<ElementT>::max() + 1);
+                std::size_t total_count = std::accumulate(
+                    std::get<std::vector<CountT>>(histogram).begin(),
+                    std::get<std::vector<CountT>>(histogram).end(), 0ULL);
+                for (std::size_t i = 0; i < probabilities.size(); ++i)
+                {
+                    probabilities[i] =
+                        static_cast<FloatingType>(getCount(static_cast<ElementT>(i))) /
+                        static_cast<FloatingType>(total_count);
+                }
+            }
+            else {
+                std::vector<std::pair<ElementT, double>> probability_vector(size());
+                auto total_count = getCountSum();
+                for (const auto& [key, value] : *this)
+                {
+                    probability_vector.emplace_back(
+                        { key, static_cast<FloatingType>(value) / static_cast<FloatingType>(total_count) });
+                }
+                std::sort(probability_vector.begin(), probability_vector.end(),
+                    [](const auto& a, const auto& b) { return a.first < b.first; });
+                probabilities.resize(probability_vector.back().first + 1, 0.0);
+                for (const auto& pair : probability_vector)
+                {
+                    probabilities[pair.first] = pair.second;
+                }
+            }
+            return probabilities;
         }
 
         auto cbegin() const 
