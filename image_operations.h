@@ -1243,10 +1243,11 @@ namespace TinyDIP
     template<class ElementT, class F, class... Args>
     constexpr static auto apply_each(const Image<MultiChannel<ElementT, 3>>& input, F operation, Args&&... args)
     {
-        auto plane1 = std::async(std::launch::async, [&] { return std::invoke(operation, getPlane(input, 0), args...); });
-        auto plane2 = std::async(std::launch::async, [&] { return std::invoke(operation, getPlane(input, 1), args...); });
-        auto plane3 = std::async(std::launch::async, [&] { return std::invoke(operation, getPlane(input, 2), args...); });
-        return constructMultiChannel(plane1.get(), plane2.get(), plane3.get());
+        return constructMultiChannel(
+            std::async(std::launch::async, [&] { return std::invoke(operation, getPlane(input, 0), args...); }).get(),
+            std::async(std::launch::async, [&] { return std::invoke(operation, getPlane(input, 1), args...); }).get(),
+            std::async(std::launch::async, [&] { return std::invoke(operation, getPlane(input, 2), args...); }).get()
+        );
     }
 
     //  apply_each template function implementation
