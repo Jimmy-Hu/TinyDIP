@@ -1298,8 +1298,7 @@ namespace TinyDIP
         output.reserve(channel_count);
         for (std::size_t channel_index = 0; channel_index < channel_count; ++channel_index)
         {
-            auto plane_result = std::async(std::launch::async, [&] { return std::invoke(operation, getPlane(input1, channel_index), getPlane(input2, channel_index), args...); });
-            output.emplace_back(plane_result.get());
+            output.emplace_back(std::invoke(operation, getPlane(input1, channel_index), getPlane(input2, channel_index), args...));
         }
         return output;
     }
