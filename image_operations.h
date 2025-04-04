@@ -2162,7 +2162,7 @@ namespace TinyDIP
 
     //  abs template function implementation
     template<class InputT>
-    requires((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>))
+    requires((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>) || is_MultiChannel<InputT>::value)
     constexpr static auto abs(const Image<InputT>& input)
     {
         return apply_each(input, [&](auto&& planes) { return abs(planes); });
