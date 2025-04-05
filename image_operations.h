@@ -2331,6 +2331,14 @@ namespace TinyDIP
         return pixelwiseOperation(execution_policy, [&](auto&& element) { return std::pow(element, exp); }, input);
     }
 
+    //  pow template function implementation
+    template<class InputT, arithmetic ExpT = double>
+    requires((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>) || is_MultiChannel<InputT>::value)
+    constexpr static auto pow(const Image<InputT>& input, ExpT exp)
+    {
+        return apply_each(input, [&](auto&& planes) { return pow(planes, exp); });
+    }
+
     //  sum template function implementation
     template<typename ElementT = double, typename F = std::plus<std::common_type_t<ElementT, ElementT>>>
     requires(std::regular_invocable<F, ElementT, ElementT>)
