@@ -2222,6 +2222,21 @@ namespace TinyDIP
         return std::sqrt(std::inner_product(diff.begin(), diff.end(), diff.begin(), OutputT{}));
     }
 
+    //  euclidean_distance Template Function Implementation (with Execution Policy)
+    template<
+        arithmetic OutputT = double,
+        class ExPo,
+        typename T,
+        std::size_t N
+    >
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static OutputT euclidean_distance(ExPo execution_policy, const std::array<T, N>& p1, const std::array<T, N>& p2)
+    {
+        std::array<OutputT, N> diff;
+        std::transform(execution_policy, p1.begin(), p1.end(), p2.begin(), diff.begin(), std::minus<OutputT>());
+        return std::sqrt(std::inner_product(diff.begin(), diff.end(), diff.begin(), OutputT{}));
+    }
+
     //  euclidean_distance Template Function Implementation
     template<
         arithmetic OutputT = double,
