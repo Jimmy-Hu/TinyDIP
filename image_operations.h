@@ -3457,7 +3457,7 @@ namespace TinyDIP
             {
                 throw std::runtime_error("Size error!");
             }
-            auto center_pixel = input2.at(1, 1);
+            auto center_pixel = input2.at(static_cast<std::size_t>(1), static_cast<std::size_t>(1));
             auto input2_img_data = input2.getImageData();
             input2_img_data.erase(input2_img_data.begin() + 4);                         //  https://stackoverflow.com/a/875117/6667035
             if (std::abs(center_pixel) > threshold)
