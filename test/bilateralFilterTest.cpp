@@ -30,10 +30,15 @@ int main(int argc, char* argv[])
     {
         auto input_path = std::string(argv[1]);
         auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
-        
+        auto output_img = TinyDIP::bilateral_filter(
+            std::execution::seq,
+            input_img,
+            20,
+            [](double input) { return TinyDIP::normalDistribution1D(input, 3.0); },
+            [](double input) { return TinyDIP::normalDistribution1D(input, 3.0); });
         auto output_path = std::string(argv[2]);
         std::cout << "Save output to " << output_path << '\n';
-        TinyDIP::bmp_write(output_path.c_str(), input_img);
+        TinyDIP::bmp_write(output_path.c_str(), output_img);
     }
     else
     {
