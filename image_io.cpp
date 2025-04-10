@@ -9,12 +9,12 @@ namespace TinyDIP
     {
         auto output = Image<RGB>(xsize, ysize);  
         unsigned char FillingByte = bmp_filling_byte_calc(xsize);
-        for(int y = 0; y < ysize; y++)
+        for(std::size_t y = 0; y < ysize; ++y)
         {
-            for(int x = 0; x < xsize; x++)
+            for(std::size_t x = 0; x < xsize; ++x)
             {
-                for (int color = 0; color < 3; color++) {
-                    output.at(x, y).channels[color] =
+                for (std::size_t color = 0; color < 3; ++color) {
+                    output.at(static_cast<std::size_t>(x), static_cast<std::size_t>(y)).channels[color] =
                         image[3 * (y * xsize + x) + y * FillingByte + (2 - color)];
                 }
             }
@@ -315,7 +315,7 @@ namespace TinyDIP
             {
                 for (int color = 0; color < 3; color++) {
                     output[3 * (y * xsize + x) + y * FillingByte + (2 - color)]
-                    = input.at(x, y).channels[color];
+                    = input.at(static_cast<std::size_t>(x), static_cast<std::size_t>(y)).channels[color];
                 }
             }
         }
@@ -349,7 +349,7 @@ namespace TinyDIP
                 for (int x = 0; x < xsize; x++)
                 {
                     output[(y * xsize + x) + y * FillingByte]
-                        = input.at(x, y);
+                        = input.at(static_cast<std::size_t>(x), static_cast<std::size_t>(y));
                 }
             }
             return output;
@@ -447,7 +447,7 @@ namespace TinyDIP
             {
                 for (int x = 0; x < OriginSizeX; x++)
                 {
-                    output.at(x, y) =
+                    output.at(static_cast<std::size_t>(x), static_cast<std::size_t>(y)) =
                         image[(y * OriginSizeX + x) + y * FillingByte];
                 }
             }
@@ -475,7 +475,7 @@ namespace TinyDIP
                 {
                     for (int channel_index = 0; channel_index < 3; channel_index++) {
                         output[3 * (y * xsize + x) + y * FillingByte + (2 - channel_index)]
-                            = input.at(x, y).channels[channel_index];
+                            = input.at(static_cast<std::size_t>(x), static_cast<std::size_t>(y)).channels[channel_index];
                     }
                 }
             }
@@ -576,7 +576,7 @@ namespace TinyDIP
             for (int x = 0; x < OriginSizeX; x++)
             {
                 for (int channel_index = 0; channel_index < 3; channel_index++) {
-                    output.at(x, y).channels[channel_index] =
+                    output.at(static_cast<std::size_t>(x), static_cast<std::size_t>(y)).channels[channel_index] =
                         image[3 * (y * OriginSizeX + x) + y * filling_bytes + (2 - channel_index)];
                 }
             }
