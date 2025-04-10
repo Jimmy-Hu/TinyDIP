@@ -265,10 +265,10 @@ namespace TinyDIP
     {
         Image<ElementT> output(x.getWidth() + y.getWidth() - 1, x.getHeight() + y.getHeight() - 1);
         for (std::size_t y1 = 0; y1 < x.getHeight(); ++y1) {
-            auto* x_row = &(x.at(0, y1));
+            auto* x_row = &(x.at(std::size_t{ 0 }, y1));
             for (std::size_t y2 = 0; y2 < y.getHeight(); ++y2) {
-                auto* y_row = &(y.at(0, y2));
-                auto* out_row = &(output.at(0, y1 + y2));
+                auto* y_row = &(y.at(std::size_t{ 0 }, y2));
+                auto* out_row = &(output.at(std::size_t{ 0 }, y1 + y2));
                 for (std::size_t x1 = 0; x1 < x.getWidth(); ++x1) {
                     for (std::size_t x2 = 0; x2 < y.getWidth(); ++x2) {
                         out_row[x1 + x2] += x_row[x1] * y_row[x2];
