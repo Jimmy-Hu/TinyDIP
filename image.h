@@ -211,7 +211,8 @@ namespace TinyDIP
             return const_cast<ElementT&>(static_cast<const Image &>(*this).at_without_boundary_check(indexInput...));
         }
 
-        template<typename... Args>
+        //  at_without_boundary_check template function implementation
+        template<std::same_as<std::size_t>... Args>
         constexpr ElementT const& at_without_boundary_check(const Args... indexInput) const
         {
             std::size_t i = 0;
