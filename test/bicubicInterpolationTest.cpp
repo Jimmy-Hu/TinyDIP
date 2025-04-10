@@ -22,7 +22,7 @@ void bicubicInterpolationTest(
     image1.setAllValue(init_val);
     std::cout << "Width: " + std::to_string(image1.getWidth()) + "\n";
     std::cout << "Height: " + std::to_string(image1.getHeight()) + "\n";
-    image1.at(1, 1) = 100;
+    image1.at(static_cast<std::size_t>(1), static_cast<std::size_t>(1)) = 100;
     image1.print();
 
     auto image2 = TinyDIP::copyResizeBicubic(image1, new_sizex, new_sizey);
