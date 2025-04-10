@@ -1675,8 +1675,8 @@ namespace TinyDIP
                     for (int ndatax = -1; ndatax <= 2; ++ndatax)
                     {
                         ndata[(ndatay + 1) * 4 + (ndatax + 1)] = image.at(
-                            std::clamp(xMappingToOriginFloor + ndatax, static_cast<FloatingType>(0), static_cast<FloatingType>(image.getWidth()) - static_cast<FloatingType>(1)), 
-                            std::clamp(yMappingToOriginFloor + ndatay, static_cast<FloatingType>(0), static_cast<FloatingType>(image.getHeight()) - static_cast<FloatingType>(1)));
+                            static_cast<std::size_t>(std::clamp(xMappingToOriginFloor + ndatax, static_cast<FloatingType>(0), static_cast<FloatingType>(image.getWidth()) - static_cast<FloatingType>(1))),
+                            static_cast<std::size_t>(std::clamp(yMappingToOriginFloor + ndatay, static_cast<FloatingType>(0), static_cast<FloatingType>(image.getHeight()) - static_cast<FloatingType>(1))));
                     }
                     
                 }
