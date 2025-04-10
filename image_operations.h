@@ -1619,8 +1619,9 @@ namespace TinyDIP
         return std::exp(-x * x / (2 * standard_deviation * standard_deviation));
     }
 
-    template<typename T>
-    T normalDistribution2D(const T xlocation, const T ylocation, const T standard_deviation)
+    //  normalDistribution2D template function implementation
+    template<typename T = double>
+    constexpr static auto normalDistribution2D(const T xlocation, const T ylocation, const T standard_deviation)
     {
         return std::exp(-(xlocation * xlocation + ylocation * ylocation) / (2 * standard_deviation * standard_deviation)) / (2 * std::numbers::pi * standard_deviation * standard_deviation);
     }
