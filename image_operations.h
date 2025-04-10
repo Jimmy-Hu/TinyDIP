@@ -3117,7 +3117,7 @@ namespace TinyDIP
         }
         Image<ElementT> temp(width_expansion, height_expansion);
         //  Left-top corner
-        temp.setAllValue(input.at(0, 0));
+        temp.setAllValue(input.at(static_cast<std::size_t>(0), static_cast<std::size_t>(0)));
         output = paste2D(
             execution_policy,
             output,
@@ -3126,7 +3126,7 @@ namespace TinyDIP
             0,
             default_value);
         //  Right-top corner
-        temp.setAllValue(input.at(input.getWidth() - 1, 0));
+        temp.setAllValue(input.at(input.getWidth() - static_cast<std::size_t>(1), static_cast<std::size_t>(0)));
         output = paste2D(
             execution_policy,
             output,
@@ -3135,7 +3135,7 @@ namespace TinyDIP
             0,
             default_value);
         //  Left-bottom corner
-        temp.setAllValue(input.at(0, input.getHeight() - 1));
+        temp.setAllValue(input.at(static_cast<std::size_t>(0), input.getHeight() - static_cast<std::size_t>(1)));
         output = paste2D(
             execution_policy,
             output,
@@ -3144,7 +3144,7 @@ namespace TinyDIP
             height_expansion + input.getHeight(),
             default_value);
         //  Right-bottom corner
-        temp.setAllValue(input.at(input.getWidth() - 1, input.getHeight() - 1));
+        temp.setAllValue(input.at(input.getWidth() - static_cast<std::size_t>(1), input.getHeight() - static_cast<std::size_t>(1)));
         output = paste2D(
             execution_policy,
             output,
