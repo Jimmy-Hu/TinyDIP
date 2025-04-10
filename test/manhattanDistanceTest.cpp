@@ -21,7 +21,7 @@ void manhattanDistanceTest()
 	assert(actual == expected);
 
 	auto test_input2 = test_input;
-	test_input2.at(1, 1) = test_input2.at(1, 1) + 1;
+	test_input2.at(static_cast<std::size_t>(1), static_cast<std::size_t>(1)) = test_input2.at(static_cast<std::size_t>(1), static_cast<std::size_t>(1)) + 1;
 	expected = 1;
 	actual = TinyDIP::manhattan_distance(test_input, test_input2);
 	std::string message = "expected: " + std::to_string(expected) + ",\tactual:" + std::to_string(actual) + '\n';
