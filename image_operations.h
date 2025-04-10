@@ -1612,8 +1612,9 @@ namespace TinyDIP
         return concat_vertical(result1);
     }
 
-    template<typename T>
-    T normalDistribution1D(const T x, const T standard_deviation)
+    //  normalDistribution1D template function implementation
+    template<typename T = double>
+    constexpr static auto normalDistribution1D(const T x, const T standard_deviation)
     {
         return std::exp(-x * x / (2 * standard_deviation * standard_deviation));
     }
