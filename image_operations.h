@@ -3487,11 +3487,11 @@ namespace TinyDIP
             )
         {
             //  Calculate the gradient at the keypoint (x, y)
-            ElementT first_derivative_x = (input.at(2, 1) - input.at(0, 1)) / 2.0;
-            ElementT first_derivative_y = (input.at(1, 2) - input.at(1, 0)) / 2.0;
-            ElementT second_derivative_x = (input.at(2, 1) + input.at(0, 1) - 2.0 * input.at(1, 1));
-            ElementT second_derivative_y = (input.at(1, 2) + input.at(1, 0) - 2.0 * input.at(1, 1));
-            ElementT second_derivative_xy = (input.at(2, 2) - input.at(2, 0) - input.at(0, 2) + input.at(0, 0)) / 4.0;
+            ElementT first_derivative_x = (input.at(std::size_t{ 2 }, std::size_t{ 1 }) - input.at(std::size_t{ 0 }, std::size_t{ 1 })) / 2.0;
+            ElementT first_derivative_y = (input.at(std::size_t{ 1 }, std::size_t{ 2 }) - input.at(std::size_t{ 1 }, std::size_t{ 0 })) / 2.0;
+            ElementT second_derivative_x = (input.at(std::size_t{ 2 }, std::size_t{ 1 }) + input.at(std::size_t{ 0 }, std::size_t{ 1 }) - 2.0 * input.at(std::size_t{ 1 }, std::size_t{ 1 }));
+            ElementT second_derivative_y = (input.at(std::size_t{ 1 }, std::size{ 2 }) + input.at(std::size_t{ 1 }, std::size_t{ 0 }) - 2.0 * input.at(std::size_t{ 1 }, std::size_t{ 1 }));
+            ElementT second_derivative_xy = (input.at(std::size_t{ 2 }, std::size_t{ 2 }) - input.at(std::size_t{ 2 }, std::size_t{ 0 }) - input.at(std::size_t{ 0 }, std::size_t{ 2 }) + input.at(std::size_t{ 0 }, std::size_t{ 0 })) / 4.0;
             ElementT A = -second_derivative_x / (second_derivative_x * second_derivative_y - second_derivative_xy * second_derivative_xy);
             ElementT B = second_derivative_xy / (second_derivative_x * second_derivative_y - second_derivative_xy * second_derivative_xy);
             ElementT C = B;
