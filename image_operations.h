@@ -1706,7 +1706,7 @@ namespace TinyDIP
         auto row_vector = Image<InputT>(size, std::size_t{1});
         for (std::size_t x = 0; x < size; ++x)
         {
-            row_vector.at(x, 0) = normalDistribution1D(static_cast<InputT>(x) - static_cast<InputT>(center), standard_deviation);
+            row_vector.at(x, static_cast<std::size_t>(0)) = normalDistribution1D(static_cast<InputT>(x) - static_cast<InputT>(center), standard_deviation);
         }
         return row_vector;
     }
