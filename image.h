@@ -182,7 +182,7 @@ namespace TinyDIP
 
         //  at template function implementation
         //  Reference: https://codereview.stackexchange.com/a/288736/231235
-        template<typename... Args>
+        template<std::same_as<std::size_t>... Args>
         constexpr ElementT const& at(const Args... indexInput) const
         {
             checkBoundary(indexInput...);
