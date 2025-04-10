@@ -1728,7 +1728,7 @@ namespace TinyDIP
         {
             for (std::size_t x = 0; x < xsize; ++x)
             {
-                output.at(x, y) = row_vector_x.at(x, 0) * row_vector_y.at(y, 0);
+                output.at(x, y) = row_vector_x.at(x, static_cast<std::size_t>(0)) * row_vector_y.at(y, static_cast<std::size_t>(0));
             }
         }
         return output;
