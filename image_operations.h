@@ -1666,23 +1666,23 @@ namespace TinyDIP
 
     //  copyResizeBicubic template function implementation
     template<class FloatingType = float, arithmetic ElementT>
-    constexpr static Image<ElementT> copyResizeBicubic(Image<ElementT>& image, std::size_t width, std::size_t height)
+    constexpr static Image<ElementT> copyResizeBicubic(const Image<ElementT>& image, const std::size_t width, const std::size_t height)
     {
         Image<ElementT> output(width, height);
         //  get used to the C++ way of casting
-        auto ratiox = static_cast<FloatingType>(image.getWidth()) / static_cast<FloatingType>(width);
-        auto ratioy = static_cast<FloatingType>(image.getHeight()) / static_cast<FloatingType>(height);
+        const auto ratiox = static_cast<FloatingType>(image.getWidth()) / static_cast<FloatingType>(width);
+        const auto ratioy = static_cast<FloatingType>(image.getHeight()) / static_cast<FloatingType>(height);
         #pragma omp parallel for collapse(2)
         for (std::size_t y = 0; y < height; ++y)
         {
             for (std::size_t x = 0; x < width; ++x)
             {
-                FloatingType xMappingToOrigin = static_cast<FloatingType>(x) * ratiox;
-                FloatingType yMappingToOrigin = static_cast<FloatingType>(y) * ratioy;
-                FloatingType xMappingToOriginFloor = std::floor(xMappingToOrigin);
-                FloatingType yMappingToOriginFloor = std::floor(yMappingToOrigin);
-                FloatingType xMappingToOriginFrac = xMappingToOrigin - xMappingToOriginFloor;
-                FloatingType yMappingToOriginFrac = yMappingToOrigin - yMappingToOriginFloor;
+                const FloatingType xMappingToOrigin = static_cast<FloatingType>(x) * ratiox;
+                const FloatingType yMappingToOrigin = static_cast<FloatingType>(y) * ratioy;
+                const FloatingType xMappingToOriginFloor = std::floor(xMappingToOrigin);
+                const FloatingType yMappingToOriginFloor = std::floor(yMappingToOrigin);
+                const FloatingType xMappingToOriginFrac = xMappingToOrigin - xMappingToOriginFloor;
+                const FloatingType yMappingToOriginFrac = yMappingToOrigin - yMappingToOriginFloor;
                 
                 ElementT ndata[4 * 4];
                 for (int ndatay = -1; ndatay <= 2; ++ndatay)
