@@ -3302,8 +3302,8 @@ namespace TinyDIP
     requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
     constexpr static auto difference_of_gaussian(
         const Image<ElementT>& input,
-        SigmaT sigma1,
-        SigmaT sigma2)
+        const SigmaT sigma1,
+        const SigmaT sigma2)
     {
         return subtract(
             imgaussfilt(input, sigma1, static_cast<int>(computeFilterSizeFromSigma(sigma1))),
