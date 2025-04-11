@@ -3782,14 +3782,63 @@ namespace TinyDIP
         }
 
         //  get_keypoint_descriptor template function implementation
-        template<typename ElementT>
+        template<typename ElementT, class FloatingType = double>
         requires((std::floating_point<ElementT> || std::integral<ElementT>))
         constexpr static auto get_keypoint_descriptor(
             const Image<ElementT>& input,
-            std::tuple<std::size_t, std::size_t> keypoint_location,
-            std::size_t block_size = 8
+            const std::tuple<std::size_t, std::size_t>& keypoint_location,
+            const std::size_t block_size = 8
         )
         {
+            //  Calculate Gradient Magnitudes and Orientations for 16x16 neighborhood
+            Image<std::tuple<FloatingType, FloatingType>> pixel_orientations(block_size * 2, block_size * 2);
+            const auto center_x = std::get<0>(keypoint_location);
+            const auto center_y = std::get<1>(keypoint_location);
+            for (std::size_t y = center_y - block_size; y < center_y + block_size; ++y)
+            {
+                for (std::size_t x = center_x - block_size; x < center_x + block_size; ++x)
+                {
+                    if (x >= input.getWidth() || y >= input.getHeight())
+                    {
+                        continue;
+                    }
+                    pixel_orientations.at(x - center_x + block_size, y - center_y + block_size) =
+                        compute_each_pixel_orientation<ElementT, FloatingType>(subimage(input, 3, 3, x, y));
+                }
+            }
+            
+            //  Group Pixels into 4x4 Subregions
+            Image<std::vector<double>> subregion_orientations(4, 4);
+            for (std::size_t subregion_y = 0; subregion_y < 4; ++subregion_y)
+            {
+                for (std::size_t subregion_x = 0; subregion_x < 4; ++subregion_x)
+                {
+                    std::vector<double> raw_histogram;
+                    raw_histogram.resize(8);
+                    for (std::size_t y = 0; y < 4; ++y)
+                    {
+                        for (std::size_t x = 0; x < 4; ++x)
+                        {
+                            auto each_pixel_orientation =
+                                pixel_orientations.at(subregion_x * 4 + x, subregion_y * 4 + y);
+                            std::size_t bin_index = static_cast<std::size_t>(std::get<1>(each_pixel_orientation) / 45.0);
+                            bin_index = bin_index == 8 ? 7 : bin_index;
+                            raw_histogram[bin_index] += std::get<0>(each_pixel_orientation);
+                        }
+                    }
+                    subregion_orientations.at(subregion_x, subregion_y) = raw_histogram;
+                }
+            }
+            std::vector<double> feature_vector;
+            feature_vector.resize(128);
+            for (std::size_t subregion_y = 0; subregion_y < 4; ++subregion_y)
+            {
+                for (std::size_t subregion_x = 0; subregion_x < 4; ++subregion_x)
+                {
+                    feature_vector.append_range(subregion_orientations.at(subregion_x, subregion_y));
+                }
+            }
+            return feature_vector;
         }
     }
 
