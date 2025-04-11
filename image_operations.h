@@ -3521,17 +3521,17 @@ namespace TinyDIP
         //  keypoint_filtering template function implementation
         template<typename ElementT = double>
         constexpr static bool keypoint_filtering(
-            Image<ElementT>& input,
-            ElementT contrast_check_threshold = 8,
-            ElementT edge_response_threshold = 12.1)
+            const Image<ElementT>& input,
+            const ElementT contrast_check_threshold = 8,
+            const ElementT edge_response_threshold = 12.1)
         {
             //  Calculate Hessian matrix at the keypoint (x, y)
-            ElementT second_derivative_x = (input.at(std::size_t{ 2 }, std::size_t{ 1 }) + input.at(std::size_t{ 0 }, std::size_t{ 1 }) - 2.0 * input.at(std::size_t{ 1 }, std::size_t{ 1 }));                    //  D_{xx}
-            ElementT second_derivative_y = (input.at(std::size_t{ 1 }, std::size_t{ 2 }) + input.at(std::size_t{ 1 }, std::size_t{ 0 }) - 2.0 * input.at(std::size_t{ 1 }, std::size_t{ 1 }));                    //  D_{yy}
-            ElementT second_derivative_xy = (input.at(std::size_t{ 2 }, std::size_t{ 2 }) - input.at(std::size_t{ 2 }, std::size_t{ 0 }) - input.at(std::size_t{ 0 }, std::size_t{ 2 }) + input.at(std::size_t{ 0 }, std::size_t{ 0 })) / 4.0;  //  D_{xy}
-            ElementT trace_Hessian_matrix = second_derivative_x + second_derivative_y;
-            ElementT determinant_Hessian_matrix = second_derivative_x * second_derivative_y - second_derivative_xy * second_derivative_xy;
-            ElementT principal_curvature_ratio = trace_Hessian_matrix * trace_Hessian_matrix / determinant_Hessian_matrix;
+            const ElementT second_derivative_x = (input.at(std::size_t{ 2 }, std::size_t{ 1 }) + input.at(std::size_t{ 0 }, std::size_t{ 1 }) - 2.0 * input.at(std::size_t{ 1 }, std::size_t{ 1 }));                    //  D_{xx}
+            const ElementT second_derivative_y = (input.at(std::size_t{ 1 }, std::size_t{ 2 }) + input.at(std::size_t{ 1 }, std::size_t{ 0 }) - 2.0 * input.at(std::size_t{ 1 }, std::size_t{ 1 }));                    //  D_{yy}
+            const ElementT second_derivative_xy = (input.at(std::size_t{ 2 }, std::size_t{ 2 }) - input.at(std::size_t{ 2 }, std::size_t{ 0 }) - input.at(std::size_t{ 0 }, std::size_t{ 2 }) + input.at(std::size_t{ 0 }, std::size_t{ 0 })) / 4.0;  //  D_{xy}
+            const ElementT trace_Hessian_matrix = second_derivative_x + second_derivative_y;
+            const ElementT determinant_Hessian_matrix = second_derivative_x * second_derivative_y - second_derivative_xy * second_derivative_xy;
+            const ElementT principal_curvature_ratio = trace_Hessian_matrix * trace_Hessian_matrix / determinant_Hessian_matrix;
             if (input.at(std::size_t{ 1 }, std::size_t{ 1 }) <= contrast_check_threshold || principal_curvature_ratio >= edge_response_threshold)
             {
                 return false;
