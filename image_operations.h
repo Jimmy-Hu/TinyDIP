@@ -3497,22 +3497,22 @@ namespace TinyDIP
         //  refine the given keypoint's location using Taylor expansion
         template<typename ElementT = double>
         constexpr static auto keypoint_refinement(
-            Image<ElementT>& input,
-            std::tuple<std::size_t, std::size_t> point
+            const Image<ElementT>& input,
+            const std::tuple<std::size_t, std::size_t>& point
             )
         {
             //  Calculate the gradient at the keypoint (x, y)
-            ElementT first_derivative_x = (input.at(std::size_t{ 2 }, std::size_t{ 1 }) - input.at(std::size_t{ 0 }, std::size_t{ 1 })) / 2.0;
-            ElementT first_derivative_y = (input.at(std::size_t{ 1 }, std::size_t{ 2 }) - input.at(std::size_t{ 1 }, std::size_t{ 0 })) / 2.0;
-            ElementT second_derivative_x = (input.at(std::size_t{ 2 }, std::size_t{ 1 }) + input.at(std::size_t{ 0 }, std::size_t{ 1 }) - 2.0 * input.at(std::size_t{ 1 }, std::size_t{ 1 }));
-            ElementT second_derivative_y = (input.at(std::size_t{ 1 }, std::size_t{ 2 }) + input.at(std::size_t{ 1 }, std::size_t{ 0 }) - 2.0 * input.at(std::size_t{ 1 }, std::size_t{ 1 }));
-            ElementT second_derivative_xy = (input.at(std::size_t{ 2 }, std::size_t{ 2 }) - input.at(std::size_t{ 2 }, std::size_t{ 0 }) - input.at(std::size_t{ 0 }, std::size_t{ 2 }) + input.at(std::size_t{ 0 }, std::size_t{ 0 })) / 4.0;
-            ElementT A = -second_derivative_x / (second_derivative_x * second_derivative_y - second_derivative_xy * second_derivative_xy);
-            ElementT B = second_derivative_xy / (second_derivative_x * second_derivative_y - second_derivative_xy * second_derivative_xy);
-            ElementT C = B;
-            ElementT D = -second_derivative_y / (second_derivative_x * second_derivative_y - second_derivative_xy * second_derivative_xy);
-            ElementT offset_x = A * first_derivative_x + B * first_derivative_y;
-            ElementT offset_y = C * first_derivative_x + D * first_derivative_y;
+            const ElementT first_derivative_x = (input.at(std::size_t{ 2 }, std::size_t{ 1 }) - input.at(std::size_t{ 0 }, std::size_t{ 1 })) / 2.0;
+            const ElementT first_derivative_y = (input.at(std::size_t{ 1 }, std::size_t{ 2 }) - input.at(std::size_t{ 1 }, std::size_t{ 0 })) / 2.0;
+            const ElementT second_derivative_x = (input.at(std::size_t{ 2 }, std::size_t{ 1 }) + input.at(std::size_t{ 0 }, std::size_t{ 1 }) - 2.0 * input.at(std::size_t{ 1 }, std::size_t{ 1 }));
+            const ElementT second_derivative_y = (input.at(std::size_t{ 1 }, std::size_t{ 2 }) + input.at(std::size_t{ 1 }, std::size_t{ 0 }) - 2.0 * input.at(std::size_t{ 1 }, std::size_t{ 1 }));
+            const ElementT second_derivative_xy = (input.at(std::size_t{ 2 }, std::size_t{ 2 }) - input.at(std::size_t{ 2 }, std::size_t{ 0 }) - input.at(std::size_t{ 0 }, std::size_t{ 2 }) + input.at(std::size_t{ 0 }, std::size_t{ 0 })) / 4.0;
+            const ElementT A = -second_derivative_x / (second_derivative_x * second_derivative_y - second_derivative_xy * second_derivative_xy);
+            const ElementT B = second_derivative_xy / (second_derivative_x * second_derivative_y - second_derivative_xy * second_derivative_xy);
+            const ElementT C = B;
+            const ElementT D = -second_derivative_y / (second_derivative_x * second_derivative_y - second_derivative_xy * second_derivative_xy);
+            const ElementT offset_x = A * first_derivative_x + B * first_derivative_y;
+            const ElementT offset_y = C * first_derivative_x + D * first_derivative_y;
             return std::make_tuple(
                 static_cast<ElementT>(std::get<0>(point)) + offset_x,
                 static_cast<ElementT>(std::get<1>(point)) + offset_y);
