@@ -3830,10 +3830,10 @@ namespace TinyDIP
                 }
             }
             std::vector<double> feature_vector;
-            feature_vector.resize(128);
-            for (std::size_t subregion_y = 0; subregion_y < 4; ++subregion_y)
+            feature_vector.reserve(128);
+            for (std::size_t subregion_y = 0; subregion_y < subregion_orientations.getHeight(); ++subregion_y)
             {
-                for (std::size_t subregion_x = 0; subregion_x < 4; ++subregion_x)
+                for (std::size_t subregion_x = 0; subregion_x < subregion_orientations.getWidth(); ++subregion_x)
                 {
                     #ifdef USE_APPEND_RANGE
                     feature_vector.append_range(subregion_orientations.at(subregion_x, subregion_y));
