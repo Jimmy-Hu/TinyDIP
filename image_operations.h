@@ -1055,10 +1055,11 @@ namespace TinyDIP
     }
         
     //  otsu_threshold template function implementation (with Execution Policy)
+    //  mimic https://github.com/DIPlib/diplib/blob/004755a94fa25a1da79928fd59728abe177bf304/src/histogram/threshold_algorithms.h#L30
     template <class ExPo, class ElementT, class FloatingType = double>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto otsu_threshold(
-        ExPo execution_policy,
+        ExPo&& execution_policy,
         const std::vector<ElementT>& histogram)
     {
         FloatingType w1{};
