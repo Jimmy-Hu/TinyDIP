@@ -1626,6 +1626,20 @@ namespace TinyDIP
         return std::exp(-(xlocation * xlocation + ylocation * ylocation) / (2 * standard_deviation * standard_deviation)) / (2 * std::numbers::pi * standard_deviation * standard_deviation);
     }
 
+    //  normalize template function implementation
+    template<class ElementT = double>
+    constexpr static auto normalize(const Image<ElementT>& input)
+    {
+        auto max_value = max(input);
+        auto min_value = min(input);
+        auto difference_value = max_value - min_value;
+        Image<ElementT> min_value_plane = input;
+        min_value_plane.setAllValue(min_value);
+        Image<ElementT> difference_value_plane = input;
+        difference_value_plane.setAllValue(difference_value);
+        return divides(subtract(input, min_value_plane), difference_value_plane);
+    }
+
     template<class InputT1, class InputT2>
     constexpr static auto cubicPolate(const InputT1 v0, const InputT1 v1, const InputT1 v2, const InputT1 v3, const InputT2 frac)
     {
