@@ -3184,6 +3184,33 @@ namespace TinyDIP
         replicate
     };
 
+    //  generate_padded_image template function implementation
+    template<class ExecutionPolicy, typename ElementT>
+    constexpr static auto generate_padded_image(
+        ExecutionPolicy&& execution_policy,
+        const Image<ElementT>& input,
+        const std::size_t width_expansion,
+        const std::size_t height_expansion,
+        const BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
+        const ElementT value_for_constant_padding = ElementT{}
+    )
+    {
+        Image<ElementT> padded_image;
+        switch (boundaryCondition)
+        {
+        case constant:
+            padded_image = generate_constant_padding_image(execution_policy, input, width_expansion, height_expansion, value_for_constant_padding);
+            break;
+        case mirror:
+            padded_image = generate_mirror_padding_image(execution_policy, input, width_expansion, height_expansion, value_for_constant_padding);
+            break;
+        case replicate:
+            padded_image = generate_replicate_padding_image(execution_policy, input, width_expansion, height_expansion, value_for_constant_padding);
+            break;
+        }
+        return padded_image;
+    }
+
     //  imgaussfilt template function implementation
     //  https://codereview.stackexchange.com/q/292985/231235
     //  giving filter_size a default value of 0, and having the function compute an appropriate size unless the user specifies a positive value.
