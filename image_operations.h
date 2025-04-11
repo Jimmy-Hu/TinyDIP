@@ -3835,7 +3835,14 @@ namespace TinyDIP
             {
                 for (std::size_t subregion_x = 0; subregion_x < 4; ++subregion_x)
                 {
+                    #ifdef USE_APPEND_RANGE
                     feature_vector.append_range(subregion_orientations.at(subregion_x, subregion_y));
+                    #else
+                    for (auto&& element : subregion_orientations.at(subregion_x, subregion_y))
+                    {
+                        feature_vector.emplace_back(element);
+                    }
+                    #endif
                 }
             }
             return feature_vector;
