@@ -1025,7 +1025,7 @@ namespace TinyDIP
     //  normalize_histogram template function implementation for std::array (with Execution Policy)
     template<class ExecutionPolicy, class ElementT, std::size_t Count, class ProbabilityType = double>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
-    constexpr static auto normalize_histogram(ExecutionPolicy execution_policy, const std::array<ElementT, Count>& input)
+    constexpr static auto normalize_histogram(ExecutionPolicy&& execution_policy, const std::array<ElementT, Count>& input)
     {
         auto sum = std::reduce(execution_policy, std::ranges::cbegin(input), std::ranges::cend(input));
         return get_normalized_input(execution_policy, input, static_cast<ProbabilityType>(sum));
