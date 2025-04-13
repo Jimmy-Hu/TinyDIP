@@ -3470,7 +3470,11 @@ namespace TinyDIP
             Test: https://godbolt.org/z/Kb34EW5Yj
         */
         template<typename ElementT>
-        constexpr static bool is_it_extremum(Image<ElementT> input1, Image<ElementT> input2, Image<ElementT> input3, double threshold = 0.03)
+        constexpr static bool is_it_extremum(
+            const Image<ElementT>& input1,
+            const Image<ElementT>& input2,
+            const Image<ElementT>& input3,
+            const double threshold = 0.03)
         {
             if (input1.getDimensionality() != 2)
             {
