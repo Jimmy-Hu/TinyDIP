@@ -1105,7 +1105,7 @@ namespace TinyDIP
     template <class ExPo, class ElementT>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto otsu_threshold(
-        ExPo execution_policy,
+        ExPo&& execution_policy,
         const Image<ElementT>& input)
     {
         return otsu_threshold(execution_policy, Histogram<ElementT>(input).to_probabilities_vector());
