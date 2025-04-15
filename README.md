@@ -16,6 +16,22 @@ Both `std::ranges` and [concepts](https://en.cppreference.com/w/cpp/language/con
 
 #### Linux & MacOS
 
+##### Prerequisite
+
+1. CMake tool should be installed.
+
+    ```shell
+    sudo apt-get install cmake -y
+    ```
+
+2. `build-essential` should be installed on the system.
+    
+    ```shell
+    sudo apt-get install build-essential -y
+    ```
+
+##### 
+
 TinyDIP library could be built with [CMake](https://cmake.org/) as the following commands:
 
 1. Create `./build` folder:
