@@ -3468,6 +3468,7 @@ namespace TinyDIP
             input1, input2 and input3 are 3 * 3 images. If the center pixel (at location (1,1) ) of input2 is the largest / smallest one, 
             return true; otherwise, return false.
             Test: https://godbolt.org/z/Kb34EW5Yj
+            Test [Updated]: https://godbolt.org/z/bsG96hEn9
         */
         template<typename ElementT>
         constexpr static bool is_it_extremum(
@@ -3476,47 +3477,30 @@ namespace TinyDIP
             const Image<ElementT>& input3,
             const double threshold = 0.03)
         {
-            if (input1.getDimensionality() != 2)
+            for (auto* input : { &input1, &input2, &input3 })
             {
-                throw std::runtime_error("Unsupported dimension!");
-            }
-            if (input2.getDimensionality() != 2)
-            {
-                throw std::runtime_error("Unsupported dimension!");
-            }
-            if (input3.getDimensionality() != 2)
-            {
-                throw std::runtime_error("Unsupported dimension!");
-            }
-            if (input1.getWidth() != 3 || input1.getHeight() != 3)
-            {
-                throw std::runtime_error("Size error!");
-            }
-            if (input2.getWidth() != 3 || input2.getHeight() != 3)
-            {
-                throw std::runtime_error("Size error!");
-            }
-            if (input3.getWidth() != 3 || input3.getHeight() != 3)
-            {
-                throw std::runtime_error("Size error!");
+                if (input->getDimensionality() != 2)
+                {
+                }
+                if (input->getWidth() != 3 || input->getHeight() != 3)
+                {
+                    throw std::runtime_error("Unsupported size");
+                }
             }
             auto center_pixel = input2.at(static_cast<std::size_t>(1), static_cast<std::size_t>(1));
-            auto input2_img_data = input2.getImageData();
             input2_img_data.erase(input2_img_data.begin() + 4);                         //  https://stackoverflow.com/a/875117/6667035
-            if (std::abs(center_pixel) > threshold)
+            if (std::abs(center_pixel) <= threshold)
             {
-                if (std::ranges::all_of(input1.getImageData(), [&](ElementT i) { return center_pixel > i; }) &&
-                    std::ranges::all_of(input3.getImageData(), [&](ElementT i) { return center_pixel > i; }) &&
-                    std::ranges::all_of(input2_img_data, [&](ElementT i) { return center_pixel > i; }))
-                {
-                    return true;
-                }
-                if (std::ranges::all_of(input1.getImageData(), [&](ElementT i) { return center_pixel < i; }) &&
-                    std::ranges::all_of(input3.getImageData(), [&](ElementT i) { return center_pixel < i; }) &&
-                    std::ranges::all_of(input2_img_data, [&](ElementT i) { return center_pixel < i; }))
-                {
-                    return true;
-                }
+                return false;
+            }
+            auto image_datas = { input1.getImageData(), input2_img_data, input3.getImageData() };
+            if (recursive_all_of<2>(image_datas, [&](auto&& i) { return center_pixel > i; }))
+            {
+                return true;
+            }
+            if (recursive_all_of<2>(image_datas, [&](auto&& i) { return center_pixel < i; }))
+            {
+                return true;
             }
             return false;
         }
