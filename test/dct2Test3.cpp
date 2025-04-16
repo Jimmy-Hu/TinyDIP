@@ -34,7 +34,11 @@ constexpr static auto get_offset( ExPo execution_policy,
     auto sum_of_weights = TinyDIP::recursive_reduce(weights, ElementT{});
     if (display_sum_of_weights)
     {
+        #if _HAS_CXX23
         os << "sum_of_weights: " << std::format("{}", sum_of_weights) << '\n';
+        #else
+        os << "sum_of_weights: " << sum_of_weights << '\n';
+        #endif
     }
     if (sum_of_weights < threshold)
     {
