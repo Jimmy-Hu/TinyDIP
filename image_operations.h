@@ -3799,14 +3799,14 @@ namespace TinyDIP
         requires((std::floating_point<ElementT> || std::integral<ElementT>))
         constexpr static auto get_keypoint_descriptor(
             const Image<ElementT>& input,
-            const std::tuple<std::size_t, std::size_t>& keypoint_location,
+            const Point<2>& keypoint_location,
             const std::size_t block_size = 8
         )
         {
             //  Calculate Gradient Magnitudes and Orientations for 16x16 neighborhood
             Image<std::tuple<FloatingType, FloatingType>> pixel_orientations(block_size * 2, block_size * 2);
-            const auto center_x = std::get<0>(keypoint_location);
-            const auto center_y = std::get<1>(keypoint_location);
+            const auto center_x = keypoint_location.p[0];
+            const auto center_y = keypoint_location.p[1];
             for (std::size_t y = center_y - block_size; y < center_y + block_size; ++y)
             {
                 for (std::size_t x = center_x - block_size; x < center_x + block_size; ++x)
