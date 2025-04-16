@@ -3553,20 +3553,21 @@ namespace TinyDIP
             return true;
         }
 
-        //  mapping_point function implementation
-        constexpr static std::tuple<std::size_t, std::size_t> mapping_point(
-            std::tuple<double, double> input_location,
-            std::size_t input_width,
-            std::size_t input_height,
-            std::size_t target_width,
-            std::size_t target_height)
+        //  mapping_point template function implementation
+        template<class FloatingType = double>
+        constexpr static auto mapping_point(
+            const std::tuple<FloatingType, FloatingType>& input_location,
+            const std::size_t input_width,
+            const std::size_t input_height,
+            const std::size_t target_width,
+            const std::size_t target_height)
         {
-            double width_percentage = static_cast<double>(std::get<0>(input_location)) / static_cast<double>(input_width);
-            double height_percentage = static_cast<double>(std::get<1>(input_location)) / static_cast<double>(input_height);
-            return std::make_tuple(
-                static_cast<std::size_t>(width_percentage * static_cast<double>(target_width)),
-                static_cast<std::size_t>(height_percentage * static_cast<double>(target_height))
-            );
+            FloatingType width_percentage = static_cast<FloatingType>(std::get<0>(input_location)) / static_cast<FloatingType>(input_width);
+            FloatingType height_percentage = static_cast<FloatingType>(std::get<1>(input_location)) / static_cast<FloatingType>(input_height);
+            return Point<2>{
+                static_cast<std::size_t>(width_percentage * static_cast<FloatingType>(target_width)),
+                static_cast<std::size_t>(height_percentage * static_cast<FloatingType>(target_height))
+            };
         }
 
         //  find_local_extrema template function implementation
