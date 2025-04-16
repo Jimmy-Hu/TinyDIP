@@ -3653,10 +3653,10 @@ namespace TinyDIP
                     (std::floating_point<SigmaT> || std::integral<SigmaT>))
         constexpr static auto get_potential_keypoint(
             const Image<ElementT>& input,
-            std::size_t octaves_count = 4,
-            std::size_t number_of_scale_levels = 5,
-            SigmaT initial_sigma = 1.6,
-            double k = 1.4142135623730950488016887242097,
+            const std::size_t octaves_count = 4,
+            const std::size_t number_of_scale_levels = 5,
+            const SigmaT initial_sigma = 1.6,           //  sigma is selected to 1.6 based on paper https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf page 10
+            const double k = std::numbers::sqrt2_v<double>,
             ElementT contrast_check_threshold = 8,
             ElementT edge_response_threshold = 12.1)
         {
@@ -3688,7 +3688,8 @@ namespace TinyDIP
                 #pragma omp parallel for
                 for (int scale_index = 0; scale_index < each_octave.size() - 2; ++scale_index)
                 {
-                    /* if `append_range` function is supported
+                    //if `append_range` function is supported
+                    #ifdef __cpp_lib_containers_ranges
                     keypoints.append_range(
                         find_local_extrema(
                             each_octave[scale_index],
@@ -3699,8 +3700,7 @@ namespace TinyDIP
                             contrast_check_threshold,
                             edge_response_threshold)
                     );
-                    */
-
+                    #else
                     for (auto&& element : find_local_extrema(
                         each_octave[scale_index],
                         each_octave[scale_index + 1],
@@ -3712,11 +3712,12 @@ namespace TinyDIP
                     {
                         keypoints.emplace_back(element);
                     }
+                    #endif
                 }
             }
 
             //  mapping keypoints in different scale to the original image
-            std::vector<std::tuple<std::size_t, std::size_t>> mapped_keypoints;
+            std::vector<Point<2>> mapped_keypoints;
             for (auto&& each_keypoint : keypoints)
             {
                 auto input_width = octaves[std::get<0>(each_keypoint)][0].getWidth();
