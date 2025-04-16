@@ -3345,10 +3345,10 @@ namespace TinyDIP
     }
 
     //  draw_points template function implementation
-    template<typename ElementT>
+    template<typename ElementT, std::size_t dimension = 2>
     constexpr static auto draw_points(
         const Image<ElementT>& input,
-        std::vector<std::tuple<std::size_t, std::size_t>> points,
+        std::vector<Point<dimension>> points,
         ElementT draw_value = ElementT{},
         std::size_t radius = 3
     )
