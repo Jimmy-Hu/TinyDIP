@@ -126,7 +126,7 @@ void rainDictionaryAnalysis(
     auto dictionary = load_dictionary(dictionary_path, dic_start_index, dic_end_index, N1, N2);
     auto dictionary_x = std::get<0>(dictionary);
     auto dictionary_y = std::get<1>(dictionary);
-    #if _HAS_CXX23
+    #ifdef _HAS_CXX23
     std::cout << std::format("Average intra-Euclidean distances for x set: {}\n", 
         fullAverageIntraEuclideanDistances(std::execution::par, dictionary_x)
         );
