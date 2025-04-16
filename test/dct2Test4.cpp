@@ -4,7 +4,9 @@
 
 #include <chrono>
 #include <execution>
+#if _HAS_CXX23
 #include <format>
+#endif
 #include <map>
 #include <omp.h>
 #include <sstream>
