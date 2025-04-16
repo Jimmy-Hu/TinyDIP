@@ -144,6 +144,44 @@ namespace TinyDIP
         }
     };
 
+    //  Point struct implementation
+    template<std::size_t dimension = 2>
+    struct Point
+    {
+        std::array<std::size_t, dimension> p;
+
+        inline Point operator+(const Point& input) const
+        {
+            std::array<std::size_t, dimension> new_array;
+            for (std::size_t i = 0; i < p.size(); ++i)
+            {
+                new_array[i] = p[i] + input.p[i];
+            }
+            return Point{ new_array };
+        }
+
+        inline Point operator-(const Point& input) const
+        {
+            std::array<std::size_t, dimension> new_array;
+            for (std::size_t i = 0; i < p.size(); ++i)
+            {
+                new_array[i] = p[i] - input.p[i];
+            }
+            return Point{ new_array };
+        }
+
+        friend std::ostream& operator<<(std::ostream& out, const Point& _myStruct)
+        {
+            out << '{';
+            for (std::size_t i = 0; i < dimension; ++i)
+            {
+                out << +_myStruct.p[i] << ", ";
+            }
+            out << '}';
+            return out;
+        }
+    };
+
     struct BMPIMAGE
     {
         std::filesystem::path FILENAME;
