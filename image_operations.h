@@ -1122,7 +1122,7 @@ namespace TinyDIP
     //  apply_each_pixel template function implementation
     template<class ExPo, class ElementT, class F, class... Args>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr static auto apply_each_pixel(ExPo execution_policy, const Image<ElementT>& input, F operation, Args&&... args)
+    constexpr static auto apply_each_pixel(ExPo&& execution_policy, const Image<ElementT>& input, F operation, Args&&... args)
     {
         std::vector<std::invoke_result_t<F, ElementT, Args...>> output_vector;
         auto input_count = input.count();
