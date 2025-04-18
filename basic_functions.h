@@ -1353,6 +1353,7 @@ namespace TinyDIP
         {
             throw std::runtime_error("Size mismatched!");
         }
+        #if _HAS_CXX23
         auto transformed = std::views::zip(input1, input2)
                      | std::views::transform([&](auto input) {
                            return std::invoke(binop1, std::get<0>(input), std::get<1>(input));
@@ -1363,6 +1364,14 @@ namespace TinyDIP
             init,
             binop2
         );
+        #else
+        T output = init;
+        for (std::size_t i = 0; i < input1.size(); ++i)
+        {
+            output = std::invoke(binop2, output, std::invoke(binop1, input1.at(i), input2.at(i)));
+        }
+        return output;
+        #endif
     }
 
     template<typename T>
