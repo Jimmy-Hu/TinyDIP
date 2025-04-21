@@ -3340,16 +3340,7 @@ namespace TinyDIP
         const Image<ElementT>& input
     )
     {
-        auto image_size = input.getSize();
-        auto center_location = image_size;
-        std::transform(
-            execution_policy,
-            std::ranges::cbegin(image_size),
-            std::ranges::cend(image_size),
-            std::ranges::begin(center_location),
-            [&](auto&& size) { return static_cast<double>(size) / 2.0; }
-        );
-        return input.at_without_boundary_check(center_location);
+        return input.at_without_boundary_check(get_center_location(execution_policy, input));
     }
 
     //  draw_point template function implementation
