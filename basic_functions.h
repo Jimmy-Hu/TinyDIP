@@ -2176,6 +2176,20 @@ namespace TinyDIP
         }
     }
 
+    //  atanh Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto atanh(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return atanh(_input); });
+        }
+        else
+        {
+            return std::atanh(input);
+        }
+    }
+
     //  isinf Template Function Implementation
     template<typename T>
     [[nodiscard]] constexpr static auto isinf(const T& input)
