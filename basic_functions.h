@@ -714,24 +714,19 @@ namespace TinyDIP
 
     //  recursive_minmax template function implementation
     //  Reference: https://codereview.stackexchange.com/q/288208/231235
-    template<class T, class Proj = std::identity,
-             std::indirect_strict_weak_order<
-                    std::projected<const T*, Proj>> Comp = std::ranges::less>
-    requires(!(std::ranges::forward_range<T>))          //  non-range overloading
-    constexpr auto recursive_minmax(const T& input, Comp comp = {}, Proj proj = {})
+    template<std::size_t unwrap_level = 1, std::ranges::forward_range T, class Proj = std::identity,
+                    std::indirect_strict_weak_order<
+                    std::projected<std::ranges::iterator_t<T>, Proj>> Comp = std::ranges::less>
+    constexpr static auto recursive_minmax(T&& numbers, Comp comp = {}, Proj proj = {})
     {
-        return input;
-    }
-
-    template<std::ranges::forward_range T, class Proj = std::identity,
-            std::indirect_strict_weak_order<
-                    std::projected<const T*, Proj>> Comp = std::ranges::less>
-    constexpr auto recursive_minmax(const T& numbers, Comp comp = {}, Proj proj = {})
-    {
-        return std::make_pair(
-            recursive_min(numbers, comp, proj),
-            recursive_max(numbers, comp, proj)
-            );
+        if constexpr (unwrap_level > 1)
+        {
+            return std::ranges::minmax(recursive_flatten_view<unwrap_level>(numbers), comp, proj);
+        }
+        else
+        {
+            return std::ranges::minmax(numbers, comp, proj);
+        }
     }
 
     //  recursive_print template function implementation
