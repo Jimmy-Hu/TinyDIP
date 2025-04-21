@@ -799,7 +799,7 @@ namespace TinyDIP
     template<std::size_t unwrap_level = 1, class T, class ValueType, class Function = std::plus<ValueType>>
     constexpr auto recursive_reduce(const T& input, ValueType init, const Function& f = std::plus<ValueType>())
     {
-        if constexpr (unwrap_level > 1)
+        if constexpr (unwrap_level > 0)
         {
             for (const auto& element : input) {
                 init = recursive_reduce<unwrap_level - 1>(element, init, f);
