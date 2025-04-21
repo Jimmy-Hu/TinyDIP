@@ -1592,7 +1592,7 @@ namespace TinyDIP
         }
         else
         {
-            co_yield value;
+            co_yield input;
         }
     }
 
