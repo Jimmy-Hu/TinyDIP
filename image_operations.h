@@ -3311,6 +3311,26 @@ namespace TinyDIP
             );
     }
 
+    //  get_center_location template function implementation (with Execution Policy)
+    template<typename ElementT, class ExecutionPolicy>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr static auto get_center_location(
+        ExecutionPolicy&& execution_policy,
+        const Image<ElementT>& input
+    )
+    {
+        auto image_size = input.getSize();
+        auto center_location = image_size;
+        std::transform(
+            execution_policy,
+            std::ranges::cbegin(image_size),
+            std::ranges::cend(image_size),
+            std::ranges::begin(center_location),
+            [&](auto&& size) { return static_cast<double>(size) / 2.0; }
+        );
+        return center_location;
+    }
+
     //  get_center_pixel template function implementation (with Execution Policy)
     //  return center pixel value for N-dimensional image
     template<typename ElementT, class ExecutionPolicy>
