@@ -186,22 +186,7 @@ namespace TinyDIP
         constexpr ElementT const& at(const Args... indexInput) const
         {
             checkBoundary(indexInput...);
-            constexpr std::size_t n = sizeof...(Args);
-            if(n != size.size())
-            {
-                throw std::runtime_error("Dimensionality mismatched!");
-            }
-            std::size_t i = 0;
-            std::size_t stride = 1;
-            std::size_t position = 0;
-
-            auto update_position = [&](auto index) {
-                position += index * stride;
-                stride *= size[i++];
-            };
-            (update_position(indexInput), ...);
-
-            return image_data[position];
+            return at_without_boundary_check(indexInput...);
         }
 
         //  at template function implementation
