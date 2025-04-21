@@ -18,7 +18,9 @@
 #include <format>
 #include <functional>
 #include <future>
+#if __cplusplus >= 202302L || _HAS_CXX23 
 #include <generator>
+#endif
 #include <iostream>
 #include <iterator>
 #include <limits>
