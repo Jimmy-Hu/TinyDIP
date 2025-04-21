@@ -3453,7 +3453,7 @@ namespace TinyDIP
     template<typename ElementT = double>
     constexpr static auto to_complex(const Image<ElementT>& input)
     {
-        if constexpr ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
+        if constexpr ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>) || is_MultiChannel<ElementT>::value)
         {
             return apply_each(input, [&](auto&& planes) { return to_complex(planes); });
         }
