@@ -3319,7 +3319,7 @@ namespace TinyDIP
         const Image<ElementT>& input
     )
     {
-        auto image_size = input.getSize();
+        const auto& image_size = input.getSize();
         auto center_location = image_size;
         std::transform(
             execution_policy,
