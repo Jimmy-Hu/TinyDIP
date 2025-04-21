@@ -1579,6 +1579,7 @@ namespace TinyDIP
         inline constexpr recursive_flatten_fn recursive_flatten;
     }
 
+    #if __cplusplus > 202302L || _HAS_CXX23 
     //  recursive_flatten_view template function implementation with unwrap level
     template<std::size_t unwrap_level, typename T>
     static std::generator<const recursive_unwrap_type_t<unwrap_level, T>&> recursive_flatten_view(const T& input)
@@ -1594,6 +1595,7 @@ namespace TinyDIP
             co_yield input;
         }
     }
+    #endif
 
     //  hypot Template Function Implementation
     template<typename... Args>
