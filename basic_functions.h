@@ -1579,12 +1579,12 @@ namespace TinyDIP
 
     //  recursive_flatten_view template function implementation with unwrap level
     template<std::size_t unwrap_level, typename T>
-    constexpr static auto recursive_flatten_view(const T& input)
+    static std::generator<const recursive_unwrap_type_t<unwrap_level, T>&> recursive_flatten_view(const T& input)
     {
         if constexpr (unwrap_level > 0)
         {
             for (const auto& element : input)
-                for (const auto& value : recursive_flatten_view(element))
+                for (const auto& value : recursive_flatten_view<unwrap_level - 1>(element))
                     co_yield value;
         }
         else
