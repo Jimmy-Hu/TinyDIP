@@ -1586,7 +1586,7 @@ namespace TinyDIP
     {
         if constexpr (unwrap_level > 0)
         {
-            for (const auto& element : range)
+            for (const auto& element : input)
                 for (const auto& value : recursive_flatten_view(element))
                     co_yield value;
         }
