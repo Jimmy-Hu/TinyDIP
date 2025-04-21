@@ -2202,7 +2202,7 @@ namespace TinyDIP
 
     //  abs template function implementation
     template<class ExPo, class InputT>
-    requires((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>)) and
+    requires((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>) || is_MultiChannel<InputT>::value) and
             (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto abs(ExPo execution_policy, const Image<InputT>& input)
     {
