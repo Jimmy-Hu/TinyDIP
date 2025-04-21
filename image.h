@@ -211,6 +211,13 @@ namespace TinyDIP
             return at(static_cast<std::size_t>(indexInput)...);
         }
 
+        //  at template function implementation
+        template<std::same_as<int>... Args>
+        constexpr ElementT const& at(const Args... indexInput) const
+        {
+            return at(static_cast<std::size_t>(indexInput)...);
+        }
+
         //  at_without_boundary_check template function implementation
         template<std::same_as<std::size_t>... Args>
         constexpr ElementT& at_without_boundary_check(const Args... indexInput)
