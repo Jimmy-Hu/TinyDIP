@@ -796,20 +796,20 @@ namespace TinyDIP
 
     //  recursive_reduce template function implementation
     //  Reference: https://codereview.stackexchange.com/a/251310/231235
-    template<class T, class ValueType, class Function = std::plus<ValueType>>
-    requires(std::regular_invocable<Function, ValueType, T>)
-    constexpr auto recursive_reduce(const T& input, ValueType init, const Function& f)
+    template<std::size_t unwrap_level = 1, class T, class ValueType, class Function = std::plus<ValueType>>
+    constexpr auto recursive_reduce(const T& input, ValueType init, const Function& f = std::plus<ValueType>())
     {
-        return std::invoke(f, init, input);
-    }
-
-    template<std::ranges::range Container, class ValueType, class Function = std::plus<ValueType>>
-    constexpr auto recursive_reduce(const Container& input, ValueType init, const Function& f = std::plus<ValueType>())
-    {
-        for (const auto& element : input) {
-            init = recursive_reduce(element, init, f);
+        if constexpr (unwrap_level > 1)
+        {
+            for (const auto& element : input) {
+                init = recursive_reduce<unwrap_level - 1>(element, init, f);
+            }
+            return init;
         }
-        return init;
+        else
+        {
+            return std::invoke(f, init, input);
+        }
     }
 
     template<typename T>
