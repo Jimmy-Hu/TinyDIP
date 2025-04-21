@@ -1580,6 +1580,22 @@ namespace TinyDIP
         inline constexpr recursive_flatten_fn recursive_flatten;
     }
 
+    //  recursive_flatten_view template function implementation with unwrap level
+    template<std::size_t unwrap_level, typename T>
+    constexpr static auto recursive_flatten_view(const T& input)
+    {
+        if constexpr (unwrap_level > 0)
+        {
+            for (const auto& element : range)
+                for (const auto& value : recursive_flatten_view(element))
+                    co_yield value;
+        }
+        else
+        {
+            co_yield value;
+        }
+    }
+
     //  hypot Template Function Implementation
     template<typename... Args>
     constexpr auto hypot(Args... args)
