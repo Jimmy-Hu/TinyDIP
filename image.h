@@ -596,6 +596,21 @@ namespace TinyDIP
         std::vector<std::size_t> size;
         std::vector<ElementT> image_data;
 
+        // calculateIndex template function implementation
+        template<std::same_as<std::size_t>... Args>
+        constexpr auto calculateIndex(const Args... indices) const
+        {
+            std::size_t index = 0;
+            std::size_t stride = 1;
+            std::size_t i = 0;
+            auto update_index = [&](std::size_t idx) {
+                index += idx * stride;
+                stride *= size[i++];
+                };
+            (update_index(indices), ...);
+            return index;
+        }
+
         template<typename... Args>
         void checkBoundary(const Args... indexInput) const
         {
