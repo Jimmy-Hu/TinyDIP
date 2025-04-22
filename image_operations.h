@@ -3457,6 +3457,13 @@ namespace TinyDIP
     }
 
     //  to_complex template function implementation
+    template<typename ElementT, std::size_t Size>
+    constexpr static auto to_complex(const MultiChannel<ElementT, Size> input)
+    {
+        return to_complex(std::execution::seq, input);
+    }
+    
+    //  to_complex template function implementation
     template<typename ElementT = double>
     constexpr static auto to_complex(const Image<ElementT>& input)
     {
