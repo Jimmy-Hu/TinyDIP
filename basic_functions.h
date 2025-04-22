@@ -1612,6 +1612,7 @@ namespace TinyDIP
 
     #if __cplusplus > 202302L || _HAS_CXX23 
     //  recursive_flatten_view template function implementation with unwrap level
+    //  Reference: https://codereview.stackexchange.com/q/295937/231235
     template<std::size_t unwrap_level, typename T>
     static std::generator<const recursive_unwrap_type_t<unwrap_level, T>&> recursive_flatten_view(const T& input)
     {
@@ -1625,6 +1626,16 @@ namespace TinyDIP
         {
             co_yield input;
         }
+    }
+    #else                   //  Suboptimal solution
+    //  recursive_flatten_view template function implementation with unwrap level
+    //  Reference: https://codereview.stackexchange.com/q/291793/231235
+    template<std::size_t unwrap_level, std::ranges::range Container>
+    requires (std::ranges::range<std::ranges::range_value_t<Container>>)
+    constexpr static auto recursive_flatten_view(const Container& input)
+    {
+        recursive_unwrap_type_t<recursive_depth<Container>() - 1, Container> output_container;
+        return std::views::all(recursive_flatten<unwrap_level>(input, output_container));
     }
     #endif
 
