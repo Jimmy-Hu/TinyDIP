@@ -1941,7 +1941,11 @@ namespace TinyDIP
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel(execution_policy, input, [&](auto&& _input) {return 1 / std::tan(_input); });
+            return apply_multichannel(std::forward<ExecutionPolicy>(execution_policy), input, [&](auto&& _input) {return cot(std::forward<ExecutionPolicy>(execution_policy), _input); });
+        }
+        else if constexpr (is_complex<T>::value)
+        {
+            return static_cast<T>(1) / tan(input);
         }
         else
         {
