@@ -5,6 +5,7 @@
 #include "../basic_functions.h"
 #include "../image.h"
 #include "../image_operations.h"
+#include "../timer.h"
 
 void randFunctionTest(
     const std::size_t sizex = 3,
@@ -58,18 +59,7 @@ void randFunctionTest(
 
 int main()
 {
-    auto start = std::chrono::system_clock::now();
+    TinyDIP::Timer timer1;
     randFunctionTest();
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-    if (elapsed_seconds.count() != 1)
-    {
-        std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << " seconds.\n";
-    }
-    else
-    {
-        std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << " second.\n";
-    }
     return EXIT_SUCCESS;
 }
