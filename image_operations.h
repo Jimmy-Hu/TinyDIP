@@ -3441,6 +3441,22 @@ namespace TinyDIP
     }
 
     //  to_complex template function implementation
+    template<class ExecutionPolicy, typename ElementT, std::size_t Size>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr static auto to_complex(ExecutionPolicy&& execution_policy, const MultiChannel<ElementT, Size> input)
+    {
+        std::array<std::complex<ElementT>, Size> output;
+        std::transform(
+            std::forward<ExecutionPolicy>(execution_policy),
+            std::ranges::cbegin(input.channels),
+            std::ranges::cend(input.channels),
+            std::ranges::begin(output),
+            [&](auto&& element) { return static_cast<std::complex<ElementT>>(element); }
+        );
+        return MultiChannel<std::complex<ElementT>, Size>{output};
+    }
+
+    //  to_complex template function implementation
     template<typename ElementT = double>
     constexpr static auto to_complex(const Image<ElementT>& input)
     {
