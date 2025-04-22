@@ -7,6 +7,7 @@
 #include "../image_operations.h"
 #include "../timer.h"
 
+//  randFunctionTest function implementation
 void randFunctionTest(
     const std::size_t sizex = 3,
     const std::size_t sizey = 2)
@@ -40,7 +41,36 @@ void randFunctionTest(
         );
     auto MultiChannelImage2 = TinyDIP::Image<TinyDIP::MultiChannel<std::complex<double>, 8>>(sizex, sizey);
     std::cout << "euclidean_distance of MultiChannelImage1 and MultiChannelImage2: " << '\n';
-    std::cout << TinyDIP::euclidean_distance(MultiChannelImage1, MultiChannelImage2) << "\n";
+    std::cout << TinyDIP::euclidean_distance(MultiChannelImage1, MultiChannelImage2) << "\n\n\n";
+
+    auto MultiChannelImage3 =
+        TinyDIP::constructMultiChannel(
+            TinyDIP::multiplies(TinyDIP::ones<std::complex<double>>(sizex, sizey), std::complex<double>{ 1.0, 1.0 }),
+            TinyDIP::multiplies(TinyDIP::ones<std::complex<double>>(sizex, sizey), std::complex<double>{ 1.0, 1.0 }),
+            TinyDIP::multiplies(TinyDIP::ones<std::complex<double>>(sizex, sizey), std::complex<double>{ 1.0, 1.0 }),
+            TinyDIP::multiplies(TinyDIP::ones<std::complex<double>>(sizex, sizey), std::complex<double>{ 1.0, 1.0 })
+        );
+    std::cout << TinyDIP::cot(MultiChannelImage3) << "\n\n";
+    auto func = 
+        [&](auto&& input)
+        {
+            return TinyDIP::tan(
+                std::execution::seq,
+                    TinyDIP::abs(
+                        std::execution::seq,
+                        TinyDIP::cot(
+                            std::execution::seq,
+                            input
+                        )
+                    )
+                );
+        };
+    for (std::size_t i = 0; i < 10000; ++i)
+    {
+        MultiChannelImage3.at(0, 0) = 
+            TinyDIP::to_complex(func(MultiChannelImage3.at(0, 0)));
+    }
+    std::cout << MultiChannelImage3.at(0, 0) << "\n\n";
 
     using namespace std::complex_literals;
     std::cout << "abs function with TinyDIP::MultiChannel\n";
