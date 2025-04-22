@@ -138,6 +138,12 @@ namespace TinyDIP
     template<std::size_t, typename, typename...>
     struct recursive_unwrap_type { };
 
+    template<class T>
+    struct recursive_unwrap_type<0, T>
+    {
+        using type = T;
+    };
+
     template<class...Ts1, template<class...>class Container1, typename... Ts>
     struct recursive_unwrap_type<1, Container1<Ts1...>, Ts...>
     {
