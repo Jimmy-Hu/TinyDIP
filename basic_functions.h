@@ -1548,7 +1548,7 @@ namespace TinyDIP
         {
             //  recursive_flatten template function implementation
             template<std::ranges::range T, class OutputContainer>
-            constexpr auto operator()(const T& input, OutputContainer output_container) const
+            constexpr auto operator()(const T& input, OutputContainer& output_container) const
             {
                 output_container.append_range(input);
                 return output_container;
