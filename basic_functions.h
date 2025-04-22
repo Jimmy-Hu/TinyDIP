@@ -722,23 +722,6 @@ namespace TinyDIP
         return output;
     }
 
-    //  recursive_minmax template function implementation
-    //  Reference: https://codereview.stackexchange.com/q/288208/231235
-    template<std::size_t unwrap_level = 1, std::ranges::forward_range T, class Proj = std::identity,
-                    std::indirect_strict_weak_order<
-                    std::projected<std::ranges::iterator_t<T>, Proj>> Comp = std::ranges::less>
-    constexpr static auto recursive_minmax(T&& numbers, Comp comp = {}, Proj proj = {})
-    {
-        if constexpr (unwrap_level > 1)
-        {
-            return std::ranges::minmax(recursive_flatten_view<unwrap_level>(numbers), comp, proj);
-        }
-        else
-        {
-            return std::ranges::minmax(numbers, comp, proj);
-        }
-    }
-
     //  recursive_print template function implementation
     template<typename T>
     constexpr void recursive_print(const T& input, const std::size_t level = 0)
@@ -1638,6 +1621,23 @@ namespace TinyDIP
         return std::views::all(recursive_flatten<unwrap_level>(input, output_container));
     }
     #endif
+
+    //  recursive_minmax template function implementation
+    //  Reference: https://codereview.stackexchange.com/q/288208/231235
+    template<std::size_t unwrap_level = 1, std::ranges::forward_range T, class Proj = std::identity,
+                    std::indirect_strict_weak_order<
+                    std::projected<std::ranges::iterator_t<T>, Proj>> Comp = std::ranges::less>
+    constexpr static auto recursive_minmax(T&& numbers, Comp comp = {}, Proj proj = {})
+    {
+        if constexpr (unwrap_level > 1)
+        {
+            return std::ranges::minmax(recursive_flatten_view<unwrap_level>(numbers), comp, proj);
+        }
+        else
+        {
+            return std::ranges::minmax(numbers, comp, proj);
+        }
+    }
 
     //  hypot Template Function Implementation
     template<typename... Args>
