@@ -1579,6 +1579,31 @@ namespace TinyDIP
         inline constexpr recursive_flatten_fn recursive_flatten;
     }
 
+    //  recursive_flatten template function implementation with unwrap level
+    template<std::size_t unwrap_level, class T, class OutputContainer>
+    constexpr auto recursive_flatten(const T& input, OutputContainer& output_container)
+    {
+        if constexpr (unwrap_level > 1)
+        {
+            for (const auto& element : input) {
+                output_container = recursive_flatten<unwrap_level - 1>(element, output_container);
+            }
+            return output_container;
+        }
+        else
+        {
+            #if __cplusplus > 202302L || _HAS_CXX23 
+            output_container.append_range(input);
+            #else
+            for (const auto& element : input)
+            {
+                output_container.emplace_back(element);
+            }
+            #endif
+            return output_container;
+        }
+    }
+
     #if __cplusplus > 202302L || _HAS_CXX23 
     //  recursive_flatten_view template function implementation with unwrap level
     template<std::size_t unwrap_level, typename T>
