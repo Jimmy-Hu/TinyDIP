@@ -1441,8 +1441,9 @@ namespace TinyDIP
     }
 
     //  subimage template function implementation
-    //  Old Test: https://godbolt.org/z/9vv3eGYhq
-    //  Test: https://godbolt.org/z/za9o7KnMP
+    //  Old Test (only for 2D case): https://godbolt.org/z/9vv3eGYhq
+    //  Old Test (not using range-based parameters): https://godbolt.org/z/za9o7KnMP
+    //  Test: https://godbolt.org/z/oc1M3ojWs
     template<typename ElementT>
     constexpr static auto subimage(
         const Image<ElementT>& input,
@@ -1453,7 +1454,10 @@ namespace TinyDIP
         const ElementT default_element = ElementT{}
     )
     {
-        return subimage(input, {width, height}, {xcenter, ycenter}, default_element);
+        return subimage(input, 
+            std::vector<std::size_t>{width, height}, 
+            std::vector<std::size_t>{xcenter, ycenter}, 
+            default_element);
     }
 
     //  subimage2 template function implementation
