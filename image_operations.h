@@ -154,6 +154,23 @@ namespace TinyDIP
         return output;
     }
 
+    //  linear_index_to_indices template function implementation
+    //  Helper function to convert linear index to N-dimensional indices
+    template<std::ranges::input_range Sizes>
+    requires(std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>)
+    constexpr static std::vector<std::size_t> linear_index_to_indices(
+        const std::size_t linearIndex,
+        const Sizes& strides,
+        const Sizes& sizes)
+    {
+        const std::size_t dim = std::ranges::size(sizes);
+        std::vector<std::size_t> indices(dim);
+        for (std::size_t i = 0; i < dim; ++i) {
+            indices[i] = (linearIndex / strides[i]) % sizes[i];
+        }
+        return indices;
+    }
+
     //  generate template function implementation
     template<std::ranges::input_range Sizes, typename F>
     requires((std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>) and
