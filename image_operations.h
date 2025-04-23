@@ -1370,38 +1370,6 @@ namespace TinyDIP
         return;
     }
 
-    //  subimage template function implementation
-    //  Test: https://godbolt.org/z/9vv3eGYhq
-    template<typename ElementT>
-    constexpr static auto subimage(
-        const Image<ElementT>& input,
-        const std::size_t width,
-        std::size_t height,
-        std::size_t xcenter,
-        std::size_t ycenter,
-        ElementT default_element = ElementT{}
-    )
-    {
-        Image<ElementT> output(width, height);
-        auto cornerx = xcenter - static_cast<std::size_t>(std::floor(static_cast<double>(width) / 2));
-        auto cornery = ycenter - static_cast<std::size_t>(std::floor(static_cast<double>(height) / 2));
-        for (std::size_t y = 0; y < output.getHeight(); ++y)
-        {
-            for (std::size_t x = 0; x < output.getWidth(); ++x)
-            {
-                if (cornerx + x >= input.getWidth() || cornery + y >= input.getHeight())
-                {
-                    output.at(x, y) = default_element;
-                }
-                else
-                {
-                    output.at(x, y) = input.at(cornerx + x, cornery + y);
-                }
-            }
-        }
-        return output;
-    }
-
     //  subimage template function implementation for N dimensional image
     template<typename ElementT>
     constexpr static auto subimage(
@@ -1455,6 +1423,22 @@ namespace TinyDIP
         }
 
         return output;
+    }
+
+    //  subimage template function implementation
+    //  Old Test: https://godbolt.org/z/9vv3eGYhq
+    //  Test: https://godbolt.org/z/za9o7KnMP
+    template<typename ElementT>
+    constexpr static auto subimage(
+        const Image<ElementT>& input,
+        const std::size_t width,
+        const std::size_t height,
+        const std::size_t xcenter,
+        const std::size_t ycenter,
+        const ElementT default_element = ElementT{}
+    )
+    {
+        return subimage(input, {width, height}, {xcenter, ycenter}, default_element);
     }
 
     //  subimage2 template function implementation
