@@ -1427,14 +1427,10 @@ namespace TinyDIP
                 }
             }
 
-            if (valid)
-            {
-                output.set(idx) = input.at_without_boundary_check(input_indices);
-            }
-            else
-            {
-                output.set(idx) = default_element;
-            }
+            // Assign value
+            output.set(idx) = valid ? 
+                input.at_without_boundary_check(input_indices) : 
+                default_element;
         }
 
         return output;
