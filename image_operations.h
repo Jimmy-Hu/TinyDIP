@@ -1462,7 +1462,9 @@ namespace TinyDIP
         const ElementT default_element = ElementT{}
     )
     {
-        return subimage(input, 
+        return subimage(
+            std::execution::seq,
+            input, 
             std::vector<std::size_t>{width, height}, 
             std::vector<std::size_t>{xcenter, ycenter}, 
             default_element);
