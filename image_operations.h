@@ -1371,14 +1371,16 @@ namespace TinyDIP
     }
 
     //  subimage template function implementation for N dimensional image
-    template<typename ElementT, std::ranges::input_range Sizes, std::ranges::input_range Centers>
+    template<class ExecutionPolicy, typename ElementT, std::ranges::input_range Sizes, std::ranges::input_range Centers>
     requires (
+        (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) &&
         (std::same_as<std::ranges::range_value_t<Sizes>, std::size_t> ||
          std::same_as<std::ranges::range_value_t<Sizes>, int>) &&
         (std::same_as<std::ranges::range_value_t<Centers>, std::size_t> ||
          std::same_as<std::ranges::range_value_t<Centers>, int>)
     )
     constexpr static auto subimage(
+        ExecutionPolicy&& execution_policy,
         const Image<ElementT>& input,
         const Sizes& new_sizes,
         const Centers& centers,
@@ -1399,22 +1401,32 @@ namespace TinyDIP
 
         Image<ElementT> output(new_sizes);
 
-        // Precompute strides for the output dimensions
+        std::vector<std::size_t> new_sizes_vec;
+        new_sizes_vec.resize(std::ranges::size(new_sizes));  // ✅ Pre-size the vector
+
+        std::transform(
+            std::forward<ExecutionPolicy>(execution_policy),
+            std::ranges::cbegin(new_sizes),
+            std::ranges::cend(new_sizes),
+            std::ranges::begin(new_sizes_vec),  // Valid since vector is pre-sized
+            [](auto&& element) { return static_cast<std::size_t>(element); }
+        );
+
+        // Precompute strides using new_sizes_vec
         std::vector<std::size_t> strides(dim, 1);
         for (std::size_t i = 1; i < dim; ++i)
         {
-            strides[i] = strides[i - 1] * new_sizes[i - 1];
+            strides[i] = strides[i - 1] * new_sizes_vec[i - 1];
         }
 
+        // Iterate through all output elements
         const std::size_t total_elements = output.count();
         for (std::size_t idx = 0; idx < total_elements; ++idx)
         {
-            std::vector<std::size_t> output_indices(dim);
-            for (std::size_t i = 0; i < dim; ++i)
-            {
-                output_indices[i] = (idx / strides[i]) % new_sizes[i];
-            }
+            // Use helper function to get indices
+            const auto output_indices = linear_index_to_indices(idx, strides, new_sizes_vec);
 
+            // Compute input indices and validate
             bool valid = true;
             std::vector<std::size_t> input_indices(dim);
             for (std::size_t i = 0; i < dim; ++i)
