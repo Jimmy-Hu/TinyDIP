@@ -5,6 +5,8 @@
 #include "../image.h"
 #include "../image_io.h"
 #include "../image_operations.h"
+#include "../timer.h"
+#include <tbb/parallel_for.h>
 
 template<class ExPo, class ElementT>
 requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
@@ -59,16 +61,12 @@ constexpr static auto DiamondWheelAnalysisTest(
 
 int main()
 {
-	auto start = std::chrono::system_clock::now();
+	TinyDIP::Timer timer1;
 	std::string image_filename = "../InputImages/DiamondWheelTool/1.bmp";
 	auto image_input = TinyDIP::bmp_read(image_filename.c_str(), true);
 	image_input = TinyDIP::copyResizeBicubic(image_input, 3 * image_input.getWidth(), 3 * image_input.getHeight());
 	TinyDIP::bmp_write("BeforeProcessing", image_input);
 	auto output_image = DiamondWheelAnalysisTest(std::execution::seq, image_input);
 	TinyDIP::bmp_write("AfterProcessing", output_image);
-	auto end = std::chrono::system_clock::now();
-	std::chrono::duration<double> elapsed_seconds = end - start;
-	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-	std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
 	return EXIT_SUCCESS;
 }
