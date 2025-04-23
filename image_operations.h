@@ -1402,6 +1402,61 @@ namespace TinyDIP
         return output;
     }
 
+    //  subimage template function implementation for N dimensional image
+    template<typename ElementT>
+    constexpr static auto subimage(
+        const Image<ElementT>& input,
+        const std::vector<std::size_t>& new_sizes,
+        const std::vector<std::size_t>& centers,
+        const ElementT default_element = ElementT{})
+    {
+        const std::size_t dim = input.getDimensionality();
+        if (new_sizes.size() != dim || centers.size() != dim) {
+            throw std::runtime_error("subimage: new_sizes and centers must match input dimensionality");
+        }
+
+        // Compute start indices for each dimension
+        std::vector<std::size_t> start(dim);
+        for (std::size_t i = 0; i < dim; ++i) {
+            start[i] = centers[i] - static_cast<std::size_t>(std::floor(static_cast<double>(new_sizes[i]) / 2.0));
+        }
+
+        Image<ElementT> output(new_sizes);
+
+        // Precompute strides for the output dimensions
+        std::vector<std::size_t> strides(dim, 1);
+        for (std::size_t i = 1; i < dim; ++i) {
+            strides[i] = strides[i - 1] * new_sizes[i - 1];
+        }
+
+        const std::size_t total_elements = output.count();
+        for (std::size_t idx = 0; idx < total_elements; ++idx) {
+            std::vector<std::size_t> output_indices(dim);
+            for (std::size_t i = 0; i < dim; ++i) {
+                output_indices[i] = (idx / strides[i]) % new_sizes[i];
+            }
+
+            bool valid = true;
+            std::vector<std::size_t> input_indices(dim);
+            for (std::size_t i = 0; i < dim; ++i) {
+                input_indices[i] = start[i] + output_indices[i];
+                if (input_indices[i] >= input.getSize(i)) {
+                    valid = false;
+                    break;
+                }
+            }
+
+            if (valid) {
+                output.set(idx) = input.at_without_boundary_check(input_indices);
+            }
+            else {
+                output.set(idx) = default_element;
+            }
+        }
+
+        return output;
+    }
+
     //  subimage2 template function implementation
     template<typename ElementT>
     constexpr static auto subimage2(const Image<ElementT>& input, const std::size_t startx, const std::size_t endx, const std::size_t starty, const std::size_t endy)
