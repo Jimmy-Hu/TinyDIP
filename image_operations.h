@@ -136,6 +136,15 @@ namespace TinyDIP
         return output;
     }
 
+    //  zeros template function implementation
+    template<typename ElementT, std::ranges::input_range Sizes>
+    requires (std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>) or
+             (std::same_as<std::ranges::range_value_t<Sizes>, int>)
+    constexpr static auto zeros(const Sizes& input)
+    {
+        return Image<ElementT>(input);
+    }
+
     //  ones template function implementation
     template<typename ElementT, std::same_as<std::size_t>... Sizes>
     constexpr static auto ones(Sizes... sizes)
