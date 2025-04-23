@@ -631,6 +631,21 @@ namespace TinyDIP
             return index;
         }
 
+        //  calculateIndex template function implementation
+        template<std::ranges::input_range Indices>
+        requires (std::same_as<std::ranges::range_value_t<Indices>, std::size_t>)
+        constexpr std::size_t calculateIndex(const Indices& indices) const
+        {
+            std::size_t index = 0;
+            std::size_t stride = 1;
+            std::size_t i = 0;
+            for (const auto& idx : indices) {
+                index += idx * stride;
+                stride *= size[i++];
+            }
+            return index;
+        }
+
         template<typename... Args>
         void checkBoundary(const Args... indexInput) const
         {
