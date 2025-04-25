@@ -1736,7 +1736,7 @@ namespace TinyDIP
     }
 
     template<class InputT1, class InputT2>
-    constexpr static auto cubicPolate(const InputT1 v0, const InputT1 v1, const InputT1 v2, const InputT1 v3, const InputT2 frac)
+    constexpr static auto cubic_interpolate(const InputT1 v0, const InputT1 v1, const InputT1 v2, const InputT1 v3, const InputT2 frac)
     {
         auto A = (v3-v2)-(v0-v1);
         auto B = (v0-v1)-A;
@@ -1748,13 +1748,13 @@ namespace TinyDIP
     template<class InputT = float, class ElementT>
     constexpr static auto bicubicPolate(const ElementT* const ndata, const InputT fracx, const InputT fracy)
     {
-        auto x1 = cubicPolate( ndata[0], ndata[1], ndata[2], ndata[3], fracx );
-        auto x2 = cubicPolate( ndata[4], ndata[5], ndata[6], ndata[7], fracx );
-        auto x3 = cubicPolate( ndata[8], ndata[9], ndata[10], ndata[11], fracx );
-        auto x4 = cubicPolate( ndata[12], ndata[13], ndata[14], ndata[15], fracx );
+        auto x1 = cubic_interpolate( ndata[0], ndata[1], ndata[2], ndata[3], fracx );
+        auto x2 = cubic_interpolate( ndata[4], ndata[5], ndata[6], ndata[7], fracx );
+        auto x3 = cubic_interpolate( ndata[8], ndata[9], ndata[10], ndata[11], fracx );
+        auto x4 = cubic_interpolate( ndata[12], ndata[13], ndata[14], ndata[15], fracx );
 
         return std::clamp(
-                    static_cast<InputT>(cubicPolate(x1, x2, x3, x4, fracy)),
+                    static_cast<InputT>(cubic_interpolate(x1, x2, x3, x4, fracy)),
                     static_cast<InputT>(std::numeric_limits<ElementT>::min()),
                     static_cast<InputT>(std::numeric_limits<ElementT>::max()));
     }
