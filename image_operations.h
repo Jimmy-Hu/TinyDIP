@@ -1503,8 +1503,8 @@ namespace TinyDIP
         assert(startx <= endx);
         assert(starty <= endy);
         Image<ElementT> output(endx - startx + 1, endy - starty + 1);
-        auto width = output.getWidth();
-        auto height = output.getHeight();
+        const auto width = output.getWidth();
+        const auto height = output.getHeight();
         #pragma omp parallel for collapse(2)
         for (std::size_t y = 0; y < height; ++y)
         {
