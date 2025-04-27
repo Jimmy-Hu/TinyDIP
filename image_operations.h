@@ -1586,10 +1586,10 @@ namespace TinyDIP
     //  pixelwiseOperation template function implementation
     template<std::size_t unwrap_level = 1, class ExPo, class InputT>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr static auto pixelwiseOperation(ExPo execution_policy, auto op, const Image<InputT>& input1)
+    constexpr static auto pixelwiseOperation(ExPo&& execution_policy, auto op, const Image<InputT>& input1)
     {
         auto transformed_data = recursive_transform<unwrap_level>(
-                                    execution_policy,
+                                    std::forward<ExPo>(execution_policy),
                                     op,
                                     (input1.getImageData()));
         auto output = Image<recursive_unwrap_type_t<unwrap_level, decltype(transformed_data)>>(
