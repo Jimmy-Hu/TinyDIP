@@ -1556,7 +1556,7 @@ namespace TinyDIP
 
             template<std::ranges::range Container, class OutputContainer>
             requires (std::ranges::range<std::ranges::range_value_t<Container>>)
-            constexpr auto operator()(const Container& input, OutputContainer output_container) const
+            constexpr auto operator()(const Container& input, OutputContainer& output_container) const
             {
                 for (const auto& element : input) {
                     output_container = operator()(element, output_container);
