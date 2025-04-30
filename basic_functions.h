@@ -1669,7 +1669,7 @@ namespace TinyDIP
     [[nodiscard]] constexpr static auto apply_multichannel(ExecutionPolicy&& execution_policy, const MultiChannel<ElementT, channel_count>& input, Lambda f, Args... args)
     {
         MultiChannel<decltype(std::invoke(f, input.channels[0], args...)), channel_count> output;
-        std::transform(execution_policy, std::ranges::cbegin(input.channels), std::ranges::cend(input.channels), std::ranges::begin(output.channels),
+        std::transform(std::forward<ExecutionPolicy>(execution_policy), std::ranges::cbegin(input.channels), std::ranges::cend(input.channels), std::ranges::begin(output.channels),
             [&](auto&& input) { return std::invoke(f, input, args...); });
         return output;
     }
