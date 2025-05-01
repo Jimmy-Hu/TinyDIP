@@ -1719,7 +1719,7 @@ namespace TinyDIP
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel(input, [&](auto&& _input) {return std::abs(_input); });
+            return apply_multichannel(input, [&](auto&& _input) {return abs(_input); });
         }
         else
         {
