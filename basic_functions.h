@@ -1763,7 +1763,7 @@ namespace TinyDIP
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel(execution_policy, input, [&](auto&& _input, auto&& input_exp) {return pow(_input, input_exp); }, exp);
+            return apply_multichannel(std::forward<ExecutionPolicy>(execution_policy), input, [&](auto&& _input, auto&& input_exp) {return pow(std::forward<ExecutionPolicy>(execution_policy), _input, input_exp); }, exp);
         }
         else
         {
