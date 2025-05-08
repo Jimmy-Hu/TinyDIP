@@ -1821,7 +1821,7 @@ namespace TinyDIP
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel(execution_policy, input, [&](auto&& _input) {return std::cbrt(_input); });
+            return apply_multichannel(std::forward<ExecutionPolicy>(execution_policy), input, [&](auto&& _input) {return cbrt(std::forward<ExecutionPolicy>(execution_policy), _input); });
         }
         else
         {
