@@ -1864,7 +1864,7 @@ namespace TinyDIP
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel(input, [&](auto&& _input) {return std::cos(_input); });
+            return apply_multichannel(input, [&](auto&& _input) {return cos(_input); });
         }
         else
         {
