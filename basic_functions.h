@@ -1959,7 +1959,11 @@ namespace TinyDIP
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel(input, [&](auto&& _input) {return 1 / std::cos(_input); });
+            return apply_multichannel(input, [&](auto&& _input) {return 1 / cos(_input); });
+        }
+        else if constexpr (is_complex<T>::value)
+        {
+            return static_cast<T>(1) / cos(input);
         }
         else
         {
