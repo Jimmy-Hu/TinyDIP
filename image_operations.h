@@ -4022,14 +4022,6 @@ namespace TinyDIP
         }
     }
 
-    //  imbilatfilt template function implementation
-    template<typename ElementT, typename SigmaT = double>
-    requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
-    constexpr static auto imbilatfilt(const Image<ElementT>& input, SigmaT spatialSigma = 1, std::size_t NeighborhoodSize = 0)
-    {
-
-    }
-
 }
 
 #endif
