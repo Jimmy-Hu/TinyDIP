@@ -3446,6 +3446,71 @@ namespace TinyDIP
         return get_center_pixel(std::execution::seq, input);
     }
 
+    //  windowed_filter template function implementation
+    template<class ElementT, class ExecutionPolicy, class Filter, class SizeT = std::size_t>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr static auto windowed_filter(
+        ExecutionPolicy&& execution_policy,
+        const Image<ElementT>& input,
+        SizeT window_size,
+        Filter filter,
+        BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
+        ElementT value_for_constant_padding = ElementT{}
+    )
+    {
+        const std::size_t dim = input.getDimensionality();
+
+        auto padded_image = input;
+        if (dim == 2)                   //  padding algorithm supported
+        {
+            padded_image = generate_padded_image(
+                std::forward<ExecutionPolicy>(execution_policy),
+                input,
+                window_size,
+                window_size,
+                boundaryCondition,
+                value_for_constant_padding
+            );
+        }
+        // Iterate over all elements in the original image
+        const std::size_t total_elements = input.count();
+        #pragma omp parallel for
+        for (std::size_t idx = 0; idx < total_elements; ++idx)
+        {
+            // Convert linear index to N-D indices (original image)
+            auto indices = linear_index_to_indices(idx, input.getSize());
+
+            // Convert to padded indices
+            std::vector<std::size_t> padded_indices;
+            for (auto& i : indices) {
+                padded_indices.emplace_back(i + window_size);
+            }
+
+            // Extract window
+            std::vector<std::size_t> window_sizes(input.getDimensionality(), window_size);
+            auto window = subimage(
+                std::forward<ExecutionPolicy>(execution_policy),
+                padded_image,
+                window_sizes,
+                padded_indices
+            );
+
+            // Apply filter and store result
+            padded_image.at_without_boundary_check(padded_indices) =
+                std::invoke(filter, window);
+        }
+        
+        // Crop padded image to original size
+        std::vector<std::size_t> original_sizes = input.getSize();
+        std::vector<std::size_t> centers;
+        for (auto& s : padded_image.getSize())
+        {
+            centers.emplace_back(s / 2);  // Center of padded image
+        }
+        auto output = subimage(std::forward<ExecutionPolicy>(execution_policy), padded_image, original_sizes, centers);
+        return output;
+    }
+
     //  draw_point template function implementation
     template<typename ElementT, std::size_t dimension = 2>
     constexpr static auto draw_point(
