@@ -180,6 +180,23 @@ namespace TinyDIP
         return indices;
     }
 
+    //  linear_index_to_indices template function implementation
+    template<std::ranges::input_range Sizes>
+    requires(std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>)
+    static std::vector<std::size_t> linear_index_to_indices(
+        std::size_t linear_idx,
+        const Sizes& sizes
+    )
+    {
+        std::vector<std::size_t> indices;
+        std::size_t stride = 1;
+        for (auto& s : sizes) {
+            indices.emplace_back((linear_idx / stride) % s);
+            stride *= s;
+        }
+        return indices;
+    }
+
     //  generate template function implementation
     template<std::ranges::input_range Sizes, typename F>
     requires((std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>) and
