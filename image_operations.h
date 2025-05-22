@@ -2061,10 +2061,10 @@ namespace TinyDIP
         });
     }
 
-    
+    //  multiplies Template Function Implementation
     template<class InputT, class TimesT>
     requires(std::floating_point<TimesT> || std::integral<TimesT>)
-    constexpr static Image<InputT> multiplies(const TimesT times, const Image<InputT>& input1)
+    constexpr static auto multiplies(const TimesT times, const Image<InputT>& input1)
     {
         return multiplies(input1, times);
     }
