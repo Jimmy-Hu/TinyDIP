@@ -2309,6 +2309,20 @@ namespace TinyDIP
         }
     }
 
+    //  erfc Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto erfc(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return erfc(_input); });
+        }
+        else
+        {
+            return std::erfc(input);
+        }
+    }
+
     //  isinf Template Function Implementation
     template<typename T>
     [[nodiscard]] constexpr static auto isinf(const T& input)
