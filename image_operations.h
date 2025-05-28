@@ -183,7 +183,7 @@ namespace TinyDIP
     //  linear_index_to_indices template function implementation
     template<std::ranges::input_range Sizes>
     requires(std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>)
-    static std::vector<std::size_t> linear_index_to_indices(
+    constexpr static std::vector<std::size_t> linear_index_to_indices(
         std::size_t linear_idx,
         const Sizes& sizes
     )
