@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
         std::cout << "Save output to " << difference_output_path << '\n';
         TinyDIP::bmp_write(
             difference_output_path.c_str(),
-            TinyDIP::increase_intensity(TinyDIP::difference(input_img, output_img), static_cast<TinyDIP::GrayScale>(50))
+            difference_output
         );
     }
     return EXIT_SUCCESS;
