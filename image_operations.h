@@ -3461,7 +3461,7 @@ namespace TinyDIP
         const Image<ElementT>& input
     )
     {
-        return input.at_without_boundary_check(get_center_location(execution_policy, input));
+        return input.at_without_boundary_check(get_center_location(std::forward<ExecutionPolicy>(execution_policy), input));
     }
 
     //  get_center_pixel template function implementation
