@@ -2354,6 +2354,34 @@ namespace TinyDIP
             }, input1, input2);
     }
 
+    //  difference Template Function Implementation
+    template<class ExPo, std::ranges::input_range RangeT>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static auto difference(ExPo&& execution_policy, const RangeT& input1, const RangeT& input2)
+    {
+        if (input1.size() != input2.size())
+        {
+            throw std::runtime_error("Size mismatched!");
+        }
+        std::vector<std::ranges::range_value_t<RangeT>> difference_vector(input1.size());
+        std::transform(
+            std::forward<ExPo>(execution_policy),
+            std::ranges::cbegin(input1),
+            std::ranges::cend(input1),
+            std::ranges::cbegin(input2),
+            std::ranges::begin(difference_vector),
+            [&](auto&& element1, auto&& element2)
+            {
+                if (element1 > element2)
+                {
+                    return element1 - element2;
+                }
+                return element2 - element1;
+            }
+        );
+        return difference_vector;
+    }
+
     //  manhattan_distance Template Function Implementation
     //  https://codereview.stackexchange.com/q/270857/231235
     template<arithmetic ElementT = double>
