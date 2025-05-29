@@ -3607,6 +3607,38 @@ namespace TinyDIP
         );
     }
 
+    //  bilateral_filter template function implementation
+    template<class ExecutionPolicy, typename ElementT, class Fr, class Gs, std::integral SizeT = std::size_t>
+    requires ((std::same_as<ElementT, RGB>) ||
+              (std::same_as<ElementT, RGB_DOUBLE>) ||
+              (std::same_as<ElementT, HSV>) ||
+              (is_MultiChannel<ElementT>::value))
+    constexpr static auto bilateral_filter(
+        ExecutionPolicy&& execution_policy,
+        const Image<ElementT>& input,
+        const SizeT window_size,
+        Fr fr,
+        Gs gs,
+        BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
+        std::function<void(double)> progress_callback = nullptr
+    )
+    {
+        return apply_each(
+            input,
+            [&](auto&& each_plane)
+            {
+                return bilateral_filter(
+                    std::forward<ExecutionPolicy>(execution_policy),
+                    each_plane,
+                    window_size,
+                    fr,
+                    gs,
+                    boundaryCondition,
+                    progress_callback
+                    );
+            });
+    }
+
     //  draw_point template function implementation
     template<typename ElementT, std::size_t dimension = 2>
     constexpr static auto draw_point(
