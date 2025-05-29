@@ -3868,6 +3868,25 @@ namespace TinyDIP
         }
     }
 
+    //  to_double template function implementation (with Execution Policy)
+    template<class ExecutionPolicy, typename ElementT = double>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr static auto to_double(ExecutionPolicy&& execution_policy, const Image<ElementT>& input)
+    {
+        if constexpr ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
+        {
+            return apply_each(input, [&](auto&& planes) { return to_double(std::forward<ExecutionPolicy>(execution_policy), planes); });
+        }
+        else
+        {
+            Image<double> output_image(
+                TinyDIP::recursive_transform<1>(std::forward<ExecutionPolicy>(execution_policy), [](auto&& _input) { return static_cast<double>(_input); }, input.getImageData()),
+                input.getSize()
+            );
+            return output_image;
+        }
+    }
+
     //  to_string template function implementation
     template<typename ElementT = double>
     constexpr static auto to_string(const Image<ElementT>& input)
