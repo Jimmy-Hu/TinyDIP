@@ -3887,6 +3887,13 @@ namespace TinyDIP
         }
     }
 
+    //  to_double template function implementation
+    template<typename ElementT = double>
+    constexpr static auto to_double(const Image<ElementT>& input)
+    {
+        return to_double(std::execution::seq, input);
+    }
+
     //  to_string template function implementation
     template<typename ElementT = double>
     constexpr static auto to_string(const Image<ElementT>& input)
