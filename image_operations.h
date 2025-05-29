@@ -3718,6 +3718,18 @@ namespace TinyDIP
             });
     }
 
+    //  increase_intensity template function implementation
+    template<typename ElementT, class TimesT>
+    requires (std::same_as<ElementT, RGB> || std::same_as<ElementT, RGB_DOUBLE>)
+    constexpr static auto increase_intensity(const Image<ElementT>& input, const TimesT times)
+    {
+        auto HSV_image = TinyDIP::rgb2hsv(input);
+        auto Hplane = TinyDIP::getHplane(HSV_image);
+        auto Splane = TinyDIP::getSplane(HSV_image);
+        auto Vplane = TinyDIP::getVplane(HSV_image);
+        return hsv2rgb(constructHSV(Hplane, Splane, multiplies(Vplane, times)));
+    }
+
     //  draw_point template function implementation
     template<typename ElementT, std::size_t dimension = 2>
     constexpr static auto draw_point(
