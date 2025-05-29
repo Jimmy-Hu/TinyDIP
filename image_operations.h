@@ -3575,6 +3575,38 @@ namespace TinyDIP
         return static_cast<ElementT>(sum / weight_sum);
     }
 
+    //  bilateral_filter template function implementation
+    template<typename ElementT, class ExecutionPolicy, class Fr, class Gs, std::integral SizeT = std::size_t>
+    requires((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) and
+             (std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value))
+    constexpr static auto bilateral_filter(
+        ExecutionPolicy&& execution_policy,
+        const Image<ElementT>& input,
+        const SizeT window_size,
+        const Fr fr,
+        const Gs gs,
+        const BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
+        std::function<void(double)> progress_callback = nullptr,
+        const ElementT value_for_constant_padding = ElementT{}
+        )
+    {
+        if (input.getDimensionality() != 2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        return windowed_filter(
+            std::forward<ExecutionPolicy>(execution_policy),
+            input,
+            window_size,
+            [&](auto&& window) {
+                return bilateral_filter_detail(window, fr, gs);
+            },
+            boundaryCondition,
+            value_for_constant_padding,
+            progress_callback
+        );
+    }
+
     //  draw_point template function implementation
     template<typename ElementT, std::size_t dimension = 2>
     constexpr static auto draw_point(
