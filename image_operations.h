@@ -3538,6 +3538,43 @@ namespace TinyDIP
         return output;
     }
 
+    //  bilateral_filter_detail template function implementation
+    template<typename ElementT, class Fr, class Gs, class FloatingType = double>
+    requires(std::invocable<Fr, ElementT> && std::invocable<Gs, std::size_t>)
+    constexpr static auto bilateral_filter_detail(
+        const Image<ElementT>& input,
+        Fr fr,
+        Gs gs
+    )
+    {
+        const ElementT center_pixel = get_center_pixel(std::execution::seq, input);
+        auto center_location = get_center_location(std::execution::seq, input);
+        FloatingType sum{}, weight_sum{};
+        const std::size_t total_elements = input.count();
+        for (std::size_t idx = 0; idx < total_elements; ++idx)
+        {
+            // Convert linear index to N-D indices (original image)
+            auto indices = linear_index_to_indices(idx, input.getSize());
+            auto fr_result = std::invoke(
+                fr,
+                std::abs(input.at_without_boundary_check(indices) - center_pixel)
+            );
+            auto location_difference = difference(std::execution::seq, indices, center_location);
+            auto gs_result = std::invoke(
+                gs,
+                std::reduce(std::ranges::cbegin(location_difference), std::ranges::cend(location_difference))
+            );
+            sum += input.at_without_boundary_check(indices) * fr_result * gs_result;
+            weight_sum += fr_result * gs_result;
+        }
+        
+        if (weight_sum == 0)
+        {
+            return static_cast<ElementT>(sum);
+        }
+        return static_cast<ElementT>(sum / weight_sum);
+    }
+
     //  draw_point template function implementation
     template<typename ElementT, std::size_t dimension = 2>
     constexpr static auto draw_point(
