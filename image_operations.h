@@ -3482,7 +3482,8 @@ namespace TinyDIP
         SizeT window_size,
         Filter filter,
         BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
-        ElementT value_for_constant_padding = ElementT{}
+        ElementT value_for_constant_padding = ElementT{},
+        std::function<void(double)> progress_callback = nullptr
     )
     {
         const std::size_t dim = input.getDimensionality();
@@ -3501,6 +3502,56 @@ namespace TinyDIP
         }
         // Iterate over all elements in the original image
         const std::size_t total_elements = input.count();
+        #ifndef USE_OPENMP
+        auto indices_view = std::views::iota(std::size_t{ 0 }, total_elements);
+        // Progress tracking variables
+        std::atomic<std::size_t> processed_count = 0;
+        std::atomic<std::size_t> next_report = 0;
+        std::mutex report_mutex;
+        const std::size_t report_step = std::max<std::size_t>(1, total_elements / 100);
+        auto process_element = [&](auto&& idx) {
+            // Convert linear index to N-D indices (original image)
+            auto indices = linear_index_to_indices(idx, input.getSize());
+
+            // Convert to padded indices
+            std::vector<std::size_t> padded_indices;
+            for (auto& i : indices) {
+                padded_indices.emplace_back(i + window_size);
+            }
+
+            // Extract window
+            std::vector<std::size_t> window_sizes(input.getDimensionality(), window_size);
+            auto window = subimage(
+                std::forward<ExecutionPolicy>(execution_policy),
+                padded_image,
+                window_sizes,
+                padded_indices
+            );
+
+            // Apply filter and store result
+            padded_image.at_without_boundary_check(padded_indices) =
+                std::invoke(filter, window);
+
+            // Progress reporting
+            if (progress_callback) {
+                auto count = ++processed_count;
+                if (count >= next_report.load(std::memory_order_relaxed)) {
+                    std::lock_guard lock(report_mutex);
+                    if (count >= next_report.load(std::memory_order_relaxed)) {
+                        double progress = static_cast<double>(count) / total_elements;
+                        progress_callback(progress);
+                        next_report.store(count + report_step, std::memory_order_relaxed);
+                    }
+                }
+            }
+            };
+        std::for_each(
+            std::forward<ExecutionPolicy>(execution_policy),
+            indices_view.begin(),
+            indices_view.end(),
+            process_element
+        );
+        #else
         #pragma omp parallel for
         for (std::size_t idx = 0; idx < total_elements; ++idx)
         {
@@ -3526,7 +3577,7 @@ namespace TinyDIP
             padded_image.at_without_boundary_check(padded_indices) =
                 std::invoke(filter, window);
         }
-        
+        #endif
         // Crop padded image to original size
         std::vector<std::size_t> original_sizes = input.getSize();
         std::vector<std::size_t> centers;
