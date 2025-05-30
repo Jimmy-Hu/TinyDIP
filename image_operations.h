@@ -3669,10 +3669,6 @@ namespace TinyDIP
         const ElementT value_for_constant_padding = ElementT{}
         )
     {
-        if (input.getDimensionality() != 2)
-        {
-            throw std::runtime_error("Unsupported dimension!");
-        }
         return windowed_filter(
             std::forward<ExecutionPolicy>(execution_policy),
             input,
