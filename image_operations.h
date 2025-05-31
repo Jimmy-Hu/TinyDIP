@@ -2079,11 +2079,12 @@ namespace TinyDIP
         return multiplies(input1, times);
     }
 
-    template<class ExPo, class InputT>
+    //  pixelwise_multiplies Template Function Implementation
+    template<class ExPo, class InputT1, class InputT2>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr static Image<InputT> pixelwise_multiplies(ExPo execution_policy, const Image<InputT>& input1, const Image<InputT>& input2)
+    constexpr static auto pixelwise_multiplies(ExPo&& execution_policy, const Image<InputT1>& input1, const Image<InputT2>& input2)
     {
-        return pixelwiseOperation(execution_policy, std::multiplies<>{}, input1, input2);
+        return pixelwiseOperation(std::forward<ExPo>(execution_policy), std::multiplies<>{}, input1, input2);
     }
 
     template<class InputT, class... Args>
