@@ -157,11 +157,11 @@ namespace TinyDIP
             }
         }
 
-        //  to_probabilities_vector member function
+        //  to_probabilities_vector member function with execution policy
         template<class ExecutionPolicy, class FloatingType = double>
         requires((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) and
                  (std::floating_point<FloatingType>))
-        constexpr std::vector<FloatingType> to_probabilities_vector(ExecutionPolicy&& execution_policy = std::execution::seq) const
+        constexpr std::vector<FloatingType> to_probabilities_vector(ExecutionPolicy&& execution_policy) const
         {
             std::vector<FloatingType> probabilities;
             if constexpr (  std::same_as<ElementT, std::uint8_t> ||
@@ -187,7 +187,7 @@ namespace TinyDIP
                     probability_vector.emplace_back(
                         { key, static_cast<FloatingType>(value) / static_cast<FloatingType>(total_count) });
                 }
-                std::sort(execution_policy, probability_vector.begin(), probability_vector.end(),
+                std::sort(std::forward<ExecutionPolicy>(execution_policy), probability_vector.begin(), probability_vector.end(),
                     [&](const auto& a, const auto& b) { return a.first < b.first; });
                 probabilities.resize(probability_vector.back().first + 1, 0.0);
                 for (const auto& pair : probability_vector)
