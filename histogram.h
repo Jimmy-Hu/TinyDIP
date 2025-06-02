@@ -198,6 +198,14 @@ namespace TinyDIP
             return probabilities;
         }
 
+        //  to_probabilities_vector member function without execution policy
+        template<class FloatingType = double>
+        requires(std::floating_point<FloatingType>)
+        constexpr std::vector<FloatingType> to_probabilities_vector() const
+        {
+            return to_probabilities_vector(std::execution::seq);
+        }
+
         auto cbegin() const 
         {
             if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
