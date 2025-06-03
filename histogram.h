@@ -291,36 +291,36 @@ namespace TinyDIP
             }
         }
 
-        // + operator to add two Histograms
-        Histogram operator+(const Histogram& other) const
+        // += operator to add two Histograms
+        Histogram& operator+=(const Histogram& other) const
         {
             if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
                             (std::same_as<ElementT, std::uint16_t>))
             {
-                auto get_result = std::get<std::vector<CountT>>(histogram);
-                auto get_result_other = std::get<std::vector<CountT>>(other.histogram);
+                auto& get_result = std::get<std::vector<CountT>>(histogram);
+                const auto& get_result_other = std::get<const std::vector<CountT>>(other.histogram);
                 if (get_result.size() != get_result_other.size())
                 {
-                    throw std::runtime_error("Size mismatched!");
+                    throw std::runtime_error("Size mismatched for vector-based histograms!");
                 }
                 for (std::size_t i = 0; i < get_result.size(); i++)
                 {
                     get_result[i] += get_result_other[i];
                 }
                 histogram = get_result;
-                return *this;
+                
             }
             else
             {
-                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
-                auto get_result_other = std::get<std::map<ElementT, CountT>>(other.histogram);
+                auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto get_result_other = std::get<const std::map<ElementT, CountT>>(other.histogram);
                 for (const auto& [key, value] : get_result_other)
                 {
                     get_result[key] += value;
                 }
                 histogram = get_result;
-                return *this;
             }
+            return *this;
         }
 
         // - operator to subtract two Histograms
