@@ -2,12 +2,14 @@
 #define Histogram_H
 
 #include <chrono>
+#include <execution>
 #include <iostream>
 #include <map>
 #ifdef __cpp_lib_print
 #include <print>
 #endif
 #include <utility>
+#include <type_traits>
 #include <variant>
 #include <vector>
 #include "image.h"
