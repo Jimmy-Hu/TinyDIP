@@ -29,11 +29,11 @@ namespace TinyDIP
             if constexpr ((std::same_as<ElementT, std::uint8_t>) or
                           (std::same_as<ElementT, std::uint16_t>))
             {
-                histogram.emplace<std::vector<CountT>>(std::numeric_limits<ElementT>::max() + 1, 0);
+                histogram.template emplace<std::vector<CountT>>(std::numeric_limits<ElementT>::max() + 1, 0);
             }
             else
             {
-                histogram.emplace<std::map<ElementT, CountT>>();
+                histogram.template emplace<std::map<ElementT, CountT>>();
             }
         }
 
