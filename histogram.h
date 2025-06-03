@@ -372,6 +372,14 @@ namespace TinyDIP
             }
         }
 
+        // operator- (using operator-=)
+        Histogram operator-(const Histogram& other) const
+        {
+            Histogram result = *this;
+            result -= other;
+            return result;
+        }
+
         // operator[] to access and modify counts
         CountT& operator[](const ElementT& key)
         {
