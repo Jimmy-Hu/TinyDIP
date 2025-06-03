@@ -400,6 +400,35 @@ namespace TinyDIP
                 return std::get<std::map<ElementT, CountT>>(histogram)[key];
             }
         }
+
+        // const operator[] Implementation
+        const CountT& operator[](const ElementT& key) const
+        {
+            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or
+                            (std::same_as<ElementT, std::uint16_t>))
+            {
+                const auto& get_result = std::get<std::vector<CountT>>(histogram);
+                if (static_cast<std::size_t>(key) >= get_result.size())
+                {
+                    static const CountT zero_count = 0;
+                    return zero_count;
+                }
+                return get_result[static_cast<std::size_t>(key)];
+            }
+            else
+            {
+                const auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                if (auto it = get_result.find(key); it != get_result.end())
+                {
+                    return it->second;
+                }
+                else
+                {
+                    static const CountT zero_count = 0;
+                    return zero_count;
+                }
+            }
+        }
         
     };
 }
