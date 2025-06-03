@@ -323,14 +323,14 @@ namespace TinyDIP
             return *this;
         }
 
-        // - operator to subtract two Histograms
-        Histogram operator-(const Histogram& other) const
+        // -= operator to subtract two Histograms
+        Histogram& operator-=(const Histogram& other) const
         {
             if constexpr (  (std::same_as<ElementT, std::uint8_t>) ||
                             (std::same_as<ElementT, std::uint16_t>))
             {
-                auto get_result = std::get<std::vector<CountT>>(histogram);
-                auto get_result_other = std::get<std::vector<CountT>>(other.histogram);
+                auto& get_result = std::get<std::vector<CountT>>(histogram);
+                const auto& get_result_other = std::get<const std::vector<CountT>>(other.histogram);
                 if (get_result.size() != get_result_other.size())
                 {
                     throw std::runtime_error("Size mismatched!");
@@ -349,9 +349,10 @@ namespace TinyDIP
                 }
                 return Histogram<ElementT, CountT>{ result_data };
             }
-            else {
-                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
-                auto get_result_other = std::get<std::map<ElementT, CountT>>(other.histogram);
+            else
+            {
+                auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& get_result_other = std::get<const std::map<ElementT, CountT>>(other.histogram);
                 std::map<ElementT, CountT> result_data = get_result;
                 for (const auto& [key, value] : get_result_other)
                 {
