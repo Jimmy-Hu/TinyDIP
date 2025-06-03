@@ -20,7 +20,20 @@ namespace TinyDIP
     private:
         std::variant<std::vector<CountT>, std::map<ElementT, CountT>> histogram;
     public:
-        Histogram() = default;
+        // Histogram constructor
+        // Explicitly initialize based on ElementT type
+        Histogram()
+        {
+            if constexpr ((std::same_as<ElementT, std::uint8_t>) or
+                          (std::same_as<ElementT, std::uint16_t>))
+            {
+                histogram.emplace<std::vector<CountT>>(std::numeric_limits<ElementT>::max() + 1, 0);
+            }
+            else
+            {
+                histogram.emplace<std::map<ElementT, CountT>>();
+            }
+        }
 
         Histogram(const std::map<ElementT, CountT>& input)
         {
