@@ -113,6 +113,12 @@ namespace TinyDIP
             }
         }
 
+        //  getCountSum member function without execution policy
+        constexpr auto getCountSum() const
+        {
+            return getCountSum(std::execution::seq);
+        }
+
         //  addCount member function
         constexpr Histogram& addCount(const ElementT& input)
         {
