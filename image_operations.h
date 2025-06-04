@@ -3083,10 +3083,10 @@ namespace TinyDIP
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
     constexpr static auto generate_constant_padding_image(
         ExecutionPolicy&& execution_policy, 
-        const Image<ElementT> input,
-        std::size_t width_expansion,
-        std::size_t height_expansion,
-        ElementT default_value = ElementT{})
+        const Image<ElementT>& input,
+        const std::size_t width_expansion,
+        const std::size_t height_expansion,
+        const ElementT default_value = ElementT{})
     {
         if (input.getDimensionality()!=2)
         {
