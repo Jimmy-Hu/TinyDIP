@@ -3657,15 +3657,15 @@ namespace TinyDIP
     }
 
     //  bilateral_filter template function implementation
-    template<typename ElementT, class ExecutionPolicy, class Fr, class Gs, std::integral SizeT = std::size_t>
+    template<typename ElementT, class ExecutionPolicy, class RangeKernel, class SpatialKernel, std::integral SizeT = std::size_t>
     requires((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) and
              (std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value))
     constexpr static auto bilateral_filter(
         ExecutionPolicy&& execution_policy,
         const Image<ElementT>& input,
         const SizeT window_size,
-        const Fr fr,
-        const Gs gs,
+        const RangeKernel range_kernel,
+        const SpatialKernel spatial_kernel,
         const BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
         std::function<void(double)> progress_callback = nullptr,
         const ElementT value_for_constant_padding = ElementT{}
@@ -3676,7 +3676,7 @@ namespace TinyDIP
             input,
             window_size,
             [&](auto&& window) {
-                return bilateral_filter_detail(window, fr, gs);
+                return bilateral_filter_detail(window, range_kernel, spatial_kernel);
             },
             boundaryCondition,
             value_for_constant_padding,
