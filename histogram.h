@@ -161,6 +161,14 @@ namespace TinyDIP
             }
         }
 
+        //  normalize Template Function Implementation without Execution Policy
+        template<class ProbabilityType = double>
+        constexpr auto normalize()
+        {
+            return normalize<const std::execution::sequenced_policy, ProbabilityType>(std::move(std::execution::seq));
+        }
+
+
         constexpr auto size() const
         {
             if constexpr (  std::same_as<ElementT, std::uint8_t> ||
