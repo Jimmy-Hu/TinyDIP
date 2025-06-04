@@ -66,8 +66,8 @@ namespace TinyDIP
             }
         }
 
-        //  getCount member function
-        constexpr std::size_t getCount(const ElementT& input) const
+        //  getCount member function implementation
+        constexpr auto getCount(const ElementT& input) const
         {
             if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
                             (std::same_as<ElementT, std::uint16_t>))
@@ -83,7 +83,7 @@ namespace TinyDIP
                 }
                 else
                 {
-                    return std::size_t{ 0 };
+                    return CountT{ 0 };
                 }
             }
         }
