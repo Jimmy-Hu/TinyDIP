@@ -3676,8 +3676,16 @@ namespace TinyDIP
             std::forward<ExecutionPolicy>(execution_policy),
             input,
             window_size,
-            [&](auto&& window) {
-                return bilateral_filter_detail(window, range_kernel, spatial_kernel);
+            [&](auto&& window)
+            {
+                return bilateral_filter_detail(
+                    window,
+                    range_kernel,
+                    [&](auto&& element1, auto&& element2)
+                    {
+                        return std::sqrt(std::pow(element1 - element2, 2.0));
+                    },
+                    spatial_kernel);
             },
             boundaryCondition,
             value_for_constant_padding,
