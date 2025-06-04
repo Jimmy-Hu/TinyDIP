@@ -405,14 +405,14 @@ namespace TinyDIP
             if constexpr (  (std::same_as<ElementT, std::uint8_t>) ||
                             (std::same_as<ElementT, std::uint16_t>))
             {
-                auto get_result = std::get<std::vector<CountT>>(histogram);
+                auto& get_result = std::get<std::vector<CountT>>(histogram);
                 if (static_cast<std::size_t>(key) >=
                     get_result.size())
                 {
                     std::cerr << "key = " << +key << '\n';
                     throw std::out_of_range("Index out of range");
                 }
-                return get_result[key];
+                return get_result[static_cast<std::size_t>(key)];
             }
             else
             {
