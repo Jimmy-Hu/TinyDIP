@@ -50,10 +50,14 @@ namespace TinyDIP
         //  Histogram constructor
         Histogram(const Image<ElementT>& input)
         {
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr ((std::same_as<ElementT, std::uint8_t>) or
+                          (std::same_as<ElementT, std::uint16_t>))
             {
-                histogram = std::vector<CountT>(std::numeric_limits<ElementT>::max() + 1);
+                histogram.template emplace<std::vector<CountT>>(std::numeric_limits<ElementT>::max() + 1, 0);
+            }
+            else
+            {
+                histogram.template emplace<std::map<ElementT, CountT>>();
             }
             auto image_data = input.getImageData();
             for (std::size_t i = 0; i < image_data.size(); ++i)
