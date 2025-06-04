@@ -88,19 +88,21 @@ namespace TinyDIP
             }
         }
 
-        //  getCountSum member function
-        constexpr std::size_t getCountSum() const
+        //  getCountSum member function with execution policy
+        template<class ExecutionPolicy>
+        requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+        constexpr auto getCountSum(ExecutionPolicy&& execution_policy) const
         {
-            std::size_t output{};
+            CountT output{};
             if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
                             (std::same_as<ElementT, std::uint16_t>))
             {
                 auto get_result = std::get<std::vector<CountT>>(histogram);
-                for (std::size_t i = 0; i < get_result.size(); ++i)
-                {
-                    output += get_result[i];
-                }
-                return output;
+                return std::reduce(
+                    std::forward<ExecutionPolicy>(execution_policy),
+                    std::ranges::cbegin(get_result),
+                    std::ranges::cend(get_result),
+                    output);
             }
             else
             {
