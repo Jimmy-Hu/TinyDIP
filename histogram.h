@@ -134,15 +134,17 @@ namespace TinyDIP
             
         }
 
-        template<class ProbabilityType = double>
-        constexpr Histogram<ElementT, ProbabilityType> normalize()
+        //  normalize Template Function Implementation with Execution Policy
+        template<class ExecutionPolicy, class ProbabilityType = double>
+        requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+        constexpr auto normalize(ExecutionPolicy&& execution_policy)
         {
-            auto count_sum = static_cast<ProbabilityType>(getCountSum());
+            auto count_sum = static_cast<ProbabilityType>(getCountSum(std::forward<ExecutionPolicy>(execution_policy)));
             if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
                             (std::same_as<ElementT, std::uint16_t>))
             {
                 std::vector<ProbabilityType> output(std::numeric_limits<ElementT>::max() + 1);
-                auto get_result = std::get<std::vector<CountT>>(histogram);
+                const auto& get_result = std::get<std::vector<CountT>>(histogram);
                 for (std::size_t i = 0; i < get_result.size(); ++i)
                 {
                     output[i] = static_cast<ProbabilityType>(get_result[i]) / count_sum;
