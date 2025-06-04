@@ -3620,12 +3620,12 @@ namespace TinyDIP
     }
 
     //  bilateral_filter_detail template function implementation
-    template<typename ElementT, class Fr, class Gs, class FloatingType = double>
-    requires(std::invocable<Fr, ElementT> && std::invocable<Gs, std::size_t>)
+    template<typename ElementT, class RangeKernel, class SpatialKernel, class FloatingType = double>
+    requires(std::invocable<RangeKernel, ElementT> && std::invocable<SpatialKernel, std::size_t>)
     constexpr static auto bilateral_filter_detail(
         const Image<ElementT>& input,
-        Fr fr,
-        Gs gs
+        const RangeKernel range_kernel,
+        const SpatialKernel spatial_kernel
     )
     {
         const ElementT center_pixel = get_center_pixel(std::execution::seq, input);
@@ -3636,22 +3636,17 @@ namespace TinyDIP
         {
             // Convert linear index to N-D indices (original image)
             auto indices = linear_index_to_indices(idx, input.getSize());
-            auto fr_result = std::invoke(
-                fr,
+            auto range_kernel_result = std::invoke(
+                range_kernel,
                 std::abs(input.at_without_boundary_check(indices) - center_pixel)
             );
             auto location_difference = difference(std::execution::seq, indices, center_location);
-            auto gs_result = std::invoke(
-                gs,
+            auto spatial_kernel_result = std::invoke(
+                spatial_kernel,
                 std::reduce(std::ranges::cbegin(location_difference), std::ranges::cend(location_difference))
             );
-            sum += input.at_without_boundary_check(indices) * fr_result * gs_result;
-            weight_sum += fr_result * gs_result;
-        }
-        
-        if (weight_sum == 0)
-        {
-            return static_cast<ElementT>(sum);
+            sum += input.at_without_boundary_check(indices) * range_kernel_result * spatial_kernel_result;
+            weight_sum += range_kernel_result * spatial_kernel_result;
         }
         return static_cast<ElementT>(sum / weight_sum);
     }
