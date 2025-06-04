@@ -205,9 +205,7 @@ namespace TinyDIP
                             std::same_as<ElementT, std::uint16_t>)
             {
                 probabilities.resize(std::numeric_limits<ElementT>::max() + 1);
-                std::size_t total_count = std::accumulate(
-                    std::get<std::vector<CountT>>(histogram).begin(),
-                    std::get<std::vector<CountT>>(histogram).end(), 0ULL);
+                std::size_t total_count = getCountSum(std::forward<ExecutionPolicy>(execution_policy));
                 for (std::size_t i = 0; i < probabilities.size(); ++i)
                 {
                     probabilities[i] =
@@ -218,7 +216,7 @@ namespace TinyDIP
             else
             {
                 std::vector<std::pair<ElementT, double>> probability_vector(size());
-                auto total_count = getCountSum();
+                auto total_count = getCountSum(std::forward<ExecutionPolicy>(execution_policy));
                 for (const auto& [key, value] : *this)
                 {
                     probability_vector.emplace_back(
