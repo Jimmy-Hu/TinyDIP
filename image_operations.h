@@ -3685,17 +3685,18 @@ namespace TinyDIP
     }
 
     //  bilateral_filter template function implementation
-    template<class ExecutionPolicy, typename ElementT, class Fr, class Gs, std::integral SizeT = std::size_t>
-    requires ((std::same_as<ElementT, RGB>) ||
+    template<class ExecutionPolicy, typename ElementT, class RangeKernel, class SpatialKernel, std::integral SizeT = std::size_t>
+    requires ((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) and
+              ((std::same_as<ElementT, RGB>) ||
               (std::same_as<ElementT, RGB_DOUBLE>) ||
               (std::same_as<ElementT, HSV>) ||
-              (is_MultiChannel<ElementT>::value))
+              (is_MultiChannel<ElementT>::value)))
     constexpr static auto bilateral_filter(
         ExecutionPolicy&& execution_policy,
         const Image<ElementT>& input,
         const SizeT window_size,
-        Fr fr,
-        Gs gs,
+        RangeKernel range_kernel,
+        SpatialKernel spatial_kernel,
         BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
         std::function<void(double)> progress_callback = nullptr
     )
@@ -3708,8 +3709,8 @@ namespace TinyDIP
                     std::forward<ExecutionPolicy>(execution_policy),
                     each_plane,
                     window_size,
-                    fr,
-                    gs,
+                    range_kernel,
+                    spatial_kernel,
                     boundaryCondition,
                     progress_callback
                     );
