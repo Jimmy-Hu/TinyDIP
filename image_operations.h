@@ -3620,11 +3620,17 @@ namespace TinyDIP
     }
 
     //  bilateral_filter_detail template function implementation
-    template<typename ElementT, class RangeKernel, class SpatialKernel, class FloatingType = double>
+    template<
+        typename ElementT,
+        class RangeKernel,
+        class RangeDistance,
+        class SpatialKernel,
+        class FloatingType = double>
     requires(std::invocable<RangeKernel, ElementT> && std::invocable<SpatialKernel, std::size_t>)
     constexpr static auto bilateral_filter_detail(
         const Image<ElementT>& input,
         const RangeKernel range_kernel,
+        const RangeDistance range_distance,
         const SpatialKernel spatial_kernel
     )
     {
@@ -3638,7 +3644,7 @@ namespace TinyDIP
             auto indices = linear_index_to_indices(idx, input.getSize());
             auto range_kernel_result = std::invoke(
                 range_kernel,
-                std::abs(input.at_without_boundary_check(indices) - center_pixel)
+                std::invoke(range_distance, input.at_without_boundary_check(indices), center_pixel)
             );
             auto location_difference = difference(std::execution::seq, indices, center_location);
             auto spatial_kernel_result = std::invoke(
