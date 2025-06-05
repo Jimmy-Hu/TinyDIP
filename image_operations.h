@@ -370,7 +370,7 @@ namespace TinyDIP
                     }
                     else
                     {
-                        convolution_detail(execution_policy, image, kernel, output, level - 1, output_index, index2, index3, f);
+                        convolution_detail(std::forward<ExecutionPolicy>(execution_policy), image, kernel, output, level - 1, output_index, index2, index3, f);
                     }
                     output_index -= (i + j) * output.getStride(level);
                     index2 -= j * image.getStride(level);
