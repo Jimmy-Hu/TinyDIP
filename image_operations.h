@@ -411,7 +411,7 @@ namespace TinyDIP
         );
         
         Image<ElementT> output(output_size);
-        impl::convolution_detail(execution_policy, image, kernel, output, image.getSize().size() - 1);
+        impl::convolution_detail(std::forward<ExecutionPolicy>(execution_policy), image, kernel, output, image.getSize().size() - 1);
         return output;
     }
 
