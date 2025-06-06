@@ -1049,7 +1049,7 @@ namespace TinyDIP
     {
         std::array<ProbabilityType, Count> output{};
         std::transform(
-            execution_policy, std::ranges::cbegin(input), std::ranges::cend(input), std::ranges::begin(output),
+            std::forward<ExPo>(execution_policy), std::ranges::cbegin(input), std::ranges::cend(input), std::ranges::begin(output),
             [&](auto&& element)
             {
                 return static_cast<ProbabilityType>(element) / sum;
