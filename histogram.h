@@ -358,6 +358,14 @@ namespace TinyDIP
             return *this;
         }
 
+        // operator+ (using operator+=)
+        Histogram operator+(const Histogram& other) const
+        {
+            Histogram result = *this;
+            result += other;
+            return result;
+        }
+
         // -= operator to subtract two Histograms
         Histogram& operator-=(const Histogram& other) const
         {
