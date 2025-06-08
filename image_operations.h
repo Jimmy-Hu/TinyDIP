@@ -1070,8 +1070,8 @@ namespace TinyDIP
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
     constexpr static auto normalize_histogram(ExecutionPolicy&& execution_policy, const std::array<ElementT, Count>& input)
     {
-        auto sum = std::reduce(execution_policy, std::ranges::cbegin(input), std::ranges::cend(input));
-        return get_normalized_input(execution_policy, input, static_cast<ProbabilityType>(sum));
+        auto sum = std::reduce(std::forward<ExecutionPolicy>(execution_policy), std::ranges::cbegin(input), std::ranges::cend(input));
+        return get_normalized_input(std::forward<ExecutionPolicy>(execution_policy), input, static_cast<ProbabilityType>(sum));
     }
 
     //  normalize_histogram template function implementation (with Execution Policy)
