@@ -1138,8 +1138,8 @@ namespace TinyDIP
     }
 
     //  otsu_threshold template function implementation
-    template <class ElementT>
-    constexpr static auto otsu_threshold(const std::vector<ElementT>& histogram)
+    template <std::ranges::input_range RangeT>
+    constexpr static auto otsu_threshold(const RangeT& histogram)
     {
         return otsu_threshold(std::execution::seq, histogram);
     }
