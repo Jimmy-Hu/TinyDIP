@@ -1151,7 +1151,12 @@ namespace TinyDIP
         ExPo&& execution_policy,
         const Image<ElementT>& input)
     {
-        return otsu_threshold(execution_policy, Histogram<ElementT>(input).to_probabilities_vector());
+        return otsu_threshold(
+            std::forward<ExPo>(execution_policy),
+            Histogram<ElementT>(input).to_probabilities_vector(
+                std::forward<ExPo>(execution_policy)
+            )
+        );
     }
 
     //  otsu_threshold template function implementation
