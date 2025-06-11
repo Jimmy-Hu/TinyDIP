@@ -3346,20 +3346,20 @@ namespace TinyDIP
         const std::size_t width_expansion,
         const std::size_t height_expansion,
         const BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
-        const ElementT value_for_constant_padding = ElementT{}
+        const ElementT& value_for_constant_padding = ElementT{}
     )
     {
         Image<ElementT> padded_image;
         switch (boundaryCondition)
         {
         case constant:
-            padded_image = generate_constant_padding_image(execution_policy, input, width_expansion, height_expansion, value_for_constant_padding);
+            padded_image = generate_constant_padding_image(std::forward<ExecutionPolicy>(execution_policy), input, width_expansion, height_expansion, value_for_constant_padding);
             break;
         case mirror:
-            padded_image = generate_mirror_padding_image(execution_policy, input, width_expansion, height_expansion, value_for_constant_padding);
+            padded_image = generate_mirror_padding_image(std::forward<ExecutionPolicy>(execution_policy), input, width_expansion, height_expansion, value_for_constant_padding);
             break;
         case replicate:
-            padded_image = generate_replicate_padding_image(execution_policy, input, width_expansion, height_expansion, value_for_constant_padding);
+            padded_image = generate_replicate_padding_image(std::forward<ExecutionPolicy>(execution_policy), input, width_expansion, height_expansion, value_for_constant_padding);
             break;
         }
         return padded_image;
