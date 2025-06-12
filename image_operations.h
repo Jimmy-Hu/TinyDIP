@@ -1176,7 +1176,7 @@ namespace TinyDIP
         auto input_count = input.count();
         auto input_vector = input.getImageData();
         output_vector.resize(input_count);
-        std::transform(execution_policy, input_vector.begin(), input_vector.end(), output_vector.begin(), [&](auto& elem) { return std::invoke(operation, elem, args...); });
+        std::transform(std::forward<ExPo>(execution_policy), input_vector.begin(), input_vector.end(), output_vector.begin(), [&](auto& elem) { return std::invoke(operation, elem, args...); });
         return Image<std::invoke_result_t<F, ElementT, Args...>>(output_vector, input.getSize());
     }
 
