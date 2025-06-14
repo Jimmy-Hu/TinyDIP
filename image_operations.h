@@ -2183,9 +2183,9 @@ namespace TinyDIP
     //  negate template function implementation
     template<class ExPo, class InputT>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr static Image<InputT> negate(ExPo execution_policy, const Image<InputT>& input1)
+    constexpr static Image<InputT> negate(ExPo&& execution_policy, const Image<InputT>& input1)
     {
-        return pixelwiseOperation(execution_policy, std::negate<>{}, input1);
+        return pixelwiseOperation(std::forward<ExPo>(execution_policy), std::negate<>{}, input1);
     }
 
     template<std::floating_point ElementT = double, std::floating_point OutputT = ElementT>
