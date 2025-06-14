@@ -3666,6 +3666,34 @@ namespace TinyDIP
         return static_cast<ElementT>(sum / weight_sum);
     }
 
+    //  bilateral_filter_spatial_kernel template function implementation
+    template<
+        std::ranges::input_range SizeRange,
+        class SpatialKernel,
+        class SpatialDistance,
+        class FloatingType = double
+    >
+    requires(std::same_as<std::ranges::range_value_t<SizeRange>, std::size_t> ||
+             std::same_as<std::ranges::range_value_t<SizeRange>, int>)
+    constexpr static auto bilateral_filter_spatial_kernel(
+        const SizeRange& window_sizes,
+        const SpatialKernel spatial_kernel,
+        const SpatialDistance spatial_distance
+        )
+    {
+        Image<FloatingType> output(window_sizes);
+        const auto& center_location = get_center_location(std::execution::seq, output);
+        const std::size_t total_elements = output.count();
+        for (std::size_t idx = 0; idx < total_elements; ++idx)
+        {
+            const auto& indices = linear_index_to_indices(idx, output.getSize());
+            const auto distance = std::invoke(spatial_distance, indices, center_location);
+            output.at_without_boundary_check(indices) =
+                std::invoke(spatial_kernel, distance);
+        }
+        return output;
+    }
+
     //  bilateral_filter template function implementation
     template<typename ElementT, class ExecutionPolicy, class RangeKernel, class SpatialKernel, std::integral SizeT = std::size_t>
     requires((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) and
