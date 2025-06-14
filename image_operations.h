@@ -199,7 +199,8 @@ namespace TinyDIP
 
     //  generate template function implementation
     template<std::ranges::input_range Sizes, typename F>
-    requires((std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>) and
+    requires(((std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>) or
+              (std::same_as<std::ranges::range_value_t<Sizes>, int>)) and
              (std::invocable<F&>))
     constexpr static auto generate(F gen, const Sizes& sizes)
     {
