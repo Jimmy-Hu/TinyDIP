@@ -214,11 +214,13 @@ namespace TinyDIP
 
     //  generate template function implementation
     //  https://codereview.stackexchange.com/a/295600/231235
-    template<typename F, std::same_as<std::size_t>... Sizes>
-    requires std::invocable<F&>
+    template<typename F, class... Sizes>
+    requires((std::invocable<F&>) and
+             ((std::same_as<Sizes, std::size_t>&&...) or
+              (std::same_as<Sizes, int>&&...)))
     constexpr static auto generate(F gen, Sizes... sizes)
     {
-        return generate(gen, std::array<std::size_t, sizeof...(Sizes)>{sizes...});
+        return generate(gen, std::array<std::size_t, sizeof...(Sizes)>{ static_cast<std::size_t>(sizes)...});
     }
 
     //  rand template function implementation
