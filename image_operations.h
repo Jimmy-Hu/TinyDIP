@@ -2129,13 +2129,13 @@ namespace TinyDIP
     //  divides Template Function Implementation
     template<class ExPo, class InputT>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr static auto divides(ExPo execution_policy, const std::vector<Image<InputT>>& input1, const std::vector<Image<InputT>>& input2)
+    constexpr static auto divides(ExPo&& execution_policy, const std::vector<Image<InputT>>& input1, const std::vector<Image<InputT>>& input2)
     {
         assert(input1.size() == input2.size());
         return recursive_transform<1>(
             [&](auto&& input1_element, auto&& input2_element)
             {
-                return divides(execution_policy, input1_element, input2_element);
+                return divides(std::forward<ExPo>(execution_policy), input1_element, input2_element);
             }, input1, input2);
     }
     */
