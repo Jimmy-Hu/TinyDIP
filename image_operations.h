@@ -224,8 +224,10 @@ namespace TinyDIP
     }
 
     //  rand template function implementation
-    template<image_element_standard_floating_point_type ElementT = double, typename Urbg, std::same_as<std::size_t>... Sizes>
-    requires std::uniform_random_bit_generator<std::remove_reference_t<Urbg>>
+    template<image_element_standard_floating_point_type ElementT = double, typename Urbg, class... Sizes>
+    requires(std::uniform_random_bit_generator<std::remove_reference_t<Urbg>> and
+             ((std::same_as<Sizes, std::size_t>&&...) or
+              (std::same_as<Sizes, int>&&...)))
     constexpr static auto rand(Urbg&& urbg, Sizes... sizes)
     {
         //  Reference: https://stackoverflow.com/a/23143753/6667035
