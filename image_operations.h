@@ -237,7 +237,9 @@ namespace TinyDIP
     }
 
     //  rand template function implementation
-    template<image_element_standard_floating_point_type ElementT = double, std::same_as<std::size_t>... Size>
+    template<image_element_standard_floating_point_type ElementT = double, class... Size>
+    requires((std::same_as<Size, std::size_t>&&...) or
+             (std::same_as<Size, int>&&...))
     inline auto rand(Size... size)
     {
         return rand<ElementT>(std::mt19937{std::random_device{}()}, size...);
