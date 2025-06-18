@@ -282,7 +282,9 @@ namespace TinyDIP
     }
 
     // randi template function implementation
-    template<std::integral ElementT = int, std::same_as<std::size_t>... Size>
+    template<std::integral ElementT = int, class... Size>
+    requires((std::same_as<Size, std::size_t>&&...) or
+             (std::same_as<Size, int>&&...))
     inline auto randi(std::pair<ElementT, ElementT> min_and_max, Size... size)
     {
         return randi<ElementT>(std::mt19937{std::random_device{}()}, min_and_max, size...);
