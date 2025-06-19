@@ -3523,28 +3523,27 @@ namespace TinyDIP
     }
 
     //  windowed_filter template function implementation
-    template<class ElementT, class ExecutionPolicy, class Filter, class SizeT = std::size_t>
+    template<class ElementT, class ExecutionPolicy, class Filter, std::ranges::input_range SizeRange>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
     constexpr static auto windowed_filter(
         ExecutionPolicy&& execution_policy,
         const Image<ElementT>& input,
-        SizeT window_size,
-        Filter filter,
-        BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
-        ElementT value_for_constant_padding = ElementT{},
-        std::function<void(double)> progress_callback = nullptr
+        const SizeRange& window_sizes,
+        const Filter filter,
+        const BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
+        const ElementT& value_for_constant_padding = ElementT{},
+        const std::function<void(double)> progress_callback = nullptr
     )
     {
         const std::size_t dim = input.getDimensionality();
-
         auto padded_image = input;
         if (dim == 2)                   //  padding algorithm supported
         {
             padded_image = generate_padded_image(
                 std::forward<ExecutionPolicy>(execution_policy),
                 input,
-                window_size,
-                window_size,
+                window_sizes[0],
+                window_sizes[1],
                 boundaryCondition,
                 value_for_constant_padding
             );
@@ -3564,8 +3563,9 @@ namespace TinyDIP
 
             // Convert to padded indices
             std::vector<std::size_t> padded_indices;
-            for (auto& i : indices) {
-                padded_indices.emplace_back(i + window_size);
+            for (std::size_t i = 0; i < indices.size(); ++i)
+            {
+                padded_indices.emplace_back(indices[i] + window_sizes[i]);
             }
 
             // Extract window
@@ -3614,7 +3614,6 @@ namespace TinyDIP
             }
 
             // Extract window
-            std::vector<std::size_t> window_sizes(input.getDimensionality(), window_size);
             auto window = subimage(
                 std::forward<ExecutionPolicy>(execution_policy),
                 padded_image,
