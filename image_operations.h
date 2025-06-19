@@ -3569,7 +3569,6 @@ namespace TinyDIP
             }
 
             // Extract window
-            std::vector<std::size_t> window_sizes(input.getDimensionality(), window_size);
             auto window = subimage(
                 std::forward<ExecutionPolicy>(execution_policy),
                 padded_image,
