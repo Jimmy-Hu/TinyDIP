@@ -3641,37 +3641,53 @@ namespace TinyDIP
         typename ElementT,
         class RangeKernel,
         class RangeDistance,
-        class SpatialKernel,
         class FloatingType = double>
-    requires(std::invocable<RangeKernel, ElementT> && std::invocable<SpatialKernel, std::size_t>)
+    requires(std::invocable<RangeKernel, ElementT>)
     constexpr static auto bilateral_filter_detail(
         const Image<ElementT>& input,
         const RangeKernel range_kernel,
         const RangeDistance range_distance,
-        const SpatialKernel spatial_kernel
+        const Image<FloatingType>& spatial_kernel_weight
     )
     {
         const ElementT center_pixel = get_center_pixel(std::execution::seq, input);
-        auto center_location = get_center_location(std::execution::seq, input);
-        FloatingType sum{}, weight_sum{};
-        const std::size_t total_elements = input.count();
-        for (std::size_t idx = 0; idx < total_elements; ++idx)
+        std::invoke_result_t<RangeKernel, std::invoke_result_t<RangeDistance, ElementT, ElementT>> sum{};
+        if constexpr (is_complex<std::invoke_result_t<RangeKernel, std::invoke_result_t<RangeDistance, ElementT, ElementT>>>::value)
         {
-            // Convert linear index to N-D indices (original image)
-            auto indices = linear_index_to_indices(idx, input.getSize());
-            auto range_kernel_result = std::invoke(
-                range_kernel,
-                std::invoke(range_distance, input.at_without_boundary_check(indices), center_pixel)
-            );
-            auto location_difference = difference(std::execution::seq, indices, center_location);
-            auto spatial_kernel_result = std::invoke(
-                spatial_kernel,
-                std::reduce(std::ranges::cbegin(location_difference), std::ranges::cend(location_difference))
-            );
-            sum += input.at_without_boundary_check(indices) * range_kernel_result * spatial_kernel_result;
-            weight_sum += range_kernel_result * spatial_kernel_result;
+            std::invoke_result_t<RangeKernel, std::invoke_result_t<RangeDistance, ElementT, ElementT>> weight_sum{};
+            const std::size_t total_elements = input.count();
+            for (std::size_t idx = 0; idx < total_elements; ++idx)
+            {
+                // Convert linear index to N-D indices (original image)
+                auto indices = linear_index_to_indices(idx, input.getSize());
+                auto range_kernel_result = std::invoke(
+                    range_kernel,
+                    std::invoke(range_distance, input.at_without_boundary_check(indices), center_pixel)
+                );
+                auto spatial_kernel_result = std::complex{ spatial_kernel_weight.at_without_boundary_check(indices) , 0.0 };          //  Precompute spatial_kernel
+                sum += input.at_without_boundary_check(indices) * range_kernel_result * spatial_kernel_result;
+                weight_sum += range_kernel_result * spatial_kernel_result;
+            }
+            return static_cast<ElementT>(sum / weight_sum);
         }
-        return static_cast<ElementT>(sum / weight_sum);
+        else
+        {
+            FloatingType weight_sum{};
+            const std::size_t total_elements = input.count();
+            for (std::size_t idx = 0; idx < total_elements; ++idx)
+            {
+                // Convert linear index to N-D indices (original image)
+                auto indices = linear_index_to_indices(idx, input.getSize());
+                auto range_kernel_result = std::invoke(
+                    range_kernel,
+                    std::invoke(range_distance, input.at_without_boundary_check(indices), center_pixel)
+                );
+                auto spatial_kernel_result = spatial_kernel_weight.at_without_boundary_check(indices);          //  Precompute spatial_kernel
+                sum += input.at_without_boundary_check(indices) * range_kernel_result * spatial_kernel_result;
+                weight_sum += range_kernel_result * spatial_kernel_result;
+            }
+            return static_cast<ElementT>(sum / weight_sum);
+        }
     }
 
     //  bilateral_filter_spatial_kernel template function implementation
