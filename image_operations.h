@@ -3705,13 +3705,15 @@ namespace TinyDIP
     }
 
     //  bilateral_filter template function implementation
-    template<typename ElementT, class ExecutionPolicy, class RangeKernel, class SpatialKernel, std::integral SizeT = std::size_t>
+    template<typename ElementT, class ExecutionPolicy, class RangeKernel, class SpatialKernel, std::ranges::input_range SizeRange>
     requires((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) and
-             (std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value))
+             (std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value) and
+             (std::same_as<std::ranges::range_value_t<SizeRange>, std::size_t> ||
+              std::same_as<std::ranges::range_value_t<SizeRange>, int>))
     constexpr static auto bilateral_filter(
         ExecutionPolicy&& execution_policy,
         const Image<ElementT>& input,
-        const SizeT window_size,
+        const SizeRange& window_sizes,
         const RangeKernel range_kernel,
         const SpatialKernel spatial_kernel,
         const BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
@@ -3722,7 +3724,7 @@ namespace TinyDIP
         return windowed_filter(
             std::forward<ExecutionPolicy>(execution_policy),
             input,
-            window_size,
+            window_sizes,
             [&](auto&& window)
             {
                 return bilateral_filter_detail(
@@ -3732,7 +3734,27 @@ namespace TinyDIP
                     {
                         return std::sqrt(std::pow(element1 - element2, 2.0));
                     },
-                    spatial_kernel);
+                    bilateral_filter_spatial_kernel(
+                        window_sizes,
+                        spatial_kernel,
+                        //  Reference: https://stackoverflow.com/a/62932369/6667035
+                        [&]
+                        <std::ranges::input_range Range1, std::ranges::input_range Range2>
+                        (const Range1& vector1, const Range2& vector2)         //  Spatial Distance Function, L2 norm
+                        {
+                            if (vector1.size() != vector2.size())
+                            {
+                                throw std::runtime_error("Size not matched!");
+                            }
+                            double sum_of_squares = 0.0;
+                            for (std::size_t i = 0; i < vector1.size(); i++)
+                            {
+                                sum_of_squares += std::pow(vector1[i] - vector2[i], 2.0);
+                            }
+                            return std::sqrt(sum_of_squares);
+                        }
+                    )
+                );
             },
             boundaryCondition,
             value_for_constant_padding,
