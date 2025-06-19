@@ -30,10 +30,11 @@ int main(int argc, char* argv[])
     {
         auto input_path = std::string(argv[1]);
         auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
+        std::vector<std::size_t> window_sizes(input_img.getDimensionality(), 20);
         auto output_img = TinyDIP::bilateral_filter(
             std::execution::seq,
             input_img,
-            20,
+            window_sizes,
             [](double input) { return TinyDIP::normalDistribution1D(input, 3.0); },
             [](double input) { return TinyDIP::normalDistribution1D(input, 3.0); });
         auto output_path = std::string(argv[2]);
@@ -52,12 +53,13 @@ int main(int argc, char* argv[])
         auto progress_reporter = [](double progress) {
             std::cout << "\rProcessing: "
                 << std::fixed << std::setprecision(1)
-                << (progress * 100.0) << "%" << std::flush;
+                << (progress * 100.0) << "%" << std::flush << '\n';
             };
+        std::vector<std::size_t> window_sizes(input_img.getDimensionality(), 20);
         auto bilateral_filter_output = TinyDIP::bilateral_filter(
             std::execution::par,
             double_image,
-            20,
+            window_sizes,
             [](auto&& input) { return TinyDIP::normalDistribution1D(input, 3.0); },
             [](auto&& input) { return TinyDIP::normalDistribution1D(input, 3.0); },
             TinyDIP::mirror,
