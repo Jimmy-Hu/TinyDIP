@@ -3536,6 +3536,11 @@ namespace TinyDIP
     )
     {
         const std::size_t dim = input.getDimensionality();
+        
+        if (dim != window_sizes.size())
+        {
+            throw std::runtime_error("windowed_filter: window_sizes.size() must match input dimensionality");
+        }
         auto padded_image = input;
         if (dim == 2)                   //  padding algorithm supported
         {
