@@ -219,6 +219,15 @@ namespace TinyDIP
             return at_without_boundary_check(indexInput);
         }
 
+        //  at template function implementation (std::ranges::input_range case)
+        template<std::ranges::input_range Indices>
+        requires(std::same_as<std::ranges::range_value_t<Indices>, std::size_t> ||
+                 std::same_as<std::ranges::range_value_t<Indices>, int>)
+        constexpr ElementT& at(const Indices indexInput)
+        {
+            return const_cast<ElementT&>(static_cast<const Image&>(*this).at(indexInput));
+        }
+
         //  at_without_boundary_check template function implementation
         template<std::same_as<std::size_t>... Args>
         constexpr ElementT& at_without_boundary_check(const Args... indexInput)
