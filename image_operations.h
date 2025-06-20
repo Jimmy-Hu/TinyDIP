@@ -3576,10 +3576,13 @@ namespace TinyDIP
             auto indices = linear_index_to_indices(idx, input.getSize());
 
             // Convert to padded indices
-            std::vector<std::size_t> padded_indices;
-            for (std::size_t i = 0; i < indices.size(); ++i)
+            std::vector<std::size_t> padded_indices = indices;
+            if (dim == 2)
             {
-                padded_indices.emplace_back(indices[i] + window_sizes[i]);
+                for (std::size_t i = 0; i < indices.size(); ++i)
+                {
+                    padded_indices[i] = (indices[i] + window_sizes[i]);
+                }
             }
 
             // Extract window
@@ -3591,7 +3594,7 @@ namespace TinyDIP
             );
 
             // Apply filter and store result
-            padded_image.at_without_boundary_check(padded_indices) =
+            padded_image.at(padded_indices) =
                 std::invoke(filter, window);
 
             // Progress reporting
@@ -3621,9 +3624,13 @@ namespace TinyDIP
             auto indices = linear_index_to_indices(idx, input.getSize());
 
             // Convert to padded indices
-            std::vector<std::size_t> padded_indices;
-            for (auto& i : indices) {
-                padded_indices.emplace_back(i + window_size);
+            std::vector<std::size_t> padded_indices = indices;
+            if (dim == 2)
+            {
+                for (std::size_t i = 0; i < indices.size(); ++i)
+                {
+                    padded_indices[i] = (indices[i] + window_sizes[i]);
+                }
             }
 
             // Extract window
