@@ -1460,7 +1460,16 @@ namespace TinyDIP
             start[i] = centers[i] - static_cast<std::size_t>(std::floor(static_cast<double>(new_sizes[i]) / 2.0));
         }
 
-        Image<ElementT> output(new_sizes);
+        auto count = std::reduce(
+            std::ranges::cbegin(new_sizes),
+            std::ranges::cend(new_sizes),
+            std::size_t{ 1 },
+            std::multiplies()
+        );
+        Image<ElementT> output(
+            std::vector<ElementT>(count),
+            new_sizes
+        );
 
         std::vector<std::size_t> new_sizes_vec;
         new_sizes_vec.resize(std::ranges::size(new_sizes));  // ✅ Pre-size the vector
@@ -1502,7 +1511,7 @@ namespace TinyDIP
 
             // Assign value
             output.set(idx) = valid ? 
-                input.at_without_boundary_check(input_indices) : 
+                input.at(input_indices) : 
                 default_element;
         }
 
