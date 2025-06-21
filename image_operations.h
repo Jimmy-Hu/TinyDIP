@@ -314,6 +314,25 @@ namespace TinyDIP
         return randi<ElementT>(std::mt19937{std::random_device{}()}, max);
     }
 
+    //  generate_complex_image template function implementation
+    template<class ElementT>
+    requires(std::floating_point<ElementT> || std::integral<ElementT>)
+    constexpr static auto generate_complex_image(const Image<ElementT>& real, const Image<ElementT>& imaginary)
+    {
+        if (real.getSize() != imaginary.getSize())
+        {
+            throw std::runtime_error("Size mismatched!");
+        }
+        return pixelwiseOperation(
+            [&](auto&& real_element, auto&& imaginary_element)
+            {
+                return std::complex{ real_element, imaginary_element };
+            },
+            real,
+            imaginary
+        );
+    }
+
     //  conv2 template function implementation
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
