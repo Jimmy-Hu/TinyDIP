@@ -1779,6 +1779,7 @@ namespace TinyDIP
 
     //  normalDistribution1D template function implementation
     template<typename T1, typename T2 = double>
+    requires (std::floating_point<T1> || std::integral<T1>)
     constexpr static auto normalDistribution1D(const T1 x, const T2 standard_deviation)
     {
         return std::exp(-static_cast<T2>(x) * static_cast<T2>(x) / (2 * standard_deviation * standard_deviation));
