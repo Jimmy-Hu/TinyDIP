@@ -1785,6 +1785,14 @@ namespace TinyDIP
         return std::exp(-static_cast<T2>(x) * static_cast<T2>(x) / (2 * standard_deviation * standard_deviation));
     }
 
+    //  normalDistribution1D template function implementation
+    template<typename T = double>
+    requires (std::floating_point<T> || std::integral<T>)
+    constexpr static auto normalDistribution1D(const std::complex<T>& x, const std::complex<T>& standard_deviation)
+    {
+        return std::exp(-x * x / (std::complex{ static_cast<T>(2) , static_cast<T>(0) } *standard_deviation * standard_deviation));
+    }
+
     //  normalDistribution2D template function implementation
     template<typename T = double>
     constexpr static auto normalDistribution2D(const T xlocation, const T ylocation, const T standard_deviation)
