@@ -126,6 +126,8 @@ add_executable(recursiveSizeTest test/recursiveSizeTest.cpp image_io.cpp)
 #add_executable(recursiveTransformReduceTest test/recursiveTransformReduceTest.cpp image_io.cpp)
 #add_executable(sumTest test/sumTest.cpp image_io.cpp)
 add_executable(transposeTest test/transposeTest.cpp image_io.cpp)
+add_executable(windowedFilterTest test/windowedFilterTest.cpp image_io.cpp)
+
 
 # target_include_directories
 if(APPLE)
@@ -157,6 +159,7 @@ if(NOT APPLE)
     target_link_libraries(rainDictionaryAnalysis tbb)
     target_link_libraries(randFunctionTest tbb)
     target_link_libraries(recursiveMinmaxTest tbb)
+    target_link_libraries(windowedFilterTest tbb)
 endif()
 
 if(APPLE)
