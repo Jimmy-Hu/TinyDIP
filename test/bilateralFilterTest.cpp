@@ -46,7 +46,10 @@ int main(int argc, char* argv[])
         std::string input_path = "../InputImages/RainImages/S__55246868.bmp";
 
         auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
-        input_img = TinyDIP::copyResizeBicubic(input_img, input_img.getWidth() * 3, input_img.getHeight() * 3);
+        if (false)
+        {
+            input_img = TinyDIP::copyResizeBicubic(input_img, input_img.getWidth() * 3, input_img.getHeight() * 3);
+        }
         std::cout << "Input image size: " << input_img.getWidth() << "x" << input_img.getHeight() << '\n';
         auto double_image = TinyDIP::to_double(input_img);
 
