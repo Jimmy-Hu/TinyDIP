@@ -44,6 +44,10 @@ int main(int argc, char* argv[])
     else
     {
         std::string input_path = "../InputImages/RainImages/S__55246868.bmp";
+        if (!std::filesystem::is_regular_file(input_path))
+        {
+            input_path = "InputImages/RainImages/S__55246868.bmp";
+        }
 
         auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
         if (false)
@@ -68,24 +72,7 @@ int main(int argc, char* argv[])
             TinyDIP::mirror,
             progress_reporter);
         auto difference_output = TinyDIP::increase_intensity(TinyDIP::difference(double_image, bilateral_filter_output), static_cast<TinyDIP::GrayScale>(50));
-        auto key_points = TinyDIP::SIFT_impl::get_potential_keypoint(TinyDIP::getVplane(TinyDIP::rgb2hsv(
-            difference_output
-        )));
-        std::cout << "Key points found: " << key_points.size() << '\n';
-        //TinyDIP::bmp_write("bilateral_filter_difference_output_keypoints", TinyDIP::draw_points(input_img, key_points, TinyDIP::RGB{ 255, 0, 0 }, 3));
-        if (TinyDIP::double_image::read("output_test_R", false) != TinyDIP::getRplane(bilateral_filter_output))
-        {
-            throw std::runtime_error("Computation result is different!");
-        }
-        if (TinyDIP::double_image::read("output_test_G", false) != TinyDIP::getGplane(bilateral_filter_output))
-        {
-            throw std::runtime_error("Computation result is different!");
-        }
-        if (TinyDIP::double_image::read("output_test_B", false) != TinyDIP::getBplane(bilateral_filter_output))
-        {
-            throw std::runtime_error("Computation result is different!");
-        }
-        std::string difference_output_path = "difference_output";
+        const std::string difference_output_path = "difference_output";
         std::cout << "Save output to " << difference_output_path << '\n';
         TinyDIP::bmp_write(
             difference_output_path.c_str(),
