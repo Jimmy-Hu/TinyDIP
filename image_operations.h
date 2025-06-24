@@ -2366,9 +2366,16 @@ namespace TinyDIP
     //  abs template function implementation
     template<class ExPo, arithmetic ElementT = double>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr static auto abs(ExPo execution_policy, const Image<ElementT>& input)
+    constexpr static auto abs(ExPo&& execution_policy, const Image<ElementT>& input)
     {
-        return pixelwiseOperation(execution_policy, [](auto&& element) { return std::abs(element); }, input);
+        return pixelwiseOperation(
+            std::forward<ExPo>(execution_policy),
+            [](auto&& element)
+            {
+                return abs(std::forward<ExPo>(execution_policy), element);
+            },
+            input
+        );
     }
 
     //  abs template function implementation
