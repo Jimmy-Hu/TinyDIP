@@ -2357,10 +2357,10 @@ namespace TinyDIP
         return output;
     }
 
-    template<arithmetic ElementT = double>
+    template<class ElementT = double>
     constexpr static auto abs(const Image<ElementT>& input)
     {
-        return pixelwiseOperation([](auto&& element) { return std::abs(element); }, input);
+        return pixelwiseOperation([](auto&& element) { return abs(element); }, input);
     }
 
     //  abs template function implementation
