@@ -2370,7 +2370,7 @@ namespace TinyDIP
     {
         return pixelwiseOperation(
             std::forward<ExPo>(execution_policy),
-            [](auto&& element)
+            [&](auto&& element)
             {
                 return abs(std::forward<ExPo>(execution_policy), element);
             },
