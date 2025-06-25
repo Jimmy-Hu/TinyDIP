@@ -2390,9 +2390,9 @@ namespace TinyDIP
     template<class ExPo, class InputT>
     requires((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>) || is_MultiChannel<InputT>::value) and
             (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr static auto abs(ExPo execution_policy, const Image<InputT>& input)
+    constexpr static auto abs(ExPo&& execution_policy, const Image<InputT>& input)
     {
-        return apply_each(input, [&](auto&& planes) { return abs(execution_policy, planes); });
+        return apply_each(input, [&](auto&& planes) { return abs(std::forward<ExPo>(execution_policy), planes); });
     }
 
     template<arithmetic ElementT = double>
