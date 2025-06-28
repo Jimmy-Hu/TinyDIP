@@ -2410,10 +2410,16 @@ namespace TinyDIP
         return apply_each(input, [&](auto&& planes) { return abs(std::forward<ExPo>(execution_policy), planes); });
     }
 
+    //  difference template function implementation
     template<arithmetic ElementT = double>
     constexpr static auto difference(const Image<ElementT>& input1, const Image<ElementT>& input2)
     {
-        return pixelwiseOperation([](auto&& element1, auto&& element2) { return std::abs(element1 - element2); }, input1, input2);
+        return pixelwiseOperation([](auto&& element1, auto&& element2)
+            {
+                if (element1 > element2)
+                    return element1 - element2;
+                return element2 - element1;
+            }, input1, input2);
     }
 
     //  difference Template Function Implementation
