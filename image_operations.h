@@ -2424,7 +2424,7 @@ namespace TinyDIP
 
     //  difference Template Function Implementation
     template<class InputT>
-    requires((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>))
+    requires((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>) || is_MultiChannel<InputT>::value)
     constexpr static auto difference(const Image<InputT>& input1, const Image<InputT>& input2)
     {
         return pixelwiseOperation(
@@ -2433,8 +2433,10 @@ namespace TinyDIP
                 InputT output;
                 for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
                 {
-                    output.channels[channel_index] = 
-                        std::abs(element1.channels[channel_index] - element2.channels[channel_index]);
+                    output.channels[channel_index] =
+                        (element1.channels[channel_index] > element2.channels[channel_index]) ?
+                        (element1.channels[channel_index] - element2.channels[channel_index]) :
+                        (element2.channels[channel_index] - element1.channels[channel_index]);
                 }
                 return output;
             }, input1, input2);
