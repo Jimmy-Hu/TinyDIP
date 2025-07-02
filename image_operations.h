@@ -2556,12 +2556,12 @@ namespace TinyDIP
             ((std::same_as<ElementT2, RGB>) || (std::same_as<ElementT2, RGB_DOUBLE>) || (std::same_as<ElementT2, HSV>)) and
             (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto euclidean_distance(
-        ExPo execution_policy,
+        ExPo&& execution_policy,
         const Image<ElementT1>& input1,
         const Image<ElementT2>& input2
         )
     {
-        return sqrt(execution_policy, two_input_map_reduce(execution_policy, input1.getImageData(), input2.getImageData(), MultiChannel<double>{},
+        return sqrt(execution_policy, two_input_map_reduce(std::forward<ExPo>(execution_policy), input1.getImageData(), input2.getImageData(), MultiChannel<double>{},
             [&](auto&& element1, auto&& element2) {
                 return pow(execution_policy, element1 - element2, 2.0);
             }));
