@@ -2535,6 +2535,20 @@ namespace TinyDIP
         }
     }
 
+    //  rint Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto rint(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return rint(_input); });
+        }
+        else
+        {
+            return std::rint(input);
+        }
+    }
+
     //  isinf Template Function Implementation
     template<typename T>
     [[nodiscard]] constexpr static auto isinf(const T& input)
