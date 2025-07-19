@@ -2549,6 +2549,25 @@ namespace TinyDIP
         }
     }
 
+    //  rint Template Function Implementation (the version with execution policy)
+    template<class ExecutionPolicy, typename T>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    [[nodiscard]] constexpr static auto rint(ExecutionPolicy&& execution_policy, const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(
+                std::forward<ExecutionPolicy>(execution_policy),
+                input,
+                [&](auto&& _input) {return rint(std::forward<ExecutionPolicy>(execution_policy), _input); }
+            );
+        }
+        else
+        {
+            return std::rint(input);
+        }
+    }
+
     //  isinf Template Function Implementation
     template<typename T>
     [[nodiscard]] constexpr static auto isinf(const T& input)
