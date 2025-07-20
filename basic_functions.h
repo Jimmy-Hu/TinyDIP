@@ -2568,6 +2568,20 @@ namespace TinyDIP
         }
     }
 
+    //  ilogb Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto ilogb(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return ilogb(_input); });
+        }
+        else
+        {
+            return std::ilogb(input);
+        }
+    }
+
     //  isinf Template Function Implementation
     template<typename T>
     [[nodiscard]] constexpr static auto isinf(const T& input)
