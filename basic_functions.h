@@ -2739,7 +2739,7 @@ namespace TinyDIP
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel(input, [&](auto&& _input) {return std::isnan(_input); });
+            return apply_multichannel(input, [&](auto&& _input) {return isnan(_input); });
         }
         else
         {
