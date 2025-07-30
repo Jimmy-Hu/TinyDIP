@@ -1936,21 +1936,22 @@ namespace TinyDIP
         const InputT sigma1_2, const InputT sigma2_2,
         const InputT rho, const InputT normalize_factor_input = 1.0)
     {
-        auto output = Image<InputT>(xsize, ysize);
+        Image<InputT> output(xsize, ysize);
         auto sigma1 = std::sqrt(sigma1_2);
         auto sigma2 = std::sqrt(sigma2_2);
         auto normalize_factor =
-            normalize_factor_input / (2.0 * std::numbers::pi_v<InputT> *std::sqrt(sigma1_2 * sigma2_2 * (1.0 - std::pow(rho, 2.0))));
+            normalize_factor_input / (2.0 * std::numbers::pi_v<InputT> * sigma1 * sigma2 * std::sqrt(1.0 - std::pow(rho, 2.0)));
 
         auto exp_para = -1.0 / (2.0 * sigma1_2 * sigma2_2 * (1.0 - std::pow(rho, 2.0)));
+        #pragma omp parallel for collapse(2)
         for (std::size_t y = 0; y < ysize; ++y)
         {
+            auto x2 = static_cast<InputT>(y) - static_cast<InputT>(centery);
+            auto x2_2 = std::pow(x2, 2.0);
             for (std::size_t x = 0; x < xsize; ++x)
             {
                 auto x1 = static_cast<InputT>(x) - static_cast<InputT>(centerx);
-                auto x2 = static_cast<InputT>(y) - static_cast<InputT>(centery);
                 auto x1_2 = std::pow(x1, 2.0);
-                auto x2_2 = std::pow(x2, 2.0);
                 output.at(x, y) = normalize_factor*
                     std::exp(
                         exp_para * (
