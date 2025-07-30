@@ -1984,17 +1984,21 @@ namespace TinyDIP
         const std::size_t centerx, const std::size_t centery, const std::size_t centerz,
         const InputT standard_deviation_x, const InputT standard_deviation_y, const InputT standard_deviation_z)
     {
-        auto output = std::vector<Image<InputT>>();
-        output.reserve(zsize);
+        Image<InputT> output(xsize, ysize, zsize);
         auto gaussian_image2d = gaussianFigure2D(xsize, ysize, centerx, centery, standard_deviation_x, standard_deviation_y);
         for (std::size_t z = 0; z < zsize; ++z)
         {
-            output.emplace_back(
-                gaussian_image2d *
-                normalDistribution1D(static_cast<InputT>(z) - static_cast<InputT>(centerz), standard_deviation_z)
-            );
+            auto each_plane = gaussian_image2d *
+                normalDistribution1D(static_cast<InputT>(z) - static_cast<InputT>(centerz), standard_deviation_z);
+            for (std::size_t y = 0; y < ysize; ++y)
+            {
+                for (std::size_t x = 0; x < xsize; ++x)
+                {
+                    output.at_without_boundary_check(x, y, z) = each_plane.at_without_boundary_check(x, y);
+                }
+            }
         }
-        return VolumetricImage(output);
+        return output;
     }
 
     template<class InputT>
