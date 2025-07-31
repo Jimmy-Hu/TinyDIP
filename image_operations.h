@@ -1946,7 +1946,7 @@ namespace TinyDIP
             normalize_factor_input / (2.0 * std::numbers::pi_v<InputT> * sigma1 * sigma2 * std::sqrt(1.0 - std::pow(rho, 2.0)));
 
         auto exp_para = -1.0 / (2.0 * sigma1_2 * sigma2_2 * (1.0 - std::pow(rho, 2.0)));
-        #pragma omp parallel for collapse(2)
+        #pragma omp parallel for
         for (std::size_t y = 0; y < ysize; ++y)
         {
             auto x2 = static_cast<InputT>(y) - static_cast<InputT>(centery);
