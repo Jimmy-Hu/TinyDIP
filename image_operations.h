@@ -369,6 +369,9 @@ namespace TinyDIP
 
     namespace impl {
         //  convolution_detail template function implementation
+        //  This function is a recursive implementation of convolution.
+        //  It performs convolution on the input image and kernel, and stores the result in the output image.
+        //  Test: https://godbolt.org/z/ohe1EcWz5
         template<class ExecutionPolicy, typename ImageT, typename KernelT,
                  typename F = std::multiplies<std::common_type_t<ImageT, KernelT>>>
         requires((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
@@ -386,7 +389,7 @@ namespace TinyDIP
         {
             auto kernel_size = kernel.getSize(level);
             auto image_size = image.getSize(level);
-            #pragma omp parallel for collapse(2)
+            //  Cannot use #pragma omp parallel for collapse(2) here because the output_index, index2, and index3 are not thread-safe.
             for (std::size_t i = 0; i < kernel_size; ++i)
             {
                 for (std::size_t j = 0; j < image_size; ++j)
