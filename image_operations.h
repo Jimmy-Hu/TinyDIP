@@ -3898,6 +3898,28 @@ namespace TinyDIP
             });
     }
 
+    //  bilateral_filter template function implementation (without Execution Policy)
+    template<typename ElementT, class RangeKernel, class SpatialKernel, std::ranges::input_range SizeRange>
+    requires(std::same_as<std::ranges::range_value_t<SizeRange>, std::size_t> ||
+             std::same_as<std::ranges::range_value_t<SizeRange>, int>)
+    constexpr static auto bilateral_filter(
+        const Image<ElementT>& input,
+        const SizeRange& window_sizes,
+        const RangeKernel range_kernel,
+        const SpatialKernel spatial_kernel,
+        const BoundaryCondition boundaryCondition = BoundaryCondition::mirror
+    )
+    {
+        return bilateral_filter(
+            std::execution::seq,
+            input,
+            window_sizes,
+            range_kernel,
+            spatial_kernel,
+            boundaryCondition
+        );
+    }
+
     //  increase_intensity template function implementation
     template<typename ElementT, class TimesT>
     requires (std::same_as<ElementT, RGB> || std::same_as<ElementT, RGB_DOUBLE>)
