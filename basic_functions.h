@@ -2754,7 +2754,11 @@ namespace TinyDIP
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel(execution_policy, input, [&](auto&& _input) {return std::isnan(_input); });
+            return apply_multichannel(
+                std::forward<ExecutionPolicy>(execution_policy),
+                input,
+                [&](auto&& _input) {return isnan(std::forward<ExecutionPolicy>(execution_policy), _input); }
+            );
         }
         else
         {
