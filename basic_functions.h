@@ -2805,7 +2805,7 @@ namespace TinyDIP
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel(input, [&](auto&& _input) {return std::signbit(_input); });
+            return apply_multichannel(input, [&](auto&& _input) {return signbit(_input); });
         }
         else
         {
