@@ -2820,7 +2820,11 @@ namespace TinyDIP
     {
         if constexpr (Multichannel<T>)
         {
-            return apply_multichannel(execution_policy, input, [&](auto&& _input) {return signbit(_input); });
+            return apply_multichannel(
+                std::forward<ExecutionPolicy>(execution_policy),
+                input,
+                [&](auto&& _input) {return signbit(std::forward<ExecutionPolicy>(execution_policy), _input); }
+            );
         }
         else
         {
