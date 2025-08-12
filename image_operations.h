@@ -60,6 +60,13 @@ namespace TinyDIP
         return all_of(input, [](const auto& element) { return element < 0; });
     }
 
+    //  all_non_positive template function implementation
+    template<typename ElementT>
+    constexpr auto all_non_positive(const Image<ElementT>& input)
+    {
+        return all_of(input, [](const auto& element) { return element <= 0; });
+    }
+
     template<typename ElementT>
     constexpr bool is_width_same(const Image<ElementT>& x, const Image<ElementT>& y)
     {
