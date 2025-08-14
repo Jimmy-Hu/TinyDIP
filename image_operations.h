@@ -74,6 +74,13 @@ namespace TinyDIP
         return std::ranges::any_of(std::ranges::begin(input.getImageData()), std::ranges::end(input.getImageData()), p);
     }
 
+    //  any_positive template function implementation
+    template<typename ElementT>
+    constexpr auto any_positive(const Image<ElementT>& input)
+    {
+        return any_of(input, [](const auto& element) { return element > 0; });
+    }
+
     template<typename ElementT>
     constexpr bool is_width_same(const Image<ElementT>& x, const Image<ElementT>& y)
     {
