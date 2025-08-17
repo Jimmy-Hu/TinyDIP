@@ -21,13 +21,14 @@ namespace TinyDIP
     {
     private:
         std::variant<std::vector<CountT>, std::map<ElementT, CountT>> histogram;
+        static constexpr bool is_dense = (std::same_as<ElementT, std::uint8_t>) or
+                                         (std::same_as<ElementT, std::uint16_t>);
     public:
         // Histogram constructor
         // Explicitly initialize based on ElementT type
         Histogram()
         {
-            if constexpr ((std::same_as<ElementT, std::uint8_t>) or
-                          (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 histogram.template emplace<std::vector<CountT>>(std::numeric_limits<ElementT>::max() + 1, 0);
             }
@@ -50,8 +51,7 @@ namespace TinyDIP
         //  Histogram constructor
         Histogram(const Image<ElementT>& input)
         {
-            if constexpr ((std::same_as<ElementT, std::uint8_t>) or
-                          (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 histogram.template emplace<std::vector<CountT>>(std::numeric_limits<ElementT>::max() + 1, 0);
             }
@@ -69,8 +69,7 @@ namespace TinyDIP
         //  getCount member function implementation
         constexpr auto getCount(const ElementT& input) const
         {
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 return std::get<std::vector<CountT>>(histogram).at(input);
             }
@@ -94,24 +93,23 @@ namespace TinyDIP
         constexpr auto getCountSum(ExecutionPolicy&& execution_policy) const
         {
             CountT output{};
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
-                auto get_result = std::get<std::vector<CountT>>(histogram);
+                const auto& data = std::get<std::vector<CountT>>(histogram);
                 return std::reduce(
                     std::forward<ExecutionPolicy>(execution_policy),
-                    std::ranges::cbegin(get_result),
-                    std::ranges::cend(get_result),
+                    std::ranges::cbegin(data),
+                    std::ranges::cend(data),
                     output);
             }
             else
             {
-                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
-                for (const auto& [key, value] : get_result)
-                {
-                    output += value;
-                }
-                return output;
+                const auto& data = std::get<std::map<ElementT, CountT>>(histogram) | std::views::values;
+                return std::reduce(
+                    std::forward<ExecutionPolicy>(execution_policy),
+                    std::ranges::cbegin(data),
+                    std::ranges::cend(data),
+                    output);
             }
         }
 
@@ -124,8 +122,7 @@ namespace TinyDIP
         //  addCount member function
         constexpr Histogram& addCount(const ElementT& input)
         {
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 auto get_result = std::get<std::vector<CountT>>(histogram);
                 ++get_result[input];
@@ -148,8 +145,7 @@ namespace TinyDIP
         constexpr auto normalize(ExecutionPolicy&& execution_policy)
         {
             auto count_sum = static_cast<ProbabilityType>(getCountSum(std::forward<ExecutionPolicy>(execution_policy)));
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 std::vector<ProbabilityType> output(std::numeric_limits<ElementT>::max() + 1);
                 const auto& get_result = std::get<std::vector<CountT>>(histogram);
@@ -181,8 +177,7 @@ namespace TinyDIP
 
         constexpr auto size() const
         {
-            if constexpr (  std::same_as<ElementT, std::uint8_t> ||
-                            std::same_as<ElementT, std::uint16_t>)
+            if constexpr (is_dense)
             {
                 auto get_result = std::get<std::vector<CountT>>(histogram);
                 return get_result.size();
@@ -201,8 +196,7 @@ namespace TinyDIP
         constexpr std::vector<FloatingType> to_probabilities_vector(ExecutionPolicy&& execution_policy) const
         {
             std::vector<FloatingType> probabilities;
-            if constexpr (  std::same_as<ElementT, std::uint8_t> ||
-                            std::same_as<ElementT, std::uint16_t>)
+            if constexpr (is_dense)
             {
                 probabilities.resize(std::numeric_limits<ElementT>::max() + 1);
                 std::size_t total_count = getCountSum(std::forward<ExecutionPolicy>(execution_policy));
@@ -243,8 +237,7 @@ namespace TinyDIP
 
         auto cbegin() const 
         {
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 auto get_result = std::get<std::vector<CountT>>(histogram);
                 return get_result.cbegin();
@@ -257,8 +250,7 @@ namespace TinyDIP
         }
         auto cend() const
         {
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 auto get_result = std::get<std::vector<CountT>>(histogram);
                 return get_result.cend();
@@ -271,8 +263,7 @@ namespace TinyDIP
         }
         auto begin() const
         {
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 auto get_result = std::get<std::vector<CountT>>(histogram);
                 return get_result.cbegin();
@@ -285,8 +276,7 @@ namespace TinyDIP
         }
         auto end() const
         {
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 auto get_result = std::get<std::vector<CountT>>(histogram);
                 return get_result.cend();
@@ -299,8 +289,7 @@ namespace TinyDIP
         }
         auto begin()
         {
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 auto get_result = std::get<std::vector<CountT>>(histogram);
                 return get_result.begin();
@@ -313,8 +302,7 @@ namespace TinyDIP
         }
         auto end()
         {
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 auto get_result = std::get<std::vector<CountT>>(histogram);
                 return get_result.end();
@@ -329,8 +317,7 @@ namespace TinyDIP
         // += operator to add two Histograms
         Histogram& operator+=(const Histogram& other) const
         {
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or 
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 auto& get_result = std::get<std::vector<CountT>>(histogram);
                 const auto& get_result_other = std::get<const std::vector<CountT>>(other.histogram);
@@ -369,8 +356,7 @@ namespace TinyDIP
         // -= operator to subtract two Histograms
         Histogram& operator-=(const Histogram& other) const
         {
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) ||
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 auto& get_result = std::get<std::vector<CountT>>(histogram);
                 const auto& get_result_other = std::get<const std::vector<CountT>>(other.histogram);
@@ -426,8 +412,7 @@ namespace TinyDIP
         // operator[] to access and modify counts
         CountT& operator[](const ElementT& key)
         {
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) ||
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 auto& get_result = std::get<std::vector<CountT>>(histogram);
                 if (static_cast<std::size_t>(key) >=
@@ -447,8 +432,7 @@ namespace TinyDIP
         // const operator[] Implementation
         const CountT& operator[](const ElementT& key) const
         {
-            if constexpr (  (std::same_as<ElementT, std::uint8_t>) or
-                            (std::same_as<ElementT, std::uint16_t>))
+            if constexpr (is_dense)
             {
                 const auto& get_result = std::get<std::vector<CountT>>(histogram);
                 if (static_cast<std::size_t>(key) >= get_result.size())
