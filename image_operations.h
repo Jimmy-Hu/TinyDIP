@@ -1625,6 +1625,27 @@ namespace TinyDIP
             default_element);
     }
 
+    //  subimage template function implementation (with execution policy)
+    template<class ExecutionPolicy, typename ElementT>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr static auto subimage(
+        ExecutionPolicy&& execution_policy,
+        const Image<ElementT>& input,
+        const std::size_t width,
+        const std::size_t height,
+        const std::size_t xcenter,
+        const std::size_t ycenter,
+        const ElementT default_element = ElementT{}
+    )
+    {
+        return subimage(
+            std::forward<ExecutionPolicy>(execution_policy),
+            input, 
+            std::vector<std::size_t>{width, height}, 
+            std::vector<std::size_t>{xcenter, ycenter}, 
+            default_element);
+    }
+
     //  subimage2 template function implementation
     template<typename ElementT>
     constexpr static auto subimage2(const Image<ElementT>& input, const std::size_t startx, const std::size_t endx, const std::size_t starty, const std::size_t endy)
