@@ -2031,6 +2031,51 @@ namespace TinyDIP
         return output;
     }
 
+    //  gaussianFigure2D Template Function Implementation (with Execution Policy)
+    //  General two-dimensional elliptical Gaussian
+    //  https://fabiandablander.com/statistics/Two-Properties.html
+    template<class ExPo, class InputT = double>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static auto gaussianFigure2D(
+        ExPo&& execution_policy,
+        const std::size_t xsize, const std::size_t ysize,
+        const std::size_t centerx, const std::size_t centery,
+        const InputT sigma1_2, const InputT sigma2_2,
+        const InputT rho, const InputT normalize_factor_input = 1.0)
+    {
+        Image<InputT> output(xsize, ysize);
+        auto sigma1 = std::sqrt(sigma1_2);
+        auto sigma2 = std::sqrt(sigma2_2);
+        auto normalize_factor =
+            normalize_factor_input / (static_cast<InputT>(2.0) * std::numbers::pi_v<InputT> * sigma1 * sigma2 * std::sqrt(static_cast<InputT>(1.0) - std::pow(rho, static_cast<InputT>(2.0))));
+
+        auto exp_para = static_cast<InputT>(-1.0) / (static_cast<InputT>(2.0) * sigma1_2 * sigma2_2 * (static_cast<InputT>(1.0) - std::pow(rho, static_cast<InputT>(2.0))));
+        auto indices = std::views::iota(std::size_t{ 0 }, ysize);
+        std::for_each(
+            std::forward<ExPo>(execution_policy),
+            std::ranges::begin(indices),
+            std::ranges::end(indices),
+            [&](const std::size_t y) {
+                auto x2 = static_cast<InputT>(y) - static_cast<InputT>(centery);
+                auto x2_2 = x2 * x2;
+                for (std::size_t x = 0; x < xsize; ++x)
+                {
+                    auto x1 = static_cast<InputT>(x) - static_cast<InputT>(centerx);
+                    auto x1_2 = x1 * x1;
+                    output.at(x, y) = normalize_factor *
+                        std::exp(
+                            exp_para * (
+                                sigma2_2 * x1_2 -
+                                (static_cast<InputT>(2) * rho * sigma1 * sigma2 * x1 * x2) +
+                                sigma1_2 * x2_2
+                                )
+                        );
+                }
+            }
+        );
+        return output;
+    }
+
     //  gaussianFigure2D Template Function Implementation
     //  single standard deviation
     template<class InputT>
