@@ -3605,6 +3605,60 @@ namespace TinyDIP
         return output;
     }
 
+    //  imgaussfilt template function implementation
+    template<class ExecutionPolicy, typename ElementT, typename SigmaT = double, std::integral SizeT = std::size_t>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)&&
+            (std::floating_point<SigmaT> || std::integral<SigmaT>)
+    constexpr static auto imgaussfilt(
+        ExecutionPolicy&& execution_policy,
+        const Image<ElementT>& input,
+        const SizeT filter_size1, const SizeT filter_size2,
+        const SigmaT sigma1_2, const SigmaT sigma2_2,
+        const SigmaT rho, const SigmaT normalize_factor_input = 1.0,
+        const BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
+        const ElementT& value_for_constant_padding = ElementT{},
+        bool is_size_same = true
+        )
+    {
+        if (input.getDimensionality()!=2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+        if (sigma1_2 <= 0 || sigma2_2 <= 0)
+        {
+            throw std::runtime_error("Sigma values must be positive");
+        }
+        if (rho < -1 || rho > 1)
+        {
+            throw std::runtime_error("Rho must be in [-1, 1]");
+        }
+        const auto centerx = filter_size1 / 2;
+        const auto centery = filter_size2 / 2;
+        const auto mask = gaussianFigure2D(
+            std::forward<ExecutionPolicy>(execution_policy),
+            filter_size1, filter_size2, centerx, centery, sigma1_2, sigma2_2, rho, normalize_factor_input);
+        Image<ElementT> padded_image = generate_padded_image(
+            std::forward<ExecutionPolicy>(execution_policy),
+            input,
+            filter_size1, filter_size2,
+            boundaryCondition,
+            value_for_constant_padding
+        );
+        auto output = conv2(padded_image, mask, is_size_same);
+        if (is_size_same)
+        {
+            output = subimage(
+                std::forward<ExecutionPolicy>(execution_policy),
+                output,
+                input.getWidth(),
+                input.getHeight(),
+                output.getWidth() / 2,
+                output.getHeight() / 2
+                );
+        }
+        return output;
+    }
+
     //  difference_of_gaussian template function implementation
     template<typename ElementT, typename SigmaT = double>
     requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
