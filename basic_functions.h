@@ -2832,6 +2832,20 @@ namespace TinyDIP
         }
     }
 
+    //  exp Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto exp(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return exp(_input); });
+        }
+        else
+        {
+            return std::exp(input);
+        }
+    }
+
     // sum_first_element Template Function Implementation
     template <typename FirstT, typename SecondT, class Function = std::plus<FirstT>>
     requires(std::regular_invocable<Function, FirstT, FirstT>)
