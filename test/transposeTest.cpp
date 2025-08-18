@@ -1,8 +1,11 @@
 #include <cassert>
+#include <chrono>
 #include "../base_types.h"
 #include "../basic_functions.h"
 #include "../image.h"
+#include "../image_io.h"
 #include "../image_operations.h"
+#include "../timer.h"
 
 //  transposeTest template function implementation
 template<class T>
