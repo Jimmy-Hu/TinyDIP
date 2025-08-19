@@ -7,6 +7,15 @@
 #include "../image_operations.h"
 #include "../timer.h"
 
+//  remove_extension Function Implementation
+//  Copy from: https://stackoverflow.com/a/6417908/6667035
+std::string remove_extension(const std::string& filename)
+{
+    size_t lastdot = filename.find_last_of(".");
+    if (lastdot == std::string::npos) return filename;
+    return filename.substr(0, lastdot);
+}
+
 //  transposeTest template function implementation
 template<class T>
 void transposeTest()
