@@ -3709,6 +3709,41 @@ namespace TinyDIP
         output = subimage(output, input.getWidth(), input.getHeight(), output.getWidth() / 2, output.getHeight() / 2);
         return output;
     }
+    
+    //  imgaussfilt template function implementation
+    template <class ExecutionPolicy, typename ElementT = RGB, typename SigmaT = double, std::integral SizeT = std::size_t>
+    requires( (std::same_as<ElementT, RGB>) ||
+              (std::same_as<ElementT, RGB_DOUBLE>) ||
+              (std::same_as<ElementT, HSV>) ||
+              (is_MultiChannel<ElementT>::value)) and
+             (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr Image<ElementT> imgaussfilt(
+        ExecutionPolicy&& execution_policy,
+        const Image<ElementT>& input,
+        const SigmaT sigma1,
+        const SigmaT sigma2,
+        const SigmaT radians,
+        const SizeT filter_size1,
+        const SizeT filter_size2,
+        const BoundaryCondition boundaryCondition = BoundaryCondition::mirror
+    )
+    {
+        return apply_each(
+            input,
+            [&](auto&& each_plane)
+            {
+                return imgaussfilt(
+                    std::forward<ExecutionPolicy>(execution_policy),
+                    each_plane,
+                    sigma1,
+                    sigma2,
+                    radians,
+                    filter_size1,
+                    filter_size2,
+                    boundaryCondition
+                    );
+            });
+    }
 
     //  difference_of_gaussian template function implementation
     template<typename ElementT, typename SigmaT = double>
