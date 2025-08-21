@@ -397,11 +397,12 @@ namespace TinyDIP
     }
 
     //  conv2 template function implementation
-    template<typename ElementT>
-    requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
-    constexpr static auto conv2(const Image<ElementT>& x, const Image<ElementT>& y, bool is_size_same = false)
+    template<typename ElementT1, typename ElementT2>
+    requires(std::floating_point<ElementT1> || std::integral<ElementT1> || is_complex<ElementT1>::value) &&
+            (std::floating_point<ElementT2> || std::integral<ElementT2> || is_complex<ElementT2>::value)
+    constexpr static auto conv2(const Image<ElementT1>& x, const Image<ElementT2>& y, bool is_size_same = false)
     {
-        Image<ElementT> output(x.getWidth() + y.getWidth() - 1, x.getHeight() + y.getHeight() - 1);
+        Image<ElementT1> output(x.getWidth() + y.getWidth() - 1, x.getHeight() + y.getHeight() - 1);
         for (std::size_t y1 = 0; y1 < x.getHeight(); ++y1) {
             auto* x_row = &(x.at(std::size_t{ 0 }, y1));
             for (std::size_t y2 = 0; y2 < y.getHeight(); ++y2) {
