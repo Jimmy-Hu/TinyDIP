@@ -46,7 +46,19 @@ void imgaussfiltTest2(
     std::string_view output_image_path = "../OutputImages/imgaussfiltTest2")
 {
     auto input_img = TinyDIP::bmp_read(std::string(input_image_path).c_str(), false);
-    auto output_img_mirror = TinyDIP::im2uint8(
+    auto output_img = 
+        TinyDIP::imgaussfilt(
+            std::execution::par,
+            input_img,
+            20.0,
+            20.0,
+            1.0,
+            50,
+            50,
+            TinyDIP::constant
+            );
+    /*
+    auto output_img = TinyDIP::im2uint8(
         TinyDIP::imgaussfilt(
             std::execution::par,
             TinyDIP::im2double(input_img),
@@ -58,9 +70,10 @@ void imgaussfiltTest2(
             1.0,
             TinyDIP::constant)
     );
+    */
     TinyDIP::bmp_write(
         (std::string(output_image_path)).c_str(),
-        output_img_mirror);
+        output_img);
 }
 
 int main(int argc, char* argv[])
