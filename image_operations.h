@@ -3672,56 +3672,41 @@ namespace TinyDIP
     }
 
     //  imgaussfilt template function implementation
-    template<class ExecutionPolicy, typename ElementT, typename SigmaT = double, std::integral SizeT = std::size_t>
+    template<class ExecutionPolicy, arithmetic ElementT, typename SigmaT = double, std::integral SizeT = std::size_t>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)&&
             (std::floating_point<SigmaT> || std::integral<SigmaT>)
     constexpr static auto imgaussfilt(
         ExecutionPolicy&& execution_policy,
         const Image<ElementT>& input,
-        const SizeT filter_size1, const SizeT filter_size2,
-        const SigmaT sigma1_2, const SigmaT sigma2_2,
-        const SigmaT rho, const SigmaT normalize_factor_input = 1.0,
+        const SigmaT sigma1,
+        const SigmaT sigma2,
+        const SigmaT radians,
+        const SizeT filter_size1,
+        const SizeT filter_size2,
         const BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
-        const ElementT& value_for_constant_padding = ElementT{},
-        bool is_size_same = true
+        const ElementT& value_for_constant_padding = ElementT{}
         )
     {
         if (input.getDimensionality()!=2)
         {
             throw std::runtime_error("Unsupported dimension!");
         }
-        if (sigma1_2 <= 0 || sigma2_2 <= 0)
+        if (sigma1 <= 0 || sigma2 <= 0)
         {
             throw std::runtime_error("Sigma values must be positive");
         }
-        if (rho < -1 || rho > 1)
-        {
-            throw std::runtime_error("Rho must be in [-1, 1]");
-        }
-        const auto centerx = filter_size1 / 2;
-        const auto centery = filter_size2 / 2;
-        const auto mask = gaussianFigure2D(
+        auto rotated_image = rotate_detail_shear_transformation(input, radians);
+        auto output = imgaussfilt(
             std::forward<ExecutionPolicy>(execution_policy),
-            filter_size1, filter_size2, centerx, centery, sigma1_2, sigma2_2, rho, normalize_factor_input);
-        Image<ElementT> padded_image = generate_padded_image(
-            std::forward<ExecutionPolicy>(execution_policy),
-            input,
-            filter_size1, filter_size2,
+            rotated_image,
+            sigma1,
+            sigma2,
+            filter_size1,
+            filter_size2,
             boundaryCondition,
-            value_for_constant_padding
-        );
-        auto output = conv2(padded_image, mask, is_size_same);
-        if (is_size_same)
-        {
-            output = subimage(
-                std::forward<ExecutionPolicy>(execution_policy),
-                output,
-                input.getWidth(),
-                input.getHeight(),
-                output.getWidth() / 2,
-                output.getHeight() / 2
-                );
-        }
+            value_for_constant_padding);
+        output = rotate_detail_shear_transformation(output, -radians);
+        output = subimage(output, input.getWidth(), input.getHeight(), output.getWidth() / 2, output.getHeight() / 2);
         return output;
     }
 
