@@ -514,6 +514,49 @@ namespace TinyDIP
         std::vector<std::size_t> size;
         std::vector<ElementT> image_data;
 
+
+        /**
+         * print_recursive_helper template function implementation
+         * @brief Recursively iterates through dimensions to print the image.
+         *
+         * @tparam PrintFunc A callable type for printing a single element.
+         * @param indices A vector to hold the current N-dimensional index.
+         * @param current_dim The current dimension being iterated over.
+         * @param print_element The function that prints a single element.
+         * @param separator The separator string.
+         * @param os The output stream.
+         */
+        template <std::invocable<const ElementT&> PrintFunc>
+        void print_recursive_helper(
+            std::vector<std::size_t>& indices,
+            std::size_t current_dim,
+            const PrintFunc& print_element,
+            std::string_view separator,
+            std::ostream& os) const
+        {
+            if (current_dim == 0)                                   // Base case: The innermost dimension
+            {
+                for (std::size_t i = 0; i < getSize(current_dim); ++i)
+                {
+                    indices[current_dim] = i;
+                    print_element(at_without_boundary_check(indices));
+                    os << separator;
+                }
+            }
+            else                                                    // Recursive step: Outer dimensions
+            {
+                for (std::size_t i = 0; i < getSize(current_dim); ++i)
+                {
+                    indices[current_dim] = i;
+                    print_recursive_helper(indices, current_dim - 1, print_element, separator, os);
+                    // After a full "row" of the lower dimension, add a newline.
+                    os << '\n';
+                }
+                // Add an extra newline to separate higher-dimensional "planes".
+                 os << '\n';
+            }
+        }
+
         // calculateIndex template function implementation
         template<std::same_as<std::size_t>... Args>
         constexpr auto calculateIndex(const Args... indices) const
