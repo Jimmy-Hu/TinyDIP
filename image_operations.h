@@ -3150,80 +3150,81 @@ namespace TinyDIP
     //  rotate_detail_shear_transformation template function implementation
     //  rotate_detail_shear_transformation template function performs image rotation
     //  Reference: https://gautamnagrawal.medium.com/rotating-image-by-any-angle-shear-transformation-using-only-numpy-d28d16eb5076
-    template<arithmetic ElementT, std::floating_point FloatingType = double>
+    template<arithmetic ElementT, arithmetic FloatingType = double>
     constexpr static auto rotate_detail_shear_transformation(const Image<ElementT>& input, FloatingType radians)
     {
-        if (input.getDimensionality()!=2)
+        if (input.getDimensionality() != 2)
         {
             throw std::runtime_error("Unsupported dimension!");
         }
         radians = std::fmod(radians, 2 * std::numbers::pi_v<long double>);
-        //  if negative degrees
-        if(radians < 0)
+        if (radians < 0)
         {
             radians = radians + 2 * std::numbers::pi_v<long double>;
         }
-        //  if 0° rotation case
+        // Handle 0-degree rotation
         if (radians == 0)
         {
             return input;
         }
-        //  if 90° rotation case
-        if(radians == std::numbers::pi_v<long double> / 2.0)
+        // Handle 90-degree rotation (can still be optimized for speed)
+        if (radians == std::numbers::pi_v<long double> / 2.0)
         {
             Image<ElementT> output(input.getHeight(), input.getWidth());
             for (std::size_t y = 0; y < input.getHeight(); ++y)
             {
                 for (std::size_t x = 0; x < input.getWidth(); ++x)
                 {
-                    output.at(input.getHeight() - y - 1, x) = 
-                        input.at(x, y);
+                    output.at(input.getHeight() - y - 1, x) = input.at(x, y);
                 }
             }
             return output;
         }
+
         auto cosine = std::cos(radians);
         auto sine = std::sin(radians);
-        auto height = input.getHeight();
-        auto width = input.getWidth();
-        FloatingType original_centre_width  = std::round((static_cast<FloatingType>(width) + 1.0) / 2.0 - 1.0);
-        FloatingType original_centre_height = std::round((static_cast<FloatingType>(height) + 1.0) / 2.0 - 1.0);
 
-        //  Define the height and width of the new image that is to be formed
-        auto new_height = std::round(std::abs(height*cosine) + std::abs(width*sine)) + 1;
-        auto new_width = std::round(std::abs(width*cosine) + std::abs(height*sine)) + 1;
+        auto height = static_cast<FloatingType>(input.getHeight());
+        auto width = static_cast<FloatingType>(input.getWidth());
 
-        //  Define another image variable of dimensions of new_height and new _column filled with zeros
-        Image<ElementT> output(static_cast<std::size_t>(new_width), static_cast<std::size_t>(new_height));
+        // Calculate original image center
+        FloatingType original_centre_width = (width - 1.0) / 2.0;
+        FloatingType original_centre_height = (height - 1.0) / 2.0;
 
-        //  Find the centre of the new image that will be obtained
-        FloatingType new_centre_width  = std::round((static_cast<FloatingType>(new_width) + 1.0) / 2.0 - 1.0);
-        FloatingType new_centre_height = std::round((static_cast<FloatingType>(new_height) + 1.0) / 2.0 - 1.0);
+        // Calculate the dimensions of the new image
+        auto new_height_f = std::abs(height * cosine) + std::abs(width * sine);
+        auto new_width_f = std::abs(width * cosine) + std::abs(height * sine);
+        auto new_height = static_cast<std::size_t>(std::ceil(new_height_f));
+        auto new_width = static_cast<std::size_t>(std::ceil(new_width_f));
 
-        for (std::size_t i = 0; i < input.getHeight(); ++i)
+        Image<ElementT> output(new_width, new_height);
+        output.setAllValue(ElementT{ 0 }); // Initialize with a background color
+
+        // Calculate new image center
+        FloatingType new_centre_width = (static_cast<FloatingType>(new_width) - 1.0) / 2.0;
+        FloatingType new_centre_height = (static_cast<FloatingType>(new_height) - 1.0) / 2.0;
+
+        // Reverse Mapping: Iterate over the destination image
+        for (std::size_t y_new = 0; y_new < new_height; ++y_new)
         {
-            for (std::size_t j = 0; j < input.getWidth(); ++j)
+            for (std::size_t x_new = 0; x_new < new_width; ++x_new)
             {
-                //  co-ordinates of pixel with respect to the centre of original image
-                auto y = height - 1.0 - i - original_centre_height;
-                auto x = width - 1.0 - j - original_centre_width;
+                // Translate coordinates to be relative to the new image's center
+                auto x_prime = static_cast<FloatingType>(x_new) - new_centre_width;
+                auto y_prime = static_cast<FloatingType>(y_new) - new_centre_height;
 
-                //  co-ordinate of pixel with respect to the rotated image
-                auto new_y = std::round(-x * sine + y * cosine);
-                auto new_x = std::round(x * cosine + y * sine);
+                // Apply the inverse rotation to find the corresponding source coordinate
+                // x = x'cos(θ) + y'sin(θ)
+                // y = -x'sin(θ) + y'cos(θ)
+                auto x_original_centered = x_prime * cosine + y_prime * sine;
+                auto y_original_centered = -x_prime * sine + y_prime * cosine;
 
-                /*  since image will be rotated the centre will change too, 
-                    so to adust to that we will need to change new_x and new_y with respect to the new centre*/
-                new_y = new_centre_height - new_y;
-                new_x = new_centre_width - new_x;
-                if((0 <= new_x) && (new_x < new_width) &&
-                   (0 <= new_y) && (new_y < new_height))
-                {
-                    output.at(
-                    static_cast<std::size_t>(new_x),
-                    static_cast<std::size_t>(new_y)) = 
-                    input.at(j, i);
-                }
+                // Translate back to the original image's coordinate system
+                auto x_source = x_original_centered + original_centre_width;
+                auto y_source = y_original_centered + original_centre_height;
+
+                // Use bilinear interpolation to get the pixel value
+                output.at(x_new, y_new) = bilinear_interpolate(input, x_source, y_source);
             }
         }
         return output;
