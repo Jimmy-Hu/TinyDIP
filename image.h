@@ -293,8 +293,13 @@ namespace TinyDIP
         }
 
         //  set function implementation
-        constexpr ElementT& set(const std::size_t index) noexcept
+        constexpr ElementT& set(const std::size_t index)
         {
+            if (index >= count())
+            {
+                std::cout << "index = " << index << ", count = " << count() << '\n';
+                throw std::out_of_range("Given index out of range!");
+            }
             return image_data[index];
         }
 
