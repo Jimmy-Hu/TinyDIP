@@ -1977,6 +1977,21 @@ namespace TinyDIP
         });
     }
 
+    // Lanczos kernel implementation
+    // a: The kernel size parameter (e.g., 2 or 3)
+    // x: The input value
+    template<typename T>
+    constexpr T lanczos_kernel(T x, const int a)
+    {
+        if (x == 0.0) {
+            return T(1.0);
+        }
+        if (std::abs(x) < a) {
+            return (a * std::sin(std::numbers::pi_v<T> *x) * std::sin(std::numbers::pi_v<T> *x / a)) / (std::numbers::pi_v<T> *std::numbers::pi_v<T> *x * x);
+        }
+        return T(0.0);
+    }
+
 
     //  gaussianFigure1D template function implementation
     template<class InputT>
