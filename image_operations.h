@@ -489,10 +489,11 @@ namespace TinyDIP
     }
 
     //  convolution template function implementation (with Execution Policy)
+    //  https://codereview.stackexchange.com/a/293069/231235
     template<class ExecutionPolicy, typename ElementT>
     requires((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) &&
              (std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value))
-    constexpr static auto convolution(ExecutionPolicy&& execution_policy, const Image<ElementT>& image, const Image<ElementT>& kernel)
+    constexpr static auto convolution(ExecutionPolicy&& execution_policy, const Image<ElementT>& image, const Image<ElementT>& kernel, const bool is_size_same = false)
     {
         /*  ranges::to support list: https://stackoverflow.com/a/74662256/6667035
         auto output_size =
@@ -512,6 +513,15 @@ namespace TinyDIP
         
         Image<ElementT> output(output_size);
         impl::convolution_detail(std::forward<ExecutionPolicy>(execution_policy), image, kernel, output, image.getSize().size() - 1);
+        if (is_size_same)
+        {
+            output = subimage(
+                std::forward<ExecutionPolicy>(execution_policy),
+                image,
+                image.getSize(),
+                get_center_location(std::forward<ExecutionPolicy>(execution_policy), image)
+                );
+        }
         return output;
     }
 
