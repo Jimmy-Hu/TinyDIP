@@ -390,172 +390,40 @@ namespace TinyDIP
 
         std::vector<ElementT> const& getImageData() const noexcept { return image_data; }      //  expose the internal data
 
-        //  print function implementation
-        void print(std::string separator = "\t", std::ostream& os = std::cout) const
+        /**
+         * print function implementation
+         * @brief Prints the image content to an output stream.
+         * This function is generic and supports printing N-dimensional images.
+         * @param separator The separator to use between elements.
+         * @param os The output stream to write to.
+         */
+        void print(std::string_view separator = "\t", std::ostream& os = std::cout) const
         {
-            if constexpr (is_MultiChannel<ElementT>::value)
+            if (getDimensionality() == 0)
             {
-                if (size.size() == 1)
-                {
-                    for (std::size_t x = 0; x < size[0]; ++x)
-                    {
-                        os << at(x) << separator;
-                    }
-                    os << "\n";
-                }
-                else if (size.size() == 2)
-                {
-                    for (std::size_t y = 0; y < size[1]; ++y)
-                    {
-                        for (std::size_t x = 0; x < size[0]; ++x)
-                        {
-                            os << at(x, y) << separator;
-                        }
-                        os << "\n";
-                    }
-                    os << "\n";
-                }
-                else if (size.size() == 3)
-                {
-                    for (std::size_t z = 0; z < size[2]; ++z)
-                    {
-                        for (std::size_t y = 0; y < size[1]; ++y)
-                        {
-                            for (std::size_t x = 0; x < size[0]; ++x)
-                            {
-                                os << at(x, y, z) << separator;
-                            }
-                            os << "\n";
-                        }
-                        os << "\n";
-                    }
-                    os << "\n";
-                }
-                else if (size.size() == 4)
-                {
-                    for (std::size_t a = 0; a < size[3]; ++a)
-                    {
-                        os << "group = " << a << "\n";
-                        for (std::size_t z = 0; z < size[2]; ++z)
-                        {
-                            for (std::size_t y = 0; y < size[1]; ++y)
-                            {
-                                for (std::size_t x = 0; x < size[0]; ++x)
-                                {
-                                    os << at(x, y, z, a) << separator;
-                                }
-                                os << "\n";
-                            }
-                            os << "\n";
-                        }
-                        os << "\n";
-                    }
-                    os << "\n";
-                }
+                return;
             }
-            else
-            {
-                if (size.size() == 1)
-                {
-                    for (std::size_t x = 0; x < size[0]; ++x)
-                    {
-                        //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                        os << +at(x) << separator;
-                    }
-                    os << "\n";
-                }
-                else if (size.size() == 2)
-                {
-                    for (std::size_t y = 0; y < size[1]; ++y)
-                    {
-                        for (std::size_t x = 0; x < size[0]; ++x)
-                        {
-                            //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                            os << +at(x, y) << separator;
-                        }
-                        os << "\n";
-                    }
-                    os << "\n";
-                }
-                else if (size.size() == 3)
-                {
-                    for (std::size_t z = 0; z < size[2]; ++z)
-                    {
-                        for (std::size_t y = 0; y < size[1]; ++y)
-                        {
-                            for (std::size_t x = 0; x < size[0]; ++x)
-                            {
-                                //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                                os << +at(x, y, z) << separator;
-                            }
-                            os << "\n";
-                        }
-                        os << "\n";
-                    }
-                    os << "\n";
-                }
-                else if (size.size() == 4)
-                {
-                    for (std::size_t a = 0; a < size[3]; ++a)
-                    {
-                        os << "group = " << a << "\n";
-                        for (std::size_t z = 0; z < size[2]; ++z)
-                        {
-                            for (std::size_t y = 0; y < size[1]; ++y)
-                            {
-                                for (std::size_t x = 0; x < size[0]; ++x)
-                                {
-                                    //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                                    os << +at(x, y, z, a) << separator;
-                                }
-                                os << "\n";
-                            }
-                            os << "\n";
-                        }
-                        os << "\n";
-                    }
-                    os << "\n";
-                }
-            }
-        }
 
-        //  Enable this function if ElementT = RGB or RGB_DOUBLE or HSV
-        void print(std::string separator = "\t", std::ostream& os = std::cout) const
-        requires(std::same_as<ElementT, RGB> or std::same_as<ElementT, RGB_DOUBLE> or std::same_as<ElementT, HSV> or is_MultiChannel<ElementT>::value)
-        {
-            if (size.size() == 1)
-            {
-                for (std::size_t x = 0; x < size[0]; ++x)
+            // A lambda to define how a single element should be printed.
+            auto element_printer = [&](const ElementT& value) {
+                if constexpr (is_MultiChannel<ElementT>::value)
                 {
-                    os << "( ";
-                    for (std::size_t channel_index = 0; channel_index < 3; ++channel_index)
-                    {
-                        //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                        os << +at(x).channels[channel_index] << separator;
+                     os << "( ";
+                     // Assumes .channels is an array-like member of the multi-channel type
+                    for (std::size_t i = 0; i < std::size(value.channels); ++i) {
+                        os << +value.channels[i] << (i == std::size(value.channels) - 1 ? "" : " ");
                     }
-                    os << ")" << separator;
+                    os << ") ";
                 }
-                os << "\n";
-            }
-            else if (size.size() == 2)
-            {
-                for (std::size_t y = 0; y < size[1]; ++y)
+                else
                 {
-                    for (std::size_t x = 0; x < size[0]; ++x)
-                    {
-                        os << "( ";
-                        for (std::size_t channel_index = 0; channel_index < 3; ++channel_index)
-                        {
-                            //  Ref: https://isocpp.org/wiki/faq/input-output#print-char-or-ptr-as-number
-                            os << +at(x, y).channels[channel_index] << separator;
-                        }
-                        os << ")" << separator;
-                    }
-                    os << "\n";
+                    // Use unary '+' to ensure char types are printed as numbers
+                    os << +value;
                 }
-                os << "\n";
-            }
-            return;
+            };
+
+            std::vector<std::size_t> indices(getDimensionality(), 0);
+            print_recursive_helper(indices, getDimensionality() - 1, element_printer, separator, os);
         }
 
         Image<ElementT>& setAllValue(const ElementT input)
