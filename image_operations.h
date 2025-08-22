@@ -1977,7 +1977,7 @@ namespace TinyDIP
     //  copyResizeBicubic template function implementation for color image
     template<class FloatingType = double, class ElementT>
     requires (std::same_as<ElementT, RGB> || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>) || is_MultiChannel<ElementT>::value)
-    Image<ElementT> copyResizeBicubic(
+    constexpr Image<ElementT> copyResizeBicubic(
         const Image<ElementT>& image,
         const std::size_t width,
         const std::size_t height)
