@@ -415,6 +415,12 @@ namespace TinyDIP
                     }
                     os << ") ";
                 }
+                if constexpr ((std::same_as<ElementT, RGB>) ||
+                              (std::same_as<ElementT, RGB_DOUBLE>) ||
+                              (std::same_as<ElementT, HSV>))
+                {
+                    os << value;
+                }
                 else
                 {
                     // Use unary '+' to ensure char types are printed as numbers
