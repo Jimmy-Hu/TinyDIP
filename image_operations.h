@@ -3147,6 +3147,47 @@ namespace TinyDIP
         return output;
     }
 
+    //  bilinear_interpolate template function implementation
+    template<arithmetic ElementT, arithmetic FloatingType>
+    constexpr ElementT bilinear_interpolate(const Image<ElementT>& image, const FloatingType x, const FloatingType y)
+    {
+        const auto width = static_cast<FloatingType>(image.getWidth());
+        const auto height = static_cast<FloatingType>(image.getHeight());
+
+        // Boundary check
+        if (x < 0 || x > width - 1 || y < 0 || y > height - 1)
+        {
+            return ElementT{0}; // Return black/zero for out-of-bounds pixels
+        }
+
+        // Get the integer coordinates of the four surrounding pixels
+        auto x1 = static_cast<std::size_t>(x);
+        auto y1 = static_cast<std::size_t>(y);
+        auto x2 = x1 + 1;
+        auto y2 = y1 + 1;
+
+        // Ensure the second set of coordinates are within bounds
+        if (x2 >= image.getWidth()) x2 = x1;
+        if (y2 >= image.getHeight()) y2 = y1;
+
+        // Get the values of the four corner pixels
+        const ElementT& q11 = image.at(x1, y1);
+        const ElementT& q21 = image.at(x2, y1);
+        const ElementT& q12 = image.at(x1, y2);
+        const ElementT& q22 = image.at(x2, y2);
+
+        // Calculate fractional parts (weights)
+        FloatingType dx = x - x1;
+        FloatingType dy = y - y1;
+
+        // Interpolate in the x-direction
+        auto r1 = q11 * (1.0 - dx) + q21 * dx;
+        auto r2 = q12 * (1.0 - dx) + q22 * dx;
+
+        // Interpolate in the y-direction and cast back to the element type
+        return static_cast<ElementT>(r1 * (1.0 - dy) + r2 * dy);
+    }
+
     //  rotate_detail_shear_transformation template function implementation
     //  rotate_detail_shear_transformation template function performs image rotation
     //  Reference: https://gautamnagrawal.medium.com/rotating-image-by-any-angle-shear-transformation-using-only-numpy-d28d16eb5076
