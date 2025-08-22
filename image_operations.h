@@ -480,11 +480,12 @@ namespace TinyDIP
     }
 
     //  convolution template function implementation
+    //  https://codereview.stackexchange.com/a/293069/231235
     template<typename ElementT>
     requires(std::floating_point<ElementT> || std::integral<ElementT> || is_complex<ElementT>::value)
-    constexpr static auto convolution(const Image<ElementT>& image, const Image<ElementT>& kernel)
+    constexpr static auto convolution(const Image<ElementT>& image, const Image<ElementT>& kernel, const bool is_size_same = false)
     {
-        return convolution(std::execution::seq, image, kernel);
+        return convolution(std::execution::seq, image, kernel, is_size_same);
     }
 
     //  convolution template function implementation (with Execution Policy)
