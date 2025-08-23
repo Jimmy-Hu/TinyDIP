@@ -423,13 +423,7 @@ namespace TinyDIP
                     }
                     os << ") ";
                 }
-                else if constexpr ((std::same_as<ElementT, RGB>) ||
-                                   (std::same_as<ElementT, RGB_DOUBLE>) ||
-                                   (std::same_as<ElementT, HSV>))
-                {
-                    os << value;
-                }
-                else if constexpr (is_complex<ElementT>::value)
+                else if constexpr (is_streamable<ElementT> && !std::is_fundamental_v<ElementT>)
                 {
                     os << value;
                 }
