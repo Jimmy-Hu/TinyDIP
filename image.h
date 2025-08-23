@@ -40,6 +40,14 @@
 
 namespace TinyDIP
 {
+    //  is_streamable concept
+    // Concept to check if a type supports the << operator with std::ostream
+    template<typename T>
+    concept is_streamable = requires(std::ostream & os, const T & val)
+    {
+        { os << val } -> std::same_as<std::ostream&>;
+    };
+
     template <typename ElementT>
     class Image
     {
