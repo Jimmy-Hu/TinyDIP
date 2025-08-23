@@ -442,6 +442,15 @@ namespace TinyDIP
             return *this;
         }
 
+        //  setAllValue template function implementation (with Execution Policy)
+        template<class ExecutionPolicy>
+        requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+        Image<ElementT>& setAllValue(ExecutionPolicy&& execution_policy, const ElementT& input)
+        {
+            std::fill(std::forward<ExecutionPolicy>(execution_policy), std::ranges::begin(image_data), std::ranges::end(image_data), input);
+            return *this;
+        }
+
         friend std::ostream& operator<<(std::ostream& os, const Image<ElementT>& rhs)
         {
             const std::string separator = "\t";
