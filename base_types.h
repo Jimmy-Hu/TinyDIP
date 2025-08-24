@@ -39,6 +39,8 @@ namespace TinyDIP
             out << '{' << +_myStruct.channels[0] << ", " << +_myStruct.channels[1] << ", " << +_myStruct.channels[2] << '}';
             return out;
         }
+
+        bool operator==(const RGB& other) const = default;
     };
 
     //  RGB_DOUBLE struct implementation
