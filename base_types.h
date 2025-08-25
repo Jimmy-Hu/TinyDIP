@@ -13,6 +13,14 @@
 
 namespace TinyDIP
 {
+    /**
+     * @brief A tag dispatch type to select execution policy automatically at runtime.
+     */
+    struct auto_execution_policy {};
+
+    // Create a convenient instance for users to import and use.
+    inline constexpr auto_execution_policy auto_exec;
+
     //  RGB struct implementation
     struct RGB
     {
