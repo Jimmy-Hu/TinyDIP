@@ -2088,6 +2088,28 @@ namespace TinyDIP
         return output_image;
     }
 
+    //  lanczos_resample template function implementation
+    template<typename ElementT>
+    requires((std::same_as<ElementT, RGB>) ||
+             (std::same_as<ElementT, RGB_DOUBLE>) ||
+             (std::same_as<ElementT, HSV>) ||
+             is_MultiChannel<ElementT>::value)
+    constexpr static auto lanczos_resample(
+        const Image<ElementT>& input_image,
+        const std::size_t new_width,
+        const std::size_t new_height,
+        const int a = 3)
+    {
+        return apply_each(input_image, [&](auto&& each_plane)
+        {
+            return lanczos_resample(
+                each_plane,
+                new_width,
+                new_height,
+                a);
+        });
+    }
+
     //  gaussianFigure1D template function implementation
     template<class InputT>
     constexpr static Image<InputT> gaussianFigure1D(
