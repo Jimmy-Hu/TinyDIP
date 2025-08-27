@@ -4,6 +4,7 @@
 #include <execution>
 #include <map>
 #include <omp.h>
+#include <span>
 #include <sstream>
 #include "../base_types.h"
 #include "../basic_functions.h"
@@ -125,8 +126,40 @@ void rainDictionaryAnalysis(
     
     auto dictionary = load_dictionary(dictionary_path, dic_start_index, dic_end_index, N1, N2);
     auto dictionary_x = std::get<0>(dictionary);
+    auto span_of_dictionary_x = std::span(dictionary_x);
     auto dictionary_y = std::get<1>(dictionary);
+    auto span_of_dictionary_y = std::span(dictionary_y);
+    
     #ifdef _HAS_CXX23
+    if (std::filesystem::is_regular_file("FAIED_results_x.dbmp"))
+    {
+        TinyDIP::Image<double> FAIED_results_x = TinyDIP::double_image::read("FAIED_results_x", false);
+        for (std::size_t i = static_cast<std::size_t>(FAIED_results_x.at(0, 0)); i <= dictionary_x.size(); ++i)
+        {
+            auto subspan_of_dictionary_x = span_of_dictionary_x.subspan(0, i);
+            decltype(dictionary_x) sub_vector(subspan_of_dictionary_x.cbegin(), subspan_of_dictionary_x.cend());
+            FAIED_results_x.at(i - 1, std::size_t{ 0 }) =
+                fullAverageIntraEuclideanDistances(std::execution::par, sub_vector);
+            FAIED_results_x.at(0, 0) = static_cast<double>(i);
+            std::cout << FAIED_results_x.at(i - 1, std::size_t{ 0 }) << '\n';
+            TinyDIP::double_image::write("FAIED_results_x", FAIED_results_x);
+        }
+    }
+    else
+    {
+        TinyDIP::Image<double> FAIED_results_x(dictionary_x.size(), std::size_t{ 1 });
+        for (std::size_t i = 2; i <= dictionary_x.size(); ++i)
+        {
+            auto subspan_of_dictionary_x = span_of_dictionary_x.subspan(0, i);
+            decltype(dictionary_x) sub_vector(subspan_of_dictionary_x.cbegin(), subspan_of_dictionary_x.cend());
+            FAIED_results_x.at(i - 1, std::size_t{ 0 }) =
+                fullAverageIntraEuclideanDistances(std::execution::par, sub_vector);
+            FAIED_results_x.at(0, 0) = static_cast<double>(i);
+            std::cout << FAIED_results_x.at(i - 1, std::size_t{ 0 }) << '\n';
+            TinyDIP::double_image::write("FAIED_results_x", FAIED_results_x);
+        }
+    }
+    /*
     std::jthread t1([&]() {
         std::cout << std::format("Average intra-Euclidean distances for x set: {}\n",
             fullAverageIntraEuclideanDistances(std::execution::par, dictionary_x)
@@ -137,6 +170,7 @@ void rainDictionaryAnalysis(
             fullAverageIntraEuclideanDistances(std::execution::par, dictionary_y)
             );
         });
+    */
     #else
     std::cout << "Average intra-Euclidean distances for x set: " <<
         fullAverageIntraEuclideanDistances(std::execution::par, dictionary_x) << '\n';
