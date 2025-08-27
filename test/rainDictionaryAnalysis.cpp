@@ -130,7 +130,6 @@ void rainDictionaryAnalysis(
     auto dictionary_y = std::get<1>(dictionary);
     auto span_of_dictionary_y = std::span(dictionary_y);
     
-    #ifdef _HAS_CXX23
     if (std::filesystem::is_regular_file("FAIED_results_x.dbmp"))
     {
         TinyDIP::Image<double> FAIED_results_x = TinyDIP::double_image::read("FAIED_results_x", false);
@@ -159,6 +158,7 @@ void rainDictionaryAnalysis(
             TinyDIP::double_image::write("FAIED_results_x", FAIED_results_x);
         }
     }
+    #ifdef _HAS_CXX23
     /*
     std::jthread t1([&]() {
         std::cout << std::format("Average intra-Euclidean distances for x set: {}\n",
