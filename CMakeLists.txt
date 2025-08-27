@@ -25,7 +25,7 @@ set(CMAKE_BUILD_TYPE debug)
 ## Reference: https://stackoverflow.com/a/45934279/6667035
 if(APPLE)           # Reference: https://stackoverflow.com/a/40152725/6667035
     set(CMAKE_C_COMPILER "/usr/local/bin/gcc")
-    set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-14")
+    set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-15")
     # Reference: https://developer.apple.com/forums/thread/737707
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -no-pie")
 endif()
