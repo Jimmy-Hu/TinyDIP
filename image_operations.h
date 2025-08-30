@@ -803,7 +803,7 @@ namespace TinyDIP
 
     //  constructHSV template function implementation
     template<typename OutputT = HSV>
-    constexpr static auto constructHSV(const Image<double>& h, const Image<double>& s, const Image<double>& v)
+    static auto constructHSV(const Image<double>& h, const Image<double>& s, const Image<double>& v)
     {
         check_size_same(h, s);
         check_size_same(s, v);
