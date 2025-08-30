@@ -757,7 +757,7 @@ namespace TinyDIP
 
     //  constructRGB template function implementation
     template<typename OutputT = RGB>
-    constexpr static auto constructRGB(const Image<GrayScale>& r, const Image<GrayScale>& g, const Image<GrayScale>& b)
+    static auto constructRGB(const Image<GrayScale>& r, const Image<GrayScale>& g, const Image<GrayScale>& b)
     {
         check_size_same(r, g);
         check_size_same(g, b);
