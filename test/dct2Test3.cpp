@@ -75,7 +75,7 @@ constexpr static auto get_offset( ExPo execution_policy,
 //    each_image Template Function Implementation
 template<class ExPo, class ElementT1, class ElementT2>
 requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-constexpr auto each_image(  ExPo execution_policy, 
+auto each_image(  ExPo execution_policy, 
                             const TinyDIP::Image<ElementT2>& input_img,
                             std::vector<TinyDIP::Image<ElementT1>>& dictionary_x,
                             std::vector<TinyDIP::Image<ElementT1>>& dictionary_y,
