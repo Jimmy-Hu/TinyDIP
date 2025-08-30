@@ -606,7 +606,7 @@ namespace TinyDIP
     
     #ifdef USE_OPENCV
     //  to_cv_mat function implementation
-    constexpr auto to_cv_mat(const Image<RGB>& input)
+    static auto to_cv_mat(const Image<RGB>& input)
     {
         cv::Mat output = cv::Mat::zeros(cv::Size(input.getWidth(), input.getHeight()), CV_8UC3);
         #pragma omp parallel for collapse(2)
