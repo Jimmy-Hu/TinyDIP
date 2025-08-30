@@ -19,7 +19,7 @@
 //  get_block_output template function implementation
 template<class ExPo, class ElementT>
 requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-constexpr static auto get_block_output(
+static auto get_block_output(
     ExPo execution_policy, 
     const TinyDIP::Image<ElementT>& input,
     const std::vector<TinyDIP::Image<ElementT>>& dictionary_x,
@@ -28,6 +28,14 @@ constexpr static auto get_block_output(
     const ElementT threshold
 ) noexcept
 {
+    if (dictionary_x.empty())
+    {
+        throw std::runtime_error("dictionary_x is empty!");
+    }
+    if (dictionary_y.empty())
+    {
+        throw std::runtime_error("dictionary_y is empty!");
+    }
     auto output = TinyDIP::zeros<ElementT>(dictionary_y.at(0).getWidth(), dictionary_y.at(0).getHeight());
     auto weights = TinyDIP::recursive_transform<1>(
         execution_policy,
