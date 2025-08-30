@@ -3404,15 +3404,15 @@ namespace TinyDIP
 
     //  flip_horizontal template function implementation
     template<typename ElementT>
-    constexpr static auto flip_horizontal(const Image<ElementT>& input)
+    static auto flip_horizontal(const Image<ElementT>& input)
     {
         if (input.getDimensionality()!=2)
         {
             throw std::runtime_error("Unsupported dimension!");
         }
         Image<ElementT> output = input;
-        auto height = input.getHeight();
-        auto width = input.getWidth();
+        const auto height = input.getHeight();
+        const auto width = input.getWidth();
         #pragma omp parallel for collapse(2)
         for(std::size_t y = 0; y < height; ++y)
         {
