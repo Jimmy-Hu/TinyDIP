@@ -1313,7 +1313,7 @@ namespace TinyDIP
 
     //  apply_each_pixel_openmp template function implementation
     template<class ElementT, class F, class... Args>
-    constexpr static auto apply_each_pixel_openmp(const Image<ElementT>& input, F operation, Args&&... args)
+    static auto apply_each_pixel_openmp(const Image<ElementT>& input, F operation, Args&&... args)
     {
         std::vector<std::invoke_result_t<F, ElementT, Args...>> output_vector;
         auto input_count = input.count();
