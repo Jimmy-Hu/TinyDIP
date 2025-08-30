@@ -14,7 +14,7 @@
 //  get_offset template function implementation
 template<class ExPo, class ElementT, class DistanceFunction>
 requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-constexpr static auto get_offset( ExPo execution_policy, 
+static auto get_offset( ExPo execution_policy, 
                                   const TinyDIP::Image<ElementT>& input,
                                   const std::vector<TinyDIP::Image<ElementT>>& dictionary_x,
                                   const std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
@@ -24,7 +24,7 @@ constexpr static auto get_offset( ExPo execution_policy,
                                   std::ostream& os = std::cout
                                 ) noexcept
 {
-    auto output = TinyDIP::zeros<ElementT>(input.getWidth(), input.getHeight());
+    auto output = TinyDIP::zeros<ElementT>(input.getSize());
     auto weights = TinyDIP::recursive_transform<1>(
         execution_policy,
         [&](auto&& element)
