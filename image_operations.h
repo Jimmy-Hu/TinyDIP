@@ -4723,7 +4723,7 @@ namespace TinyDIP
         template<typename ElementT = double, typename SigmaT = double>
         requires(   (std::floating_point<ElementT> || std::integral<ElementT>) &&
                     (std::floating_point<SigmaT> || std::integral<SigmaT>))
-        constexpr static auto get_potential_keypoint(
+        static auto get_potential_keypoint(
             const Image<ElementT>& input,
             const std::size_t octaves_count = 4,
             const std::size_t number_of_scale_levels = 5,
