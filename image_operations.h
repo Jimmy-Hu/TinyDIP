@@ -904,7 +904,7 @@ namespace TinyDIP
 
     //  constructMultiChannel template function implementation
     template<typename ElementT, std::size_t channel_count = 3>
-    constexpr static auto constructMultiChannel(const Image<ElementT>& input1, const Image<ElementT>& input2, const Image<ElementT>& input3)
+    static auto constructMultiChannel(const Image<ElementT>& input1, const Image<ElementT>& input2, const Image<ElementT>& input3)
     {
         check_size_same(input1, input2);
         check_size_same(input2, input3);
