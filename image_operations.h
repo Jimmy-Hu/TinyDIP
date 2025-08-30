@@ -2164,7 +2164,7 @@ namespace TinyDIP
     //  General two-dimensional elliptical Gaussian
     //  https://fabiandablander.com/statistics/Two-Properties.html
     template<class InputT = double>
-    constexpr static auto gaussianFigure2D(
+    static auto gaussianFigure2D(
         const std::size_t xsize, const std::size_t ysize,
         const std::size_t centerx, const std::size_t centery,
         const InputT sigma1_2, const InputT sigma2_2,
@@ -2181,11 +2181,11 @@ namespace TinyDIP
         for (std::size_t y = 0; y < ysize; ++y)
         {
             auto x2 = static_cast<InputT>(y) - static_cast<InputT>(centery);
-            auto x2_2 = std::pow(x2, static_cast<InputT>(2.0));
+            auto x2_2 = x2 * x2;
             for (std::size_t x = 0; x < xsize; ++x)
             {
                 auto x1 = static_cast<InputT>(x) - static_cast<InputT>(centerx);
-                auto x1_2 = std::pow(x1, static_cast<InputT>(2.0));
+                auto x1_2 = x1 * x1;
                 output.at(x, y) = normalize_factor*
                     std::exp(
                         exp_para * (
