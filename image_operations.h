@@ -1960,7 +1960,7 @@ namespace TinyDIP
 
     //  copyResizeBicubic template function implementation
     template<class FloatingType = float, arithmetic ElementT>
-    constexpr static Image<ElementT> copyResizeBicubic(const Image<ElementT>& image, const std::size_t width, const std::size_t height)
+    static Image<ElementT> copyResizeBicubic(const Image<ElementT>& image, const std::size_t width, const std::size_t height)
     {
         Image<ElementT> output(width, height);
         //  get used to the C++ way of casting
