@@ -623,7 +623,7 @@ namespace TinyDIP
     }
 
     //  to_color_image function implementation
-    constexpr auto to_color_image(const cv::Mat input)
+    static auto to_color_image(const cv::Mat input)
     {
         auto output = Image<RGB>(input.cols, input.rows);
         #pragma omp parallel for collapse(2)
