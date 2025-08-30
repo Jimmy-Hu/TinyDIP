@@ -3448,7 +3448,7 @@ namespace TinyDIP
 
     //  flip_horizontal_vertical template function implementation
     template<typename ElementT>
-    constexpr static auto flip_horizontal_vertical(const Image<ElementT>& input)
+    static auto flip_horizontal_vertical(const Image<ElementT>& input)
     {
         if (input.getDimensionality()!=2)
         {
