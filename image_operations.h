@@ -4644,14 +4644,14 @@ namespace TinyDIP
 
         //  find_local_extrema template function implementation
         template<typename ElementT>
-        constexpr static auto find_local_extrema(
-            Image<ElementT> input1,
-            Image<ElementT> input2,
-            Image<ElementT> input3,
-            std::size_t octave_index,
-            std::size_t scale_index,
-            ElementT contrast_check_threshold = 8,
-            ElementT edge_response_threshold = 12.1)
+        static auto find_local_extrema(
+            const Image<ElementT>& input1,
+            const Image<ElementT>& input2,
+            const Image<ElementT>& input3,
+            const std::size_t octave_index,
+            const std::size_t scale_index,
+            const ElementT contrast_check_threshold = 8,
+            const ElementT edge_response_threshold = 12.1)
         {
             if (input1.getDimensionality() != 2)
             {
