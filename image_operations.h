@@ -959,7 +959,7 @@ namespace TinyDIP
     //  Reference: https://codereview.stackexchange.com/a/292847/231235
     template<typename DstT, typename SrcT>
     requires(std::same_as<DstT, RGB>)
-    constexpr static auto convert_image(Image<SrcT> input)
+    static auto convert_image(Image<SrcT> input)
     {
         auto image_data = input.getImageData();
         std::vector<DstT> new_data;
