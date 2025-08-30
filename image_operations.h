@@ -4703,11 +4703,11 @@ namespace TinyDIP
         //  generate_octave template function implementation
         template<typename ElementT, typename SigmaT = double>
         requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
-        constexpr static auto generate_octave(
+        static auto generate_octave(
             const Image<ElementT>& input,
             std::size_t number_of_scale_levels = 5,
             SigmaT initial_sigma = 1.6,
-            double k = 1.4142135623730950488016887242097)
+            double k = std::numbers::sqrt2_v<double>)
         {
             std::vector<Image<ElementT>> difference_of_gaussian_images;
             difference_of_gaussian_images.resize(number_of_scale_levels - 1);
