@@ -2009,17 +2009,23 @@ namespace TinyDIP
         });
     }
 
+    //  lanczos_kernel template function implementation
     // Lanczos kernel implementation
     // a: The kernel size parameter (e.g., 2 or 3)
     // x: The input value
-    template<typename T>
-    constexpr T lanczos_kernel(T x, const int a)
+    template<image_element_standard_floating_point_type T>
+    constexpr T lanczos_kernel(const T x, const int a)
     {
-        if (x == 0.0) {
+        // Check if x is very close to zero using the type-safe epsilon
+        if (std::abs(x) < std::numeric_limits<T>::epsilon())
+        {
             return T(1.0);
         }
-        if (std::abs(x) < a) {
-            return (a * std::sin(std::numbers::pi_v<T> *x) * std::sin(std::numbers::pi_v<T> *x / a)) / (std::numbers::pi_v<T> *std::numbers::pi_v<T> *x * x);
+        if (std::abs(x) < a)
+        {
+            // For maximum precision, use long double for intermediate calculations
+            const long double pi_x = std::numbers::pi_v<long double> * x;
+            return static_cast<T>((a * std::sin(pi_x) * std::sin(pi_x / a)) / (pi_x * pi_x));
         }
         return T(0.0);
     }
