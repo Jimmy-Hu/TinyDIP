@@ -116,6 +116,13 @@ namespace TinyDIP
         return std::ranges::none_of(std::ranges::begin(input.getImageData()), std::ranges::end(input.getImageData()), p);
     }
 
+    //  none_positive template function implementation
+    template<typename ElementT>
+    constexpr auto none_positive(const Image<ElementT>& input)
+    {
+        return none_of(input, [](const auto& element) { return element > 0; });
+    }
+
     template<typename ElementT>
     constexpr bool is_width_same(const Image<ElementT>& x, const Image<ElementT>& y)
     {
