@@ -27,7 +27,7 @@ if(APPLE)           # Reference: https://stackoverflow.com/a/40152725/6667035
     set(CMAKE_C_COMPILER "/usr/local/bin/gcc")
     set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-15")
     # Reference: https://developer.apple.com/forums/thread/737707
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -no-pie")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -no-pie")
 endif()
 
 if(UNIX AND NOT APPLE)
@@ -43,7 +43,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math -std=c++2b -fopenmp")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # using GCC
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -std=c++2b -Xpreprocessor -fopenmp -O3 -fdump-tree-original")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -std=c++2b -fopenmp -O3")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
   # using Intel C++
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -62,6 +62,18 @@ endif()
 
 # TBB part
 find_package(TBB REQUIRED)
+
+if(APPLE)
+  if(IS_DIRECTORY "/opt/homebrew/lib")
+    link_directories("/opt/homebrew/lib")
+    message(STATUS "Manually added TBB link directory: /opt/homebrew/lib")
+  elseif(IS_DIRECTORY "/usr/local/lib")
+    link_directories("/usr/local/lib")
+    message(STATUS "Manually added TBB link directory: /usr/local/lib")
+  else()
+    message(WARNING "Could not find Homebrew TBB library directory. Build may fail.")
+  endif()
+endif()
 
 # add the executable
 add_executable(TinyDIP main.cpp image_io.cpp)
@@ -156,7 +168,7 @@ target_link_libraries(absTest tbb)
 target_link_libraries(allOfTest tbb)
 target_link_libraries(bicubicInterpolationTest tbb)
 target_link_libraries(bilateralFilterTest tbb)
-target_link_libraries(DiamondWheelAnalysis tbb)
+target_link_libraries(DiamondWheelAnalysis PUBLIC TBB::tbb)
 target_link_libraries(histogramTest tbb)
 target_link_libraries(imgaussfiltTest tbb)
 target_link_libraries(lanczosResamplingTest tbb)
