@@ -100,7 +100,7 @@ constexpr static auto averageIntraEuclideanDistances(
 //  fullAverageIntraEuclideanDistances Template Function Implementation
 template<class ExecutionPolicy, std::floating_point ElementT = double>
 requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
-constexpr static auto fullAverageIntraEuclideanDistances(
+static auto fullAverageIntraEuclideanDistances(
     ExecutionPolicy&& execution_policy,
     const std::vector<TinyDIP::Image<ElementT>>& input
 )
