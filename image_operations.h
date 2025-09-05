@@ -2816,6 +2816,55 @@ namespace TinyDIP
         return std::sqrt(std::inner_product(diff.begin(), diff.end(), diff.begin(), OutputT{}));
     }
 
+    /**
+     * squared_euclidean_distance Template Function Implementation (with execution policy)
+     * @brief Calculates the squared Euclidean distance between two ranges of numbers. (with execution policy)
+     *
+     * This version uses a C++17 execution policy for potential parallelization. It is constrained
+     * to ranges that support at least forward iterators, as required by parallel algorithms.
+     *
+     * @tparam ExecutionPolicy The type of the execution policy (e.g., std::execution::par).
+     * @tparam R1 The type of the first range.
+     * @tparam R2 The type of the second range.
+     * @param execution_policy The execution policy to use for the calculation.
+     * @param range1 The first range of numbers.
+     * @param range2 The second range of numbers.
+     * @return The squared Euclidean distance between the two ranges.
+     * @throws std::runtime_error if the ranges have different sizes.
+     */
+    template <
+        class ExecutionPolicy,
+        std::ranges::forward_range R1,
+        std::ranges::forward_range R2>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
+             std::is_arithmetic_v<std::ranges::range_value_t<R1>> &&
+             std::same_as<std::ranges::range_value_t<R1>, std::ranges::range_value_t<R2>>)
+    constexpr auto squared_euclidean_distance(
+        ExecutionPolicy&& execution_policy,
+        const R1& range1,
+        const R2& range2)
+    {
+        using ValueType = std::ranges::range_value_t<R1>;
+
+        if (std::ranges::distance(range1) != std::ranges::distance(range2))
+        {
+            throw std::runtime_error("Ranges must have the same size for Euclidean distance calculation.");
+        }
+
+        return std::transform_reduce(
+            std::forward<ExecutionPolicy>(execution_policy),
+            std::ranges::cbegin(range1),
+            std::ranges::cend(range1),
+            std::ranges::cbegin(range2),
+            ValueType{0},
+            std::plus<>{},
+            [&](const ValueType& val1, const ValueType& val2)
+            {
+                const auto diff = val1 - val2;
+                return diff * diff;
+            });
+    }
+
     //  euclidean_distance Template Function Implementation (with Execution Policy)
     template<
         arithmetic OutputT = double,
