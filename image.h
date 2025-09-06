@@ -117,7 +117,7 @@ namespace TinyDIP
         #endif
 
         //  Image constructor
-        #ifdef __cpp_lib_containers_ranges
+        #ifdef __cpp_lib_containers_ranges_
             template<std::ranges::input_range Range, std::same_as<std::size_t>... Sizes>
             Image(const Range& input, Sizes... sizes) :
                 size{ sizes... }
