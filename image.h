@@ -97,7 +97,7 @@ namespace TinyDIP
         #ifdef __cpp_lib_containers_ranges
             template<std::ranges::input_range Range,
                      std::same_as<std::size_t>... Sizes>
-            Image(const Range&& input, Sizes... sizes):
+            Image(Range&& input, Sizes... sizes):
                 size{sizes...}, image_data(std::from_range, std::forward<Range>(input))
             {
                 if (image_data.size() != (1 * ... * sizes)) {
