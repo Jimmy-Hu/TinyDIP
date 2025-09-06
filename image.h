@@ -94,11 +94,11 @@ namespace TinyDIP
         }
 
         //  Image constructor
-        #ifdef __cpp_lib_containers_ranges_
+        #ifdef __cpp_lib_containers_ranges
             template<std::ranges::input_range Range,
                      std::same_as<std::size_t>... Sizes>
             Image(const Range&& input, Sizes... sizes):
-                size{sizes...}, image_data(std::from_range_t, std::forward<Range>(input))
+                size{sizes...}, image_data(std::from_range, std::forward<Range>(input))
             {
                 if (image_data.size() != (1 * ... * sizes)) {
                     throw std::runtime_error("Image data input and the given size are mismatched!");
@@ -117,7 +117,7 @@ namespace TinyDIP
         #endif
 
         //  Image constructor
-        #ifdef __cpp_lib_containers_ranges_
+        #ifdef __cpp_lib_containers_ranges
             template<std::ranges::input_range Range, std::same_as<std::size_t>... Sizes>
             Image(const Range& input, Sizes... sizes) :
                 size{ sizes... }
@@ -126,7 +126,7 @@ namespace TinyDIP
                 {
                     throw std::runtime_error("Input vector is empty!");
                 }
-                image_data = std::vector(std::from_range_t, input);
+                image_data = std::vector(std::from_range, input);
                 if (image_data.size() != (1 * ... * sizes)) {
                     throw std::runtime_error("Image data input and the given size are mismatched!");
                 }
