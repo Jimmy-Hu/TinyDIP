@@ -2837,7 +2837,7 @@ namespace TinyDIP
         std::ranges::forward_range R1,
         std::ranges::forward_range R2>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
-             std::is_arithmetic_v<std::ranges::range_value_t<R1>> &&
+             arithmetic<std::ranges::range_value_t<R1>> &&
              std::same_as<std::ranges::range_value_t<R1>, std::ranges::range_value_t<R2>>)
     constexpr auto squared_euclidean_distance(
         ExecutionPolicy&& execution_policy,
@@ -2845,6 +2845,7 @@ namespace TinyDIP
         const R2& range2)
     {
         using ValueType = std::ranges::range_value_t<R1>;
+        using ResultType = get_underlying_real_type_t<ValueType>;
 
         if (std::ranges::distance(range1) != std::ranges::distance(range2))
         {
@@ -2856,12 +2857,20 @@ namespace TinyDIP
             std::ranges::cbegin(range1),
             std::ranges::cend(range1),
             std::ranges::cbegin(range2),
-            ValueType{0},
+            ResultType{ 0 },
             std::plus<>{},
-            [&](const ValueType& val1, const ValueType& val2)
+            [](const ValueType& val1, const ValueType& val2)
             {
                 const auto diff = val1 - val2;
-                return diff * diff;
+                if constexpr (is_complex<ValueType>::value)
+                {
+                    // For complex numbers, squared distance is the norm (squared magnitude).
+                    return std::norm(diff);
+                }
+                else
+                {
+                    return diff * diff;
+                }
             });
     }
 
