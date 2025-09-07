@@ -335,7 +335,7 @@ namespace TinyDIP
                 std::ranges::cbegin(image_data),
                 std::ranges::cend(image_data),
                 std::ranges::begin(output_data),
-                [](auto& input){ return static_cast<TargetT>(input); }
+                [&](const auto& input){ return static_cast<TargetT>(input); }
                 );
             Image<TargetT> output(output_data, size);
             return output;
