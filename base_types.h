@@ -5,9 +5,10 @@
 
 #include <cstdint>
 #include <filesystem>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cmath>
+#include <complex>
+#include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <utility>
 
