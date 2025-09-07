@@ -22,6 +22,26 @@ namespace TinyDIP
     // Create a convenient instance for users to import and use.
     inline constexpr auto_execution_policy auto_exec;
 
+    /**
+     * get_underlying_real_type struct implementation
+     * @brief A type trait to get the underlying real type.
+     * For non-complex types, it's the type itself. For std::complex<T>, it's T.
+     */
+    template <typename T>
+    struct get_underlying_real_type
+    {
+        using type = T;
+    };
+
+    template <typename T>
+    struct get_underlying_real_type<std::complex<T>>
+    {
+        using type = T;
+    };
+
+    template<typename T>
+    using get_underlying_real_type_t = typename get_underlying_real_type<T>::type;
+
     //  RGB struct implementation
     struct RGB
     {
