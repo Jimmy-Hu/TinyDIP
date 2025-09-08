@@ -2161,12 +2161,24 @@ namespace TinyDIP
     //  gaussianFigure1D template function implementation
     template<class InputT>
     constexpr static Image<InputT> gaussianFigure1D(
-        const std::size_t size, const std::size_t center, const InputT standard_deviation)
+        const std::size_t size,
+        const std::size_t center,
+        const InputT standard_deviation,
+        const bool normalize = false
+    )
     {
-        auto row_vector = Image<InputT>(size, std::size_t{1});
+        Image<InputT> row_vector(size, std::size_t{1});
+        InputT sum_value{};
         for (std::size_t x = 0; x < size; ++x)
         {
-            row_vector.at(x, static_cast<std::size_t>(0)) = normalDistribution1D(static_cast<InputT>(x) - static_cast<InputT>(center), standard_deviation);
+            auto val = normalDistribution1D(static_cast<InputT>(x) - static_cast<InputT>(center), standard_deviation);
+            row_vector.at(x, static_cast<std::size_t>(0)) = val;
+            sum_value += val;
+        }
+        // Normalize if requested
+        if (normalize)
+        {
+            row_vector = divides(row_vector, sum_value);
         }
         return row_vector;
     }
