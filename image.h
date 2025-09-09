@@ -515,6 +515,181 @@ namespace TinyDIP
         {
             return multiplies(input2, input1);
         }
+        // Nested class for the custom iterator
+        class pixel_iterator
+        {
+        public:
+            using iterator_category = std::forward_iterator_tag;
+            using value_type = std::tuple<ElementT&, std::size_t, std::size_t>;
+            using difference_type = std::ptrdiff_t;
+            using pointer = value_type*;
+            using reference = value_type;
+
+            pixel_iterator() = default;
+
+            pixel_iterator(ElementT* ptr, std::size_t x, std::size_t y, std::size_t width)
+                : current_ptr(ptr), px(x), py(y), image_width(width)
+            {
+            }
+
+            reference operator*() const
+            {
+                return {*current_ptr, px, py};
+            }
+
+            pixel_iterator& operator++()
+            {
+                ++current_ptr;
+                ++px;
+                if (px == image_width)
+                {
+                    px = 0;
+                    ++py;
+                }
+                return *this;
+            }
+            
+            pixel_iterator operator++(int)
+            {
+                pixel_iterator tmp = *this;
+                ++(*this);
+                return tmp;
+            }
+
+            bool operator==(const pixel_iterator& other) const = default;
+
+        private:
+            ElementT* current_ptr = nullptr;
+            std::size_t px = 0;
+            std::size_t py = 0;
+            std::size_t image_width = 0;
+        };
+
+        // Nested class for the custom const iterator
+        class const_pixel_iterator
+        {
+        public:
+            using iterator_category = std::forward_iterator_tag;
+            using value_type = std::tuple<const ElementT&, std::size_t, std::size_t>;
+            using difference_type = std::ptrdiff_t;
+            using pointer = value_type*;
+            using reference = value_type;
+
+            const_pixel_iterator() = default;
+
+            const_pixel_iterator(const ElementT* ptr, std::size_t x, std::size_t y, std::size_t width)
+                : current_ptr(ptr), px(x), py(y), image_width(width)
+            {
+            }
+
+            reference operator*() const
+            {
+                return {*current_ptr, px, py};
+            }
+
+            const_pixel_iterator& operator++()
+            {
+                ++current_ptr;
+                ++px;
+                if (px == image_width)
+                {
+                    px = 0;
+                    ++py;
+                }
+                return *this;
+            }
+
+            const_pixel_iterator operator++(int)
+            {
+                const_pixel_iterator tmp = *this;
+                ++(*this);
+                return tmp;
+            }
+
+            bool operator==(const const_pixel_iterator& other) const = default;
+
+        private:
+            const ElementT* current_ptr = nullptr;
+            std::size_t px = 0;
+            std::size_t py = 0;
+            std::size_t image_width = 0;
+        };
+
+        // Nested class for the range proxy object
+        class pixel_proxy
+        {
+        public:
+            pixel_proxy(Image<ElementT>& image) : img(image)
+            {
+                if (img.getDimensionality() != 2)
+                {
+                    throw std::logic_error("pixels_with_coordinates is only supported for 2D images.");
+                }
+            }
+
+            [[nodiscard]] auto begin()
+            {
+                return pixel_iterator(img.image_data.data(), 0, 0, img.getWidth());
+            }
+
+            [[nodiscard]] auto end()
+            {
+                return pixel_iterator(img.image_data.data() + img.count(), 0, img.getHeight(), img.getWidth());
+            }
+
+        private:
+            Image<ElementT>& img;
+        };
+        
+        // Nested class for the const range proxy object
+        class const_pixel_proxy
+        {
+        public:
+            const_pixel_proxy(const Image<ElementT>& image) : img(image)
+            {
+                if (img.getDimensionality() != 2)
+                {
+                    throw std::logic_error("pixels_with_coordinates is only supported for 2D images.");
+                }
+            }
+
+            [[nodiscard]] auto begin() const
+            {
+                return const_pixel_iterator(img.image_data.data(), 0, 0, img.getWidth());
+            }
+
+            [[nodiscard]] auto end() const
+            {
+                return const_pixel_iterator(img.image_data.data() + img.count(), 0, img.getHeight(), img.getWidth());
+            }
+
+        private:
+            const Image<ElementT>& img;
+        };
+
+        /**
+         * @brief Returns a range-like object for iterating over pixels with their 2D coordinates.
+         * @details This is intended for use in range-based for loops with structured bindings:
+         * for (auto& [value, x, y] : image.pixels_with_coordinates()) { ... }
+         * @note This function is only valid for 2D images and will throw an exception otherwise.
+         * @return A proxy object with begin() and end() methods.
+         */
+        [[nodiscard]] auto pixels_with_coordinates()
+        {
+            return pixel_proxy(*this);
+        }
+
+        /**
+         * @brief Returns a const range-like object for iterating over pixels with their 2D coordinates.
+         * @details This is intended for use in range-based for loops with structured bindings:
+         * for (const auto& [value, x, y] : image.pixels_with_coordinates()) { ... }
+         * @note This function is only valid for 2D images and will throw an exception otherwise.
+         * @return A proxy object with begin() and end() methods.
+         */
+        [[nodiscard]] auto pixels_with_coordinates() const
+        {
+            return const_pixel_proxy(*this);
+        }
         
 #ifdef USE_BOOST_SERIALIZATION
 
