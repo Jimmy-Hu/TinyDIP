@@ -366,7 +366,7 @@ namespace TinyDIP
 
         constexpr std::size_t getHeight() const noexcept
         {
-            return size[1];
+            return (getDimensionality() > 1) ? size[1] : 0;
         }
 
         //  getSize function implementation
