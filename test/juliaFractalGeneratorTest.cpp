@@ -32,9 +32,9 @@
 
         const double t = static_cast<double>(i);
 
-        const auto r = static_cast<std::uint8_t>(sin(freq_r * t + phase_r) * 127.5 + 127.5);
-        const auto g = static_cast<std::uint8_t>(sin(freq_g * t + phase_g) * 127.5 + 127.5);
-        const auto b = static_cast<std::uint8_t>(sin(freq_b * t + phase_b) * 127.5 + 127.5);
+        const auto r = static_cast<std::uint8_t>(std::sin(freq_r * t + phase_r) * 127.5 + 127.5);
+        const auto g = static_cast<std::uint8_t>(std::sin(freq_g * t + phase_g) * 127.5 + 127.5);
+        const auto b = static_cast<std::uint8_t>(std::sin(freq_b * t + phase_b) * 127.5 + 127.5);
 
         color_map[i] = TinyDIP::RGB{ r, g, b };
     }
@@ -72,8 +72,7 @@
     * @param x_max The maximum value of the real component.
     * @param y_min The minimum value of the imaginary component.
     * @param y_max The maximum value of the imaginary component.
-    * @param c_real The real part of the constant 'c'.
-    * @param c_imag The imaginary part of the constant 'c'.
+    * @param c The complex constant 'c'.
     * @param max_iterations The maximum number of iterations.
     * @return An Image<TinyDIP::RGB> containing the Julia set.
     */
@@ -87,8 +86,7 @@ requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
     const FloatingPoint x_max,
     const FloatingPoint y_min,
     const FloatingPoint y_max,
-    const FloatingPoint c_real,
-    const FloatingPoint c_imag,
+    const std::complex<FloatingPoint> c,
     const std::size_t max_iterations)
 {
     TinyDIP::Image<TinyDIP::RGB> image(image_width, image_height);
@@ -115,8 +113,8 @@ requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
             std::size_t iteration = 0;
             while (z_real * z_real + z_imag * z_imag <= static_cast<FloatingPoint>(4) && iteration < max_iterations)
             {
-                const auto z_real_temp = z_real * z_real - z_imag * z_imag + c_real;
-                z_imag = static_cast<FloatingPoint>(2) * z_real * z_imag + c_imag;
+                const auto z_real_temp = z_real * z_real - z_imag * z_imag + c.real();
+                z_imag = static_cast<FloatingPoint>(2) * z_real * z_imag + c.imag();
                 z_real = z_real_temp;
                 iteration++;
             }
@@ -148,16 +146,15 @@ void generate_julia_set()
     constexpr double y_min = -1.0;
     constexpr double y_max = 1.0;
     // An interesting constant for the Julia set
-    constexpr double c_real = -0.7269;
-    constexpr double c_imag = 0.1889;
+    constexpr std::complex<double> c{ -0.7269 , 0.1889 };
 
-    std::cout << "--- Generating Julia Set (c = " << c_real << " + " << c_imag << "i) ---\n";
+    std::cout << "--- Generating Julia Set (c = " << c << ") ---\n";
 
     // --- Sequential Execution ---
     std::cout << "Executing sequentially...\n";
     auto start_seq = std::chrono::high_resolution_clock::now();
     auto julia_image_seq = generate_julia(
-        std::execution::seq, width, height, x_min, x_max, y_min, y_max, c_real, c_imag, max_iterations
+        std::execution::seq, width, height, x_min, x_max, y_min, y_max, c, max_iterations
     );
     auto end_seq = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> diff_seq = end_seq - start_seq;
@@ -168,7 +165,7 @@ void generate_julia_set()
     std::cout << "Executing in parallel...\n";
     auto start_par = std::chrono::high_resolution_clock::now();
     auto julia_image_par = generate_julia(
-        std::execution::par, width, height, x_min, x_max, y_min, y_max, c_real, c_imag, max_iterations
+        std::execution::par_unseq, width, height, x_min, x_max, y_min, y_max, c, max_iterations
     );
     auto end_par = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> diff_par = end_par - start_par;
