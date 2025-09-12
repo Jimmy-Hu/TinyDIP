@@ -1064,7 +1064,7 @@ namespace TinyDIP
     }
 
     //  getRplane function implementation
-    constexpr static auto getRplane(const Image<RGB_DOUBLE>& input)
+    static auto getRplane(const Image<RGB_DOUBLE>& input)
     {
         return getPlane(input, 0);
     }
