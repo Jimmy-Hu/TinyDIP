@@ -1107,7 +1107,7 @@ namespace TinyDIP
     }
 
     //  getSplane function implementation
-    constexpr static auto getSplane(const Image<HSV>& input)
+    static auto getSplane(const Image<HSV>& input)
     {
         return getPlane(input, 1);
     }
