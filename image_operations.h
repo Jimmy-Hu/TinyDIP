@@ -1519,7 +1519,7 @@ namespace TinyDIP
     }
 
     //  im2double function implementation
-    constexpr static auto im2double(Image<RGB> input)
+    static auto im2double(Image<RGB> input)
     {
         return convert_image<RGB_DOUBLE>(input);
     }
