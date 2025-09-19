@@ -3820,7 +3820,7 @@ namespace TinyDIP
         for(std::size_t y = input.getHeight() + height_expansion; y < input.getHeight() + 2 * height_expansion; ++y)
         {
             output = paste2D(
-                execution_policy,
+                std::forward<ExecutionPolicy>(execution_policy),
                 output,
                 subimage2(input, 0, input.getWidth() - 1, input.getHeight() - 1, input.getHeight() - 1),
                 width_expansion,
@@ -3831,7 +3831,7 @@ namespace TinyDIP
         for(std::size_t x = 0; x < width_expansion; ++x)
         {
             output = paste2D(
-                execution_policy,
+                std::forward<ExecutionPolicy>(execution_policy),
                 output,
                 subimage2(input, 0, 0, 0, input.getHeight() - 1),
                 x,
@@ -3842,7 +3842,7 @@ namespace TinyDIP
         for(std::size_t x = input.getWidth() + width_expansion; x < input.getWidth() + 2 * width_expansion; ++x)
         {
             output = paste2D(
-                execution_policy,
+                std::forward<ExecutionPolicy>(execution_policy),
                 output,
                 subimage2(input, input.getWidth() - 1, input.getWidth() - 1, 0, input.getHeight() - 1),
                 x,
@@ -3853,7 +3853,7 @@ namespace TinyDIP
         //  Left-top corner
         temp.setAllValue(input.at(static_cast<std::size_t>(0), static_cast<std::size_t>(0)));
         output = paste2D(
-            execution_policy,
+            std::forward<ExecutionPolicy>(execution_policy),
             output,
             temp,
             0,
@@ -3862,7 +3862,7 @@ namespace TinyDIP
         //  Right-top corner
         temp.setAllValue(input.at(input.getWidth() - static_cast<std::size_t>(1), static_cast<std::size_t>(0)));
         output = paste2D(
-            execution_policy,
+            std::forward<ExecutionPolicy>(execution_policy),
             output,
             temp,
             width_expansion + input.getWidth(),
@@ -3871,7 +3871,7 @@ namespace TinyDIP
         //  Left-bottom corner
         temp.setAllValue(input.at(static_cast<std::size_t>(0), input.getHeight() - static_cast<std::size_t>(1)));
         output = paste2D(
-            execution_policy,
+            std::forward<ExecutionPolicy>(execution_policy),
             output,
             temp,
             0,
@@ -3880,7 +3880,7 @@ namespace TinyDIP
         //  Right-bottom corner
         temp.setAllValue(input.at(input.getWidth() - static_cast<std::size_t>(1), input.getHeight() - static_cast<std::size_t>(1)));
         output = paste2D(
-            execution_policy,
+            std::forward<ExecutionPolicy>(execution_policy),
             output,
             temp,
             width_expansion + input.getWidth(),
