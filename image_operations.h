@@ -1531,7 +1531,7 @@ namespace TinyDIP
     }
 
     //  im2uint8 function implementation
-    constexpr static auto im2uint8(Image<RGB_DOUBLE> input)
+    static auto im2uint8(Image<RGB_DOUBLE> input)
     {
         return convert_image<RGB>(input);
     }
