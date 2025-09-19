@@ -1969,6 +1969,39 @@ namespace TinyDIP
         return divides(subtract(input, min_value_plane), difference_value_plane);
     }
 
+    /**
+     * resize_nearest_neighbor template function implementation
+     * @brief Resizes an image to the specified dimensions using nearest-neighbor sampling.
+     * @tparam ElementT The pixel element type of the image.
+     * @param image The input image.
+     * @param new_width The target width.
+     * @param new_height The target height.
+     * @return A new image with the specified dimensions.
+     */
+    template<typename ElementT>
+    [[nodiscard]] Image<ElementT> resize_nearest_neighbor(const Image<ElementT>& image, const std::size_t new_width, const std::size_t new_height)
+    {
+        const std::size_t old_width = image.getWidth();
+        const std::size_t old_height = image.getHeight();
+
+        Image<ElementT> resized_image(new_width, new_height);
+
+        const double x_ratio = static_cast<double>(old_width) / static_cast<double>(new_width);
+        const double y_ratio = static_cast<double>(old_height) / static_cast<double>(new_height);
+
+        #pragma omp parallel for schedule(static)
+        for (std::size_t y = 0; y < new_height; ++y)
+        {
+            for (std::size_t x = 0; x < new_width; ++x)
+            {
+                const std::size_t source_x = static_cast<std::size_t>(x * x_ratio);
+                const std::size_t source_y = static_cast<std::size_t>(y * y_ratio);
+                resized_image.at_without_boundary_check(x, y) = image.at_without_boundary_check(source_x, source_y);
+            }
+        }
+        return resized_image;
+    }
+
     template<class InputT1, class InputT2>
     constexpr static auto cubic_interpolate(const InputT1 v0, const InputT1 v1, const InputT1 v2, const InputT1 v3, const InputT2 frac)
     {
