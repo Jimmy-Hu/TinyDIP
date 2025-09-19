@@ -3795,21 +3795,21 @@ namespace TinyDIP
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
     constexpr static auto generate_replicate_padding_image(
         ExecutionPolicy&& execution_policy, 
-        const Image<ElementT> input,
-        std::size_t width_expansion,
-        std::size_t height_expansion,
-        ElementT default_value = ElementT{})
+        const Image<ElementT>& input,
+        const std::size_t width_expansion,
+        const std::size_t height_expansion,
+        const ElementT default_value = ElementT{})
     {
         if (input.getDimensionality()!=2)
         {
             throw std::runtime_error("Unsupported dimension!");
         }
-        auto output = generate_constant_padding_image(execution_policy, input, width_expansion, height_expansion, default_value);
+        auto output = generate_constant_padding_image(std::forward<ExecutionPolicy>(execution_policy), input, width_expansion, height_expansion, default_value);
         //  Top block
         for(std::size_t y = 0; y < height_expansion; ++y)
         {
             output = paste2D(
-                execution_policy,
+                std::forward<ExecutionPolicy>(execution_policy),
                 output,
                 subimage2(input, 0, input.getWidth() - 1, 0, 0),
                 width_expansion,
