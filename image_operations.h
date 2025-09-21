@@ -3699,7 +3699,7 @@ namespace TinyDIP
         }
         Image<ElementT> output(input.getWidth() + 2 * width_expansion, input.getHeight() + 2 * height_expansion);
         output.setAllValue(default_value);
-        output = paste2D(execution_policy, output, input, width_expansion, height_expansion, default_value);
+        output = paste2D(std::forward<ExecutionPolicy>(execution_policy), output, input, width_expansion, height_expansion, default_value);
         return output;
     }
 
