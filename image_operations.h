@@ -2229,9 +2229,11 @@ namespace TinyDIP
     constexpr static Image<InputT> gaussianFigure2D(
         const std::size_t xsize, const std::size_t ysize, 
         const std::size_t centerx, const std::size_t centery,
-        const InputT standard_deviation_x, const InputT standard_deviation_y)
+        const InputT standard_deviation_x, const InputT standard_deviation_y,
+        const bool normalize = false)
     {
         auto output = Image<InputT>(xsize, ysize);
+        InputT sum_value{};
         auto row_vector_x = gaussianFigure1D(xsize, centerx, standard_deviation_x);
 
         auto row_vector_y = gaussianFigure1D(ysize, centery, standard_deviation_y);
@@ -2240,8 +2242,14 @@ namespace TinyDIP
         {
             for (std::size_t x = 0; x < xsize; ++x)
             {
-                output.at(x, y) = row_vector_x.at(x, static_cast<std::size_t>(0)) * row_vector_y.at(y, static_cast<std::size_t>(0));
+                auto val = row_vector_x.at(x, static_cast<std::size_t>(0)) * row_vector_y.at(y, static_cast<std::size_t>(0));
+                output.at(x, y) = val;
+                sum_value += val;
             }
+        }
+        if (normalize)
+        {
+            output = divides(output, sum_value);
         }
         return output;
     }
