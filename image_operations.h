@@ -5138,6 +5138,9 @@ namespace TinyDIP
         }
     }
 
+    // A type alias for clarity
+    using SiftDescriptor = std::vector<double>;
+
 }
 
 #endif
