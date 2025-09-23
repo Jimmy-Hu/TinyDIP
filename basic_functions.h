@@ -2896,17 +2896,17 @@ namespace TinyDIP
     template <class ExPo, typename FirstT, typename SecondT, class Function = std::plus<FirstT>>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>> and
              std::regular_invocable<Function, FirstT, FirstT>)
-    constexpr static FirstT sum_first_element(ExPo execution_policy, const std::vector<std::pair<FirstT, SecondT>>& pairs, const Function& f = Function{})
+    constexpr static FirstT sum_first_element(ExPo&& execution_policy, const std::vector<std::pair<FirstT, SecondT>>& pairs, const Function& f = Function{})
     {
         const std::size_t size = pairs.size();
         std::vector<FirstT> first_elements(size);
         std::transform(
-            execution_policy,
+            std::forward<ExPo>(execution_policy),
             std::ranges::cbegin(pairs),
             std::ranges::cend(pairs),
             std::ranges::begin(first_elements),
             [](auto const& pair) { return pair.first; });
-        return std::reduce(execution_policy, std::ranges::cbegin(first_elements), std::ranges::cend(first_elements), FirstT{}, f);
+        return std::reduce(std::forward<ExPo>(execution_policy), std::ranges::cbegin(first_elements), std::ranges::cend(first_elements), FirstT{}, f);
     }
 
     // sum_first_element Template Function Implementation
