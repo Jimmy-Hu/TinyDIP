@@ -12,6 +12,7 @@
 #include "basic_functions.h"
 #include "image.h"
 #include "histogram.h"
+#include "linear_algebra.h"
 #ifdef USE_OPENCV
 #include <opencv2/opencv.hpp>
 #endif
