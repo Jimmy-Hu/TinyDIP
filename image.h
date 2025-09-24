@@ -349,9 +349,10 @@ namespace TinyDIP
         //  count member function implementation
         template<class ExPo>
         requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-        constexpr std::size_t count(ExPo execution_policy)
+        constexpr std::size_t count(ExPo&& execution_policy) const
         {
-            return std::reduce(execution_policy, std::ranges::cbegin(size), std::ranges::cend(size), std::size_t{ 1 }, std::multiplies());
+            if (size.empty()) return 0;
+            return std::reduce(std::forward<ExPo>(execution_policy), std::ranges::cbegin(size), std::ranges::cend(size), std::size_t{ 1 }, std::multiplies());
         }
   
         constexpr std::size_t getDimensionality() const noexcept
