@@ -5273,6 +5273,91 @@ namespace TinyDIP
         return true;
     }
 
+    /**
+     * find_homography_ransac function implementation
+     * @brief Finds the best homography matrix using the RANSAC algorithm.
+     */
+    linalg::Matrix<double> find_homography_ransac(
+        const std::vector<Point<2>>& keypoints1,
+        const std::vector<Point<2>>& keypoints2,
+        const std::vector<std::pair<std::size_t, std::size_t>>& matches,
+        int iterations = 1000,
+        double inlier_threshold = 3.0)
+    {
+        linalg::Matrix<double> best_H(3, 3);
+        int max_inliers = 0;
+
+        std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+        std::uniform_int_distribution<std::size_t> dist(0, matches.size() - 1);
+        
+        const double inlier_threshold_sq = inlier_threshold * inlier_threshold;
+
+        for (int i = 0; i < iterations; ++i)
+        {
+            // 1. Randomly sample 4 matching points
+            std::vector<std::pair<Point<2>, Point<2>>> sample_points;
+            if (matches.size() < 4) continue;
+            
+            std::vector<std::size_t> indices;
+            while(indices.size() < 4)
+            {
+                std::size_t rand_idx = dist(rng);
+                if(std::find(std::ranges::begin(indices), std::ranges::end(indices), rand_idx) == std::ranges::end(indices))
+                {
+                    indices.emplace_back(rand_idx);
+                }
+            }
+
+            for(const auto& idx : indices)
+            {
+                sample_points.emplace_back(keypoints1[matches[idx].first], keypoints2[matches[idx].second]);
+            }
+            
+            // 2. Compute a candidate homography from the sample
+            linalg::Matrix<double> H_candidate(3, 3);
+            if (!compute_homography(sample_points, H_candidate))
+            {
+                continue;
+            }
+
+            // 3. Count inliers
+            int current_inliers = 0;
+            for (const auto& match : matches)
+            {
+                const auto& p1 = keypoints1[match.first];
+                const auto& p2 = keypoints2[match.second];
+
+                // Project p1 to p1_projected using H_candidate
+                double w = H_candidate.at(2, 0) * p1.p[0] + H_candidate.at(2, 1) * p1.p[1] + H_candidate.at(2, 2);
+                if (std::abs(w) < 1e-7) continue;
+
+                double x_proj = (H_candidate.at(0, 0) * p1.p[0] + H_candidate.at(0, 1) * p1.p[1] + H_candidate.at(0, 2)) / w;
+                double y_proj = (H_candidate.at(1, 0) * p1.p[0] + H_candidate.at(1, 1) * p1.p[1] + H_candidate.at(1, 2)) / w;
+
+                // Calculate squared distance
+                double dx = x_proj - p2.p[0];
+                double dy = y_proj - p2.p[1];
+                double dist_sq = dx * dx + dy * dy;
+
+                if (dist_sq < inlier_threshold_sq)
+                {
+                    current_inliers++;
+                }
+            }
+
+            // 4. Update best homography if this one is better
+            if (current_inliers > max_inliers)
+            {
+                max_inliers = current_inliers;
+                best_H = H_candidate;
+            }
+        }
+        
+        std::cout << "RANSAC found " << max_inliers << " inliers.\n";
+        
+        return best_H;
+    }
+
 }
 
 #endif
