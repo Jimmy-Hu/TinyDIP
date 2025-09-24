@@ -5358,6 +5358,47 @@ namespace TinyDIP
         return best_H;
     }
 
+    /**
+     * warp_perspective template function implementation
+     * @brief Applies a perspective transformation to an image using reverse mapping.
+     */
+    template<typename ElementT>
+    Image<ElementT> warp_perspective(const Image<ElementT>& src, const linalg::Matrix<double>& H, const std::size_t out_width, const std::size_t out_height)
+    {
+        Image<ElementT> warped_image(out_width, out_height);
+        
+        if (H.empty())
+        {
+             std::cerr << "Warning: Homography matrix is empty. Warping will fail.\n";
+             return warped_image;
+        }
+
+        // Cache matrix elements for performance
+        const double h11 = H.at(0,0), h12 = H.at(0,1), h13 = H.at(0,2);
+        const double h21 = H.at(1,0), h22 = H.at(1,1), h23 = H.at(1,2);
+        const double h31 = H.at(2,0), h32 = H.at(2,1), h33 = H.at(2,2);
+
+        #pragma omp parallel for
+        for(std::size_t y = 0; y < out_height; ++y)
+        {
+            for(std::size_t x = 0; x < out_width; ++x)
+            {
+                // Apply homography to find corresponding point in source image
+                const double w = h31 * x + h32 * y + h33;
+                
+                // Avoid division by zero
+                if (std::abs(w) < 1e-9) continue;
+
+                const double src_x = (h11 * x + h12 * y + h13) / w;
+                const double src_y = (h21 * x + h22 * y + h23) / w;
+                
+                // Use bilinear interpolation to get the pixel value
+                warped_image.at(x, y) = bilinear_interpolate(src, src_x, src_y);
+            }
+        }
+        return warped_image;
+    }
+
 }
 
 #endif
