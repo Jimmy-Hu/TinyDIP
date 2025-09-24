@@ -3425,6 +3425,19 @@ namespace TinyDIP
         return static_cast<ElementT>(r1 * (1.0 - dy) + r2 * dy);
     }
 
+    //  bilinear_interpolate template function implementation
+    template<typename ElementT, arithmetic FloatingType>
+    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
+    constexpr auto bilinear_interpolate(const Image<ElementT>& image, const FloatingType x, const FloatingType y)
+    {
+        RGB result;
+        for (size_t i = 0; i < 3; ++i)
+        {
+            result.channels[i] = bilinear_interpolate(getPlane(image, i), x, y);
+        }
+        return result;
+	}
+
     //  rotate_detail_shear_transformation template function implementation
     //  rotate_detail_shear_transformation template function performs image rotation
     //  Reference: https://gautamnagrawal.medium.com/rotating-image-by-any-angle-shear-transformation-using-only-numpy-d28d16eb5076
