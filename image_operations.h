@@ -5198,6 +5198,81 @@ namespace TinyDIP
         return matches;
     }
 
+    /**
+     * compute_homography template function implementation
+     * @brief Computes the homography matrix from 4 or more point correspondences using the SVD-based Direct Linear Transform (DLT) algorithm.
+     * This involves solving the system of linear equations Ah = 0.
+     * Reference: https://engineering.purdue.edu/kak/courses-i-teach/ECE661.08/solution/hw5_s1.pdf
+     */
+    bool compute_homography(const std::vector<std::pair<Point<2>, Point<2>>>& points, linalg::Matrix<double>& H)
+    {
+        if (points.size() < 4)
+        {
+            return false;
+        }
+
+        // Construct the matrix A for the system Ah = 0.
+        // For n points, A is a 2n x 9 matrix.
+        linalg::Matrix<double> A(2 * points.size(), 9);
+
+        for (std::size_t i = 0; i < points.size(); ++i)
+        {
+            const double x1 = points[i].first.p[0];
+            const double y1 = points[i].first.p[1];
+            const double x2 = points[i].second.p[0];
+            const double y2 = points[i].second.p[1];
+            
+            const std::size_t row1 = 2 * i;
+            const std::size_t row2 = 2 * i + 1;
+
+            A.at(row1, 0) = -x1;
+            A.at(row1, 1) = -y1;
+            A.at(row1, 2) = -1;
+            A.at(row1, 3) = 0;
+            A.at(row1, 4) = 0;
+            A.at(row1, 5) = 0;
+            A.at(row1, 6) = x2 * x1;
+            A.at(row1, 7) = x2 * y1;
+            A.at(row1, 8) = x2;
+
+            A.at(row2, 0) = 0;
+            A.at(row2, 1) = 0;
+            A.at(row2, 2) = 0;
+            A.at(row2, 3) = -x1;
+            A.at(row2, 4) = -y1;
+            A.at(row2, 5) = -1;
+            A.at(row2, 6) = y2 * x1;
+            A.at(row2, 7) = y2 * y1;
+            A.at(row2, 8) = y2;
+        }
+
+        // Solve Ah = 0 using SVD. The solution is the right singular vector
+        // corresponding to the smallest singular value.
+        std::vector<double> h = linalg::svd_solve_ah_zero(A);
+        if (h.empty() || h.size() != 9)
+        {
+            return false;
+        }
+
+        // Reshape the 9x1 vector h into the 3x3 homography matrix H
+        // and normalize it by the last element.
+        H = linalg::Matrix<double>(3, 3);
+        const double scale = h[8];
+        if (std::abs(scale) < 1.0e-9) // Avoid division by zero
+        {
+            return false;
+        }
+        for(std::size_t i = 0; i < 3; ++i)
+        {
+            for(std::size_t j = 0; j < 3; ++j)
+            {
+                H.at(i, j) = h[i * 3 + j] / scale;
+            }
+        }
+
+        return true;
+    }
+
 }
 
 #endif
