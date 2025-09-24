@@ -5399,6 +5399,122 @@ namespace TinyDIP
         return warped_image;
     }
 
+    /**
+     * imstitch function implementation
+     * @brief Stitches two images together.
+     */
+    Image<RGB> imstitch(const Image<RGB>& img1, const Image<RGB>& img2)
+    {
+        // 1. Get Keypoints and Descriptors
+        auto v_plane1 = TinyDIP::getVplane(TinyDIP::rgb2hsv(img1));
+        auto v_plane2 = TinyDIP::getVplane(TinyDIP::rgb2hsv(img2));
+
+        auto keypoints1 = SIFT_impl::get_potential_keypoint(v_plane1);
+        auto keypoints2 = SIFT_impl::get_potential_keypoint(v_plane2);
+
+        std::vector<SiftDescriptor> descriptors1;
+        for(const auto& kp : keypoints1) descriptors1.emplace_back(SIFT_impl::get_keypoint_descriptor(v_plane1, kp));
+        
+        std::vector<SiftDescriptor> descriptors2;
+        for(const auto& kp : keypoints2) descriptors2.emplace_back(SIFT_impl::get_keypoint_descriptor(v_plane2, kp));
+        
+        // 2. Match Features
+        auto matches = find_keypoint_matches(std::execution::par, descriptors1, descriptors2, 0.75);
+
+        // 3. Compute Homography with RANSAC
+        auto H = find_homography_ransac(keypoints1, keypoints2, matches);
+        if (H.empty()) {
+            std::cerr << "Could not compute a valid homography.\n";
+            return Image<RGB>();
+        }
+        
+        // 4. Determine output canvas size by transforming the corners of img2
+        auto H_inv = linalg::invert(H); // Needed to map img2 corners into img1's space
+        if (H_inv.empty()) {
+             std::cerr << "Could not invert homography. Cannot determine output size.\n";
+            return Image<RGB>();
+        }
+
+        const double w2 = img2.getWidth(), h2 = img2.getHeight();
+        std::vector<Point<2>> corners = { {0,0}, {static_cast<std::size_t>(w2 - 1), 0}, {0, static_cast<std::size_t>(h2 - 1)}, {static_cast<std::size_t>(w2 - 1), static_cast<std::size_t>(h2 - 1)} };
+        double min_x = 0, max_x = img1.getWidth(), min_y = 0, max_y = img1.getHeight();
+
+        for(const auto& p : corners)
+        {
+            double w = H_inv.at(2,0) * p.p[0] + H_inv.at(2,1) * p.p[1] + H_inv.at(2,2);
+            double x = (H_inv.at(0,0) * p.p[0] + H_inv.at(0,1) * p.p[1] + H_inv.at(0,2)) / w;
+            double y = (H_inv.at(1,0) * p.p[0] + H_inv.at(1,1) * p.p[1] + H_inv.at(1,2)) / w;
+            if(x < min_x) min_x = x;
+            if(x > max_x) max_x = x;
+            if(y < min_y) min_y = y;
+            if(y > max_y) max_y = y;
+        }
+
+        const double trans_x = -min_x;
+        const double trans_y = -min_y;
+        const std::size_t out_width = static_cast<std::size_t>(std::ceil(max_x - min_x));
+        const std::size_t out_height = static_cast<std::size_t>(std::ceil(max_y - min_y));
+
+        // Create a translation matrix
+        linalg::Matrix<double> H_trans(3,3);
+        H_trans.at(0,0) = 1; H_trans.at(0,1) = 0; H_trans.at(0,2) = trans_x;
+        H_trans.at(1,0) = 0; H_trans.at(1,1) = 1; H_trans.at(1,2) = trans_y;
+        H_trans.at(2,0) = 0; H_trans.at(2,1) = 0; H_trans.at(2,2) = 1;
+
+        // Combine translation with the original homography
+        auto H_final = linalg::multiply(H_trans, H);
+
+        // 5. Warp img2 to align with img1's coordinate frame
+        auto warped_img2 = warp_perspective(img2, H_final, out_width, out_height);
+        
+        // 6. Blend images
+        Image<RGB> stitched_image(out_width, out_height);
+        
+        // Paste img1 at its new translated position
+        for(std::size_t y = 0; y < img1.getHeight(); ++y)
+        {
+            for(std::size_t x = 0; x < img1.getWidth(); ++x)
+            {
+                auto dest_x = static_cast<std::size_t>(x + trans_x);
+                auto dest_y = static_cast<std::size_t>(y + trans_y);
+                if(dest_x < out_width && dest_y < out_height)
+                {
+                    stitched_image.at(dest_x, dest_y) = img1.at(x,y);
+                }
+            }
+        }
+        
+        // Blend warped image 2 on top
+        for(std::size_t y = 0; y < out_height; ++y)
+        {
+            for(std::size_t x = 0; x < out_width; ++x)
+            {
+                const auto& pixel_warped = warped_img2.at(x, y);
+                bool warped_is_black = (pixel_warped.channels[0] < 5 && pixel_warped.channels[1] < 5 && pixel_warped.channels[2] < 5);
+                
+                if(!warped_is_black)
+                {
+                    const auto& pixel_base = stitched_image.at(x, y);
+                    bool base_is_black = (pixel_base.channels[0] < 5 && pixel_base.channels[1] < 5 && pixel_base.channels[2] < 5);
+                    if (base_is_black)
+                    {
+                        stitched_image.at(x,y) = pixel_warped;
+                    }
+                    else // Simple averaging for overlap
+                    {
+                        RGB blended_pixel;
+                        blended_pixel.channels[0] = (static_cast<std::uint16_t>(pixel_base.channels[0]) + pixel_warped.channels[0]) / 2;
+                        blended_pixel.channels[1] = (static_cast<std::uint16_t>(pixel_base.channels[1]) + pixel_warped.channels[1]) / 2;
+                        blended_pixel.channels[2] = (static_cast<std::uint16_t>(pixel_base.channels[2]) + pixel_warped.channels[2]) / 2;
+                        stitched_image.at(x, y) = blended_pixel;
+                    }
+                }
+            }
+        }
+        
+        return stitched_image;
+    }
+
 }
 
 #endif
