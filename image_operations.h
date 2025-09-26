@@ -248,6 +248,27 @@ namespace TinyDIP
             throw std::runtime_error("Size mismatched!");
     }
 
+    //  is_symmetry template function implementation
+    template<typename ElementT>
+    constexpr bool is_symmetry(const Image<ElementT>& input)
+    {
+        if (input.getDimensionality() != 2)
+        {
+            throw std::runtime_error("Input is not a matrix!");
+        }
+        for (std::size_t y = 0; y < input.getHeight(); ++y)
+        {
+            for (std::size_t x = 0; x < input.getWidth(); ++x)
+            {
+                if (input.at_without_boundary_check(x, y) != input.at_without_boundary_check(y, x))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     //  zeros template function implementation
     template<typename ElementT, std::same_as<std::size_t>... Sizes>
     constexpr static auto zeros(Sizes... sizes)
