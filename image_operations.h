@@ -3343,7 +3343,7 @@ namespace TinyDIP
 
     //  rotate_detail template function implementation
     //  rotate_detail template function performs image rotation between 0° to 90°
-    template<arithmetic ElementT, std::floating_point FloatingType = double>
+    template<arithmetic ElementT, arithmetic FloatingType = double>
     constexpr static auto rotate_detail(const Image<ElementT>& input, FloatingType radians)
     {
         if (input.getDimensionality()!=2)
