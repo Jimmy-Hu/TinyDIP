@@ -2972,7 +2972,7 @@ namespace TinyDIP
     template <
         std::ranges::input_range R1,
         std::ranges::input_range R2>
-    requires(std::is_arithmetic_v<std::ranges::range_value_t<R1>> &&
+    requires(arithmetic<std::ranges::range_value_t<R1>> &&
              std::same_as<std::ranges::range_value_t<R1>, std::ranges::range_value_t<R2>>)
     constexpr auto squared_euclidean_distance(
         const R1& range1,
@@ -2981,7 +2981,8 @@ namespace TinyDIP
         // For input_range, a manual loop is the most reliable approach, as std::distance can be O(n)
         // and we need to iterate anyway.
         using ValueType = std::ranges::range_value_t<R1>;
-        ValueType sum_of_squares{};
+        using ResultType = get_underlying_real_type_t<ValueType>;
+        ResultType sum_of_squares{};
 
         auto it1 = std::ranges::cbegin(range1);
         auto const end1 = std::ranges::cend(range1);
@@ -2991,7 +2992,14 @@ namespace TinyDIP
         while (it1 != end1 && it2 != end2)
         {
             const auto diff = *it1 - *it2;
-            sum_of_squares += diff * diff;
+            if constexpr (is_complex<ValueType>::value)
+            {
+                sum_of_squares += std::norm(diff);
+            }
+            else
+            {
+                sum_of_squares += diff * diff;
+            }
             ++it1;
             ++it2;
         }
