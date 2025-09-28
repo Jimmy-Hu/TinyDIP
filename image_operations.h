@@ -3143,10 +3143,10 @@ namespace TinyDIP
     template<class ExecutionPolicy, typename ElementT = double, typename F = std::plus<std::common_type_t<ElementT, ElementT>>>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
               std::regular_invocable<F, ElementT, ElementT>)
-    constexpr static auto sum(ExecutionPolicy execution_policy, const Image<ElementT>& input, F f = {})
+    constexpr static auto sum(ExecutionPolicy&& execution_policy, const Image<ElementT>& input, F f = {})
     {
         auto image_data = input.getImageData();
-        return std::reduce(execution_policy, std::ranges::cbegin(image_data), std::ranges::cend(image_data), ElementT{}, f);
+        return std::reduce(std::forward<ExecutionPolicy>(execution_policy), std::ranges::cbegin(image_data), std::ranges::cend(image_data), ElementT{}, f);
     }
 
     //  mean template function implementation
