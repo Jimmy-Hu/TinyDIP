@@ -5540,7 +5540,7 @@ namespace TinyDIP
      * imstitch function implementation
      * @brief Stitches two images together.
      */
-    Image<RGB> imstitch(const Image<RGB>& img1, const Image<RGB>& img2)
+    Image<RGB> imstitch(const Image<RGB>& img1, const Image<RGB>& img2, const double ratio_threshold = 0.7)
     {
         // 1. Get Keypoints and Descriptors
         auto v_plane1 = TinyDIP::getVplane(TinyDIP::rgb2hsv(img1));
@@ -5556,10 +5556,11 @@ namespace TinyDIP
         for(const auto& kp : keypoints2) descriptors2.emplace_back(SIFT_impl::get_keypoint_descriptor(v_plane2, kp));
         
         // 2. Match Features
-        auto matches = find_keypoint_matches(std::execution::par, descriptors1, descriptors2, 0.75);
+        //auto matches = find_keypoint_matches(std::execution::par, descriptors1, descriptors2, ratio_threshold);
+		auto matches = find_robust_matches(descriptors1, descriptors2, ratio_threshold);
 
         // 3. Compute Homography with RANSAC
-        auto H = find_homography_ransac(keypoints1, keypoints2, matches);
+        auto H = find_homography_ransac(keypoints1, keypoints2, matches, 2000, 2.0);
         if (H.empty()) {
             std::cerr << "Could not compute a valid homography.\n";
             return Image<RGB>();
