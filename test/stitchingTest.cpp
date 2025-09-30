@@ -47,12 +47,18 @@ int main(int argc, char* argv[])
     std::cout << "Image 1 size: " << bmp1.getWidth() << " x " << bmp1.getHeight() << "\n";
     std::cout << "Image 2 size: " << bmp2.getWidth() << " x " << bmp2.getHeight() << "\n";
     auto output_image = TinyDIP::imstitch(bmp1, bmp2);
+    // 3. Save the result
+    if (output_image.getWidth() == 0 || output_image.getHeight() == 0)
+    {
+        std::cerr << "Error: Stitching resulted in an empty image.\n";
+        return EXIT_FAILURE;
+    }
     if (!TinyDIP::bmp_write(output_filename_base.c_str(), output_image))
     {
         std::cerr << "Fail to write image\n";
         return EXIT_FAILURE;
     }
-	std::cout << "Image stitching completed. Output saved as " << output_filename_base << ".bmp\n";
+    std::cout << "Image stitching completed. Output saved as " << output_filename_base << ".bmp\n";
     std::cout << "\n--- Pipeline Complete ---\n";
 
     return EXIT_SUCCESS;
