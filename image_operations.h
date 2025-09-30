@@ -5299,6 +5299,43 @@ namespace TinyDIP
     }
 
     /**
+     * find_robust_matches function implementation
+     * @brief Refines feature matches using a symmetry/cross-check test for higher precision.
+     */
+    std::vector<std::pair<std::size_t, std::size_t>> find_robust_matches(
+        const std::vector<SiftDescriptor>& descriptors1,
+        const std::vector<SiftDescriptor>& descriptors2,
+        const double ratio_threshold)
+    {
+        // Step 1: Match from image 1 to image 2
+        auto matches1to2 = find_raw_matches(std::execution::par, descriptors1, descriptors2, ratio_threshold);
+
+        // Step 2: Match from image 2 to image 1
+        auto matches2to1 = find_raw_matches(std::execution::par, descriptors2, descriptors1, ratio_threshold);
+
+        std::vector<std::pair<std::size_t, std::size_t>> robust_matches;
+        
+        // Step 3: Cross-check. A match is good only if it's found in both directions.
+        for(const auto& match1 : matches1to2)
+        {
+            for(const auto& match2 : matches2to1)
+            {
+                if(match1.first == match2.second && match1.second == match2.first)
+                {
+                    robust_matches.emplace_back(match1);
+                    break; // Found the symmetric match, no need to check further for this one
+                }
+            }
+        }
+
+        std::cout << "Found " << matches1to2.size() << " raw matches (1->2), " 
+                  << matches2to1.size() << " raw matches (2->1). Kept " 
+                  << robust_matches.size() << " robust matches after cross-checking.\n";
+
+        return robust_matches;
+    }
+
+    /**
      * compute_homography template function implementation
      * @brief Computes the homography matrix from 4 or more point correspondences using the SVD-based Direct Linear Transform (DLT) algorithm.
      * This involves solving the system of linear equations Ah = 0.
