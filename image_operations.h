@@ -3296,7 +3296,13 @@ namespace TinyDIP
     //  Test: https://godbolt.org/z/5hjns1nGP
     template<class ExecutionPolicy, typename ElementT>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
-    constexpr static auto paste2D(ExecutionPolicy&& execution_policy, const Image<ElementT>& background, const Image<ElementT>& target, std::size_t x_location, std::size_t y_location, ElementT default_value = ElementT{})
+    constexpr static auto paste2D(
+        ExecutionPolicy&& execution_policy,
+        const Image<ElementT>& background,
+        const Image<ElementT>& target,
+        const std::size_t x_location,
+        const std::size_t y_location,
+        const ElementT default_value = ElementT{})
     {
         if (background.getDimensionality()!=2)
         {
@@ -3329,7 +3335,7 @@ namespace TinyDIP
                     background.getHeight():
                     (target.getHeight() + y_location);
             data.resize(xsize * ysize);
-            std::fill(execution_policy, std::ranges::begin(data), std::ranges::end(data), default_value);
+            std::fill(std::forward<ExecutionPolicy>(execution_policy), std::ranges::begin(data), std::ranges::end(data), default_value);
             Image<ElementT> output(data, xsize, ysize);
             for (std::size_t y = 0; y < background.getHeight(); ++y)
             {
