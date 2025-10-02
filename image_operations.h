@@ -5730,6 +5730,64 @@ namespace TinyDIP
         return create_stitched_image(img1, img2, H);
     }
 
+    /**
+     * stitch_sequential template function implementation
+     * @brief Stitches a sequence of images together progressively from any input range.
+     */
+    template<std::ranges::input_range RangeT>
+    requires (std::same_as<std::ranges::range_value_t<RangeT>, Image<RGB>>)
+    Image<RGB> stitch_sequential(const RangeT& images, const double ratio_threshold = 0.7)
+    {
+        auto it = std::ranges::begin(images);
+        auto const end = std::ranges::end(images);
+
+        if (it == end) // Empty range
+        {
+            std::cerr << "Error: At least one image is required for stitching.\n";
+            return Image<RGB>();
+        }
+
+        Image<RGB> panorama = *it; // The first image
+        ++it;
+
+        if (it == end) // Only one image in the range
+        {
+            std::cout << "Warning: Only one image provided. Returning the original image.\n";
+            return panorama;
+        }
+
+        std::size_t i = 1;
+        while(it != end)
+        {
+            const auto& next_image = *it;
+            std::cout << "\n--- Stitching image " << i + 1 << " onto current panorama ---\n";
+            
+            // Find the transformation from the current panorama to the next image
+            auto H = find_stitch_homography(panorama, next_image, ratio_threshold);
+            if(H.empty())
+            {
+                std::cerr << "Stitching failed during homography calculation for image " << i+1 << ". Returning intermediate result.\n";
+                return panorama;
+            }
+
+            // Attempt to create the next stage of the panorama
+            auto next_panorama = create_stitched_image(panorama, next_image, H);
+            if(next_panorama.getWidth() == 0)
+            {
+                 std::cerr << "Stitching failed during warping/blending of image " << i+1 << ". Returning intermediate result.\n";
+                 return panorama; // Return the last successful panorama
+            }
+            
+            // Update the panorama only on success
+            panorama = next_panorama; 
+            
+            ++it;
+            ++i;
+        }
+
+        return panorama;
+    }
+
 }
 
 #endif
