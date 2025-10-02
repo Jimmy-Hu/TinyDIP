@@ -70,29 +70,43 @@ int main(int argc, char* argv[])
     }
 
 
+    // === Load Full-Resolution Images ===
+    std::cout << "--- Loading Full-Resolution Images ---\n";
+    auto bmp1 = TinyDIP::bmp_read(file_path1.c_str(), true);
+    auto bmp2 = TinyDIP::bmp_read(file_path2.c_str(), true);
+
+    if ((bmp1.getWidth() == 0) || (bmp1.getHeight() == 0))
+    {
+        std::cerr << "Error: Failed to read image from " << file_path1 << "\n";
+        return EXIT_FAILURE;
+    }
+    if ((bmp2.getWidth() == 0) || (bmp2.getHeight() == 0))
+    {
+        std::cerr << "Error: Failed to read image from " << file_path2 << "\n";
+        return EXIT_FAILURE;
+    }
+    std::cout << "Image 1 loaded: " << bmp1.getWidth() << " x " << bmp1.getHeight() << "\n";
+    std::cout << "Image 2 loaded: " << bmp2.getWidth() << " x " << bmp2.getHeight() << "\n\n";
+
+    // === Phase 1: Find Homography (always on full-res images) ===
+    auto H = TinyDIP::find_stitch_homography(bmp1, bmp2, ratio_threshold);
+    if(H.empty())
+    {
+        std::cerr << "Stitching pipeline failed during homography calculation.\n";
+        return EXIT_FAILURE;
+    }
+
+
+    // === Phase 2: Create Stitched Image (either preview or full-res) ===
+    TinyDIP::Image<TinyDIP::RGB> stitched_result;
+    std::string final_output_name = output_filename_base;
+
     if (preview_mode)
     {
-        // === Preview Stitching Pipeline ===
-        std::cout << "--- Starting Image Stitching PREVIEW Pipeline ---\n";
-        std::cout << "Using Lowe's ratio threshold: " << ratio_threshold << "\n\n";
+        std::cout << "\n--- Creating Preview Image ---\n";
+        final_output_name += "_preview";
 
-        // 1. Load images
-        auto bmp1 = TinyDIP::bmp_read(file_path1.c_str(), true);
-        auto bmp2 = TinyDIP::bmp_read(file_path2.c_str(), true);
-
-        if ((bmp1.getWidth() == 0) || (bmp1.getHeight() == 0))
-        {
-            std::cerr << "Error: Failed to read image from " << file_path1 << "\n";
-            return EXIT_FAILURE;
-        }
-        if ((bmp2.getWidth() == 0) || (bmp2.getHeight() == 0))
-        {
-            std::cerr << "Error: Failed to read image from " << file_path2 << "\n";
-            return EXIT_FAILURE;
-        }
-        std::cout << "Images loaded successfully.\n";
-
-        // 2. Resize images for preview
+        // 1. Resize images for preview
         const std::size_t preview_width = 400;
         const auto new_height1 = static_cast<std::size_t>(static_cast<double>(bmp1.getHeight()) * preview_width / bmp1.getWidth());
         const auto new_height2 = static_cast<std::size_t>(static_cast<double>(bmp2.getHeight()) * preview_width / bmp2.getWidth());
@@ -101,75 +115,35 @@ int main(int argc, char* argv[])
         auto bmp1_small = TinyDIP::copyResizeBicubic(bmp1, preview_width, new_height1);
         auto bmp2_small = TinyDIP::copyResizeBicubic(bmp2, preview_width, new_height2);
 
-        // 3. Stitch the small images
-        auto stitched_preview = TinyDIP::imstitch(bmp1_small, bmp2_small, ratio_threshold);
-
-        // 4. Save the preview result
-        if (stitched_preview.getWidth() == 0 || stitched_preview.getHeight() == 0)
-        {
-            std::cerr << "Error: Preview stitching resulted in an empty image.\n";
-            return EXIT_FAILURE;
-        }
-
-        const std::string preview_output_name = output_filename_base + "_preview";
-        if (TinyDIP::bmp_write(preview_output_name.c_str(), stitched_preview) == 0)
-        {
-            std::cout << "Successfully saved stitched preview to " << preview_output_name << ".bmp\n";
-        }
-        else
-        {
-            std::cerr << "Error: Failed to save stitched preview.\n";
-            return EXIT_FAILURE;
-        }
-        std::cout << "\n--- Preview Pipeline Complete ---\n";
+        // 2. Create the stitched image using the high-quality H and small images
+        stitched_result = TinyDIP::create_stitched_image(bmp1_small, bmp2_small, H);
     }
     else
     {
-        // === Full Resolution Stitching Pipeline ===
-        std::cout << "--- Starting Image Stitching Pipeline ---\n";
-        std::cout << "Using Lowe's ratio threshold: " << ratio_threshold << "\n\n";
-
-        // 1. Load images
-        // The second parameter is 'true' because we are providing the full filename.
-        auto bmp1 = TinyDIP::bmp_read(file_path1.c_str(), true);
-        auto bmp2 = TinyDIP::bmp_read(file_path2.c_str(), true);
-
-        if ((bmp1.getWidth() == 0) || (bmp1.getHeight() == 0))
-        {
-            std::cerr << "Error: Failed to read image from " << file_path1 << "\n";
-            return EXIT_FAILURE;
-        }
-        if ((bmp2.getWidth() == 0) || (bmp2.getHeight() == 0))
-        {
-            std::cerr << "Error: Failed to read image from " << file_path2 << "\n";
-            return EXIT_FAILURE;
-        }
-        std::cout << "Image 1 loaded: " << bmp1.getWidth() << " x " << bmp1.getHeight() << "\n";
-        std::cout << "Image 2 loaded: " << bmp2.getWidth() << " x " << bmp2.getHeight() << "\n\n";
-
-        // 2. Stitch the images, passing the ratio threshold
-        auto stitched_result = TinyDIP::imstitch(bmp1, bmp2, ratio_threshold);
-
-        // 3. Save the result
-        if (stitched_result.getWidth() == 0 || stitched_result.getHeight() == 0)
-        {
-            std::cerr << "Error: Stitching resulted in an empty image.\n";
-            return EXIT_FAILURE;
-        }
-
-        // Your bmp_write function automatically appends ".bmp" to the filename.
-        if (TinyDIP::bmp_write(output_filename_base.c_str(), stitched_result) == 0)
-        {
-            std::cout << "Successfully saved stitched image to " << output_filename_base << ".bmp\n";
-        }
-        else
-        {
-            std::cerr << "Error: Failed to save stitched image.\n";
-            return EXIT_FAILURE;
-        }
-
-        std::cout << "\n--- Pipeline Complete ---\n";
+        std::cout << "\n--- Creating Full-Resolution Image ---\n";
+        // Create the stitched image using the high-quality H and full-res images
+        stitched_result = TinyDIP::create_stitched_image(bmp1, bmp2, H);
     }
+    
+
+    // === Save the final result ===
+    if (stitched_result.getWidth() == 0 || stitched_result.getHeight() == 0)
+    {
+        std::cerr << "Error: Stitching resulted in an empty image.\n";
+        return EXIT_FAILURE;
+    }
+
+    if (TinyDIP::bmp_write(final_output_name.c_str(), stitched_result) == 0)
+    {
+        std::cout << "Successfully saved stitched image to " << final_output_name << ".bmp\n";
+    }
+    else
+    {
+        std::cerr << "Error: Failed to save stitched image.\n";
+        return EXIT_FAILURE;
+    }
+
+    std::cout << "\n--- Pipeline Complete ---\n";
 
     return EXIT_SUCCESS;
 }
