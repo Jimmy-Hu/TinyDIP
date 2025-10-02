@@ -115,8 +115,16 @@ int main(int argc, char* argv[])
         auto bmp1_small = TinyDIP::copyResizeBicubic(bmp1, preview_width, new_height1);
         auto bmp2_small = TinyDIP::copyResizeBicubic(bmp2, preview_width, new_height2);
 
-        // 2. Create the stitched image using the high-quality H and small images
-        stitched_result = TinyDIP::create_stitched_image(bmp1_small, bmp2_small, H);
+        // 2. Scale the high-quality H for the preview images
+        std::cout << "Scaling homography for preview...\n";
+        auto H_small = TinyDIP::scale_homography(
+            H,
+            bmp1.getWidth(), bmp1.getHeight(), bmp1_small.getWidth(), bmp1_small.getHeight(),
+            bmp2.getWidth(), bmp2.getHeight(), bmp2_small.getWidth(), bmp2_small.getHeight()
+        );
+
+        // 3. Create the stitched image using the SCALED homography and small images
+        stitched_result = TinyDIP::create_stitched_image(bmp1_small, bmp2_small, H_small);
     }
     else
     {
