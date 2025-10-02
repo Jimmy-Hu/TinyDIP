@@ -5502,6 +5502,40 @@ namespace TinyDIP
     }
 
     /**
+     * scale_homography function implementation
+     * @brief Adjusts a homography matrix to account for image scaling.
+     */
+    linalg::Matrix<double> scale_homography(
+        const linalg::Matrix<double>& H,
+        std::size_t w1_full, std::size_t h1_full, std::size_t w1_small, std::size_t h1_small,
+        std::size_t w2_full, std::size_t h2_full, std::size_t w2_small, std::size_t h2_small)
+    {
+        // Scaling factor from small image 1 to full image 1
+        double scale_x1 = static_cast<double>(w1_full) / w1_small;
+        double scale_y1 = static_cast<double>(h1_full) / h1_small;
+
+        // Scaling factor from full image 2 to small image 2
+        double scale_x2 = static_cast<double>(w2_small) / w2_full;
+        double scale_y2 = static_cast<double>(h2_small) / h2_full;
+        
+        // S1: maps from small1 coordinates to full1 coordinates
+        linalg::Matrix<double> S1(3, 3);
+        S1.at(0,0) = scale_x1;
+        S1.at(1,1) = scale_y1;
+        S1.at(2,2) = 1.0;
+
+        // S2_inv: maps from full2 coordinates to small2 coordinates
+        linalg::Matrix<double> S2_inv(3, 3);
+        S2_inv.at(0,0) = scale_x2;
+        S2_inv.at(1,1) = scale_y2;
+        S2_inv.at(2,2) = 1.0;
+
+        // H_small = S2_inv * H * S1
+        auto temp = linalg::multiply(S2_inv, H);
+        return linalg::multiply(temp, S1);
+    }
+
+    /**
      * warp_perspective template function implementation
      * @brief Applies a perspective transformation to an image using reverse mapping.
      */
