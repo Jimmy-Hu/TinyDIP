@@ -20,20 +20,65 @@ int main(int argc, char* argv[])
     // === Argument Parsing ===
     if (argc < 4)
     {
-        std::cerr << "Usage: " << argv[0] << " <output_base.bmp> <img1.bmp> <img2.bmp> [img3.bmp ...]\n";
-        std::cerr << "Example: " << argv[0] << " panorama.bmp s1.bmp s2.bmp s3.bmp\n";
+        std::cerr << "Usage: " << argv[0] << " <output_base.bmp> <img1.bmp> <img2.bmp> [img3.bmp ...] [ratio_threshold] [--save-intermediate]\n";
+        std::cerr << "Example: " << argv[0] << " panorama.bmp s1.bmp s2.bmp 0.7\n";
+        std::cerr << "  - ratio_threshold (optional): A value between 0.0 and 1.0. Lower is stricter. Default is 0.7.\n";
+        std::cerr << "  - --save-intermediate (optional): Saves the panorama after each successful stitch.\n";
         return EXIT_FAILURE;
     }
 
-    const std::string output_filename = argv[1];
+    double ratio_threshold = 0.7; // Default value
+    bool save_intermediate = false;
     std::vector<std::string> image_paths;
+    const std::string output_filename = argv[1];
+
+    // Parse arguments, separating image paths from flags/options
     for (int i = 2; i < argc; ++i)
     {
-        image_paths.emplace_back(argv[i]);
+        std::string arg = argv[i];
+        if (arg == "--save-intermediate")
+        {
+            save_intermediate = true;
+        }
+        else
+        {
+            try
+            {
+                // Try to parse as ratio threshold. This assumes it's the last argument.
+                double potential_ratio = std::stod(arg);
+                if (potential_ratio > 0.0 && potential_ratio < 1.0)
+                {
+                    ratio_threshold = potential_ratio;
+                }
+                else
+                {
+                    // If it's a number but not a valid ratio, treat it as a filename
+                    image_paths.emplace_back(arg);
+                }
+            }
+            catch (const std::exception&)
+            {
+                // If it's not a number, it's an image path
+                image_paths.emplace_back(arg);
+            }
+        }
     }
+
+    // Check if there are still enough images to stitch
+    if (image_paths.size() < 2)
+    {
+        std::cerr << "Error: At least two input images are required for stitching.\n";
+        return EXIT_FAILURE;
+    }
+
 
     // === Sequentially Load and Stitch Images ===
     std::cout << "\n--- Starting Sequential Stitching ---\n";
+    std::cout << "Using Lowe's ratio threshold: " << ratio_threshold << "\n";
+    if (save_intermediate)
+    {
+        std::cout << "Intermediate images will be saved.\n";
+    }
 
     // 1. Load the first image to start the panorama
     std::cout << "Loading base image: " << image_paths[0] << "\n";
@@ -42,6 +87,14 @@ int main(int argc, char* argv[])
     {
         std::cerr << "Error: Failed to read the first image from " << image_paths[0] << "\n";
         return EXIT_FAILURE;
+    }
+
+    // We pass the full filename, so we strip the .bmp if it exists
+    // for creating intermediate filenames.
+    std::string output_base = output_filename;
+    if (output_base.ends_with(".bmp"))
+    {
+        output_base = output_base.substr(0, output_base.length() - 4);
     }
 
     // 2. Loop through the rest of the images, reading and stitching one by one
@@ -58,8 +111,7 @@ int main(int argc, char* argv[])
         }
 
         // Use the existing two-image stitching functions
-        // Using a default ratio_threshold, but this could also be a command-line arg
-        auto H = TinyDIP::find_stitch_homography(panorama, next_image, 0.7);
+        auto H = TinyDIP::find_stitch_homography(panorama, next_image, ratio_threshold);
         if (H.empty())
         {
             std::cerr << "Stitching failed during homography calculation for image " << i + 1 << ". Returning intermediate result.\n";
@@ -75,6 +127,20 @@ int main(int argc, char* argv[])
 
         // The stitch was successful, update the panorama
         panorama = next_panorama;
+
+        // Save the intermediate result if requested
+        if (save_intermediate)
+        {
+            std::string intermediate_filename = output_base + "_step_" + std::to_string(i);
+            if (TinyDIP::bmp_write(intermediate_filename.c_str(), panorama) == 0)
+            {
+                std::cout << "Successfully saved intermediate image to " << intermediate_filename << ".bmp\n";
+            }
+            else
+            {
+                std::cerr << "Warning: Failed to save intermediate image " << intermediate_filename << ".bmp\n";
+            }
+        }
     }
 
 
@@ -84,15 +150,6 @@ int main(int argc, char* argv[])
         std::cerr << "Error: Multi-image stitching resulted in an empty image.\n";
         return EXIT_FAILURE;
     }
-
-    // We pass the full filename, so we strip the .bmp if it exists
-    // and then let bmp_write add it back, to be consistent.
-    std::string output_base = output_filename;
-    if (output_base.ends_with(".bmp"))
-    {
-        output_base = output_base.substr(0, output_base.length() - 4);
-    }
-
 
     if (TinyDIP::bmp_write(output_base.c_str(), panorama) == 0)
     {
