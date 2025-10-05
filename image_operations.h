@@ -3287,7 +3287,12 @@ namespace TinyDIP
 
     //  paste2D template function implementation
     template<typename ElementT>
-    constexpr static auto paste2D(const Image<ElementT>& background, const Image<ElementT>& target, std::size_t x_location, std::size_t y_location, ElementT default_value = ElementT{})
+    constexpr static auto paste2D(
+        const Image<ElementT>& background,
+        const Image<ElementT>& target,
+        const std::size_t x_location,
+        const std::size_t y_location,
+        const ElementT default_value = ElementT{})
     {
         return paste2D(std::execution::seq, background, target, x_location, y_location, default_value);
     }
