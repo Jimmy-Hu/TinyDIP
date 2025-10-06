@@ -3476,7 +3476,32 @@ namespace TinyDIP
             result.channels[i] = bilinear_interpolate(getPlane(image, i), x, y);
         }
         return result;
-	}
+    }
+
+    /**
+     * cubic_kernel template function implementation
+     * @brief The cubic convolution kernel used for interpolation.
+     * @param x The distance from the sample point.
+     * @param a The alpha parameter, typically -0.5 (Catmull-Rom) or -0.75.
+     */
+    template<arithmetic FloatingType = double>
+    constexpr FloatingType cubic_kernel(const FloatingType x, const FloatingType a = -0.5)
+    {
+        const FloatingType abs_x = std::abs(x);
+        const FloatingType abs_x2 = abs_x * abs_x;
+        const FloatingType abs_x3 = abs_x2 * abs_x;
+
+        if (abs_x <= 1.0)
+        {
+            return (a + 2.0) * abs_x3 - (a + 3.0) * abs_x2 + 1.0;
+        }
+        else if (abs_x < 2.0)
+        {
+            return a * abs_x3 - 5.0 * a * abs_x2 + 8.0 * a * abs_x - 4.0 * a;
+        }
+        return 0.0;
+    }
+
 
     //  rotate_detail_shear_transformation template function implementation
     //  rotate_detail_shear_transformation template function performs image rotation
