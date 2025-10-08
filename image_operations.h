@@ -3559,8 +3559,20 @@ namespace TinyDIP
     //  rotate_detail_shear_transformation template function implementation
     //  rotate_detail_shear_transformation template function performs image rotation
     //  Reference: https://gautamnagrawal.medium.com/rotating-image-by-any-angle-shear-transformation-using-only-numpy-d28d16eb5076
-    template<arithmetic ElementT, arithmetic FloatingType = double>
-    constexpr static auto rotate_detail_shear_transformation(const Image<ElementT>& input, FloatingType radians)
+    template<
+        arithmetic ElementT,
+        arithmetic FloatingType = double,
+        typename InterpolationFunc = default_bicubic_interpolator<ElementT, FloatingType>
+    >
+    requires std::invocable<InterpolationFunc, const Image<ElementT>&, FloatingType, FloatingType> &&
+         std::convertible_to<
+             std::invoke_result_t<InterpolationFunc, const Image<ElementT>&, FloatingType, FloatingType>,
+             ElementT
+         >
+    constexpr static auto rotate_detail_shear_transformation(
+        const Image<ElementT>& input,
+        FloatingType radians,
+        InterpolationFunc&& interpolator = {})
     {
         if (input.getDimensionality() != 2)
         {
@@ -3632,8 +3644,13 @@ namespace TinyDIP
                 auto x_source = x_original_centered + original_centre_width;
                 auto y_source = y_original_centered + original_centre_height;
 
-                // Use bilinear interpolation to get the pixel value
-                output.at(x_new, y_new) = bilinear_interpolate(input, x_source, y_source);
+                // Use lambda to get the pixel value
+                output.at(x_new, y_new) = std::invoke(
+                    std::forward<InterpolationFunc>(interpolator),
+                    input,
+                    x_source,
+                    y_source
+                );
             }
         }
         return output;
