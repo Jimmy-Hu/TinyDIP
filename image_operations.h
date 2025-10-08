@@ -5524,8 +5524,8 @@ namespace TinyDIP
         const std::vector<Point<2>>& keypoints1,
         const std::vector<Point<2>>& keypoints2,
         const std::vector<std::pair<std::size_t, std::size_t>>& matches,
-        int iterations = 1000,
-        double inlier_threshold = 3.0)
+        const int iterations = 2000,
+        const double inlier_threshold = 2.0)
     {
         linalg::Matrix<double> best_H(3, 3);
         int max_inliers = 0;
@@ -5597,7 +5597,35 @@ namespace TinyDIP
         }
         
         std::cout << "RANSAC found " << max_inliers << " inliers.\n";
-        
+
+        if(max_inliers >= 4)
+        {
+            std::vector<std::pair<Point<2>, Point<2>>> all_inliers;
+            for (const auto& match : matches)
+            {
+                const auto& p1 = keypoints1[match.first];
+                const auto& p2 = keypoints2[match.second];
+                double w = best_H.at(2, 0) * p1.p[0] + best_H.at(2, 1) * p1.p[1] + best_H.at(2, 2);
+                 if (std::abs(w) < 1e-7) continue;
+
+                double x_proj = (best_H.at(0, 0) * p1.p[0] + best_H.at(0, 1) * p1.p[1] + best_H.at(0, 2)) / w;
+                double y_proj = (best_H.at(1, 0) * p1.p[0] + best_H.at(1, 1) * p1.p[1] + best_H.at(1, 2)) / w;
+                double dx = x_proj - p2.p[0];
+                double dy = y_proj - p2.p[1];
+                if (dx * dx + dy * dy < inlier_threshold_sq)
+                {
+                    all_inliers.emplace_back(p1, p2);
+                }
+            }
+            
+            linalg::Matrix<double> refined_H(3, 3);
+            if(compute_homography(all_inliers, refined_H))
+            {
+                std::cout << "Refined homography with " << all_inliers.size() << " inliers.\n";
+                return refined_H;
+            }
+        }
+
         return best_H;
     }
 
