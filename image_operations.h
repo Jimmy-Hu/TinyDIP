@@ -4081,7 +4081,7 @@ namespace TinyDIP
 
     //  computeFilterSizeFromSigma template function implementation
     template<typename ElementT>
-    constexpr static auto computeFilterSizeFromSigma(ElementT sigma)
+    constexpr static auto computeFilterSizeFromSigma(const ElementT sigma)
     {
         return 2 * std::ceil(2 * sigma) + 1;
     }
