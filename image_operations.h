@@ -5351,13 +5351,13 @@ namespace TinyDIP
      * @brief Finds initial ("raw") matching keypoints between two sets of SIFT descriptors using Lowe's ratio test.
      * This is a building block for the more robust cross-checking matcher.
      */
-    template<class ExecutionPolicy>
+    template<std::floating_point FloatingType = double, class ExecutionPolicy>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
     std::vector<std::pair<std::size_t, std::size_t>> find_raw_matches(
         ExecutionPolicy&& policy,
         const std::vector<SiftDescriptor>& descriptors1,
         const std::vector<SiftDescriptor>& descriptors2,
-        const double ratio_threshold)
+        const FloatingType ratio_threshold)
     {
         if (descriptors1.empty() || descriptors2.empty())
         {
@@ -5371,15 +5371,15 @@ namespace TinyDIP
         std::mutex mtx; // Mutex to protect access to the shared 'matches' vector
 
         std::for_each(std::forward<ExecutionPolicy>(policy), std::ranges::begin(indices), std::ranges::end(indices),
-            [&](std::size_t i)
+            [&](const std::size_t i)
             {
-                double best_dist_sq = std::numeric_limits<double>::max();
-                double second_best_dist_sq = std::numeric_limits<double>::max();
+                FloatingType best_dist_sq = std::numeric_limits<FloatingType>::max();
+                FloatingType second_best_dist_sq = std::numeric_limits<FloatingType>::max();
                 std::size_t best_match_index = static_cast<std::size_t>(-1);
 
                 for (std::size_t j = 0; j < descriptors2.size(); ++j)
                 {
-                    const double dist_sq = squared_euclidean_distance(descriptors1[i], descriptors2[j]);
+                    const FloatingType dist_sq = static_cast<FloatingType>(squared_euclidean_distance(descriptors1[i], descriptors2[j]));
 
                     if (dist_sq < best_dist_sq)
                     {
