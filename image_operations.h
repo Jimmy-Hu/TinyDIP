@@ -3699,9 +3699,9 @@ namespace TinyDIP
     }
 
     //  rotate template function implementation
-    template<typename ElementT, class FloatingType = double>
-    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
-    constexpr static auto rotate(const Image<ElementT>& input, FloatingType radians)
+    template<typename ElementT, arithmetic FloatingType = double>
+    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>) || is_MultiChannel<ElementT>::value)
+    constexpr static auto rotate(const Image<ElementT>& input, const FloatingType radians)
     {
         if (input.getDimensionality()!=2)
         {
