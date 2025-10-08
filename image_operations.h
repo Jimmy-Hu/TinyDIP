@@ -5448,23 +5448,22 @@ namespace TinyDIP
      * This involves solving the system of linear equations Ah = 0.
      * Reference: https://engineering.purdue.edu/kak/courses-i-teach/ECE661.08/solution/hw5_s1.pdf
      */
-    bool compute_homography(const std::vector<std::pair<Point<2>, Point<2>>>& points, linalg::Matrix<double>& H)
+    template<std::floating_point FloatingType = double>
+    bool compute_homography(const std::vector<std::pair<Point<2>, Point<2>>>& points, linalg::Matrix<FloatingType>& H)
     {
         if (points.size() < 4)
         {
             return false;
         }
 
-        // Construct the matrix A for the system Ah = 0.
-        // For n points, A is a 2n x 9 matrix.
-        linalg::Matrix<double> A(2 * points.size(), 9);
+        linalg::Matrix<FloatingType> A(2 * points.size(), 9);
 
         for (std::size_t i = 0; i < points.size(); ++i)
         {
-            const double x1 = points[i].first.p[0];
-            const double y1 = points[i].first.p[1];
-            const double x2 = points[i].second.p[0];
-            const double y2 = points[i].second.p[1];
+            const FloatingType x1 = static_cast<FloatingType>(points[i].first.p[0]);
+            const FloatingType y1 = static_cast<FloatingType>(points[i].first.p[1]);
+            const FloatingType x2 = static_cast<FloatingType>(points[i].second.p[0]);
+            const FloatingType y2 = static_cast<FloatingType>(points[i].second.p[1]);
             
             const std::size_t row1 = 2 * i;
             const std::size_t row2 = 2 * i + 1;
@@ -5490,19 +5489,15 @@ namespace TinyDIP
             A.at(row2, 8) = y2;
         }
 
-        // Solve Ah = 0 using SVD. The solution is the right singular vector
-        // corresponding to the smallest singular value.
-        std::vector<double> h = linalg::svd_solve_ah_zero(A);
+        std::vector<FloatingType> h = linalg::svd_solve_ah_zero(A);
         if (h.empty() || h.size() != 9)
         {
             return false;
         }
 
-        // Reshape the 9x1 vector h into the 3x3 homography matrix H
-        // and normalize it by the last element.
-        H = linalg::Matrix<double>(3, 3);
-        const double scale = h[8];
-        if (std::abs(scale) < 1.0e-9) // Avoid division by zero
+        H = linalg::Matrix<FloatingType>(3, 3);
+        const FloatingType scale = h[8];
+        if (std::abs(scale) < std::numeric_limits<FloatingType>::epsilon())
         {
             return false;
         }
