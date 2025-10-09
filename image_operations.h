@@ -6002,13 +6002,17 @@ namespace TinyDIP
      * imstitch function implementation
      * @brief Stitches two images together.
      */
-    Image<RGB> imstitch(const Image<RGB>& img1, const Image<RGB>& img2, const double ratio_threshold = 0.7)
+    template<std::floating_point FloatingType = double>
+    Image<RGB> imstitch(
+        const Image<RGB>& img1,
+        const Image<RGB>& img2,
+        const SiftParams<FloatingType>& sift_params = {},
+        const FloatingType ratio_threshold = 0.7,
+        const int ransac_iterations = 2000,
+        const FloatingType ransac_inlier_threshold = 2.0)
     {
-        // Phase 1: Calculate Homography on full-res images
-        auto H = find_stitch_homography(img1, img2, ratio_threshold);
-
-        // Phase 2: Create final image by warping and blending
-        return create_stitched_image(img1, img2, H);
+        auto H = find_stitch_homography<FloatingType>(img1, img2, sift_params, ratio_threshold, ransac_iterations, ransac_inlier_threshold);
+        return create_stitched_image<FloatingType>(img1, img2, H);
     }
 
     /**
