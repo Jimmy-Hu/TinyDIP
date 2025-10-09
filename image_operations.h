@@ -5320,7 +5320,7 @@ namespace TinyDIP
     };
 
     /**
-	 * SiftParams struct template definition
+     * SiftParams struct template definition
      * @brief A struct to hold all tunable parameters for the SIFT feature detector.
      */
     template<std::floating_point FloatingType = double>
@@ -5329,8 +5329,9 @@ namespace TinyDIP
         std::size_t octaves_count = 4;
         std::size_t number_of_scale_levels = 5;
         FloatingType initial_sigma = 1.6;
-        FloatingType contrast_check_threshold = 0.04;
-        FloatingType edge_response_threshold = 10.0;
+		FloatingType k = std::numbers::sqrt2_v<FloatingType>;
+        FloatingType contrast_check_threshold = 8;
+        FloatingType edge_response_threshold = 12.1;
     };
 
     /**
