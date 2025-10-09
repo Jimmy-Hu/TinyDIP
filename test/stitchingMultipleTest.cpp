@@ -111,14 +111,15 @@ int main(int argc, char* argv[])
         }
 
         // Use the existing two-image stitching functions
-        auto H = TinyDIP::find_stitch_homography(panorama, next_image, ratio_threshold);
+        const TinyDIP::SiftParams sift_params = {};
+        auto H = TinyDIP::find_stitch_homography(panorama, next_image, sift_params, ratio_threshold);
         if (H.empty())
         {
             std::cerr << "Stitching failed during homography calculation for image " << i + 1 << ". Returning intermediate result.\n";
             break;
         }
 
-        auto next_panorama = TinyDIP::create_stitched_image(panorama, next_image, H);
+        auto next_panorama = TinyDIP::create_stitched_image(std::execution::par, panorama, next_image, H);
         if (next_panorama.getWidth() == 0)
         {
             std::cerr << "Stitching failed during warping/blending of image " << i + 1 << ". Returning intermediate result.\n";
