@@ -5512,7 +5512,210 @@ namespace TinyDIP
         return true;
     }
 
-    
+    namespace internal
+    {
+        // Scorer for the RANSAC algorithm
+        template<std::floating_point FloatingType>
+        struct RansacScorer
+        {
+            FloatingType operator()(const FloatingType dist_sq, const FloatingType threshold_sq) const
+            {
+                // Cost is 0 for an inlier, 1 for an outlier. We minimize cost.
+                return dist_sq < threshold_sq ? 0.0 : 1.0;
+            }
+        };
+
+        // Scorer for the MSAC algorithm
+        template<std::floating_point FloatingType>
+        struct MsacScorer
+        {
+            FloatingType operator()(const FloatingType dist_sq, const FloatingType threshold_sq) const
+            {
+                // Cost is the actual squared error for inliers, and a fixed penalty for outliers.
+                return std::min(dist_sq, threshold_sq);
+            }
+        };
+
+        // Concept to constrain the Scorer template parameter
+        template<typename T, typename FloatingType>
+        concept IsRobustScorer = std::same_as<T, RansacScorer<FloatingType>> ||
+                                 std::same_as<T, MsacScorer<FloatingType>>;
+        
+        /**
+         * @brief Generic implementation for robust homography estimation (RANSAC, MSAC, etc.).
+         * This function is templatized on the scoring method.
+         */
+        template<std::floating_point FloatingType, IsRobustScorer<FloatingType> Scorer>
+        linalg::Matrix<FloatingType> find_homography_robust_impl(
+            const std::vector<Point<2>>& keypoints1,
+            const std::vector<Point<2>>& keypoints2,
+            const std::vector<std::pair<std::size_t, std::size_t>>& matches,
+            const int iterations,
+            const FloatingType inlier_threshold,
+            const Scorer& scorer)
+        {
+            linalg::Matrix<FloatingType> best_H(3, 3);
+            FloatingType min_cost = std::numeric_limits<FloatingType>::max();
+
+            std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+            std::uniform_int_distribution<std::size_t> dist(0, matches.size() - 1);
+            
+            const FloatingType threshold_sq = inlier_threshold * inlier_threshold;
+
+            for (int i = 0; i < iterations; ++i)
+            {
+                std::vector<std::pair<Point<2>, Point<2>>> sample_points;
+                if (matches.size() < 4) continue;
+                
+                std::vector<std::size_t> indices;
+                while(indices.size() < 4)
+                {
+                    std::size_t rand_idx = dist(rng);
+                    if(std::find(std::ranges::begin(indices), std::ranges::end(indices), rand_idx) == std::ranges::end(indices))
+                    {
+                        indices.emplace_back(rand_idx);
+                    }
+                }
+
+                for(const auto& idx : indices)
+                {
+                    sample_points.emplace_back(keypoints1[matches[idx].first], keypoints2[matches[idx].second]);
+                }
+                
+                linalg::Matrix<FloatingType> H_candidate(3, 3);
+                if (!compute_homography<FloatingType>(sample_points, H_candidate))
+                {
+                    continue;
+                }
+
+                FloatingType current_cost = 0;
+                for (const auto& match : matches)
+                {
+                    const auto& p1 = keypoints1[match.first];
+                    const auto& p2 = keypoints2[match.second];
+                    
+                    const FloatingType p1x = static_cast<FloatingType>(p1.p[0]);
+                    const FloatingType p1y = static_cast<FloatingType>(p1.p[1]);
+                    const FloatingType p2x = static_cast<FloatingType>(p2.p[0]);
+                    const FloatingType p2y = static_cast<FloatingType>(p2.p[1]);
+
+                    FloatingType w = H_candidate.at(2, 0) * p1x + H_candidate.at(2, 1) * p1y + H_candidate.at(2, 2);
+                    
+                    FloatingType dist_sq;
+                    if (std::abs(w) < std::numeric_limits<FloatingType>::epsilon()) 
+                    {
+                        dist_sq = threshold_sq; // Treat as outlier if projection fails
+                    }
+                    else
+                    {
+                        FloatingType x_proj = (H_candidate.at(0, 0) * p1x + H_candidate.at(0, 1) * p1y + H_candidate.at(0, 2)) / w;
+                        FloatingType y_proj = (H_candidate.at(1, 0) * p1x + H_candidate.at(1, 1) * p1y + H_candidate.at(1, 2)) / w;
+                        FloatingType dx = x_proj - p2x;
+                        FloatingType dy = y_proj - p2y;
+                        dist_sq = dx * dx + dy * dy;
+                    }
+                    current_cost += scorer(dist_sq, threshold_sq);
+                }
+
+                if (current_cost < min_cost)
+                {
+                    min_cost = current_cost;
+                    best_H = H_candidate;
+                }
+            }
+            
+            std::cout << "Robust estimator found best model with cost: " << min_cost << "\n";
+            return best_H;
+        }
+
+    } // namespace internal
+
+    /**
+     * @brief Finds the best initial homography using a selectable robust estimation method.
+     */
+    template<std::floating_point FloatingType = double>
+    linalg::Matrix<FloatingType> find_homography_robust(
+        const std::vector<Point<2>>& keypoints1,
+        const std::vector<Point<2>>& keypoints2,
+        const std::vector<std::pair<std::size_t, std::size_t>>& matches,
+        const RobustEstimatorMethod method = RobustEstimatorMethod::MSAC,
+        const int iterations = 2000,
+        const FloatingType inlier_threshold = 2.0)
+    {
+        switch(method)
+        {
+            case RobustEstimatorMethod::RANSAC:
+                std::cout << "Using RANSAC estimator.\n";
+                return internal::find_homography_robust_impl<FloatingType>(
+                    keypoints1, keypoints2, matches, iterations, inlier_threshold, internal::RansacScorer<FloatingType>{});
+            case RobustEstimatorMethod::MSAC:
+            default:
+                std::cout << "Using MSAC estimator.\n";
+                return internal::find_homography_robust_impl<FloatingType>(
+                    keypoints1, keypoints2, matches, iterations, inlier_threshold, internal::MsacScorer<FloatingType>{});
+        }
+    }
+
+
+    /**
+     * @brief Refines a homography by re-computing it using all inlier matches.
+     */
+    template<std::floating_point FloatingType = double>
+    [[nodiscard]] linalg::Matrix<FloatingType> refine_homography(
+        const std::vector<Point<2>>& keypoints1,
+        const std::vector<Point<2>>& keypoints2,
+        const std::vector<std::pair<std::size_t, std::size_t>>& matches,
+        const linalg::Matrix<FloatingType>& initial_H,
+        const FloatingType inlier_threshold)
+    {
+        if (initial_H.empty())
+        {
+            return initial_H;
+        }
+
+        std::vector<std::pair<Point<2>, Point<2>>> all_inliers;
+        const FloatingType inlier_threshold_sq = inlier_threshold * inlier_threshold;
+
+        for (const auto& match : matches)
+        {
+            const auto& p1 = keypoints1[match.first];
+            const auto& p2 = keypoints2[match.second];
+            
+            const FloatingType p1x = static_cast<FloatingType>(p1.p[0]);
+            const FloatingType p1y = static_cast<FloatingType>(p1.p[1]);
+            const FloatingType p2x = static_cast<FloatingType>(p2.p[0]);
+            const FloatingType p2y = static_cast<FloatingType>(p2.p[1]);
+            
+            FloatingType w = initial_H.at(2, 0) * p1x + initial_H.at(2, 1) * p1y + initial_H.at(2, 2);
+            if (std::abs(w) < std::numeric_limits<FloatingType>::epsilon()) continue;
+
+            FloatingType x_proj = (initial_H.at(0, 0) * p1x + initial_H.at(0, 1) * p1y + initial_H.at(0, 2)) / w;
+            FloatingType y_proj = (initial_H.at(1, 0) * p1x + initial_H.at(1, 1) * p1y + initial_H.at(1, 2)) / w;
+            FloatingType dx = x_proj - p2x;
+            FloatingType dy = y_proj - p2y;
+
+            if (dx * dx + dy * dy < inlier_threshold_sq)
+            {
+                all_inliers.emplace_back(p1, p2);
+            }
+        }
+        
+        if (all_inliers.size() < 4)
+        {
+            std::cout << "Not enough inliers (" << all_inliers.size() << ") to refine homography. Returning initial guess.\n";
+            return initial_H;
+        }
+
+        linalg::Matrix<FloatingType> refined_H(3, 3);
+        if (compute_homography<FloatingType>(all_inliers, refined_H))
+        {
+            std::cout << "Refined homography with " << all_inliers.size() << " inliers.\n";
+            return refined_H;
+        }
+        
+        std::cerr << "Warning: Homography refinement failed. Returning initial RANSAC result.\n";
+        return initial_H;
+    }
 
     /**
      * scale_homography function implementation
