@@ -5773,7 +5773,7 @@ namespace TinyDIP
      * warp_perspective template function implementation
      * @brief Applies a perspective transformation to an image using reverse mapping.
      */
-    template<class FloatingType = double, typename ElementT>
+    template<typename ElementT, class FloatingType = double>
     Image<ElementT> warp_perspective(const Image<ElementT>& src, const linalg::Matrix<FloatingType>& H, const std::size_t out_width, const std::size_t out_height)
     {
         Image<ElementT> warped_image(out_width, out_height);
