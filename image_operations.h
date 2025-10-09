@@ -5290,6 +5290,15 @@ namespace TinyDIP
     using SiftDescriptor = std::vector<double>;
 
     /**
+     * @brief An enumeration to select the robust model estimation algorithm.
+     */
+    enum class RobustEstimatorMethod
+    {
+        RANSAC, // Random Sample Consensus
+        MSAC    // M-Estimator Sample Consensus
+    };
+
+    /**
      * find_keypoint_matches template function implementation
      * @brief Finds matching keypoints between two sets of SIFT descriptors using Lowe's ratio test.
      */
