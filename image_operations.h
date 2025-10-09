@@ -5797,6 +5797,56 @@ namespace TinyDIP
     }
 
     /**
+	 * warp_perspective template function implementation with execution policy
+     * @brief Applies a perspective transformation to an image using a C++17 execution policy.
+     */
+    template<typename ElementT, std::floating_point FloatingType, class ExecutionPolicy>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    Image<ElementT> warp_perspective(ExecutionPolicy&& policy, const Image<ElementT>& src, const linalg::Matrix<FloatingType>& H, const std::size_t out_width, const std::size_t out_height)
+    {
+        Image<ElementT> warped_image(out_width, out_height);
+
+        if (H.empty())
+        {
+            std::cerr << "Warning: Homography matrix is empty. Warping will fail.\n";
+            return warped_image;
+        }
+
+        auto H_inv = linalg::invert(H);
+        if (H_inv.empty())
+        {
+            std::cerr << "Warning: Homography matrix is not invertible. Warping will fail.\n";
+            return warped_image;
+        }
+
+        const FloatingType h11 = H_inv.at(0, 0), h12 = H_inv.at(0, 1), h13 = H_inv.at(0, 2);
+        const FloatingType h21 = H_inv.at(1, 0), h22 = H_inv.at(1, 1), h23 = H_inv.at(1, 2);
+        const FloatingType h31 = H_inv.at(2, 0), h32 = H_inv.at(2, 1), h33 = H_inv.at(2, 2);
+
+        std::vector<std::size_t> indices(out_width * out_height);
+        std::ranges::iota(indices, std::size_t{ 0 });
+
+        std::for_each(std::forward<ExecutionPolicy>(policy), std::ranges::begin(indices), std::ranges::end(indices),
+            [&](const std::size_t idx)
+            {
+                const std::size_t y = idx / out_width;
+                const std::size_t x = idx % out_width;
+
+                const FloatingType w = h31 * x + h32 * y + h33;
+
+                if (std::abs(w) > std::numeric_limits<FloatingType>::epsilon())
+                {
+                    const FloatingType src_x = (h11 * x + h12 * y + h13) / w;
+                    const FloatingType src_y = (h21 * x + h22 * y + h23) / w;
+
+                    warped_image.at(x, y) = default_bicubic_interpolator<ElementT, FloatingType>{}(src, src_x, src_y);
+                }
+            });
+
+        return warped_image;
+    }
+
+    /**
      * find_stitch_homography function implementation
      * @brief Phase 1 of stitching: Detects features and computes the homography.
      * This is always done on full-resolution images for maximum accuracy.
