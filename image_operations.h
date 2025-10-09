@@ -5861,44 +5861,49 @@ namespace TinyDIP
     }
 
     /**
-     * find_stitch_homography function implementation
+     * find_stitch_homography template function implementation
      * @brief Phase 1 of stitching: Detects features and computes the homography.
      * This is always done on full-resolution images for maximum accuracy.
      */
-    linalg::Matrix<double> find_stitch_homography(const Image<RGB>& img1, const Image<RGB>& img2, const double ratio_threshold = 0.7)
+    template<std::floating_point FloatingType = double>
+    linalg::Matrix<FloatingType> find_stitch_homography(
+        const Image<RGB>& img1,
+        const Image<RGB>& img2,
+        const SiftParams<FloatingType>& sift_params = {},
+        const FloatingType ratio_threshold = 0.7,
+        const int ransac_iterations = 2000,
+        const FloatingType ransac_inlier_threshold = 2.0)
     {
-        // 1. Get Keypoints and Descriptors from full-resolution images
         std::cout << "Detecting SIFT features...\n";
         auto v_plane1 = TinyDIP::getVplane(TinyDIP::rgb2hsv(img1));
         auto v_plane2 = TinyDIP::getVplane(TinyDIP::rgb2hsv(img2));
 
-        auto keypoints1 = SIFT_impl::get_potential_keypoint(v_plane1);
-        auto keypoints2 = SIFT_impl::get_potential_keypoint(v_plane2);
+        auto keypoints1 = SIFT_impl::get_potential_keypoint(v_plane1, sift_params.octaves_count, sift_params.number_of_scale_levels, sift_params.initial_sigma, sift_params.contrast_check_threshold, sift_params.edge_response_threshold);
+        auto keypoints2 = SIFT_impl::get_potential_keypoint(v_plane2, sift_params.octaves_count, sift_params.number_of_scale_levels, sift_params.initial_sigma, sift_params.contrast_check_threshold, sift_params.edge_response_threshold);
 
         std::cout << "Found " << keypoints1.size() << " keypoints in image 1 and " << keypoints2.size() << " in image 2.\n";
         std::cout << "Generating descriptors...\n";
 
         std::vector<SiftDescriptor> descriptors1;
         descriptors1.reserve(keypoints1.size());
-        for(const auto& kp : keypoints1) descriptors1.emplace_back(SIFT_impl::get_keypoint_descriptor(v_plane1, kp));
-        
+        for (const auto& kp : keypoints1) descriptors1.emplace_back(SIFT_impl::get_keypoint_descriptor<double, FloatingType>(v_plane1, kp));
+
         std::vector<SiftDescriptor> descriptors2;
         descriptors2.reserve(keypoints2.size());
-        for(const auto& kp : keypoints2) descriptors2.emplace_back(SIFT_impl::get_keypoint_descriptor(v_plane2, kp));
-        
-        // 2. Match Features using the robust cross-checking method
+        for (const auto& kp : keypoints2) descriptors2.emplace_back(SIFT_impl::get_keypoint_descriptor<double, FloatingType>(v_plane2, kp));
+
         std::cout << "Matching features...\n";
-        auto matches = find_robust_matches(descriptors1, descriptors2, ratio_threshold);
+        auto matches = find_robust_matches<FloatingType>(descriptors1, descriptors2, ratio_threshold);
 
         if (matches.size() < 4)
         {
             std::cerr << "Error: Not enough robust matches found to compute homography.\n";
-            return linalg::Matrix<double>(); // Return empty matrix
+            return linalg::Matrix<FloatingType>();
         }
 
-        // 3. Compute Homography with RANSAC
-        std::cout << "Computing homography with RANSAC...\n";
-        return find_homography_ransac(keypoints1, keypoints2, matches, 2000, 2.0);
+        auto initial_H = find_homography_robust<FloatingType>(keypoints1, keypoints2, matches, RobustEstimatorMethod::MSAC, ransac_iterations, ransac_inlier_threshold);
+
+        return refine_homography<FloatingType>(keypoints1, keypoints2, matches, initial_H, ransac_inlier_threshold);
     }
 
     /**
