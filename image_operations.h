@@ -5718,35 +5718,30 @@ namespace TinyDIP
     }
 
     /**
-     * scale_homography function implementation
+     * scale_homography template function implementation
      * @brief Adjusts a homography matrix to account for image scaling.
      */
-    linalg::Matrix<double> scale_homography(
-        const linalg::Matrix<double>& H,
-        std::size_t w1_full, std::size_t h1_full, std::size_t w1_small, std::size_t h1_small,
-        std::size_t w2_full, std::size_t h2_full, std::size_t w2_small, std::size_t h2_small)
+    template<std::floating_point FloatingType = double>
+    linalg::Matrix<FloatingType> scale_homography(
+        const linalg::Matrix<FloatingType>& H,
+        const std::size_t w1_full, const std::size_t h1_full, const std::size_t w1_small, const std::size_t h1_small,
+        const std::size_t w2_full, const std::size_t h2_full, const std::size_t w2_small, const std::size_t h2_small)
     {
-        // Scaling factor from small image 1 to full image 1
-        double scale_x1 = static_cast<double>(w1_full) / w1_small;
-        double scale_y1 = static_cast<double>(h1_full) / h1_small;
-
-        // Scaling factor from full image 2 to small image 2
-        double scale_x2 = static_cast<double>(w2_small) / w2_full;
-        double scale_y2 = static_cast<double>(h2_small) / h2_full;
+        const FloatingType scale_x1 = static_cast<FloatingType>(w1_full) / w1_small;
+        const FloatingType scale_y1 = static_cast<FloatingType>(h1_full) / h1_small;
+        const FloatingType scale_x2 = static_cast<FloatingType>(w2_small) / w2_full;
+        const FloatingType scale_y2 = static_cast<FloatingType>(h2_small) / h2_full;
         
-        // S1: maps from small1 coordinates to full1 coordinates
-        linalg::Matrix<double> S1(3, 3);
+        linalg::Matrix<FloatingType> S1(3, 3);
         S1.at(0,0) = scale_x1;
         S1.at(1,1) = scale_y1;
-        S1.at(2,2) = 1.0;
+        S1.at(2,2) = 1;
 
-        // S2_inv: maps from full2 coordinates to small2 coordinates
-        linalg::Matrix<double> S2_inv(3, 3);
+        linalg::Matrix<FloatingType> S2_inv(3, 3);
         S2_inv.at(0,0) = scale_x2;
         S2_inv.at(1,1) = scale_y2;
-        S2_inv.at(2,2) = 1.0;
+        S2_inv.at(2,2) = 1;
 
-        // H_small = S2_inv * H * S1
         auto temp = linalg::multiply(S2_inv, H);
         return linalg::multiply(temp, S1);
     }
