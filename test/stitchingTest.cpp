@@ -89,7 +89,8 @@ int main(int argc, char* argv[])
     std::cout << "Image 2 loaded: " << bmp2.getWidth() << " x " << bmp2.getHeight() << "\n\n";
 
     // === Phase 1: Find Homography (always on full-res images) ===
-    auto H = TinyDIP::find_stitch_homography(bmp1, bmp2, ratio_threshold);
+    const TinyDIP::SiftParams sift_params = {};
+    auto H = TinyDIP::find_stitch_homography(bmp1, bmp2, sift_params, ratio_threshold);
     if(H.empty())
     {
         std::cerr << "Stitching pipeline failed during homography calculation.\n";
