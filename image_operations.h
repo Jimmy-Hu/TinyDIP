@@ -5345,6 +5345,7 @@ namespace TinyDIP
             << "  - Octaves Count:          " << params.octaves_count << '\n'
             << "  - Scale Levels:           " << params.number_of_scale_levels << '\n'
             << "  - Initial Sigma:          " << params.initial_sigma << '\n'
+			<< "  - K (Scale Multiplier):   " << params.k << '\n'
             << "  - Contrast Threshold:     " << params.contrast_check_threshold << '\n'
             << "  - Edge Threshold:         " << params.edge_response_threshold;
         return os;
