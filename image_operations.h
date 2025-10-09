@@ -5919,8 +5919,24 @@ namespace TinyDIP
 
         std::cout << "SIFT parameters:\n" << sift_params << "\n";
 
-        auto keypoints1 = SIFT_impl::get_potential_keypoint(v_plane1, sift_params.octaves_count, sift_params.number_of_scale_levels, sift_params.initial_sigma, sift_params.contrast_check_threshold, sift_params.edge_response_threshold);
-        auto keypoints2 = SIFT_impl::get_potential_keypoint(v_plane2, sift_params.octaves_count, sift_params.number_of_scale_levels, sift_params.initial_sigma, sift_params.contrast_check_threshold, sift_params.edge_response_threshold);
+        auto keypoints1 = SIFT_impl::get_potential_keypoint(
+            v_plane1,
+            sift_params.octaves_count,
+            sift_params.number_of_scale_levels,
+            sift_params.initial_sigma,
+			sift_params.k,
+            sift_params.contrast_check_threshold,
+            sift_params.edge_response_threshold
+        );
+        auto keypoints2 = SIFT_impl::get_potential_keypoint(
+            v_plane2,
+            sift_params.octaves_count,
+            sift_params.number_of_scale_levels,
+            sift_params.initial_sigma,
+            sift_params.k,
+            sift_params.contrast_check_threshold,
+            sift_params.edge_response_threshold
+        );
 
         std::cout << "Found " << keypoints1.size() << " keypoints in image 1 and " << keypoints2.size() << " in image 2.\n";
         std::cout << "Generating descriptors...\n";
