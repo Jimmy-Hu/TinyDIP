@@ -3470,7 +3470,7 @@ namespace TinyDIP
     requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
     constexpr auto bilinear_interpolate(const Image<ElementT>& image, const FloatingType x, const FloatingType y)
     {
-        RGB result;
+        ElementT result;
         for (size_t i = 0; i < 3; ++i)
         {
             result.channels[i] = bilinear_interpolate(getPlane(image, i), x, y);
