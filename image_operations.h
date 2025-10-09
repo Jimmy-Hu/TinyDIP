@@ -5915,6 +5915,8 @@ namespace TinyDIP
         auto v_plane1 = TinyDIP::getVplane(TinyDIP::rgb2hsv(img1));
         auto v_plane2 = TinyDIP::getVplane(TinyDIP::rgb2hsv(img2));
 
+        std::cout << "SIFT parameters:\n" << sift_params << "\n";
+
         auto keypoints1 = SIFT_impl::get_potential_keypoint(v_plane1, sift_params.octaves_count, sift_params.number_of_scale_levels, sift_params.initial_sigma, sift_params.contrast_check_threshold, sift_params.edge_response_threshold);
         auto keypoints2 = SIFT_impl::get_potential_keypoint(v_plane2, sift_params.octaves_count, sift_params.number_of_scale_levels, sift_params.initial_sigma, sift_params.contrast_check_threshold, sift_params.edge_response_threshold);
 
