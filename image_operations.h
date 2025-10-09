@@ -5334,6 +5334,22 @@ namespace TinyDIP
     };
 
     /**
+     * operator<< overload for SiftParams template struct
+     * @brief Overloads the stream insertion operator for SiftParams for easy printing.
+     */
+    template<std::floating_point FloatingType>
+    std::ostream& operator<<(std::ostream& os, const SiftParams<FloatingType>& params)
+    {
+        os << "SiftParams:\n"
+            << "  - Octaves Count:          " << params.octaves_count << '\n'
+            << "  - Scale Levels:           " << params.number_of_scale_levels << '\n'
+            << "  - Initial Sigma:          " << params.initial_sigma << '\n'
+            << "  - Contrast Threshold:     " << params.contrast_check_threshold << '\n'
+            << "  - Edge Threshold:         " << params.edge_response_threshold;
+        return os;
+    }
+
+    /**
      * find_keypoint_matches template function implementation
      * @brief Finds matching keypoints between two sets of SIFT descriptors using Lowe's ratio test.
      */
