@@ -6048,7 +6048,8 @@ namespace TinyDIP
             std::cout << "\n--- Stitching image " << i + 1 << " onto current panorama ---\n";
             
             // Find the transformation from the current panorama to the next image
-            auto H = find_stitch_homography(panorama, next_image, ratio_threshold);
+            const TinyDIP::SiftParams sift_params = {};
+            auto H = find_stitch_homography(panorama, next_image, sift_params, ratio_threshold);
             if(H.empty())
             {
                 std::cerr << "Stitching failed during homography calculation for image " << i+1 << ". Returning intermediate result.\n";
