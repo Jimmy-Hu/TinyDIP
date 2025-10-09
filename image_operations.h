@@ -3503,56 +3503,77 @@ namespace TinyDIP
     }
 
     // Define a struct to act as default interpolator
-    template<arithmetic ElementT, arithmetic FloatingType>
+    template<class ElementT, arithmetic FloatingType>
     struct default_bicubic_interpolator
     {
         // The call operator contains the interpolation logic
-        constexpr ElementT operator()(const Image<ElementT>& image, const FloatingType x, const FloatingType y) const
+        constexpr auto operator()(const Image<ElementT>& image, const FloatingType x, const FloatingType y) const
         {
-            auto width = static_cast<FloatingType>(image.getWidth());
-            auto height = static_cast<FloatingType>(image.getHeight());
-
-            // For bicubic, we need to be further from the boundary
-            if (x < 1 || x >= width - 2 || y < 1 || y >= height - 2)
+            if constexpr (std::same_as<ElementT, RGB>)
             {
-                // Fallback to bilinear for pixels near the edge
-                return bilinear_interpolate(image, x, y);
+                ElementT result;
+                for (size_t i = 0; i < 3; ++i)
+                {
+                    result.channels[i] = default_bicubic_interpolator<GrayScale, FloatingType>{}(getPlane(image, i), x, y);
+                }
+                return result;
             }
-
-            auto x_floor = static_cast<std::size_t>(x);
-            auto y_floor = static_cast<std::size_t>(y);
-
-            FloatingType total_value{};
-
-            // Iterate over the 4x4 neighborhood
-            for (std::size_t j = 0; j <= 3; ++j)
+            else if constexpr ((std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
             {
-                auto v = y_floor - 1 + j;
-                FloatingType row_value{};
-                for (std::size_t i = 0; i <= 3; ++i)
+                ElementT result;
+                for (size_t i = 0; i < 3; ++i)
                 {
-                    auto u = x_floor - 1 + i;
-                    // Weighted sum for the row
-                    row_value += static_cast<FloatingType>(image.at(u, v)) * cubic_kernel(x - u);
+                    result.channels[i] = default_bicubic_interpolator<double, FloatingType>{}(getPlane(image, i), x, y);
                 }
-                // Weighted sum for the columns using the row results
-                total_value += row_value * cubic_kernel(y - v);
+                return result;
             }
-
-            // Clamp the result to the valid range of the element type to prevent overshoot issues
-            if constexpr (std::is_integral_v<ElementT>)
+            else
             {
-                if (total_value > std::numeric_limits<ElementT>::max())
-                {
-                    return std::numeric_limits<ElementT>::max();
-                }
-                if (total_value < std::numeric_limits<ElementT>::min())
-                {
-                    return std::numeric_limits<ElementT>::min();
-                }
-            }
+                auto width = static_cast<FloatingType>(image.getWidth());
+                auto height = static_cast<FloatingType>(image.getHeight());
 
-            return static_cast<ElementT>(total_value);
+                // For bicubic, we need to be further from the boundary
+                if (x < 1 || x >= width - 2 || y < 1 || y >= height - 2)
+                {
+                    // Fallback to bilinear for pixels near the edge
+                    return bilinear_interpolate(image, x, y);
+                }
+
+                auto x_floor = static_cast<std::size_t>(x);
+                auto y_floor = static_cast<std::size_t>(y);
+
+                FloatingType total_value{};
+
+                // Iterate over the 4x4 neighborhood
+                for (std::size_t j = 0; j <= 3; ++j)
+                {
+                    auto v = y_floor - 1 + j;
+                    FloatingType row_value{};
+                    for (std::size_t i = 0; i <= 3; ++i)
+                    {
+                        auto u = x_floor - 1 + i;
+                        // Weighted sum for the row
+                        row_value += static_cast<FloatingType>(image.at(u, v)) * cubic_kernel(x - u);
+                    }
+                    // Weighted sum for the columns using the row results
+                    total_value += row_value * cubic_kernel(y - v);
+                }
+
+                // Clamp the result to the valid range of the element type to prevent overshoot issues
+                if constexpr (std::is_integral_v<ElementT>)
+                {
+                    if (total_value > std::numeric_limits<ElementT>::max())
+                    {
+                        return std::numeric_limits<ElementT>::max();
+                    }
+                    if (total_value < std::numeric_limits<ElementT>::min())
+                    {
+                        return std::numeric_limits<ElementT>::min();
+                    }
+                }
+
+                return static_cast<ElementT>(total_value);
+            }
         }
     };
 
