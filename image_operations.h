@@ -392,7 +392,7 @@ namespace TinyDIP
     constexpr auto rand(Urbg&& urbg)
     {
         auto dist = std::uniform_real_distribution<ElementT>{};
-        return Image<ElementT>(std::vector{ dist(urbg) }, 1, 1);
+        return Image<ElementT>(std::vector{ dist(urbg) }, std::size_t{ 1 }, std::size_t{ 1 });
     }
 
     //  rand template function implementation
