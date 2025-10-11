@@ -6226,7 +6226,7 @@ namespace TinyDIP
             const auto& p1 = keypoints1[match.first];
             Point<2> p2_offset = {keypoints2[match.second].p[0] + resized_img1.getWidth(), keypoints2[match.second].p[1]};
 
-            RGB color = {static_cast<uint8_t>(rand() % 156 + 100), static_cast<uint8_t>(rand() % 156 + 100), static_cast<uint8_t>(rand() % 156 + 100)};
+            RGB color = {static_cast<uint8_t>(rand().at(0, 0) * 128 + 127), static_cast<uint8_t>(rand().at(0, 0) * 128 + 127), static_cast<uint8_t>(rand().at(0, 0) * 128 + 127)};
             
             canvas = draw_line(canvas, p1, p2_offset, color);
             canvas = draw_point(canvas, p1, color, 5);
