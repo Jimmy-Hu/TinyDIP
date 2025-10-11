@@ -6203,6 +6203,40 @@ namespace TinyDIP
     }
 
     /**
+    * draw_matches template function implementation
+    * @brief Draws lines between matching keypoints on a side-by-side image canvas.
+    */
+    template<std::floating_point FloatingType = double>
+    auto draw_matches(
+        const Image<RGB>& img1, 
+        const Image<RGB>& img2,
+        const std::vector<Point<2>>& keypoints1,
+        const std::vector<Point<2>>& keypoints2,
+        const std::vector<std::pair<std::size_t, std::size_t>>& matches)
+    {
+        // For simplicity, make both images the same height
+        const std::size_t max_height = std::max(img1.getHeight(), img2.getHeight());
+        auto resized_img1 = copyResizeBicubic(img1, img1.getWidth(), max_height);
+        auto resized_img2 = copyResizeBicubic(img2, img2.getWidth(), max_height);
+
+        Image<RGB> canvas = concat_horizontal(resized_img1, resized_img2);
+
+        for(const auto& match : matches)
+        {
+            const auto& p1 = keypoints1[match.first];
+            Point<2> p2_offset = {keypoints2[match.second].p[0] + resized_img1.getWidth(), keypoints2[match.second].p[1]};
+
+            RGB color = {static_cast<uint8_t>(rand() % 156 + 100), static_cast<uint8_t>(rand() % 156 + 100), static_cast<uint8_t>(rand() % 156 + 100)};
+            
+            canvas = draw_line(canvas, p1, p2_offset, color);
+            canvas = draw_point(canvas, p1, color, 5);
+            canvas = draw_point(canvas, p2_offset, color, 5);
+        }
+
+        return canvas;
+    }
+
+    /**
      * imstitch function implementation
      * @brief Stitches two images together.
      */
