@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
     }
     
     auto output_matches_img = TinyDIP::draw_matches(bmp1, bmp2, keypoints1, keypoints2, matches);
-    TinyDIP::bmp_write(output_filename_base + "_matches.bmp", output_matches_img);
+    TinyDIP::bmp_write(output_filename_base + "_matches", output_matches_img);
 
     std::cout << "\n--- Pipeline Complete ---\n";
 
