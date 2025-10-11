@@ -439,7 +439,7 @@ namespace TinyDIP
             print_recursive_helper(indices, getDimensionality() - 1, element_printer, separator, os);
         }
 
-        Image<ElementT>& setAllValue(const ElementT input)
+        Image<ElementT>& setAllValue(const ElementT& input)
         {
             std::fill(std::ranges::begin(image_data), std::ranges::end(image_data), input);
             return *this;
