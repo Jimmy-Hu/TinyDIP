@@ -4792,6 +4792,49 @@ namespace TinyDIP
         return output;
     }
 
+    /**
+    * draw_line template function implementation
+    * @brief Draws a line on an image canvas using Bresenham's algorithm.
+    */
+    template<typename ElementT>
+    Image<ElementT> draw_line(const Image<ElementT>& canvas, Point<2> p1, Point<2> p2, const ElementT color)
+    {
+        auto output = canvas;
+        auto x1 = static_cast<long>(p1.p[0]);
+        auto y1 = static_cast<long>(p1.p[1]);
+        auto x2 = static_cast<long>(p2.p[0]);
+        auto y2 = static_cast<long>(p2.p[1]);
+
+        const long dx = std::abs(x2 - x1);
+        const long dy = -std::abs(y2 - y1);
+        long sx = (x1 < x2) ? 1 : -1;
+        long sy = (y1 < y2) ? 1 : -1;
+        long err = dx + dy;
+
+        while (true)
+        {
+            if (x1 >= 0 && x1 < output.getWidth() && y1 >= 0 && y1 < output.getHeight())
+            {
+                output.at(static_cast<std::size_t>(x1), static_cast<std::size_t>(y1)) = color;
+            }
+
+            if (x1 == x2 && y1 == y2) break;
+            
+            long e2 = 2 * err;
+            if (e2 >= dy)
+            {
+                err += dy;
+                x1 += sx;
+            }
+            if (e2 <= dx)
+            {
+                err += dx;
+                y1 += sy;
+            }
+        }
+        return output;
+    }
+
     //  to_complex template function implementation
     template<class ExecutionPolicy, typename ElementT, std::size_t Size>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
