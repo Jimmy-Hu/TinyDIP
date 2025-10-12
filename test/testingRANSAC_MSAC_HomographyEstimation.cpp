@@ -65,15 +65,16 @@ int main(int argc, char* argv[])
 
     // === Phase 2: Homography Calculation (RANSAC vs. MSAC) ===
     const double inlier_threshold = 2.0; // Use a reasonable pixel distance (e.g., 2.0 pixels)
+    std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
 
     // --- RANSAC Path ---
     std::cout << "\n--- Calculating Homography with RANSAC --- \n";
-    auto ransac_H = TinyDIP::find_homography_robust(keypoints1, keypoints2, matches, TinyDIP::RobustEstimatorMethod::RANSAC, 2000, inlier_threshold);
+    auto ransac_H = TinyDIP::find_homography_robust(keypoints1, keypoints2, matches, rng, TinyDIP::RobustEstimatorMethod::RANSAC, 2000, inlier_threshold);
     auto ransac_refined_H = TinyDIP::refine_homography(keypoints1, keypoints2, matches, ransac_H, inlier_threshold);
 
     // --- MSAC Path ---
     std::cout << "\n--- Calculating Homography with MSAC --- \n";
-    auto msac_H = TinyDIP::find_homography_robust(keypoints1, keypoints2, matches, TinyDIP::RobustEstimatorMethod::MSAC, 2000, inlier_threshold);
+    auto msac_H = TinyDIP::find_homography_robust(keypoints1, keypoints2, matches, rng, TinyDIP::RobustEstimatorMethod::MSAC, 2000, inlier_threshold);
     auto msac_refined_H = TinyDIP::refine_homography(keypoints1, keypoints2, matches, msac_H, inlier_threshold);
 
 
