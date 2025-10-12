@@ -5994,6 +5994,13 @@ namespace TinyDIP
         );
 
         std::cout << "Found " << keypoints1.size() << " keypoints in image 1 and " << keypoints2.size() << " in image 2.\n";
+
+        if (keypoints1.empty() || keypoints2.empty())
+        {
+            std::cerr << "Error: Not enough keypoints detected in one or both images to proceed.\n";
+            return linalg::Matrix<FloatingType>();
+        }
+
         std::cout << "Generating descriptors...\n";
 
         std::vector<SiftDescriptor> descriptors1;
@@ -6013,7 +6020,8 @@ namespace TinyDIP
             return linalg::Matrix<FloatingType>();
         }
 
-        auto initial_H = find_homography_robust<FloatingType>(keypoints1, keypoints2, matches, RobustEstimatorMethod::MSAC, ransac_iterations, ransac_inlier_threshold);
+        std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+        auto initial_H = find_homography_robust<FloatingType>(keypoints1, keypoints2, matches, rng, RobustEstimatorMethod::MSAC, ransac_iterations, ransac_inlier_threshold);
 
         return refine_homography<FloatingType>(keypoints1, keypoints2, matches, initial_H, ransac_inlier_threshold);
     }
