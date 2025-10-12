@@ -65,8 +65,10 @@ int main(int argc, char* argv[])
 
     // === Phase 2: Homography Calculation (Initial and Refined) ===
     const double inlier_threshold = 2.0;
+    std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+
     std::cout << "\nCalculating initial homography with MSAC...\n";
-    auto initial_H = TinyDIP::find_homography_robust(keypoints1, keypoints2, matches, TinyDIP::RobustEstimatorMethod::MSAC, 2000, inlier_threshold);
+    auto initial_H = TinyDIP::find_homography_robust(keypoints1, keypoints2, matches, rng, TinyDIP::RobustEstimatorMethod::MSAC, 2000, inlier_threshold);
 
     if (initial_H.empty())
     {
