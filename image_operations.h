@@ -5658,11 +5658,13 @@ namespace TinyDIP
          * @brief Generic implementation for robust homography estimation (RANSAC, MSAC, etc.).
          * This function is templatized on the scoring method.
          */
-        template<std::floating_point FloatingType, IsRobustScorer<FloatingType> Scorer>
-        linalg::Matrix<FloatingType> find_homography_robust_impl(
+        template<std::floating_point FloatingType, IsRobustScorer<FloatingType> Scorer, class URBG>
+        requires(std::uniform_random_bit_generator<std::remove_reference_t<URBG>>)
+        auto find_homography_robust_impl(
             const std::vector<Point<2>>& keypoints1,
             const std::vector<Point<2>>& keypoints2,
             const std::vector<std::pair<std::size_t, std::size_t>>& matches,
+            URBG& rng,
             const int iterations,
             const FloatingType inlier_threshold,
             const Scorer& scorer)
@@ -5670,9 +5672,8 @@ namespace TinyDIP
             linalg::Matrix<FloatingType> best_H(3, 3);
             FloatingType min_cost = std::numeric_limits<FloatingType>::max();
 
-            std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
             std::uniform_int_distribution<std::size_t> dist(0, matches.size() - 1);
-            
+
             const FloatingType threshold_sq = inlier_threshold * inlier_threshold;
 
             for (int i = 0; i < iterations; ++i)
@@ -5681,16 +5682,16 @@ namespace TinyDIP
                 if (matches.size() < 4) continue;
                 
                 std::vector<std::size_t> indices;
-                while(indices.size() < 4)
+                while (indices.size() < 4)
                 {
                     std::size_t rand_idx = dist(rng);
-                    if(std::find(std::ranges::begin(indices), std::ranges::end(indices), rand_idx) == std::ranges::end(indices))
+                    if (std::find(std::ranges::begin(indices), std::ranges::end(indices), rand_idx) == std::ranges::end(indices))
                     {
                         indices.emplace_back(rand_idx);
                     }
                 }
 
-                for(const auto& idx : indices)
+                for (const auto& idx : indices)
                 {
                     sample_points.emplace_back(keypoints1[matches[idx].first], keypoints2[matches[idx].second]);
                 }
