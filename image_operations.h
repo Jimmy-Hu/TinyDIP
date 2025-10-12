@@ -5745,13 +5745,16 @@ namespace TinyDIP
     } // namespace internal
 
     /**
+     * find_homography_robust template function implementation
      * @brief Finds the best initial homography using a selectable robust estimation method.
      */
-    template<std::floating_point FloatingType = double>
-    linalg::Matrix<FloatingType> find_homography_robust(
+    template<std::floating_point FloatingType = double, class URBG>
+    requires(std::uniform_random_bit_generator<std::remove_reference_t<URBG>>)
+    auto find_homography_robust(
         const std::vector<Point<2>>& keypoints1,
         const std::vector<Point<2>>& keypoints2,
         const std::vector<std::pair<std::size_t, std::size_t>>& matches,
+        URBG& rng,
         const RobustEstimatorMethod method = RobustEstimatorMethod::MSAC,
         const int iterations = 2000,
         const FloatingType inlier_threshold = 2.0)
@@ -5761,12 +5764,12 @@ namespace TinyDIP
             case RobustEstimatorMethod::RANSAC:
                 std::cout << "Using RANSAC estimator.\n";
                 return internal::find_homography_robust_impl<FloatingType>(
-                    keypoints1, keypoints2, matches, iterations, inlier_threshold, internal::RansacScorer<FloatingType>{});
+                    keypoints1, keypoints2, matches, rng, iterations, inlier_threshold, internal::RansacScorer<FloatingType>{});
             case RobustEstimatorMethod::MSAC:
             default:
                 std::cout << "Using MSAC estimator.\n";
                 return internal::find_homography_robust_impl<FloatingType>(
-                    keypoints1, keypoints2, matches, iterations, inlier_threshold, internal::MsacScorer<FloatingType>{});
+                    keypoints1, keypoints2, matches, rng, iterations, inlier_threshold, internal::MsacScorer<FloatingType>{});
         }
     }
 
