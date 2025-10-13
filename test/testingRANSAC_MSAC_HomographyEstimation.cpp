@@ -97,9 +97,9 @@ int main(int argc, char* argv[])
     }
 
     std::vector<TinyDIP::SiftDescriptor> descriptors1, descriptors2;
-    for (const auto& kp : keypoints1) descriptors1.emplace_back(TinyDIP::SIFT_impl::get_keypoint_descriptor(v_plane1, kp));
-    for (const auto& kp : keypoints2) descriptors2.emplace_back(TinyDIP::SIFT_impl::get_keypoint_descriptor(v_plane2, kp));
-
+    for(const auto& kp : keypoints1) descriptors1.emplace_back(TinyDIP::SIFT_impl::get_keypoint_descriptor(v_plane1, kp));
+    for(const auto& kp : keypoints2) descriptors2.emplace_back(TinyDIP::SIFT_impl::get_keypoint_descriptor(v_plane2, kp));
+    
     auto matches = TinyDIP::find_robust_matches(descriptors1, descriptors2, 0.7);
     if (matches.size() < 4)
     {
@@ -107,10 +107,10 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    // === Phase 2: Homography Calculation (RANSAC vs. MSAC) ===
-    const double inlier_threshold = 2.0; // Use a reasonable pixel distance (e.g., 2.0 pixels)
+    // === Phase 2: Homography Calculation and Verification ===
+    const double inlier_threshold = 2.0;
     std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-
+    
     // --- RANSAC Path ---
     std::cout << "\n--- Calculating Homography with RANSAC --- \n";
     auto ransac_H = TinyDIP::find_homography_robust(keypoints1, keypoints2, matches, rng, TinyDIP::RobustEstimatorMethod::RANSAC, 2000, inlier_threshold);
@@ -121,11 +121,22 @@ int main(int argc, char* argv[])
     auto msac_H = TinyDIP::find_homography_robust(keypoints1, keypoints2, matches, rng, TinyDIP::RobustEstimatorMethod::MSAC, 2000, inlier_threshold);
     auto msac_refined_H = TinyDIP::refine_homography(keypoints1, keypoints2, matches, msac_H, inlier_threshold);
 
+    // --- Verification Step ---
+    std::cout << "\n--- Verifying Scorers with the MSAC Result --- \n";
+    if (!msac_refined_H.empty())
+    {
+        auto cost_with_ransac_scorer = calculate_total_cost(keypoints1, keypoints2, matches, msac_refined_H, inlier_threshold, TinyDIP::internal::RansacScorer<double>{});
+        auto cost_with_msac_scorer = calculate_total_cost(keypoints1, keypoints2, matches, msac_refined_H, inlier_threshold, TinyDIP::internal::MsacScorer<double>{});
+
+        std::cout << "Cost of the good (MSAC) homography using RANSAC scorer (num outliers): " << cost_with_ransac_scorer << "\n";
+        std::cout << "Cost of the good (MSAC) homography using MSAC scorer (error sum): " << cost_with_msac_scorer << "\n";
+    }
+
 
     // === Phase 3: Create and Save Both Stitched Images ===
     std::cout << "\nCreating stitched image using RANSAC result...\n";
     auto stitched_ransac = TinyDIP::create_stitched_image(img1, img2, ransac_refined_H);
-
+    
     std::cout << "Creating stitched image using MSAC result...\n";
     auto stitched_msac = TinyDIP::create_stitched_image(img1, img2, msac_refined_H);
 
