@@ -13,6 +13,50 @@
 #include "../image_operations.h"
 #include "../timer.h"
 
+// calculate_total_cost template function implementation
+// Helper function to manually calculate cost for a given homography and scorer
+template<std::floating_point FloatingType = double, class Scorer>
+FloatingType calculate_total_cost(
+    const std::vector<TinyDIP::Point<2>>& keypoints1,
+    const std::vector<TinyDIP::Point<2>>& keypoints2,
+    const std::vector<std::pair<std::size_t, std::size_t>>& matches,
+    const TinyDIP::linalg::Matrix<FloatingType>& H,
+    const FloatingType inlier_threshold,
+    const Scorer& scorer)
+{
+    const FloatingType threshold_sq = inlier_threshold * inlier_threshold;
+    FloatingType total_cost = 0;
+
+    for (const auto& match : matches)
+    {
+        const auto& p1 = keypoints1[match.first];
+        const auto& p2 = keypoints2[match.second];
+
+        const FloatingType p1x = static_cast<FloatingType>(p1.p[0]);
+        const FloatingType p1y = static_cast<FloatingType>(p1.p[1]);
+        const FloatingType p2x = static_cast<FloatingType>(p2.p[0]);
+        const FloatingType p2y = static_cast<FloatingType>(p2.p[1]);
+
+        FloatingType w = H.at(2, 0) * p1x + H.at(2, 1) * p1y + H.at(2, 2);
+        
+        FloatingType dist_sq;
+        if (std::abs(w) < std::numeric_limits<FloatingType>::epsilon())
+        {
+            dist_sq = threshold_sq;
+        }
+        else
+        {
+            FloatingType x_proj = (H.at(0, 0) * p1x + H.at(0, 1) * p1y + H.at(0, 2)) / w;
+            FloatingType y_proj = (H.at(1, 0) * p1x + H.at(1, 1) * p1y + H.at(1, 2)) / w;
+            FloatingType dx = x_proj - p2x;
+            FloatingType dy = y_proj - p2y;
+            dist_sq = dx * dx + dy * dy;
+        }
+        total_cost += scorer(dist_sq, threshold_sq);
+    }
+    return total_cost;
+}
+
 int main(int argc, char* argv[])
 {
     TinyDIP::Timer timer1;
