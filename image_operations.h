@@ -2226,6 +2226,21 @@ namespace TinyDIP
         });
     }
 
+    //  default_lanczos_resample struct implementation
+    template<class ElementT, typename SizeT = std::size_t>
+    struct default_lanczos_resample
+    {
+        constexpr auto operator()(
+            const Image<ElementT>& input_image,
+            const SizeT new_width,
+            const SizeT new_height,
+            const int a = 3
+            ) const
+        {
+            return lanczos_resample(input_image, new_width, new_height, a);
+        }
+    };
+
     //  gaussianFigure1D template function implementation
     template<class InputT>
     constexpr static Image<InputT> gaussianFigure1D(
