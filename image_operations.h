@@ -5148,9 +5148,19 @@ namespace TinyDIP
         }
 
         //  get_potential_keypoint template function implementation
-        template<typename ElementT = double, typename SigmaT = double>
-        requires(   (std::floating_point<ElementT> || std::integral<ElementT>) &&
-                    (std::floating_point<SigmaT> || std::integral<SigmaT>))
+        template<
+            typename ElementT = double,
+            typename SigmaT = double,
+            typename ResamplingFunc = default_lanczos_resample<ElementT>
+        >
+        requires(   ((std::floating_point<ElementT> || std::integral<ElementT>) &&
+                     (std::floating_point<SigmaT> || std::integral<SigmaT>)) &&
+                     (std::invocable<ResamplingFunc, const Image<ElementT>&, std::size_t, std::size_t>) &&
+                     (std::convertible_to<
+                         std::invoke_result_t<ResamplingFunc, const Image<ElementT>&, std::size_t, std::size_t>,
+                         Image<ElementT>
+                     >)
+            )
         static auto get_potential_keypoint(
             const Image<ElementT>& input,
             const std::size_t octaves_count = 4,
@@ -5158,7 +5168,9 @@ namespace TinyDIP
             const SigmaT initial_sigma = 1.6,           //  sigma is selected to 1.6 based on paper https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf page 10
             const double k = std::numbers::sqrt2_v<double>,
             ElementT contrast_check_threshold = 8,
-            ElementT edge_response_threshold = 12.1)
+            ElementT edge_response_threshold = 12.1,
+            ResamplingFunc&& resampling_function = {}
+        )
         {
             if (input.getDimensionality() != 2)
             {
@@ -5170,11 +5182,20 @@ namespace TinyDIP
             Image<ElementT> base_image = input;
             for (std::size_t octave_index = 0; octave_index < octaves_count; ++octave_index)
             {
+                if ((static_cast<double>(base_image.getWidth()) / 2.0) < 10 ||
+                    (static_cast<double>(base_image.getHeight()) / 2.0) < 10)
+                {
+                    break;
+                }
+                std::cout << "new_width:" << static_cast<std::size_t>(static_cast<double>(base_image.getWidth()) / 2.0) << '\n'
+                    << "new_height:" << static_cast<std::size_t>(static_cast<double>(base_image.getHeight()) / 2.0) << '\n';
                 octaves.emplace_back(generate_octave(base_image, number_of_scale_levels, initial_sigma, k));
-                base_image = copyResizeBicubic(
+                base_image = std::invoke(
+                    std::forward<ResamplingFunc>(resampling_function),
                     base_image,
                     static_cast<std::size_t>(static_cast<double>(base_image.getWidth()) / 2.0),
-                    static_cast<std::size_t>(static_cast<double>(base_image.getHeight()) / 2.0));
+                    static_cast<std::size_t>(static_cast<double>(base_image.getHeight()) / 2.0)
+                );
             }
 
             //  Find potential KeyPoints
