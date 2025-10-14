@@ -1740,8 +1740,14 @@ namespace TinyDIP
     template<typename ElementT>
     static auto subimage2(const Image<ElementT>& input, const std::size_t startx, const std::size_t endx, const std::size_t starty, const std::size_t endy)
     {
-        assert(startx <= endx);
-        assert(starty <= endy);
+        if (startx > endx)
+        {
+            throw std::runtime_error(Formatter() << "error: startx > endx startx = " << startx << ", endx = " << endx << '\n');
+        }
+        if (starty > endy)
+        {
+            throw std::runtime_error(Formatter() << "error: starty > endy starty = " << starty << ", endy = " << endy << '\n');
+        }
         Image<ElementT> output(endx - startx + 1, endy - starty + 1);
         const auto width = output.getWidth();
         const auto height = output.getHeight();
