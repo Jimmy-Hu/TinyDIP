@@ -5873,8 +5873,23 @@ namespace TinyDIP
      * warp_perspective template function implementation
      * @brief Applies a perspective transformation to an image using reverse mapping.
      */
-    template<typename ElementT, class FloatingType = double>
-    Image<ElementT> warp_perspective(const Image<ElementT>& src, const linalg::Matrix<FloatingType>& H, const std::size_t out_width, const std::size_t out_height)
+    template<
+        typename ElementT,
+        class FloatingType = double,
+        typename InterpolationFunc = default_bicubic_interpolator<ElementT, FloatingType>
+    >
+    requires ((std::invocable<InterpolationFunc, const Image<ElementT>&, FloatingType, FloatingType>) &&
+             (std::convertible_to<
+                 std::invoke_result_t<InterpolationFunc, const Image<ElementT>&, FloatingType, FloatingType>,
+                 ElementT
+             >))
+    auto warp_perspective(
+        const Image<ElementT>& src,
+        const linalg::Matrix<FloatingType>& H,
+        const std::size_t out_width,
+        const std::size_t out_height,
+        InterpolationFunc&& interpolator = {}
+    )
     {
         Image<ElementT> warped_image(out_width, out_height);
         
@@ -5904,7 +5919,12 @@ namespace TinyDIP
                 const FloatingType src_y = (h21 * x + h22 * y + h23) / w;
                 
                 // Use bilinear interpolation to get the pixel value
-                warped_image.at(x, y) = bilinear_interpolate(src, src_x, src_y);
+                warped_image.at(x, y) = std::invoke(
+                    std::forward<InterpolationFunc>(interpolator),
+                    src,
+                    src_x,
+                    src_y
+                );
             }
         }
         return warped_image;
