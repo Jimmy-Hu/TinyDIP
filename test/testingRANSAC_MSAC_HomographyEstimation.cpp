@@ -97,6 +97,9 @@ int main(int argc, char* argv[])
     auto keypoints1 = TinyDIP::SIFT_impl::get_potential_keypoint(v_plane1, sift_params.octaves_count, sift_params.number_of_scale_levels, sift_params.initial_sigma, sift_params.k, sift_params.contrast_check_threshold, sift_params.edge_response_threshold);
     auto keypoints2 = TinyDIP::SIFT_impl::get_potential_keypoint(v_plane2, sift_params.octaves_count, sift_params.number_of_scale_levels, sift_params.initial_sigma, sift_params.k, sift_params.contrast_check_threshold, sift_params.edge_response_threshold);
 
+    std::cout << "Detected " << keypoints1.size() << " keypoints in Image 1.\n";
+    std::cout << "Detected " << keypoints2.size() << " keypoints in Image 2.\n";
+
     if (keypoints1.empty() || keypoints2.empty())
     {
         std::cerr << "Error: No keypoints found in one of the images.\n";
