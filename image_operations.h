@@ -5911,12 +5911,28 @@ namespace TinyDIP
     }
 
     /**
-	 * warp_perspective template function implementation with execution policy
+     * warp_perspective template function implementation with execution policy
      * @brief Applies a perspective transformation to an image using a C++17 execution policy.
      */
-    template<typename ElementT, std::floating_point FloatingType, class ExecutionPolicy>
-    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
-    Image<ElementT> warp_perspective(ExecutionPolicy&& policy, const Image<ElementT>& src, const linalg::Matrix<FloatingType>& H, const std::size_t out_width, const std::size_t out_height)
+    template<
+        typename ElementT,
+        std::floating_point FloatingType,
+        class ExecutionPolicy,
+        typename InterpolationFunc = default_bicubic_interpolator<ElementT, FloatingType>
+    >
+    requires((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) &&
+             (std::invocable<InterpolationFunc, const Image<ElementT>&, FloatingType, FloatingType>) &&
+             (std::convertible_to<
+                 std::invoke_result_t<InterpolationFunc, const Image<ElementT>&, FloatingType, FloatingType>,
+                 ElementT
+             >))
+    Image<ElementT> warp_perspective(
+        ExecutionPolicy&& policy,
+        const Image<ElementT>& src,
+        const linalg::Matrix<FloatingType>& H,
+        const std::size_t out_width,
+        const std::size_t out_height,
+        InterpolationFunc&& interpolator = {})
     {
         Image<ElementT> warped_image(out_width, out_height);
 
@@ -5953,7 +5969,12 @@ namespace TinyDIP
                     const FloatingType src_x = (h11 * x + h12 * y + h13) / w;
                     const FloatingType src_y = (h21 * x + h22 * y + h23) / w;
 
-                    warped_image.at(x, y) = default_bicubic_interpolator<ElementT, FloatingType>{}(src, src_x, src_y);
+                    warped_image.at(x, y) = std::invoke(
+                        std::forward<InterpolationFunc>(interpolator),
+                        src,
+                        src_x,
+                        src_y
+                    );
                 }
             });
 
