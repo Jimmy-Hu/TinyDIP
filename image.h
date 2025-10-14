@@ -516,6 +516,21 @@ namespace TinyDIP
         {
             return multiplies(input2, input1);
         }
+
+        // --- Start of C++23 operator[] ---
+        template<std::integral... Args>
+        constexpr ElementT& operator[](Args... indices)&
+        {
+            return at_without_boundary_check(static_cast<std::size_t>(indices)...);
+        }
+
+        template<std::integral... Args>
+        constexpr const ElementT& operator[](Args... indices) const&
+        {
+            return at_without_boundary_check(static_cast<std::size_t>(indices)...);
+        }
+        // --- End of C++23 operator[] ---
+
         // Nested class for the custom iterator
         class pixel_iterator
         {
