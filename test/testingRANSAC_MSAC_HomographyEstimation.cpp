@@ -83,7 +83,14 @@ int main(int argc, char* argv[])
     std::cout << "Images loaded successfully.\n";
 
     // === Phase 1: Feature Detection and Matching ===
-    const TinyDIP::SiftParams<> sift_params;
+    TinyDIP::SiftParams<> sift_params;
+    sift_params.octaves_count = 5;                  // Default is 4
+    sift_params.number_of_scale_levels = 6;         // Default is 5
+    const double ratio_threshold = 0.75;            // Default is 0.7
+
+    std::cout << "\nUsing SIFT Parameters:\n" << sift_params << "\n";
+    std::cout << "Using Lowe's Ratio Threshold: " << ratio_threshold << "\n\n";
+
     auto v_plane1 = TinyDIP::getVplane(TinyDIP::rgb2hsv(img1));
     auto v_plane2 = TinyDIP::getVplane(TinyDIP::rgb2hsv(img2));
 
