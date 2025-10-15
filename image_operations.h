@@ -6120,10 +6120,11 @@ namespace TinyDIP
             std::cerr << "Cannot create stitched image with an empty homography.\n";
             return Image<RGB>();
         }
-        
+
+        // 1. Determine output canvas size by transforming the corners of img2
         auto H = linalg::invert(H_in);
         if (H.empty()) {
-             std::cerr << "Could not invert homography. Cannot stitch images.\n";
+            std::cerr << "Could not invert homography. Cannot stitch images.\n";
             return Image<RGB>();
         }
 
