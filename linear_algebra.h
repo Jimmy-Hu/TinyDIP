@@ -61,6 +61,24 @@ namespace linalg
     };
 
     /**
+     * operator<< template function implementation
+     * @brief Overloads the stream insertion operator for the Matrix class for easy printing.
+     */
+    template <typename T>
+    std::ostream& operator<<(std::ostream& os, const Matrix<T>& M)
+    {
+        for (std::size_t r = 0; r < M.rows(); ++r)
+        {
+            for (std::size_t c = 0; c < M.cols(); ++c)
+            {
+                os << M.at(r, c) << '\t';
+            }
+            os << '\n';
+        }
+        return os;
+    }
+
+    /**
      * @brief Transposes a given matrix.
      */
     template<typename ElementT>
