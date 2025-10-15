@@ -63,14 +63,25 @@ int main(int argc, char* argv[])
     std::cout << "--- Testing RANSAC vs. MSAC Homography Estimation ---\n";
 
     // === Argument Parsing ===
-    if (argc != 3)
+    std::string file_path1 = "", file_path2 = "";
+    bool preview_mode = false;
+    if (argc == 1)                          //  no specified input images, use default
+    {
+        file_path1 = "../InputImages/s1.bmp";
+        file_path2 = "../InputImages/s2.bmp";
+        preview_mode = true;
+    }
+    else if (argc == 3)
+    {
+        file_path1.append(argv[1]);
+        file_path2.append(argv[2]);
+    }
+    else
     {
         std::cerr << "Usage: " << argv[0] << " <img1.bmp> <img2.bmp>\n";
         std::cerr << "Example: " << argv[0] << " s1.bmp s2.bmp\n";
         return EXIT_FAILURE;
     }
-    const std::string file_path1 = argv[1];
-    const std::string file_path2 = argv[2];
 
     // === Load Images ===
     auto img1 = TinyDIP::bmp_read(file_path1.c_str(), true);
