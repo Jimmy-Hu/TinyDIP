@@ -6155,8 +6155,10 @@ namespace TinyDIP
         H_trans.at(1,0) = 0; H_trans.at(1,1) = 1; H_trans.at(1,2) = trans_y;
         H_trans.at(2,0) = 0; H_trans.at(2,1) = 0; H_trans.at(2,2) = 1;
 
-        auto H_final = linalg::multiply(H_trans, H);
+        // Combine translation with the original homography
+        auto H_final = linalg::multiply(H_trans, H_in);
 
+        // 2. Warp img2 to align with img1's coordinate frame
         std::cout << "Warping image 2...\n";
         auto warped_img2 = warp_perspective<RGB, FloatingType>(img2, H_final, out_width, out_height);
         
