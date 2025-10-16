@@ -3,24 +3,65 @@ cmake_minimum_required(VERSION 3.13)        # For lgtm.com service
 
 # set the project name and version
 # Reference: https://stackoverflow.com/a/41651622/6667035
+# Start with C and CXX, CUDA will be enabled conditionally
 project(TinyDIP VERSION 1.0 LANGUAGES C CXX)
 
 # print compile/link commands
 # Reference: https://stackoverflow.com/a/3379246/6667035
 set(CMAKE_VERBOSE_MAKEFILE on)
 
-# specify the C++ standard
-# Reference: https://stackoverflow.com/q/60348039/6667035
-# Reference: https://stackoverflow.com/a/53657598/6667035
-IF (CMAKE_VERSION VERSION_LESS "3.8")
-    SET(CMAKE_CXX_STANDARD 14)
-ELSEIF (CMAKE_VERSION VERSION_LESS "3.11")
-    SET(CMAKE_CXX_STANDARD 17)
-ELSE()
-    SET(CMAKE_CXX_STANDARD 23)
-ENDIF()
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_BUILD_TYPE debug)
+# --- CUDA Setup ---
+# Option to enable/disable CUDA, default is ON
+OPTION(ENABLE_CUDA "Enable CUDA support" ON)
+
+# Disable CUDA on Apple platforms as it's not officially supported
+if(APPLE)
+    message(STATUS "CUDA is not supported on macOS. Disabling CUDA build.")
+    set(ENABLE_CUDA OFF)
+endif()
+
+if(ENABLE_CUDA)
+    message(STATUS "CUDA is enabled. Configuring CUDA support...")
+    # Conditionally enable the CUDA language. This must be done after project().
+    enable_language(CUDA)
+
+    # Find the CUDA toolkit using the modern find_package approach
+    find_package(CUDA REQUIRED)
+
+    # specify the C++ standard
+    # Reference: https://stackoverflow.com/q/60348039/6667035
+    # Reference: https://stackoverflow.com/a/53657598/6667035
+    IF (CMAKE_VERSION VERSION_LESS "3.8")
+        SET(CMAKE_CXX_STANDARD 14)
+    ELSEIF (CMAKE_VERSION VERSION_LESS "3.11")
+        SET(CMAKE_CXX_STANDARD 17)
+    ELSE()
+        SET(CMAKE_CXX_STANDARD 23)
+    ENDIF()
+    set(CMAKE_CXX_STANDARD_REQUIRED True)
+    set(CMAKE_BUILD_TYPE debug)
+
+    # Specify the same C++ standard for CUDA code
+    set(CMAKE_CUDA_STANDARD ${CMAKE_CXX_STANDARD})
+    set(CMAKE_CUDA_STANDARD_REQUIRED True)
+
+    # Set the target GPU architecture(s).
+    # sm_75 corresponds to the Turing architecture (e.g., RTX 20-series).
+    # Add other architectures if needed, e.g., set(CMAKE_CUDA_ARCHITECTURES 75 86)
+    set(CMAKE_CUDA_ARCHITECTURES 75)
+else() # If CUDA is not enabled, set the standard for CXX only
+    IF (CMAKE_VERSION VERSION_LESS "3.8")
+        SET(CMAKE_CXX_STANDARD 14)
+    ELSEIF (CMAKE_VERSION VERSION_LESS "3.11")
+        SET(CMAKE_CXX_STANDARD 17)
+    ELSE()
+        SET(CMAKE_CXX_STANDARD 23)
+    ENDIF()
+    set(CMAKE_CXX_STANDARD_REQUIRED True)
+    set(CMAKE_BUILD_TYPE debug)
+endif()
+# --- End CUDA Setup ---
+
 
 ## Reference: https://stackoverflow.com/a/45934279/6667035
 if(APPLE)           # Reference: https://stackoverflow.com/a/40152725/6667035
