@@ -149,6 +149,7 @@ add_executable(juliaFractalGeneratorTest test/juliaFractalGeneratorTest.cpp imag
 add_executable(lanczosResamplingTest test/lanczosResamplingTest.cpp image_io.cpp)
 add_executable(mandelbrotFractalGeneratorTest test/mandelbrotFractalGeneratorTest.cpp image_io.cpp)
 add_executable(manhattanDistanceTest test/manhattanDistanceTest.cpp image_io.cpp)
+#add_executable(meanTest test/meanTest.cpp image_io.cpp)
 add_executable(multipliesParallelTest test/multipliesParallelTest.cpp image_io.cpp)
 add_executable(multipliesWithImageVectorsTest test/multipliesWithImageVectorsTest.cpp image_io.cpp)
 add_executable(otsuThresholdTest test/otsuThresholdTest.cpp image_io.cpp)
