@@ -3772,8 +3772,8 @@ namespace TinyDIP
     }
 
     //  rotate_degree template function implementation
-    template<typename ElementT, class T = double>
-    constexpr static auto rotate_degree(const Image<ElementT>& input, T degrees)
+    template<typename ElementT, arithmetic T = double>
+    constexpr static auto rotate_degree(const Image<ElementT>& input, const T degrees)
     {
         if (input.getDimensionality()!=2)
         {
