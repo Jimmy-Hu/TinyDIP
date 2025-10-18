@@ -192,6 +192,12 @@ add_executable(testingRANSAC_MSAC_HomographyEstimation test/testingRANSAC_MSAC_H
 add_executable(transposeTest test/transposeTest.cpp image_io.cpp)
 add_executable(windowedFilterTest test/windowedFilterTest.cpp image_io.cpp)
 
+if(ENABLE_CUDA)
+    # === NEW EXECUTABLE FOR CUDA TEST ===
+    # CMake knows to compile .cu files with nvcc because CUDA was enabled in the project() command.
+    add_executable(warpPerspectiveCudaTest test/warpPerspectiveCudaTest.cpp image_io.cpp image_operations_cuda.cu)
+endif()
+
 
 # target_include_directories
 if(APPLE)
@@ -288,6 +294,16 @@ target_link_libraries(stitchingMultipleTest PUBLIC TBB::tbb)
 target_link_libraries(testingRANSAC_MSAC_HomographyEstimation PUBLIC TBB::tbb)
 target_link_libraries(transposeTest PUBLIC TBB::tbb)
 target_link_libraries(windowedFilterTest PUBLIC TBB::tbb)
+
+if(ENABLE_CUDA)
+    # === LINK LIBRARIES FOR CUDA TEST ===
+    # Link against TBB like other tests
+    target_link_libraries(warpPerspectiveCudaTest PUBLIC TBB::tbb)
+    # Link against the CUDA runtime library. CUDA::cudart is an imported target
+    # created by find_package(CUDA).
+    target_link_libraries(warpPerspectiveCudaTest PUBLIC CUDA::cudart)
+endif()
+
 
 if(APPLE)
     # Remove '-Xclang' from global flags
