@@ -33,6 +33,22 @@ namespace TinyDIP
         const std::size_t out_height
     );
 
+    //  warp_perspective_cuda overload for multi-channel images
+    template<
+        typename ElementT,
+        std::floating_point FloatingType = double
+    >
+    requires((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
+    auto warp_perspective_cuda(
+        const Image<ElementT>& src,
+        const linalg::Matrix<FloatingType>& H,
+        const std::size_t out_width,
+        const std::size_t out_height
+    )
+    {
+        return apply_each(src, [&](auto&& planes) { return warp_perspective_cuda(planes, H, out_width, out_height); });
+    }
+
 } // namespace TinyDIP
 
 #endif // TINYDIP_IMAGE_OPERATIONS_CUDA_H
