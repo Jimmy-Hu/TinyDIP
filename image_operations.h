@@ -3707,9 +3707,9 @@ namespace TinyDIP
     }
 
     //  rotate_detail_shear_transformation template function implementation
-    template<typename ElementT, class FloatingType = double>
-    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))       //  TODO: Create a base class for both RGB and HSV
-    constexpr static auto rotate_detail_shear_transformation(const Image<ElementT>& input, FloatingType radians)
+    template<typename ElementT, arithmetic FloatingType = double>
+    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>) || is_MultiChannel<ElementT>::value)       //  TODO: Create a base class for both RGB and HSV
+    constexpr static auto rotate_detail_shear_transformation(const Image<ElementT>& input, const FloatingType radians)
     {
         if (input.getDimensionality()!=2)
         {
