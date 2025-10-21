@@ -3151,6 +3151,15 @@ namespace TinyDIP
         return apply_each(input, [&](auto&& planes) { return pow(planes, exp); });
     }
 
+    //  pow template function implementation
+    template<class ExPo, class InputT, arithmetic ExpT = double>
+    requires((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>) || is_MultiChannel<InputT>::value) and
+            (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static auto pow(ExPo&& execution_policy, const Image<InputT>& input, ExpT exp)
+    {
+        return apply_each(input, [&](auto&& planes) { return pow(std::forward<ExPo>(execution_policy), planes, exp); });
+    }
+
     //  sum template function implementation
     template<typename ElementT = double, typename F = std::plus<std::common_type_t<ElementT, ElementT>>>
     requires(std::regular_invocable<F, ElementT, ElementT>)
