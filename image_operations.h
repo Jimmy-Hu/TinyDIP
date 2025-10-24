@@ -2793,7 +2793,8 @@ namespace TinyDIP
 
     //  abs template function implementation
     template<class ExPo, class ElementT = double>
-    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    requires ((std::is_execution_policy_v<std::remove_cvref_t<ExPo>>) and
+              !(std::same_as<ElementT, RGB>) and !(std::same_as<ElementT, RGB_DOUBLE>) and !(std::same_as<ElementT, HSV>) and !is_MultiChannel<ElementT>::value)
     constexpr static auto abs(ExPo&& execution_policy, const Image<ElementT>& input)
     {
         return pixelwiseOperation(
