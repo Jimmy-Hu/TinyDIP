@@ -50,7 +50,7 @@ if(ENABLE_CUDA)
     # Add other architectures if needed, e.g., set(CMAKE_CUDA_ARCHITECTURES 75 86)
     set(CMAKE_CUDA_ARCHITECTURES 75)
 
-    # --- NEW SECTION: Set CUDA Compiler Flags ---
+    # --- Set CUDA Compiler Flags ---
     # These flags are passed directly to nvcc
     # We mirror the -O3 from your CXX_FLAGS for nvcc's own optimizations
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -O3")
@@ -60,12 +60,14 @@ if(ENABLE_CUDA)
 
     # -G is for device-side debug info. Since your CMAKE_BUILD_TYPE is "debug",
     # this is very useful. It can be slow, so you might remove it for release builds.
-    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")
+    endif()
 
     # Note: Flags from CMAKE_CXX_FLAGS (like -fopenmp) are automatically
     # passed to nvcc's host compiler (e.g., as -Xcompiler -fopenmp).
     # You do NOT need to add them here.
-    # --- End NEW SECTION ---
+    # --- End CUDA Compiler Flags Section ---
 
 else() # If CUDA is not enabled, set the standard for CXX only
     IF (CMAKE_VERSION VERSION_LESS "3.8")
