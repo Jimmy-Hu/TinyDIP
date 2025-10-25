@@ -15,7 +15,9 @@
 #include <deque>
 #include <execution>
 #include <exception>
+#ifdef __cpp_lib_format
 #include <format>
+#endif
 #include <functional>
 #include <future>
 #if __cplusplus >= 202302L || _HAS_CXX23 
