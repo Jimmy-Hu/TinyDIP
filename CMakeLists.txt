@@ -20,6 +20,18 @@ if(APPLE)
     set(ENABLE_CUDA OFF)
 endif()
 
+# Set C++ standard and build type early
+IF (CMAKE_VERSION VERSION_LESS "3.8")
+    SET(CMAKE_CXX_STANDARD 14)
+ELSEIF (CMAKE_VERSION VERSION_LESS "3.11")
+    SET(CMAKE_CXX_STANDARD 17)
+ELSE()
+    # Using C++23 for host code
+    SET(CMAKE_CXX_STANDARD 23)
+ENDIF()
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_BUILD_TYPE Debug) # Use standard casing Debug/Release etc.
+
 if(ENABLE_CUDA)
     message(STATUS "CUDA is enabled. Configuring CUDA support...")
     # Conditionally enable the CUDA language. This must be done after project().
@@ -27,22 +39,23 @@ if(ENABLE_CUDA)
 
     # Find the CUDA toolkit using the modern find_package approach
     find_package(CUDA REQUIRED)
+    # Add a check to confirm CUDA was found
+    if(CUDA_FOUND)
+        message(STATUS "Found CUDA Toolkit: ${CUDA_TOOLKIT_ROOT_DIR} (version ${CUDA_VERSION_STRING})")
+    else()
+        message(FATAL_ERROR "CMake could not find the CUDA Toolkit. Please ensure it is installed and CUDACXX is in your PATH.")
+    endif()
 
-    # specify the C++ standard
-    # Reference: https://stackoverflow.com/q/60348039/6667035
-    # Reference: https://stackoverflow.com/a/53657598/6667035
-    IF (CMAKE_VERSION VERSION_LESS "3.8")
-        SET(CMAKE_CXX_STANDARD 14)
-    ELSEIF (CMAKE_VERSION VERSION_LESS "3.11")
-        SET(CMAKE_CXX_STANDARD 17)
-    ELSE()
-        SET(CMAKE_CXX_STANDARD 23)
-    ENDIF()
-    set(CMAKE_CXX_STANDARD_REQUIRED True)
-    set(CMAKE_BUILD_TYPE debug)
-
-    # Specify the same C++ standard for CUDA code
-    set(CMAKE_CUDA_STANDARD ${CMAKE_CXX_STANDARD})
+    # Specify the C++ standard for CUDA *device* code
+    # NOTE: Set based on toolkit version for broader compatibility.
+    if(CUDA_VERSION VERSION_GREATER_EQUAL "11.6") # Basic C++20 support started around 11.6
+        set(CMAKE_CUDA_STANDARD 20)
+    elseif(CUDA_VERSION VERSION_GREATER_EQUAL "11.0") # Basic C++17 support started around 11.0
+        set(CMAKE_CUDA_STANDARD 17)
+    else()
+        set(CMAKE_CUDA_STANDARD 14) # Default to C++14 for older toolkits
+    endif()
+    message(STATUS "Setting CUDA Device C++ Standard to: ${CMAKE_CUDA_STANDARD}")
     set(CMAKE_CUDA_STANDARD_REQUIRED True)
 
     # Set the target GPU architecture(s).
@@ -51,34 +64,24 @@ if(ENABLE_CUDA)
     set(CMAKE_CUDA_ARCHITECTURES 75)
 
     # --- Set CUDA Compiler Flags ---
-    # These flags are passed directly to nvcc
-    # We mirror the -O3 from your CXX_FLAGS for nvcc's own optimizations
+    # These flags are passed directly to nvcc for device compilation
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -O3")
 
     # Add other common nvcc flags. --use_fast_math is good with -O3. For coroutines, -fcoroutines is needed.
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --use_fast_math -fcoroutines")
 
-    # -G is for device-side debug info. Since your CMAKE_BUILD_TYPE is "debug",
-    # this is very useful. It can be slow, so you might remove it for release builds.
+    # -G is for device-side debug info.
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")
+        message(STATUS "Enabling CUDA device debugging (-G)")
     endif()
-
     # Note: Flags from CMAKE_CXX_FLAGS (like -fopenmp) are automatically
     # passed to nvcc's host compiler (e.g., as -Xcompiler -fopenmp).
-    # You do NOT need to add them here.
     # --- End CUDA Compiler Flags Section ---
 
-else() # If CUDA is not enabled, set the standard for CXX only
-    IF (CMAKE_VERSION VERSION_LESS "3.8")
-        SET(CMAKE_CXX_STANDARD 14)
-    ELSEIF (CMAKE_VERSION VERSION_LESS "3.11")
-        SET(CMAKE_CXX_STANDARD 17)
-    ELSE()
-        SET(CMAKE_CXX_STANDARD 23)
-    ENDIF()
-    set(CMAKE_CXX_STANDARD_REQUIRED True)
-    set(CMAKE_BUILD_TYPE debug)
+else() # If CUDA is not enabled, ensure CXX settings are still applied
+    message(STATUS "CUDA is disabled.")
+    # CXX Standard and Build Type already set above
 endif()
 # --- End CUDA Setup ---
 
@@ -116,13 +119,17 @@ endif()
 # Reference: https://stackoverflow.com/a/12404666/6667035
 find_package(OpenMP)
 if (OPENMP_FOUND)
+    message(STATUS "Found OpenMP, applying flags.")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+else()
+     message(WARNING "OpenMP not found. Parallel CPU execution might be limited.")
 endif()
 
 # TBB part
 find_package(TBB REQUIRED)
+message(STATUS "Found TBB: ${TBB_INCLUDE_DIRS} | ${TBB_LIBRARIES}")
 
 if(APPLE)
   if(IS_DIRECTORY "/opt/homebrew/lib")
@@ -322,13 +329,23 @@ if(ENABLE_CUDA)
     # Link against the CUDA runtime library. CUDA::cudart is an imported target
     # created by find_package(CUDA).
     target_link_libraries(warpPerspectiveCudaTest PUBLIC CUDA::cudart)
+
+    # === FIX: Set Host Compilation Standard for CUDA Target ===
+    # Explicitly tell CMake to use the project's C++ standard (CMAKE_CXX_STANDARD)
+    # for the host compiler when compiling CUDA code for this target.
+    # This ensures headers like <format> are found correctly.
+    set_target_properties(warpPerspectiveCudaTest PROPERTIES
+        CUDA_ architektura_HOST_COMPILER_STANDARD ${CMAKE_CXX_STANDARD}
+        CUDA_ architektura_HOST_COMPILER_STANDARD_REQUIRED YES
+    )
+    message(STATUS "Setting CUDA Host C++ Standard for warpPerspectiveCudaTest to: ${CMAKE_CXX_STANDARD}")
 endif()
 
 
 if(APPLE)
-    # Remove '-Xclang' from global flags
-    string(REPLACE "-Xclang" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    #target_link_libraries(TinyDIP -L/usr/local/Cellar/llvm/10.0.0_3/lib/)
+    # Remove '-Xclang' flags potentially added by FindOpenMP on older macOS/Clang
+    # Check if this is still necessary with your current compiler/CMake version
+    # string(REPLACE "-Xclang" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
 
 # Add boost library
