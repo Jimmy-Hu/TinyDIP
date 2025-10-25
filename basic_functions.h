@@ -732,7 +732,11 @@ namespace TinyDIP
     template<typename T>
     constexpr void recursive_print(const T& input, const std::size_t level = 0)
     {
+        #ifdef __cpp_lib_format
         std::cout << std::string(level, ' ') << std::format("{}", input) << '\n';
+        #else
+        std::cout << std::string(level, ' ') << input << '\n';
+        #endif
     }
 
     template<std::ranges::input_range Range>
