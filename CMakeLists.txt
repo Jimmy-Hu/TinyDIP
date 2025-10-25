@@ -49,6 +49,24 @@ if(ENABLE_CUDA)
     # sm_75 corresponds to the Turing architecture (e.g., RTX 20-series).
     # Add other architectures if needed, e.g., set(CMAKE_CUDA_ARCHITECTURES 75 86)
     set(CMAKE_CUDA_ARCHITECTURES 75)
+
+    # --- NEW SECTION: Set CUDA Compiler Flags ---
+    # These flags are passed directly to nvcc
+    # We mirror the -O3 from your CXX_FLAGS for nvcc's own optimizations
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -O3")
+
+    # Add other common nvcc flags. --use_fast_math is good with -O3. For coroutines, -fcoroutines is needed.
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --use_fast_math -fcoroutines")
+
+    # -G is for device-side debug info. Since your CMAKE_BUILD_TYPE is "debug",
+    # this is very useful. It can be slow, so you might remove it for release builds.
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")
+
+    # Note: Flags from CMAKE_CXX_FLAGS (like -fopenmp) are automatically
+    # passed to nvcc's host compiler (e.g., as -Xcompiler -fopenmp).
+    # You do NOT need to add them here.
+    # --- End NEW SECTION ---
+
 else() # If CUDA is not enabled, set the standard for CXX only
     IF (CMAKE_VERSION VERSION_LESS "3.8")
         SET(CMAKE_CXX_STANDARD 14)
