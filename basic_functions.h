@@ -343,7 +343,11 @@ namespace TinyDIP
     void print_tuple(const TupType& _tup, std::index_sequence<I...>)
     {
         std::cout << "(";
+        #ifdef __cpp_lib_format
         (..., (std::cout << (I == 0 ? "" : ", ") << std::format("{}", std::get<I>(_tup))));
+        #else
+        (..., (std::cout << (I == 0 ? "" : ", ") << std::get<I>(_tup)));
+        #endif
         std::cout << ")\n";
     }
 
