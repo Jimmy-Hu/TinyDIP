@@ -115,6 +115,12 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast /Ox /Ob2 /Oi /Ot /GT /std:c++latest /experimental:module /Zm2000 /Zc:twoPhase- /D_HAS_STD_BYTE=0 /D_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING /D_HAS_STD_BOOLEAN=0 /bigobj /openmp:llvm")
 endif()
 
+# Append C++ standard flag if not automatically added by CMake (older versions might need this)
+# Modern CMake (>=3.1) usually adds the flag based on CMAKE_CXX_STANDARD automatically.
+# Check your CMake version and compiler documentation if needed. Example for GCC/Clang:
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++${CMAKE_CXX_STANDARD}")
+
+
 # OpenMP part
 # Reference: https://stackoverflow.com/a/12404666/6667035
 find_package(OpenMP)
