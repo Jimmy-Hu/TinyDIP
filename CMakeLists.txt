@@ -382,8 +382,10 @@ macro(print_all_variables)
     message(STATUS "print_all_variables------------------------------------------}")
 endmacro()
 
-IF (CMAKE_VERSION VERSION_GREATER_EQUAL "3.18")
+# Use the macro only if CMake version supports cmake_language and build type is Debug
+IF (CMAKE_VERSION VERSION_GREATER_EQUAL "3.18" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
   cmake_language(CALL print_all_variables)
-endif()
+ENDIF()
+
 
 
