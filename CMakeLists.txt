@@ -100,7 +100,7 @@ if(UNIX AND NOT APPLE)
     set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 endif()
 
-# Using different command for compiling
+# Set CXX flags based on compiler
 # Reference: https://stackoverflow.com/a/10055571/6667035
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
@@ -227,7 +227,7 @@ add_executable(windowedFilterTest test/windowedFilterTest.cpp image_io.cpp)
 
 if(ENABLE_CUDA)
     # === NEW EXECUTABLE FOR CUDA TEST ===
-    # CMake knows to compile .cu files with nvcc because CUDA was enabled in the project() command.
+    # CMake knows to compile .cu files with nvcc because CUDA was enabled.
     add_executable(warpPerspectiveCudaTest test/warpPerspectiveCudaTest.cpp image_io.cpp image_operations_cuda.cu)
 endif()
 
