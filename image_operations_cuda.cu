@@ -1,8 +1,17 @@
 /* Developed by Jimmy Hu */
 
-#include <cuda_runtime.h>
-#include <iostream>
-#include "image_operations_cuda.h"
+/*
+ * This file contains the CUDA C++ implementation (.cu).
+ * It must be compiled by nvcc. It implements the wrapper
+ * function declared in image_operations_cuda.h.
+ */
+
+ #include "image_operations_cuda.h" // Corresponding header
+
+ #include <concepts>
+ #include <cuda_runtime.h>
+ #include <iostream>
+ #include <stdexcept>
 
 namespace TinyDIP
 {
@@ -208,7 +217,7 @@ namespace TinyDIP
 
         // 5. Copy the result from GPU (device) back to CPU (host)
         Image<ElementT> warped_image(out_width, out_height);
-        CUDA_CHECK(cudaMemcpy(warped_image.getImageData().data(), d_warped_data, warped_bytes, cudaMemcpyDeviceToHost));
+        CUDA_CHECK(cudaMemcpy((void*)warped_image.getImageData().data(), d_warped_data, warped_bytes, cudaMemcpyDeviceToHost));
 
         // 6. Free GPU memory
         CUDA_CHECK(cudaFree(d_src_data));
