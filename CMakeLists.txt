@@ -345,17 +345,14 @@ if(ENABLE_CUDA)
     # === LINK LIBRARIES FOR CUDA TEST ===
     # Link against TBB like other tests
     target_link_libraries(warpPerspectiveCudaTest PUBLIC TBB::tbb)
-    # Link against the CUDA runtime library. CUDA::cudart is an imported target
-    # created by find_package(CUDA).
-    target_link_libraries(warpPerspectiveCudaTest PUBLIC CUDA::cudart)
-
+    
     # === FIX: Set Host Compilation Standard for CUDA Target ===
     # Explicitly tell CMake to use the project's C++ standard (CMAKE_CXX_STANDARD)
     # for the host compiler when compiling CUDA code for this target.
     # This ensures headers like <format> are found correctly.
     set_target_properties(warpPerspectiveCudaTest PROPERTIES
-        CUDA_ architektura_HOST_COMPILER_STANDARD ${CMAKE_CXX_STANDARD}
-        CUDA_ architektura_HOST_COMPILER_STANDARD_REQUIRED YES
+        CUDA_HOST_COMPILER_STANDARD ${CMAKE_CXX_STANDARD}
+        CUDA_HOST_COMPILER_STANDARD_REQUIRED YES
     )
     message(STATUS "Setting CUDA Host C++ Standard for warpPerspectiveCudaTest to: ${CMAKE_CXX_STANDARD}")
 endif()
