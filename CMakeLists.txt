@@ -34,6 +34,14 @@ set(CMAKE_BUILD_TYPE Debug) # Use standard casing Debug/Release etc.
 
 if(ENABLE_CUDA)
     message(STATUS "CUDA is enabled. Configuring CUDA support...")
+
+    # === ADDED: Explicitly set the host compiler nvcc should use ===
+    # Replace /usr/bin/g++-12 with the actual path to your CUDA-compatible g++
+    # (e.g., /usr/bin/g++-11, /usr/bin/g++-12 depending on CUDA version support)
+    set(CMAKE_CUDA_HOST_COMPILER /usr/bin/g++-12)
+    message(STATUS "Setting CUDA host compiler to ${CMAKE_CUDA_HOST_COMPILER}")
+    # === END ADDED SECTION ===
+
     # Conditionally enable the CUDA language. This must be done after project().
     enable_language(CUDA)
 
