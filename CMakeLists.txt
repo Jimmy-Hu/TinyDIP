@@ -35,6 +35,11 @@ set(CMAKE_BUILD_TYPE Debug) # Use standard casing Debug/Release etc.
 if(ENABLE_CUDA)
     message(STATUS "CUDA is enabled. Configuring CUDA support...")
 
+    # === ADDED: Explicitly set the CUDA compiler (nvcc) path ===
+    set(CMAKE_CUDA_COMPILER "/usr/local/cuda-13.0/bin/nvcc")
+    message(STATUS "Setting CUDA compiler (nvcc) to ${CMAKE_CUDA_COMPILER}")
+    # === END ADDED SECTION ===
+
     # === ADDED: Explicitly set the host compiler nvcc should use ===
     # Replace /usr/bin/g++-12 with the actual path to your CUDA-compatible g++
     # (e.g., /usr/bin/g++-11, /usr/bin/g++-12 depending on CUDA version support)
