@@ -153,6 +153,7 @@ namespace TinyDIP
 
 
     /**
+     * warp_perspective_cuda template function implementation
      * @brief The C++ wrapper function implementation.
      * This is the function that is exposed to the rest of your C++ code.
      */
@@ -162,20 +163,12 @@ namespace TinyDIP
     >
     Image<ElementT> warp_perspective_cuda(
         const Image<ElementT>& src,
-        const linalg::Matrix<FloatingType>& H,
+        const linalg::Matrix<FloatingType>& H_inv,
         const std::size_t out_width,
         const std::size_t out_height
     )
     {
-        // 1. Invert the homography matrix on the CPU. The kernel uses the inverse matrix.
-        linalg::Matrix<FloatingType> H_inv = linalg::invert(H);
-        if (H_inv.empty())
-        {
-            std::cerr << "Error: Homography matrix is not invertible. Cannot perform CUDA warp." << std::endl;
-            return Image<ElementT>(out_width, out_height); // Return empty image
-        }
-
-        // 2. Allocate memory on the GPU (device)
+        // 1. Allocate memory on the GPU (device)
         ElementT* d_src_data;
         ElementT* d_warped_data;
         const size_t src_bytes = src.count() * sizeof(ElementT);
@@ -184,12 +177,12 @@ namespace TinyDIP
         CUDA_CHECK(cudaMalloc(&d_src_data, src_bytes));
         CUDA_CHECK(cudaMalloc(&d_warped_data, warped_bytes));
 
-        // 3. Copy source image data from CPU (host) to GPU (device)
+        // 2. Copy source image data from CPU (host) to GPU (device)
         CUDA_CHECK(cudaMemcpy(d_src_data, src.getImageData().data(), src_bytes, cudaMemcpyHostToDevice));
         // Initialize warped image memory to 0
         CUDA_CHECK(cudaMemset(d_warped_data, 0, warped_bytes));
 
-        // 4. Configure and launch the kernel
+        // 3. Configure and launch the kernel
         // Threads per block (a common choice is 16x16 or 32x32)
         dim3 threads_per_block(16, 16);
         // Number of blocks in the grid
@@ -215,11 +208,11 @@ namespace TinyDIP
         // Synchronize to ensure the kernel has finished before we copy back data
         CUDA_CHECK(cudaDeviceSynchronize());
 
-        // 5. Copy the result from GPU (device) back to CPU (host)
+        // 4. Copy the result from GPU (device) back to CPU (host)
         Image<ElementT> warped_image(out_width, out_height);
         CUDA_CHECK(cudaMemcpy((void*)warped_image.getImageData().data(), d_warped_data, warped_bytes, cudaMemcpyDeviceToHost));
 
-        // 6. Free GPU memory
+        // 5. Free GPU memory
         CUDA_CHECK(cudaFree(d_src_data));
         CUDA_CHECK(cudaFree(d_warped_data));
 
