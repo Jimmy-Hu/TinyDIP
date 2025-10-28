@@ -33,11 +33,11 @@ int main(int argc, char* argv[])
         }
 
         TinyDIP::linalg::Matrix<double> H(3, 3);
-        for (int i = 0; i < 100; ++i)
+        for (int i = 0; i < 1000; ++i)
         {
             H.at(0,0) = 1.0; H.at(0,1) = 0.0; H.at(0,2) = 0.0;
             H.at(1,0) = 0.0; H.at(1,1) = 1.0; H.at(1,2) = 0.0;
-            H.at(2,0) = i / 1000; H.at(2,1) = 0.0; H.at(2,2) = 1.0;
+            H.at(2,0) = static_cast<double>(i) / 1000.0; H.at(2,1) = 0.0; H.at(2,2) = 1.0;
 
             std::cout << "Homography matrix = \n" << H;
 
