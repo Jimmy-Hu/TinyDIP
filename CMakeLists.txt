@@ -242,10 +242,15 @@ if(ENABLE_CUDA)
     # === NEW EXECUTABLE FOR CUDA TEST ===
     # CMake knows to compile .cu files with nvcc because CUDA was enabled.
     add_executable(warpPerspectiveCudaTest test/warpPerspectiveCudaTest.cpp image_io.cpp image_operations_cuda.cu)
+
+    add_executable(warpPerspectiveCudaTest2 test/warpPerspectiveCudaTest2.cpp image_io.cpp image_operations_cuda.cu)
 endif()
 
 
 # target_include_directories
+# Add include directories needed by ALL targets (like TBB)
+# target_include_directories(TinyDIP PUBLIC ${TBB_INCLUDE_DIRS}) # Example if TBB needed includes universally
+
 if(APPLE)
     target_include_directories(TinyDIP PRIVATE ${LLVM_INCLUDE_DIRS})
 endif()
@@ -355,6 +360,13 @@ if(ENABLE_CUDA)
         CUDA_HOST_COMPILER_STANDARD_REQUIRED YES
     )
     message(STATUS "Setting CUDA Host C++ Standard for warpPerspectiveCudaTest to: ${CMAKE_CXX_STANDARD}")
+
+    target_link_libraries(warpPerspectiveCudaTest2 PUBLIC TBB::tbb)
+    set_target_properties(warpPerspectiveCudaTest2 PROPERTIES
+        CUDA_HOST_COMPILER_STANDARD ${CMAKE_CXX_STANDARD}
+        CUDA_HOST_COMPILER_STANDARD_REQUIRED YES
+    )
+    message(STATUS "Setting CUDA Host C++ Standard for warpPerspectiveCudaTest2 to: ${CMAKE_CXX_STANDARD}")
 endif()
 
 
