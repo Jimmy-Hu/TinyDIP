@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
         {
             H.at(0,0) = 1.0; H.at(0,1) = 0.0; H.at(0,2) = 0.0;
             H.at(1,0) = 0.0; H.at(1,1) = 1.0; H.at(1,2) = 0.0;
-            H.at(2,0) = static_cast<double>(i) / 1000.0; H.at(2,1) = 0.0; H.at(2,2) = 1.0;
+            H.at(2,0) = 0.0; H.at(2,1) = static_cast<double>(i) / 1000.0; H.at(2,2) = 1.0;
 
             std::cout << "Homography matrix = \n" << H;
 
