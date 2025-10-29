@@ -8,6 +8,7 @@
 #include "../image.h"
 #include "../image_io.h"
 #include "../image_operations.h"
+#include "../timer.h"
 
 //  Copy from https://stackoverflow.com/a/37264642/6667035
 #ifndef NDEBUG
