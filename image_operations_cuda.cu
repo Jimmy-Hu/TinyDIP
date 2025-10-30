@@ -115,7 +115,7 @@ namespace TinyDIP
         const FloatingType h11, const FloatingType h12, const FloatingType h13,
         const FloatingType h21, const FloatingType h22, const FloatingType h23,
         const FloatingType h31, const FloatingType h32, const FloatingType h33,
-        InterpolatorFunc interpolator)
+        InterpolatorFunc interpolator = {})
     {
         // Calculate the unique global x and y coordinates for this thread
         int x = blockIdx.x * blockDim.x + threadIdx.x;
