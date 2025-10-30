@@ -3812,6 +3812,36 @@ namespace TinyDIP
         return output;
     }
 
+    //  transpose template function implementation with Execution Policy
+    template<class ExecutionPolicy, typename ElementT>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr static auto transpose(ExecutionPolicy&& execution_policy, const Image<ElementT>& input)
+    {
+        if (input.getDimensionality() != 2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+
+        const auto width = input.getWidth();
+        const auto height = input.getHeight();
+        Image<ElementT> output(height, width);
+        // Create a range for the y-indices
+        auto y_range = std::views::iota(std::size_t{ 0 }, height);
+
+        // Parallelize the outer loop
+        std::for_each(
+            std::forward<ExecutionPolicy>(execution_policy),
+            std::ranges::begin(y_range),
+            std::ranges::end(y_range),
+            [&](const std::size_t y) {
+                for (std::size_t x = 0; x < width; ++x) {
+                    output.at(y, x) = input.at(x, y);
+                }
+            }
+        );
+        return output;
+    }
+
     //  flip_horizontal template function implementation
     template<typename ElementT>
     static auto flip_horizontal(const Image<ElementT>& input)
