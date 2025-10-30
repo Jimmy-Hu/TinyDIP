@@ -49,53 +49,55 @@ namespace TinyDIP
     }
 
     /**
-     * @brief A __device__ function to perform bicubic interpolation on the GPU.
-     * This is a simplified version for grayscale images. For color, you would
-     * call this per-channel.
+     * BicubicInterpolatorDevice struct implementation
+     * @brief Functor for Bicubic Interpolation (Device-Side).
      */
     template<arithmetic ElementT, arithmetic FloatingType>
-    __device__ ElementT bicubic_interpolate_device(
-        const ElementT* src_data,
-        const int src_width,
-        const int src_height,
-        const FloatingType x,
-        const FloatingType y)
+    struct BicubicInterpolatorDevice
     {
-        // Fallback to a simple interpolation (nearest neighbor) for edges for simplicity in CUDA
-        if (x < 1 || x >= src_width - 2 || y < 1 || y >= src_height - 2)
+        __device__ auto operator()(
+            const ElementT* src_data,
+            const int src_width,
+            const int src_height,
+            const FloatingType x,
+            const FloatingType y) const
         {
-             int ix = static_cast<int>(roundf(x));
-             int iy = static_cast<int>(roundf(y));
-             ix = max(0, min(src_width - 1, ix));
-             iy = max(0, min(src_height - 1, iy));
-             return src_data[iy * src_width + ix];
-        }
-
-        int x_floor = static_cast<int>(floorf(x));
-        int y_floor = static_cast<int>(floorf(y));
-
-        FloatingType total_value{};
-
-        for (int j = 0; j <= 3; ++j)
-        {
-            int v = y_floor - 1 + j;
-            FloatingType row_value{};
-            for (int i = 0; i <= 3; ++i)
+            // Fallback to a simple interpolation (nearest neighbor) for edges for simplicity in CUDA
+            if (x < 1 || x >= src_width - 2 || y < 1 || y >= src_height - 2)
             {
-                int u = x_floor - 1 + i;
-                row_value += static_cast<FloatingType>(src_data[v * src_width + u]) * cubic_kernel_device(x - u);
+                int ix = static_cast<int>(roundf(x));
+                int iy = static_cast<int>(roundf(y));
+                ix = max(0, min(src_width - 1, ix));
+                iy = max(0, min(src_height - 1, iy));
+                return src_data[iy * src_width + ix];
             }
-            total_value += row_value * cubic_kernel_device(y - v);
-        }
 
-        if constexpr (std::is_integral_v<ElementT>)
-        {
-            if (total_value > 255.0) return 255; // Simplified clamping for byte images
-            if (total_value < 0.0) return 0;
-        }
+            int x_floor = static_cast<int>(floorf(x));
+            int y_floor = static_cast<int>(floorf(y));
 
-        return static_cast<ElementT>(total_value);
-    }
+            FloatingType total_value{};
+
+            for (int j = 0; j <= 3; ++j)
+            {
+                int v = y_floor - 1 + j;
+                FloatingType row_value{};
+                for (int i = 0; i <= 3; ++i)
+                {
+                    int u = x_floor - 1 + i;
+                    row_value += static_cast<FloatingType>(src_data[v * src_width + u]) * cubic_kernel_device(x - u);
+                }
+                total_value += row_value * cubic_kernel_device(y - v);
+            }
+
+            if constexpr (std::is_integral_v<ElementT>)
+            {
+                if (total_value > 255.0) return 255; // Simplified clamping for byte images
+                if (total_value < 0.0) return 0;
+            }
+
+            return static_cast<ElementT>(total_value);
+        }
+    };
 
     /**
      * @brief The CUDA kernel that performs the perspective warp.
