@@ -199,7 +199,7 @@ namespace TinyDIP
         // Define the concrete interpolator type based on our hardcoded ElementT
         using InterpolatorType = InterpolatorFuncHost<ElementT, FloatingType>;
 
-        warp_perspective_kernel<<<num_blocks, threads_per_block, InterpolatorType>>>(
+        warp_perspective_kernel<ElementT, FloatingType, InterpolatorType><<<num_blocks, threads_per_block>>>(
             d_warped_data,
             d_src_data,
             src.getWidth(),
