@@ -8,6 +8,10 @@
 
 namespace TinyDIP
 {
+    // --- Forward Declarations for BicubicInterpolatorDevice ---
+    template<typename ElementT, std::floating_point FloatingType>
+    struct BicubicInterpolatorDevice;
+
     /**
      * @brief GPU-accelerated perspective transformation using CUDA.
      *
@@ -24,7 +28,9 @@ namespace TinyDIP
      */
     template<
         arithmetic ElementT,
-        std::floating_point FloatingType = double
+        std::floating_point FloatingType = double,
+        template<typename, std::floating_point>
+            typename InterpolatorFuncHost = BicubicInterpolatorDevice
     >
     Image<ElementT> warp_perspective_cuda(
         const Image<ElementT>& src,
