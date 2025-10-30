@@ -371,9 +371,7 @@ endif()
 
 
 if(APPLE)
-    # Remove '-Xclang' flags potentially added by FindOpenMP on older macOS/Clang
-    # Check if this is still necessary with your current compiler/CMake version
-    # string(REPLACE "-Xclang" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    string(REPLACE "-Xclang" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
 
 # Add boost library
