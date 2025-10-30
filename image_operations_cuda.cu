@@ -91,8 +91,8 @@ namespace TinyDIP
 
             if constexpr (std::is_integral_v<ElementT>)
             {
-                if (total_value > 255.0) return 255; // Simplified clamping for byte images
-                if (total_value < 0.0) return 0;
+                if (total_value > 255.0) return static_cast<ElementT>(255); // Simplified clamping for byte images
+                if (total_value < 0.0) return static_cast<ElementT>(0);
             }
 
             return static_cast<ElementT>(total_value);
