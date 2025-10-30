@@ -163,7 +163,8 @@ namespace TinyDIP
      */
     template<
         arithmetic ElementT,
-        std::floating_point FloatingType
+        std::floating_point FloatingType,
+        template<typename, std::floating_point> typename InterpolatorFuncHost
     >
     Image<ElementT> warp_perspective_cuda(
         const Image<ElementT>& src,
@@ -195,7 +196,10 @@ namespace TinyDIP
             (out_height + threads_per_block.y - 1) / threads_per_block.y
         );
 
-        warp_perspective_kernel<<<num_blocks, threads_per_block>>>(
+        // Define the concrete interpolator type based on our hardcoded ElementT
+        using InterpolatorType = InterpolatorFuncHost<ElementT, FloatingType>;
+
+        warp_perspective_kernel<<<num_blocks, threads_per_block, InterpolatorType>>>(
             d_warped_data,
             d_src_data,
             src.getWidth(),
@@ -204,7 +208,8 @@ namespace TinyDIP
             out_height,
             H_inv.at(0,0), H_inv.at(0,1), H_inv.at(0,2),
             H_inv.at(1,0), H_inv.at(1,1), H_inv.at(1,2),
-            H_inv.at(2,0), H_inv.at(2,1), H_inv.at(2,2)
+            H_inv.at(2,0), H_inv.at(2,1), H_inv.at(2,2),
+            InterpolatorType{} // Pass a default-constructed functor
         );
         
         // Check for any errors during kernel launch
