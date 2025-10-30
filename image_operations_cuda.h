@@ -9,7 +9,7 @@
 namespace TinyDIP
 {
     // --- Forward Declarations for BicubicInterpolatorDevice ---
-    template<typename ElementT, std::floating_point FloatingType>
+    template<arithmetic ElementT, arithmetic FloatingType>
     struct BicubicInterpolatorDevice;
 
     /**
