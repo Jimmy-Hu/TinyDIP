@@ -100,10 +100,11 @@ namespace TinyDIP
     };
 
     /**
+     * warp_perspective_kernel template function implementation
      * @brief The CUDA kernel that performs the perspective warp.
      * Each thread in the grid computes one pixel of the output image.
      */
-    template<arithmetic ElementT, std::floating_point FloatingType>
+    template<arithmetic ElementT, std::floating_point FloatingType, typename InterpolatorFunc>
     __global__ void warp_perspective_kernel(
         ElementT* warped_data,
         const ElementT* src_data,
@@ -113,7 +114,8 @@ namespace TinyDIP
         const int out_height,
         const FloatingType h11, const FloatingType h12, const FloatingType h13,
         const FloatingType h21, const FloatingType h22, const FloatingType h23,
-        const FloatingType h31, const FloatingType h32, const FloatingType h33)
+        const FloatingType h31, const FloatingType h32, const FloatingType h33,
+        InterpolatorFunc interpolator)
     {
         // Calculate the unique global x and y coordinates for this thread
         int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -134,7 +136,7 @@ namespace TinyDIP
                 if (src_x >= 0 && src_x < src_width && src_y >= 0 && src_y < src_height)
                 {
                     // For simplicity, this example uses a single channel. For RGB, you'd handle 3 channels.
-                    warped_data[y * out_width + x] = bicubic_interpolate_device<ElementT, FloatingType>(
+                    warped_data[y * out_width + x] = interpolator(
                         src_data, src_width, src_height, src_x, src_y);
                 }
             }
