@@ -6255,9 +6255,21 @@ namespace TinyDIP
 	 * create_stitched_image template function implementation with execution policy
      * @brief Phase 2 of stitching: Warps and blends images using a pre-computed homography.
      */
-    template<class ExecutionPolicy, std::floating_point FloatingType>
+    template<
+        class ExecutionPolicy,
+        std::floating_point FloatingType,
+        typename InterpolationFunc = default_bicubic_interpolator<RGB, FloatingType>,
+        typename WarpPerspectiveFunc = warp_perspective<RGB, FloatingType, ExecutionPolicy>
+    >
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
-    Image<RGB> create_stitched_image(ExecutionPolicy&& policy, const Image<RGB>& img1, const Image<RGB>& img2, const linalg::Matrix<FloatingType>& H_in)
+    auto create_stitched_image(
+        ExecutionPolicy&& policy,
+        const Image<RGB>& img1,
+        const Image<RGB>& img2,
+        const linalg::Matrix<FloatingType>& H_in,
+        WarpPerspectiveFunc&& warp_perspective_func = {},
+        InterpolationFunc&& interpolation_func = {}
+    )
     {
         if (H_in.empty()) {
             std::cerr << "Cannot create stitched image with an empty homography.\n";
@@ -6300,7 +6312,15 @@ namespace TinyDIP
         auto H_final = linalg::multiply(H_trans, H);
 
         std::cout << "Warping image 2...\n";
-        auto warped_img2 = warp_perspective<RGB, FloatingType>(std::forward<ExecutionPolicy>(policy), img2, H_final, out_width, out_height);
+        auto warped_img2 = std::invoke(
+            std::forward<WarpPerspectiveFunc>(warp_perspective_func),
+            std::forward<ExecutionPolicy>(policy),
+            img2,
+            H_final,
+            out_width,
+            out_height,
+            std::forward<InterpolationFunc>(interpolation_func)
+        );
         
         std::cout << "Blending images with linear feathering...\n";
         Image<RGB> stitched_image(out_width, out_height);
