@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 
         std::cout << "Running OpenMP version...\n";
         auto start_omp = std::chrono::high_resolution_clock::now();
-        auto warped_omp = TinyDIP::warp_perspective(src_image, H, out_width, out_height);
+        auto warped_omp = TinyDIP::warp_perspective<TinyDIP::RGB>{}(src_image, H, out_width, out_height);
         auto end_omp = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> omp_duration = end_omp - start_omp;
         TinyDIP::bmp_write("warped_omp", warped_omp);
