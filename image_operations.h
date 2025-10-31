@@ -6257,7 +6257,7 @@ namespace TinyDIP
      */
     template<
         class ExecutionPolicy,
-        std::floating_point FloatingType,
+        std::floating_point FloatingType = double,
         typename CleanExecutionPolicy = std::remove_cvref_t<ExecutionPolicy>,
         typename InterpolationFunc = default_bicubic_interpolator<RGB, FloatingType>,
         typename WarpPerspectiveFunc = warp_perspective<RGB, FloatingType, CleanExecutionPolicy>
