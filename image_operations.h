@@ -3772,7 +3772,7 @@ namespace TinyDIP
 
     //  rotate template function implementation
     template<arithmetic ElementT, std::integral T = int>
-    constexpr static auto rotate(const Image<ElementT>& input, T radians)
+    constexpr static auto rotate(const Image<ElementT>& input, const T radians)
     {
         if (input.getDimensionality()!=2)
         {
