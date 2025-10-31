@@ -5959,51 +5959,55 @@ namespace TinyDIP
                  std::invoke_result_t<InterpolationFunc, const Image<ElementT>&, FloatingType, FloatingType>,
                  ElementT
              >))
-    auto warp_perspective(
-        const Image<ElementT>& src,
-        const linalg::Matrix<FloatingType>& H,
-        const std::size_t out_width,
-        const std::size_t out_height,
-        InterpolationFunc&& interpolator = {}
-    )
+    struct warp_perspective
     {
-        Image<ElementT> warped_image(out_width, out_height);
-        
-        if (H.empty())
+        // The call operator contains the interpolation logic
+        constexpr auto operator()(
+            const Image<ElementT>& src,
+            const linalg::Matrix<FloatingType>& H,
+            const std::size_t out_width,
+            const std::size_t out_height,
+            InterpolationFunc&& interpolator = {}
+        ) const
         {
-             std::cerr << "Warning: Homography matrix is empty. Warping will fail.\n";
-             return warped_image;
-        }
-
-        // Cache matrix elements for performance
-        const FloatingType h11 = H.at(0,0), h12 = H.at(0,1), h13 = H.at(0,2);
-        const FloatingType h21 = H.at(1,0), h22 = H.at(1,1), h23 = H.at(1,2);
-        const FloatingType h31 = H.at(2,0), h32 = H.at(2,1), h33 = H.at(2,2);
-
-        #pragma omp parallel for
-        for(std::size_t y = 0; y < out_height; ++y)
-        {
-            for(std::size_t x = 0; x < out_width; ++x)
+            Image<ElementT> warped_image(out_width, out_height);
+            
+            if (H.empty())
             {
-                // Apply homography to find corresponding point in source image
-                const FloatingType w = h31 * x + h32 * y + h33;
-                
-                // Avoid division by zero
-                if (std::abs(w) < std::numeric_limits<FloatingType>::epsilon()) continue;
-
-                const FloatingType src_x = (h11 * x + h12 * y + h13) / w;
-                const FloatingType src_y = (h21 * x + h22 * y + h23) / w;
-                
-                // Use bilinear interpolation to get the pixel value
-                warped_image.at(x, y) = std::invoke(
-                    std::forward<InterpolationFunc>(interpolator),
-                    src,
-                    src_x,
-                    src_y
-                );
+                std::cerr << "Warning: Homography matrix is empty. Warping will fail.\n";
+                return warped_image;
             }
+
+            // Cache matrix elements for performance
+            const FloatingType h11 = H.at(0,0), h12 = H.at(0,1), h13 = H.at(0,2);
+            const FloatingType h21 = H.at(1,0), h22 = H.at(1,1), h23 = H.at(1,2);
+            const FloatingType h31 = H.at(2,0), h32 = H.at(2,1), h33 = H.at(2,2);
+
+            #pragma omp parallel for
+            for(std::size_t y = 0; y < out_height; ++y)
+            {
+                for(std::size_t x = 0; x < out_width; ++x)
+                {
+                    // Apply homography to find corresponding point in source image
+                    const FloatingType w = h31 * x + h32 * y + h33;
+                    
+                    // Avoid division by zero
+                    if (std::abs(w) < std::numeric_limits<FloatingType>::epsilon()) continue;
+
+                    const FloatingType src_x = (h11 * x + h12 * y + h13) / w;
+                    const FloatingType src_y = (h21 * x + h22 * y + h23) / w;
+                    
+                    // Use bilinear interpolation to get the pixel value
+                    warped_image.at(x, y) = std::invoke(
+                        std::forward<InterpolationFunc>(interpolator),
+                        src,
+                        src_x,
+                        src_y
+                    );
+                }
+            }
+            return warped_image;
         }
-        return warped_image;
     }
 
     /**
