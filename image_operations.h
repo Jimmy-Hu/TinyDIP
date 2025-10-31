@@ -6008,7 +6008,7 @@ namespace TinyDIP
             }
             return warped_image;
         }
-    }
+    };
 
     /**
      * warp_perspective template function implementation with execution policy
