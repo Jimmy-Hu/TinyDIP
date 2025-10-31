@@ -6008,6 +6008,8 @@ namespace TinyDIP
             return warped_image;
         }
 
+        template<class ExecutionPolicy>
+        requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
         auto operator()(
             ExecutionPolicy&& policy,
             const Image<ElementT>& src,
