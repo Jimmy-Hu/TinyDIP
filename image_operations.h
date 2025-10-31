@@ -6258,10 +6258,11 @@ namespace TinyDIP
     template<
         class ExecutionPolicy,
         std::floating_point FloatingType,
+        typename CleanExecutionPolicy = std::remove_cvref_t<ExecutionPolicy>,
         typename InterpolationFunc = default_bicubic_interpolator<RGB, FloatingType>,
-        typename WarpPerspectiveFunc = warp_perspective<RGB, FloatingType, ExecutionPolicy>
+        typename WarpPerspectiveFunc = warp_perspective<RGB, FloatingType, CleanExecutionPolicy>
     >
-    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    requires(std::is_execution_policy_v<CleanExecutionPolicy>)
     auto create_stitched_image(
         ExecutionPolicy&& policy,
         const Image<RGB>& img1,
