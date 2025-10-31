@@ -6143,8 +6143,16 @@ namespace TinyDIP
      * create_stitched_image template function implementation
      * @brief Phase 2 of stitching: Warps and blends images using a pre-computed homography.
      */
-    template<std::floating_point FloatingType = double>
-    Image<RGB> create_stitched_image(const Image<RGB>& img1, const Image<RGB>& img2, const linalg::Matrix<FloatingType>& H_in)
+    template<
+        std::floating_point FloatingType = double,
+        typename WarpPerspectiveFunc = warp_perspective<RGB, FloatingType>
+    >
+    Image<RGB> create_stitched_image(
+        const Image<RGB>& img1,
+        const Image<RGB>& img2,
+        const linalg::Matrix<FloatingType>& H_in,
+        WarpPerspectiveFunc&& warp_perspective_func = {}
+    )
     {
         if (H_in.empty()) {
             std::cerr << "Cannot create stitched image with an empty homography.\n";
@@ -6190,7 +6198,13 @@ namespace TinyDIP
 
         // 2. Warp img2 to align with img1's coordinate frame
         std::cout << "Warping image 2...\n";
-        auto warped_img2 = warp_perspective<RGB, FloatingType>(img2, H_final, out_width, out_height);
+        auto warped_img2 = std::invoke(
+            std::forward<WarpPerspectiveFunc>(warp_perspective_func),
+            img2,
+            H_final,
+            out_width,
+            out_height
+        );
         
         std::cout << "Blending images with linear feathering...\n";
         Image<RGB> stitched_image(out_width, out_height);
