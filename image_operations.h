@@ -6145,7 +6145,7 @@ namespace TinyDIP
      */
     template<
         std::floating_point FloatingType = double,
-        typename InterpolationFunc = default_bicubic_interpolator<ElementT, FloatingType>,
+        typename InterpolationFunc = default_bicubic_interpolator<RGB, FloatingType>,
         typename WarpPerspectiveFunc = warp_perspective<RGB, FloatingType, InterpolationFunc>
     >
     Image<RGB> create_stitched_image(
