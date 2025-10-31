@@ -6145,13 +6145,15 @@ namespace TinyDIP
      */
     template<
         std::floating_point FloatingType = double,
-        typename WarpPerspectiveFunc = warp_perspective<RGB, FloatingType>
+        typename InterpolationFunc = default_bicubic_interpolator<ElementT, FloatingType>,
+        typename WarpPerspectiveFunc = warp_perspective<RGB, FloatingType, InterpolationFunc>
     >
     Image<RGB> create_stitched_image(
         const Image<RGB>& img1,
         const Image<RGB>& img2,
         const linalg::Matrix<FloatingType>& H_in,
-        WarpPerspectiveFunc&& warp_perspective_func = {}
+        WarpPerspectiveFunc&& warp_perspective_func = {},
+        InterpolationFunc&& interpolation_func = {}
     )
     {
         if (H_in.empty()) {
@@ -6203,7 +6205,8 @@ namespace TinyDIP
             img2,
             H_final,
             out_width,
-            out_height
+            out_height,
+            std::forward<InterpolationFunc>(interpolation_func)
         );
         
         std::cout << "Blending images with linear feathering...\n";
