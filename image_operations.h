@@ -5962,7 +5962,7 @@ namespace TinyDIP
     struct warp_perspective
     {
         // The call operator contains the interpolation logic
-        constexpr auto operator()(
+        auto operator()(
             const Image<ElementT>& src,
             const linalg::Matrix<FloatingType>& H,
             const std::size_t out_width,
