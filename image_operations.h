@@ -5330,7 +5330,7 @@ namespace TinyDIP
             if (input.getWidth() != 3 || input.getHeight() != 3)
                 throw std::runtime_error("Input size error!");
             auto dx = (static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(2), static_cast<std::size_t>(1))) - static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(0), static_cast<std::size_t>(1))));
-            auto dy = (static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(1), static_cast<std::size_t>(2))) - static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(1), static_cast<std::size_t>(0))))
+            auto dy = (static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(1), static_cast<std::size_t>(2))) - static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(1), static_cast<std::size_t>(0))));
             FloatingType gradient_magnitude = std::hypot(dx, dy);
             FloatingType orientation = std::atan2(dy, dx);
             orientation *= (180.0 / std::numbers::pi_v<FloatingType>);
