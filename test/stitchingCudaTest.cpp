@@ -11,6 +11,7 @@
 #include "../image.h"
 #include "../image_io.h"
 #include "../image_operations.h"
+#include "../image_operations_cuda.h"
 #include "../timer.h"
 
 int main(int argc, char* argv[])
