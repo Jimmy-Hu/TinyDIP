@@ -5317,6 +5317,8 @@ namespace TinyDIP
         *   orientation
         *    θ(1, 1) = tan^(-1)((input(1, 2) - input(1, 0)) / (input(2, 1) - input(0, 1)))
         *   the value range of orientation is 0° ~ 360°
+		*   Reference: https://en.wikipedia.org/wiki/Scale-invariant_feature_transform
+        *   Reference: https://codereview.stackexchange.com/a/298302/231235
         */
         template<typename ElementT, class FloatingType = double>
         constexpr static auto compute_each_pixel_orientation(const Image<ElementT>& input)
@@ -5327,15 +5329,10 @@ namespace TinyDIP
             }
             if (input.getWidth() != 3 || input.getHeight() != 3)
                 throw std::runtime_error("Input size error!");
-            FloatingType gradient_magnitude =
-                std::sqrt(
-                    std::pow((static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(2), static_cast<std::size_t>(1))) - static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(0), static_cast<std::size_t>(1)))), 2.0) +
-                    std::pow((static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(1), static_cast<std::size_t>(2))) - static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(1), static_cast<std::size_t>(0)))), 2.0)
-                );
-            double orientation = std::atan2(
-                    static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(1), static_cast<std::size_t>(2))) - static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(1), static_cast<std::size_t>(0))),
-                    static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(2), static_cast<std::size_t>(1))) - static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(0), static_cast<std::size_t>(1)))
-                );
+            auto dx = (static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(2), static_cast<std::size_t>(1))) - static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(0), static_cast<std::size_t>(1))));
+            auto dy = (static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(1), static_cast<std::size_t>(2))) - static_cast<FloatingType>(input.at_without_boundary_check(static_cast<std::size_t>(1), static_cast<std::size_t>(0))))
+            FloatingType gradient_magnitude = std::hypot(dx, dy);
+            FloatingType orientation = std::atan2(dy, dx);
             orientation *= (180.0 / std::numbers::pi_v<FloatingType>);
             orientation += 180;
             return std::make_tuple(gradient_magnitude, orientation);
