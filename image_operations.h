@@ -6084,16 +6084,19 @@ namespace TinyDIP
 
         std::cout << "SIFT parameters:\n" << sift_params << "\n";
 
-        auto keypoints1 = SIFT_impl::get_potential_keypoint(
+        
+        // Launch both keypoint detections in parallel
+        auto future_kp1 = std::async(std::launch::async, SIFT_impl::get_potential_keypoint,
             v_plane1,
             sift_params.octaves_count,
             sift_params.number_of_scale_levels,
             sift_params.initial_sigma,
-			sift_params.k,
+            sift_params.k,
             sift_params.contrast_check_threshold,
             sift_params.edge_response_threshold
         );
-        auto keypoints2 = SIFT_impl::get_potential_keypoint(
+
+        auto future_kp2 = std::async(std::launch::async, SIFT_impl::get_potential_keypoint,
             v_plane2,
             sift_params.octaves_count,
             sift_params.number_of_scale_levels,
@@ -6102,6 +6105,10 @@ namespace TinyDIP
             sift_params.contrast_check_threshold,
             sift_params.edge_response_threshold
         );
+
+        // Wait for both results
+        auto keypoints1 = future_kp1.get();
+        auto keypoints2 = future_kp2.get();
 
         std::cout << "Found " << keypoints1.size() << " keypoints in image 1 and " << keypoints2.size() << " in image 2.\n";
 
