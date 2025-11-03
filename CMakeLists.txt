@@ -242,6 +242,8 @@ add_executable(windowedFilterTest test/windowedFilterTest.cpp image_io.cpp)
 if(ENABLE_CUDA)
     # === NEW EXECUTABLE FOR CUDA TEST ===
     # CMake knows to compile .cu files with nvcc because CUDA was enabled.
+    add_executable(stitchingCudaTest test/stitchingCudaTest.cpp image_io.cpp image_operations_cuda.cu)
+
     add_executable(warpPerspectiveCudaTest test/warpPerspectiveCudaTest.cpp image_io.cpp image_operations_cuda.cu)
 
     add_executable(warpPerspectiveCudaTest2 test/warpPerspectiveCudaTest2.cpp image_io.cpp image_operations_cuda.cu)
@@ -349,6 +351,14 @@ target_link_libraries(windowedFilterTest PUBLIC TBB::tbb)
 
 if(ENABLE_CUDA)
     # === LINK LIBRARIES FOR CUDA TEST ===
+    target_link_libraries(stitchingCudaTest PUBLIC TBB::tbb)
+
+    set_target_properties(stitchingCudaTest PROPERTIES
+        CUDA_HOST_COMPILER_STANDARD ${CMAKE_CXX_STANDARD}
+        CUDA_HOST_COMPILER_STANDARD_REQUIRED YES
+    )
+    message(STATUS "Setting CUDA Host C++ Standard for stitchingCudaTest to: ${CMAKE_CXX_STANDARD}")
+
     # Link against TBB like other tests
     target_link_libraries(warpPerspectiveCudaTest PUBLIC TBB::tbb)
     
