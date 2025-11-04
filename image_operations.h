@@ -6,8 +6,10 @@
 #include <concepts>
 #include <execution>
 #include <fstream>
+#include <future>
 #include <numbers>
 #include <string>
+#include <thread>
 #include "base_types.h"
 #include "basic_functions.h"
 #include "image.h"
