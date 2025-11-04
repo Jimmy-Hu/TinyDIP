@@ -3962,26 +3962,26 @@ namespace TinyDIP
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
     constexpr static auto generate_mirror_padding_image(
         ExecutionPolicy&& execution_policy, 
-        const Image<ElementT> input,
-        std::size_t width_expansion,
-        std::size_t height_expansion,
-        ElementT default_value = ElementT{})
+        const Image<ElementT>& input,
+        const std::size_t width_expansion,
+        const std::size_t height_expansion,
+        const ElementT default_value = ElementT{})
     {
         if (input.getDimensionality()!=2)
         {
             throw std::runtime_error("Unsupported dimension!");
         }
-        auto output = generate_constant_padding_image(execution_policy, input, width_expansion, height_expansion, default_value);
+        auto output = generate_constant_padding_image(std::forward<ExecutionPolicy>(execution_policy), input, width_expansion, height_expansion, default_value);
         auto flipped_vertical = flip_vertical(input);
         output = paste2D(
-            execution_policy,
+            std::forward<ExecutionPolicy>(execution_policy),
             output,
             subimage2(flipped_vertical, 0, flipped_vertical.getWidth() - 1, input.getHeight() - height_expansion - 1, flipped_vertical.getHeight() - 1),
             width_expansion,
             0,
             default_value);
         output = paste2D(
-            execution_policy,
+            std::forward<ExecutionPolicy>(execution_policy),
             output,
             subimage2(flipped_vertical, 0, flipped_vertical.getWidth() - 1, 0, height_expansion),
             width_expansion,
@@ -3989,14 +3989,14 @@ namespace TinyDIP
             default_value);
         auto flipped_horizontal = flip_horizontal(input);
         output = paste2D(
-            execution_policy,
+            std::forward<ExecutionPolicy>(execution_policy),
             output,
             subimage2(flipped_horizontal, input.getWidth() - width_expansion - 1, flipped_horizontal.getWidth() - 1, 0, flipped_horizontal.getHeight() - 1),
             0,
             height_expansion,
             default_value);
         output = paste2D(
-            execution_policy,
+            std::forward<ExecutionPolicy>(execution_policy),
             output,
             subimage2(flipped_horizontal, 0, width_expansion, 0, flipped_horizontal.getHeight() - 1),
             input.getWidth() + width_expansion - 1,
@@ -4004,7 +4004,7 @@ namespace TinyDIP
             default_value);
         auto flipped_horizontal_vertical = flip_horizontal_vertical(input);
         output = paste2D(
-            execution_policy,
+            std::forward<ExecutionPolicy>(execution_policy),
             output,
             subimage2(
                 flipped_horizontal_vertical,
@@ -4016,7 +4016,7 @@ namespace TinyDIP
             0,
             default_value);
         output = paste2D(
-            execution_policy,
+            std::forward<ExecutionPolicy>(execution_policy),
             output,
             subimage2(
                 flipped_horizontal_vertical,
@@ -4028,7 +4028,7 @@ namespace TinyDIP
             0,
             default_value);
         output = paste2D(
-            execution_policy,
+            std::forward<ExecutionPolicy>(execution_policy),
             output,
             subimage2(
                 flipped_horizontal_vertical,
@@ -4040,7 +4040,7 @@ namespace TinyDIP
             input.getHeight() + height_expansion - 1,
             default_value);
         output = paste2D(
-            execution_policy,
+            std::forward<ExecutionPolicy>(execution_policy),
             output,
             subimage2(
                 flipped_horizontal_vertical,
