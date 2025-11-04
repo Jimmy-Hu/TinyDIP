@@ -5266,31 +5266,28 @@ namespace TinyDIP
                 #pragma omp parallel for
                 for (int scale_index = 0; scale_index < each_octave.size() - 2; ++scale_index)
                 {
-                    //if `append_range` function is supported
-                    #ifdef __cpp_lib_containers_ranges
-                    keypoints.append_range(
-                        find_local_extrema(
-                            each_octave[scale_index],
-                            each_octave[scale_index + 1],
-                            each_octave[scale_index + 2],
-                            octave_index,
-                            scale_index,
-                            contrast_check_threshold,
-                            edge_response_threshold)
-                    );
-                    #else
-                    for (auto&& element : find_local_extrema(
+                    auto new_points = find_local_extrema(
                         each_octave[scale_index],
                         each_octave[scale_index + 1],
                         each_octave[scale_index + 2],
                         octave_index,
                         scale_index,
                         contrast_check_threshold,
-                        edge_response_threshold))
+                        edge_response_threshold);
+                    // This block ensures only one thread at a time
+                    // can modify the 'keypoints' vector.
+                    #pragma omp critical
                     {
-                        keypoints.emplace_back(element);
+                        //if `append_range` function is supported
+                        #ifdef __cpp_lib_containers_ranges
+                        keypoints.append_range(new_points);
+                        #else
+                        for (auto&& element : new_points)
+                        {
+                            keypoints.emplace_back(element);
+                        }
+                        #endif
                     }
-                    #endif
                 }
             }
 
