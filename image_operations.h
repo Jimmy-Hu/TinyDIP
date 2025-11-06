@@ -3812,8 +3812,8 @@ namespace TinyDIP
     }
 
     //  rotate_detail_shear_transformation_degree template function implementation
-    template<typename ElementT, class T = double>
-    constexpr static auto rotate_detail_shear_transformation_degree(const Image<ElementT>& input, T degrees)
+    template<typename ElementT, arithmetic T = double>
+    constexpr static auto rotate_detail_shear_transformation_degree(const Image<ElementT>& input, const T degrees)
     {
         if (input.getDimensionality()!=2)
         {
