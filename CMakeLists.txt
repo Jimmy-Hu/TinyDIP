@@ -171,7 +171,7 @@ if (ENABLE_ASAN)
         add_compile_options(/fsanitize=address)
         # AddressSanitizer doesn't work with Edit and Continue (/ZI)
         # set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<CONFIG:Debug>,/Zi,/Z7>") # Example for controlling debug info
-    else() # GCC/Clang
+    elseif(NOT APPLE) # GCC/Clang and not apple
         add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
         add_link_options(-fsanitize=address)
     endif()
