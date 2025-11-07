@@ -5459,6 +5459,44 @@ namespace TinyDIP
             return mapped_keypoints;
         }
 
+        //  get_potential_keypoint template function implementation
+        template<
+            typename ElementT = double,
+            typename SigmaT = double,
+            typename ResamplingFunc = default_lanczos_resample<ElementT>
+        >
+        requires(   ((std::floating_point<ElementT> || std::integral<ElementT>) &&
+                     (std::floating_point<SigmaT> || std::integral<SigmaT>)) &&
+                     (std::invocable<ResamplingFunc, const Image<ElementT>&, std::size_t, std::size_t>) &&
+                     (std::convertible_to<
+                         std::invoke_result_t<ResamplingFunc, const Image<ElementT>&, std::size_t, std::size_t>,
+                         Image<ElementT>
+                     >)
+            )
+        static auto get_potential_keypoint(
+            const Image<ElementT>& input,
+            const std::size_t octaves_count = 4,
+            const std::size_t number_of_scale_levels = 5,
+            const SigmaT initial_sigma = 1.6,           //  sigma is selected to 1.6 based on paper https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf page 10
+            const double k = std::numbers::sqrt2_v<double>,
+            ElementT contrast_check_threshold = 8,
+            ElementT edge_response_threshold = 12.1,
+            ResamplingFunc&& resampling_function = {}
+        )
+        {
+            return get_potential_keypoint(
+                std::execution::seq,
+                input,
+                octaves_count,
+                number_of_scale_levels,
+                initial_sigma,
+                k,
+                contrast_check_threshold,
+                edge_response_threshold,
+                resampling_function
+            );
+        }
+
         //  compute_each_pixel_orientation template function implementation
         /*  input is 3 * 3 image, calculate the gradient magnitude
         *    M(1, 1) = ((input(2, 1) - input(0, 1))^(2) + (input(1, 2) - input(1, 0))^(2))^(1/2)
