@@ -5316,11 +5316,13 @@ namespace TinyDIP
 
         //  get_potential_keypoint template function implementation
         template<
+            typename ExecutionPolicy,
             typename ElementT = double,
             typename SigmaT = double,
             typename ResamplingFunc = default_lanczos_resample<ElementT>
         >
-        requires(   ((std::floating_point<ElementT> || std::integral<ElementT>) &&
+        requires(    std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
+                     ((std::floating_point<ElementT> || std::integral<ElementT>) &&
                      (std::floating_point<SigmaT> || std::integral<SigmaT>)) &&
                      (std::invocable<ResamplingFunc, const Image<ElementT>&, std::size_t, std::size_t>) &&
                      (std::convertible_to<
@@ -5329,6 +5331,7 @@ namespace TinyDIP
                      >)
             )
         static auto get_potential_keypoint(
+            ExecutionPolicy&& exec,
             const Image<ElementT>& input,
             const std::size_t octaves_count = 4,
             const std::size_t number_of_scale_levels = 5,
@@ -5369,34 +5372,70 @@ namespace TinyDIP
             /*  KeyPoint structure: octave_index, scale_index + 1, location_x, location_y
             */
             std::vector<std::tuple<std::size_t, std::size_t, ElementT, ElementT>> keypoints;
-            #pragma omp parallel for
-            for (int octave_index = 0; octave_index < octaves_count; ++octave_index)
+            // Check the execution policy at compile-time
+            if constexpr (
+                std::is_same_v<std::remove_cvref_t<ExecutionPolicy>, std::execution::sequenced_policy>
+            )
             {
-                auto each_octave = octaves[octave_index];
-                #pragma omp parallel for
-                for (int scale_index = 0; scale_index < each_octave.size() - 2; ++scale_index)
+                // SERIAL VERSION (for std::execution::seq)
+                // No OpenMP, just plain loops.
+                for (int octave_index = 0; octave_index < octaves_count; ++octave_index)
                 {
-                    auto new_points = find_local_extrema(
-                        each_octave[scale_index],
-                        each_octave[scale_index + 1],
-                        each_octave[scale_index + 2],
-                        octave_index,
-                        scale_index,
-                        contrast_check_threshold,
-                        edge_response_threshold);
-                    // This block ensures only one thread at a time
-                    // can modify the 'keypoints' vector.
-                    #pragma omp critical
+                    auto each_octave = octaves[octave_index];
+                    for (int scale_index = 0; scale_index < each_octave.size() - 2; ++scale_index)
                     {
+                        auto new_points = find_local_extrema(
+                            each_octave[scale_index],
+                            each_octave[scale_index + 1],
+                            each_octave[scale_index + 2],
+                            octave_index,
+                            scale_index,
+                            contrast_check_threshold,
+                            edge_response_threshold);
                         //if `append_range` function is supported
                         #ifdef __cpp_lib_containers_ranges
-                        keypoints.append_range(new_points);
+                        keypoints.append_range(new_points | std::views::as_rvalue);
                         #else
                         for (auto&& element : new_points)
                         {
                             keypoints.emplace_back(element);
                         }
                         #endif
+                    }
+                }
+            }
+            else
+            {
+                // PARALLEL VERSION (for std::execution::par, par_unseq)
+                #pragma omp parallel for
+                for (int octave_index = 0; octave_index < octaves_count; ++octave_index)
+                {
+                    auto each_octave = octaves[octave_index];
+                    #pragma omp parallel for
+                    for (int scale_index = 0; scale_index < each_octave.size() - 2; ++scale_index)
+                    {
+                        auto new_points = find_local_extrema(
+                            each_octave[scale_index],
+                            each_octave[scale_index + 1],
+                            each_octave[scale_index + 2],
+                            octave_index,
+                            scale_index,
+                            contrast_check_threshold,
+                            edge_response_threshold);
+                        // This block ensures only one thread at a time
+                        // can modify the 'keypoints' vector.
+                        #pragma omp critical
+                        {
+                            //if `append_range` function is supported
+                            #ifdef __cpp_lib_containers_ranges
+                            keypoints.append_range(new_points | std::views::as_rvalue);
+                            #else
+                            for (auto&& element : new_points)
+                            {
+                                keypoints.emplace_back(element);
+                            }
+                            #endif
+                        }
                     }
                 }
             }
