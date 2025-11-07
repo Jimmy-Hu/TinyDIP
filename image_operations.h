@@ -3118,6 +3118,35 @@ namespace TinyDIP
         return sum_of_squares;
     }
 
+    /**
+     * euclidean_distance Template Function Implementation (with Execution Policy)
+     * @brief Calculates the Euclidean distance between two ranges of numbers. (Parallel Version)
+     *
+     * This function is a convenience wrapper that computes the square root of the result from
+     * the squared_euclidean_distance function.
+     */
+    template <
+        class ExecutionPolicy,
+        std::ranges::forward_range R1,
+        std::ranges::forward_range R2>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
+             arithmetic<std::ranges::range_value_t<R1>> &&
+             std::same_as<std::ranges::range_value_t<R1>, std::ranges::range_value_t<R2>>)
+    constexpr auto euclidean_distance(
+        ExecutionPolicy&& execution_policy,
+        const R1& range1,
+        const R2& range2)
+    {
+        // To maintain precision, cast to a high-precision float type before sqrt
+        using ValueType = std::ranges::range_value_t<R1>;
+        using RealType = get_underlying_real_type_t<ValueType>;
+        using PromotedType = std::conditional_t<std::is_floating_point_v<RealType>, RealType, double>;
+
+        const auto sq_dist = squared_euclidean_distance(std::forward<ExecutionPolicy>(execution_policy), range1, range2);
+        return std::sqrt(static_cast<PromotedType>(sq_dist));
+    }
+
+
     //  euclidean_distance Template Function Implementation (with Execution Policy)
     template<
         arithmetic OutputT = double,
