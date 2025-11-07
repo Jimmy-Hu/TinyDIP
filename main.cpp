@@ -234,7 +234,7 @@ int main()
     bmp1 = copyResizeBicubic(bmp1, bmp1.getWidth() * 2, bmp1.getHeight() * 2);
     //bmp1 = gaussian_fisheye(bmp1, 800.0);
     auto v_plane = TinyDIP::getVplane(TinyDIP::rgb2hsv(bmp1));
-    auto SIFT_keypoints = TinyDIP::SIFT_impl::get_potential_keypoint(v_plane);
+    auto SIFT_keypoints = TinyDIP::SIFT_impl::get_potential_keypoint(std::execution::par, v_plane);
     std::cout << "SIFT_keypoints = " << SIFT_keypoints.size() << "\n";
     bmp1 = TinyDIP::draw_points(bmp1, SIFT_keypoints);
     for (auto&& each_SIFT_keypoint : SIFT_keypoints)
