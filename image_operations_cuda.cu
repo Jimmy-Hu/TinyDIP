@@ -11,6 +11,7 @@
  #include <concepts>
  #include <cuda_runtime.h>
  #include <iostream>
+ #include <sstream>
  #include <stdexcept>
 
 namespace TinyDIP
