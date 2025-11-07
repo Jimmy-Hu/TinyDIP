@@ -16,13 +16,30 @@
 
 namespace TinyDIP
 {
-    // CUDA error checking macro
+    // Define a custom exception for CUDA errors
+    class CudaException : public std::runtime_error
+    {
+    public:
+        CudaException(cudaError_t err_code, const char* file, int line)
+            : std::runtime_error(build_error_string(err_code, file, line))
+        {
+        }
+    private:
+        static std::string build_error_string(cudaError_t err_code, const char* file, int line)
+        {
+            std::ostringstream oss;
+            oss << "CUDA Error: " << cudaGetErrorString(err_code)
+                << " in " << file << " at line " << line;
+            return oss.str();
+        }
+    };
+
+    // CUDA error checking macro that throws an exception
     #define CUDA_CHECK(err) { \
         cudaError_t err_code = err; \
-        if (err_code != cudaSuccess) { \
-            std::cerr << "CUDA Error: " << cudaGetErrorString(err_code) \
-                      << " in " << __FILE__ << " at line " << __LINE__ << std::endl; \
-            exit(EXIT_FAILURE); \
+        if (err_code != cudaSuccess) \
+        { \
+            throw CudaException(err_code, __FILE__, __LINE__); \
         } \
     }
 
@@ -92,8 +109,14 @@ namespace TinyDIP
 
             if constexpr (std::is_integral_v<ElementT>)
             {
-                if (total_value > 255.0) return static_cast<ElementT>(255); // Simplified clamping for byte images
-                if (total_value < 0.0) return static_cast<ElementT>(0);
+                if (total_value > 255.0)
+                {
+                    return static_cast<ElementT>(255); // Simplified clamping for byte images
+                }
+                if (total_value < 0.0)
+                {
+                    return static_cast<ElementT>(0);
+                }
             }
 
             return static_cast<ElementT>(total_value);
@@ -175,55 +198,74 @@ namespace TinyDIP
     )
     {
         // 1. Allocate memory on the GPU (device)
-        ElementT* d_src_data;
-        ElementT* d_warped_data;
+        ElementT* d_src_data = nullptr;
+        ElementT* d_warped_data = nullptr;
         const size_t src_bytes = src.count() * sizeof(ElementT);
         const size_t warped_bytes = out_width * out_height * sizeof(ElementT);
 
-        CUDA_CHECK(cudaMalloc(&d_src_data, src_bytes));
-        CUDA_CHECK(cudaMalloc(&d_warped_data, warped_bytes));
+        // We wrap the CUDA operations in a try-catch block to ensure cleanup
+        // (cudaFree) happens even if a CUDA call fails.
+        try
+        {
+            CUDA_CHECK(cudaMalloc(&d_src_data, src_bytes));
+            CUDA_CHECK(cudaMalloc(&d_warped_data, warped_bytes));
 
-        // 2. Copy source image data from CPU (host) to GPU (device)
-        CUDA_CHECK(cudaMemcpy(d_src_data, src.getImageData().data(), src_bytes, cudaMemcpyHostToDevice));
-        // Initialize warped image memory to 0
-        CUDA_CHECK(cudaMemset(d_warped_data, 0, warped_bytes));
+            // 2. Copy source image data from CPU (host) to GPU (device)
+            CUDA_CHECK(cudaMemcpy(d_src_data, src.getImageData().data(), src_bytes, cudaMemcpyHostToDevice));
+            // Initialize warped image memory to 0
+            CUDA_CHECK(cudaMemset(d_warped_data, 0, warped_bytes));
 
-        // 3. Configure and launch the kernel
-        // Threads per block (a common choice is 16x16 or 32x32)
-        dim3 threads_per_block(16, 16);
-        // Number of blocks in the grid
-        dim3 num_blocks(
-            (out_width + threads_per_block.x - 1) / threads_per_block.x,
-            (out_height + threads_per_block.y - 1) / threads_per_block.y
-        );
+            // 3. Configure and launch the kernel
+            // Threads per block (a common choice is 16x16 or 32x32)
+            dim3 threads_per_block(16, 16);
+            // Number of blocks in the grid
+            dim3 num_blocks(
+                (out_width + threads_per_block.x - 1) / threads_per_block.x,
+                (out_height + threads_per_block.y - 1) / threads_per_block.y
+            );
 
-        warp_perspective_kernel<ElementT, FloatingType, InterpolatorType><<<num_blocks, threads_per_block>>>(
-            d_warped_data,
-            d_src_data,
-            src.getWidth(),
-            src.getHeight(),
-            out_width,
-            out_height,
-            H_inv.at(0,0), H_inv.at(0,1), H_inv.at(0,2),
-            H_inv.at(1,0), H_inv.at(1,1), H_inv.at(1,2),
-            H_inv.at(2,0), H_inv.at(2,1), H_inv.at(2,2),
-            InterpolatorType{} // Pass a default-constructed functor
-        );
-        
-        // Check for any errors during kernel launch
-        CUDA_CHECK(cudaGetLastError());
-        // Synchronize to ensure the kernel has finished before we copy back data
-        CUDA_CHECK(cudaDeviceSynchronize());
+            warp_perspective_kernel<ElementT, FloatingType, InterpolatorType><<<num_blocks, threads_per_block>>>(
+                d_warped_data,
+                d_src_data,
+                src.getWidth(),
+                src.getHeight(),
+                out_width,
+                out_height,
+                H_inv.at(0,0), H_inv.at(0,1), H_inv.at(0,2),
+                H_inv.at(1,0), H_inv.at(1,1), H_inv.at(1,2),
+                H_inv.at(2,0), H_inv.at(2,1), H_inv.at(2,2),
+                InterpolatorType{} // Pass a default-constructed functor
+            );
+            
+            // Check for any errors during kernel launch
+            CUDA_CHECK(cudaGetLastError());
+            // Synchronize to ensure the kernel has finished before we copy back data
+            CUDA_CHECK(cudaDeviceSynchronize());
 
-        // 4. Copy the result from GPU (device) back to CPU (host)
-        Image<ElementT> warped_image(out_width, out_height);
-        CUDA_CHECK(cudaMemcpy((void*)warped_image.getImageData().data(), d_warped_data, warped_bytes, cudaMemcpyDeviceToHost));
+            // 4. Copy the result from GPU (device) back to CPU (host)
+            Image<ElementT> warped_image(out_width, out_height);
+            CUDA_CHECK(cudaMemcpy((void*)warped_image.getImageData().data(), d_warped_data, warped_bytes, cudaMemcpyDeviceToHost));
 
-        // 5. Free GPU memory
-        CUDA_CHECK(cudaFree(d_src_data));
-        CUDA_CHECK(cudaFree(d_warped_data));
+            // 5. Free GPU memory
+            CUDA_CHECK(cudaFree(d_src_data));
+            CUDA_CHECK(cudaFree(d_warped_data));
 
-        return warped_image;
+            return warped_image;
+        }
+        catch (...)
+        {
+            // If an exception occurred, try to free memory before re-throwing
+            if (d_src_data)
+            {
+                cudaFree(d_src_data);
+            }
+            if (d_warped_data)
+            {
+                cudaFree(d_warped_data);
+            }
+            // Re-throw the exception to be handled by the caller
+            throw;
+        }
     }
 
 } // namespace TinyDIP
