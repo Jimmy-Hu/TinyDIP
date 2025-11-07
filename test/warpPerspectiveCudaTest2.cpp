@@ -1,6 +1,7 @@
 /* Developed by Jimmy Hu */
 
 #include <chrono>
+#include <cuda_runtime.h> // Add for cudaDeviceReset()
 #include <iostream>
 #include "../base_types.h"
 #include "../basic_functions.h"
@@ -58,8 +59,12 @@ int main(int argc, char* argv[])
     catch (const std::exception& e)
     {
         std::cerr << "An error occurred: " << e.what() << '\n';
+        // Clean up CUDA resources before exiting on error
+        cudaDeviceReset();
         return EXIT_FAILURE;
     }
 
+    // Clean up CUDA resources before successful exit
+    cudaDeviceReset();
     return EXIT_SUCCESS;
 }
