@@ -163,6 +163,20 @@ if(APPLE)
   endif()
 endif()
 
+option(ENABLE_ASAN "Enable AddressSanitizer" ON)
+
+if (ENABLE_ASAN)
+    message(STATUS "AddressSanitizer enabled.")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        add_compile_options(/fsanitize=address)
+        # AddressSanitizer doesn't work with Edit and Continue (/ZI)
+        # set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<CONFIG:Debug>,/Zi,/Z7>") # Example for controlling debug info
+    else() # GCC/Clang
+        add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
+        add_link_options(-fsanitize=address)
+    endif()
+endif()
+
 # add the executable
 add_executable(TinyDIP main.cpp image_io.cpp)
 add_executable(absTest test/absTest.cpp image_io.cpp)
