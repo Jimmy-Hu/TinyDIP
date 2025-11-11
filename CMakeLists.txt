@@ -166,7 +166,7 @@ if(APPLE)
   endif()
 endif()
 
-option(ENABLE_ASAN "Enable AddressSanitizer" ON)
+option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 
 if (ENABLE_ASAN)
     message(STATUS "AddressSanitizer enabled.")
