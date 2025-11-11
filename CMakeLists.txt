@@ -59,6 +59,9 @@ if(ENABLE_CUDA)
         message(FATAL_ERROR "CMake could not find the CUDA Toolkit. Please ensure it is installed and CUDACXX is in your PATH.")
     endif()
 
+    # Reference: https://stackoverflow.com/a/43389168/6667035
+    include_directories("${CUDA_INCLUDE_DIRS}")
+
     # Specify the C++ standard for CUDA *device* code
     # NOTE: Set based on toolkit version for broader compatibility.
     if(CUDA_VERSION VERSION_GREATER_EQUAL "11.6") # Basic C++20 support started around 11.6
