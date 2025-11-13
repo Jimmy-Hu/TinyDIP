@@ -4503,7 +4503,7 @@ namespace TinyDIP
         const auto& image_size = input.getSize();
         auto center_location = image_size;
         std::transform(
-            execution_policy,
+            std::forward<ExecutionPolicy>(execution_policy),
             std::ranges::cbegin(image_size),
             std::ranges::cend(image_size),
             std::ranges::begin(center_location),
