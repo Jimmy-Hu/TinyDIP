@@ -3146,6 +3146,26 @@ namespace TinyDIP
         return std::sqrt(static_cast<PromotedType>(sq_dist));
     }
 
+    /**
+     * euclidean_distance Template Function Implementation (without Execution Policy)
+     * @brief Calculates the Euclidean distance between two ranges of numbers. (Sequential Version)
+     */
+    template <
+        std::ranges::input_range R1,
+        std::ranges::input_range R2>
+    requires(arithmetic<std::ranges::range_value_t<R1>> &&
+             std::same_as<std::ranges::range_value_t<R1>, std::ranges::range_value_t<R2>>)
+    constexpr auto euclidean_distance(
+        const R1& range1,
+        const R2& range2)
+    {
+        using ValueType = std::ranges::range_value_t<R1>;
+        using RealType = get_underlying_real_type_t<ValueType>;
+        using PromotedType = std::conditional_t<std::is_floating_point_v<RealType>, RealType, double>;
+
+        const auto sq_dist = squared_euclidean_distance(range1, range2);
+        return std::sqrt(static_cast<PromotedType>(sq_dist));
+    }
 
     //  euclidean_distance Template Function Implementation (with Execution Policy)
     template<
