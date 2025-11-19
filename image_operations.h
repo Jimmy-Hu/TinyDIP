@@ -2547,7 +2547,7 @@ namespace TinyDIP
     }
 
     //  subtract Function Implementation
-    constexpr static Image<RGB> subtract(const Image<RGB>& input1, const Image<RGB>& input2)
+    static Image<RGB> subtract(const Image<RGB>& input1, const Image<RGB>& input2)
     {
         check_size_same(input1, input2);
         return pixelwiseOperation(
