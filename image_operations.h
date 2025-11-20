@@ -2573,7 +2573,7 @@ namespace TinyDIP
     //  subtract Template Function Implementation
     template<class InputT>
     requires((std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>))
-    constexpr static auto subtract(const Image<InputT>& input1, const Image<InputT>& input2)
+    static auto subtract(const Image<InputT>& input1, const Image<InputT>& input2)
     {
         check_size_same(input1, input2);
         return pixelwiseOperation(
