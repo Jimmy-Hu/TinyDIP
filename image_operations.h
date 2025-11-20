@@ -2533,7 +2533,7 @@ namespace TinyDIP
 
     //  subtract Template Function Implementation
     template<class InputT>
-    constexpr static auto subtract(const std::vector<Image<InputT>>& input1, const std::vector<Image<InputT>>& input2)
+    static auto subtract(const std::vector<Image<InputT>>& input1, const std::vector<Image<InputT>>& input2)
     {
         if (input1.size() != input2.size())
         {
