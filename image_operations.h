@@ -4316,6 +4316,7 @@ namespace TinyDIP
 
     //  generate_padded_image template function implementation
     template<class ExecutionPolicy, typename ElementT>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
     constexpr static auto generate_padded_image(
         ExecutionPolicy&& execution_policy,
         const Image<ElementT>& input,
