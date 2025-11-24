@@ -4349,10 +4349,10 @@ namespace TinyDIP
     requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
     constexpr static auto imgaussfilt(
         const Image<ElementT>& input,
-        SigmaT sigma,
-        SizeT filter_size = 0,
-        BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
-        ElementT value_for_constant_padding = ElementT{})
+        const SigmaT sigma,
+        const SizeT filter_size = 0,
+        const BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
+        const ElementT& value_for_constant_padding = ElementT{})
     {
         if (input.getDimensionality()!=2)
         {
