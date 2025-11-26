@@ -2955,6 +2955,25 @@ namespace TinyDIP
         }
     }
 
+    //  log Template Function Implementation (the version with execution policy)
+    template<class ExecutionPolicy, typename T>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    [[nodiscard]] constexpr static auto log(ExecutionPolicy&& execution_policy, const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(
+                std::forward<ExecutionPolicy>(execution_policy),
+                input,
+                [&](auto&& _input) {return log(std::forward<ExecutionPolicy>(execution_policy), _input); }
+            );
+        }
+        else
+        {
+            return std::log(input);
+        }
+    }
+
 
     // sum_first_element Template Function Implementation
     template <typename FirstT, typename SecondT, class Function = std::plus<FirstT>>
