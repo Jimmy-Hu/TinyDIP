@@ -5500,8 +5500,8 @@ namespace TinyDIP
             const std::size_t number_of_scale_levels = 5,
             const SigmaT initial_sigma = 1.6,           //  sigma is selected to 1.6 based on paper https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf page 10
             const double k = std::numbers::sqrt2_v<double>,
-            ElementT contrast_check_threshold = 8,
-            ElementT edge_response_threshold = 12.1,
+            const ElementT contrast_check_threshold = 8,
+            const ElementT edge_response_threshold = 12.1,
             ResamplingFunc&& resampling_function = {}
         )
         {
