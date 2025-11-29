@@ -5550,7 +5550,7 @@ namespace TinyDIP
         requires((std::floating_point<ElementT> || std::integral<ElementT>))
         constexpr static auto get_orientation_histogram(
             const Image<ElementT>& input,
-            std::tuple<std::size_t, std::size_t> point,
+            const Point<2> point,
             std::size_t block_size = 3
         )
         {
@@ -5560,9 +5560,9 @@ namespace TinyDIP
             }
             std::vector<double> raw_histogram;
             raw_histogram.resize(37);
-            for (std::size_t y = std::get<1>(point) - block_size; y <= std::get<1>(point) + block_size; ++y)
+            for (std::size_t y = point.p[1] - block_size; y <= point.p[1] + block_size; ++y)
             {
-                for (std::size_t x = std::get<0>(point) - block_size; x <= std::get<0>(point) + block_size; ++x)
+                for (std::size_t x = point.p[0] - block_size; x <= point.p[0] + block_size; ++x)
                 {
                     if (x >= input.getWidth() || y >= input.getHeight())
                     {
