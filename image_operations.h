@@ -4889,6 +4889,15 @@ namespace TinyDIP
         return hsv2rgb(constructHSV(Hplane, Splane, multiplies(Vplane, times)));
     }
 
+    //  sort template function implementation
+    template<class ElementT>
+    constexpr static auto sort(const Image<ElementT>& input)
+    {
+        auto input_vector = input.getImageData();
+        std::ranges::sort(input_vector);
+        return input_vector;
+    }
+
     //  draw_point template function implementation
     template<typename ElementT, std::size_t dimension = 2>
     static auto draw_point(
