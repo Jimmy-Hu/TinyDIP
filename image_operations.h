@@ -5205,6 +5205,32 @@ namespace TinyDIP
         }
     }
 
+    //  csc template function implementation
+    template<typename ElementT = double>
+    constexpr static auto csc(const Image<ElementT>& input)
+    {
+        if constexpr ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>) || is_MultiChannel<ElementT>::value)
+        {
+            return apply_each(input, [&](auto&& planes) { return csc(planes); });
+        }
+        else if constexpr (is_complex<ElementT>::value)
+        {
+            Image<ElementT> output_image(
+                TinyDIP::recursive_transform<1>([&](auto&& _input) { return std::complex{ static_cast<ElementT>(1) } / std::sin(_input); }, input.getImageData()),
+                input.getSize()
+            );
+            return output_image;
+        }
+        else
+        {
+            Image<ElementT> output_image(
+                TinyDIP::recursive_transform<1>([&](auto&& _input) { return 1 / std::sin(_input); }, input.getImageData()),
+                input.getSize()
+            );
+            return output_image;
+        }
+    }
+
 
     namespace SIFT_impl {
         /*  is_it_extremum template function implementation
