@@ -5079,6 +5079,25 @@ namespace TinyDIP
         }
     }
 
+    //  to_complex template function implementation (with Execution Policy)
+    template<class ExecutionPolicy, typename ElementT = double>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr static auto to_complex(ExecutionPolicy&& execution_policy, const Image<ElementT>& input)
+    {
+        if constexpr ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
+        {
+            return apply_each(input, [&](auto&& planes) { return to_complex(std::forward<ExecutionPolicy>(execution_policy), planes); });
+        }
+        else
+        {
+            Image<std::complex<ElementT>> output_image(
+                TinyDIP::recursive_transform<1>(std::forward<ExecutionPolicy>(execution_policy), [](auto&& _input) { return std::complex{ _input, ElementT{} }; }, input.getImageData()),
+                input.getSize()
+            );
+            return output_image;
+        }
+    }
+
     //  to_double template function implementation (with Execution Policy)
     template<class ExecutionPolicy, typename ElementT = double>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
