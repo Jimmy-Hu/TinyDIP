@@ -5251,6 +5251,24 @@ namespace TinyDIP
     }
 
 
+    //  acos template function implementation
+    template<typename ElementT = double>
+    constexpr static auto acos(const Image<ElementT>& input)
+    {
+        if constexpr ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>) || is_MultiChannel<ElementT>::value)
+        {
+            return apply_each(input, [&](auto&& planes) { return acos(planes); });
+        }
+        else
+        {
+            Image<ElementT> output_image(
+                TinyDIP::recursive_transform<1>([&](auto&& _input) { return std::acos(_input); }, input.getImageData()),
+                input.getSize()
+            );
+            return output_image;
+        }
+    }
+
     namespace SIFT_impl {
         /*  is_it_extremum template function implementation
             input1, input2 and input3 are 3 * 3 images. If the center pixel (at location (1,1) ) of input2 is the largest / smallest one, 
