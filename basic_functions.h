@@ -2974,6 +2974,20 @@ namespace TinyDIP
         }
     }
 
+    //  log10 Template Function Implementation
+    template<typename T>
+    [[nodiscard]] constexpr static auto log10(const T& input)
+    {
+        if constexpr (Multichannel<T>)
+        {
+            return apply_multichannel(input, [&](auto&& _input) {return log10(_input); });
+        }
+        else
+        {
+            return std::log10(input);
+        }
+    }
+
 
     // sum_first_element Template Function Implementation
     template <typename FirstT, typename SecondT, class Function = std::plus<FirstT>>
