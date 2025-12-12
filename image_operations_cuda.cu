@@ -183,7 +183,8 @@ namespace TinyDIP
     /**
      * warp_perspective_cuda template function implementation
      * @brief The C++ wrapper function implementation.
-     * This is the function that is exposed to the rest of your C++ code.
+     * This is the function that is exposed to the rest of the C++ code.
+     * Reference: https://codereview.stackexchange.com/q/299733/231235
      */
     template<
         arithmetic ElementT,
@@ -192,7 +193,7 @@ namespace TinyDIP
     >
     Image<ElementT> warp_perspective_cuda(
         const Image<ElementT>& src,
-        const linalg::Matrix<FloatingType>& H_inv,
+        const linalg::Matrix<FloatingType>& homography_inv,
         const std::size_t out_width,
         const std::size_t out_height
     )
@@ -231,9 +232,9 @@ namespace TinyDIP
                 src.getHeight(),
                 out_width,
                 out_height,
-                H_inv.at(0,0), H_inv.at(0,1), H_inv.at(0,2),
-                H_inv.at(1,0), H_inv.at(1,1), H_inv.at(1,2),
-                H_inv.at(2,0), H_inv.at(2,1), H_inv.at(2,2),
+                homography_inv.at(0,0), homography_inv.at(0,1), homography_inv.at(0,2),
+                homography_inv.at(1,0), homography_inv.at(1,1), homography_inv.at(1,2),
+                homography_inv.at(2,0), homography_inv.at(2,1), homography_inv.at(2,2),
                 InterpolatorType{} // Pass a default-constructed functor
             );
             
