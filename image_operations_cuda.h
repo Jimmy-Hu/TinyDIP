@@ -21,7 +21,7 @@ namespace TinyDIP
      * @tparam ElementT The pixel element type of the image. Must be an arithmetic type.
      * @tparam FloatingType The floating-point type for matrix calculations (e.g., double, float).
      * @param src The source image to be warped.
-     * @param H The 3x3 homography matrix.
+     * @param homography The 3x3 homography matrix.
      * @param out_width The desired width of the output image.
      * @param out_height The desired height of the output image.
      * @return The warped image.
@@ -33,7 +33,7 @@ namespace TinyDIP
     >
     Image<ElementT> warp_perspective_cuda(
         const Image<ElementT>& src,
-        const linalg::Matrix<FloatingType>& H,
+        const linalg::Matrix<FloatingType>& homography,
         const std::size_t out_width,
         const std::size_t out_height
     );
@@ -46,12 +46,12 @@ namespace TinyDIP
     requires((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
     auto warp_perspective_cuda(
         const Image<ElementT>& src,
-        const linalg::Matrix<FloatingType>& H,
+        const linalg::Matrix<FloatingType>& homography,
         const std::size_t out_width,
         const std::size_t out_height
     )
     {
-        return apply_each(src, [&](auto&& planes) { return warp_perspective_cuda(planes, H, out_width, out_height); });
+        return apply_each(src, [&](auto&& planes) { return warp_perspective_cuda(planes, homography, out_width, out_height); });
     }
 
     /**
