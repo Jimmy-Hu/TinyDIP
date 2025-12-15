@@ -3173,6 +3173,15 @@ namespace TinyDIP
         return std::reduce(std::forward<ExPo>(execution_policy), std::ranges::cbegin(elements), std::ranges::cend(elements), initVal, f);
     }
 
+    //  sum_n_th_element Template Function Implementation
+    template <std::size_t N, typename TupleT, class ElementT = std::tuple_element_t<N, TupleT>, class Function = std::plus<ElementT>>
+    requires(std::regular_invocable<Function, ElementT, ElementT> and
+             (N < std::tuple_size_v<TupleT>))
+    constexpr static auto sum_n_th_element(const std::vector<TupleT>& tuples, const ElementT initVal = ElementT{}, const Function& f = Function{})
+    {
+        return sum_n_th_element<N>(std::execution::seq, tuples, initVal, f);
+    }
+
     //  Formatter class implementation
     //  Copy from https://stackoverflow.com/a/12262626/6667035
     class Formatter
