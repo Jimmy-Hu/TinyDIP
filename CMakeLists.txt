@@ -424,6 +424,7 @@ target_link_libraries( TinyDIP ${OpenCV_LIBS} )
 macro(print_all_variables)
     message(STATUS "print_all_variables------------------------------------------{")
     get_cmake_property(_variableNames VARIABLES)
+    list(SORT _variableNames) # Sort for easier reading
     foreach (_variableName ${_variableNames})
         message(STATUS "${_variableName}=${${_variableName}}")
     endforeach()
