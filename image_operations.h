@@ -5153,6 +5153,23 @@ namespace TinyDIP
         }
     }
 
+    //  cos template function implementation
+    template<typename ElementT = double>
+    constexpr static auto cos(const Image<ElementT>& input)
+    {
+        if constexpr ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>) || is_MultiChannel<ElementT>::value)
+        {
+            return apply_each(input, [&](auto&& planes) { return cos(planes); });
+        }
+        else
+        {
+            Image<ElementT> output_image(
+                TinyDIP::recursive_transform<1>([](auto&& _input) { return std::cos(_input); }, input.getImageData()),
+                input.getSize()
+            );
+            return output_image;
+        }
+    }
 
     //  tan template function implementation
     template<typename ElementT = double>
