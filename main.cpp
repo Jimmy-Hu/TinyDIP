@@ -10,6 +10,7 @@
 //#define USE_BOOST_SERIALIZATION
 
 #include <filesystem>
+#include <fstream>
 #include <execution>
 #include <valarray>
 #include "basic_functions.h"
