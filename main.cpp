@@ -209,6 +209,9 @@ void print(auto comment, auto const& seq, char term = ' ') {
 }
 
 
+auto myHighLightRegion_parameters(const std::size_t index = 0)
+{
+}
 int main()
 {
     auto start = std::chrono::system_clock::now();
