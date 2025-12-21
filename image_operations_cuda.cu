@@ -170,7 +170,7 @@ namespace TinyDIP
 
     // Explicit template instantiation for float and double types with GrayScale.
     // This is required for the linker to find the implementation across translation units.
-    // You would add instantiations for other types (e.g., RGB) as needed.
+    // Adding instantiations for other types (e.g., RGB) as needed.
     template Image<unsigned char> warp_perspective_cuda<unsigned char, float>(
         const Image<unsigned char>& src, const linalg::Matrix<float>& H,
         const std::size_t out_width, const std::size_t out_height);
