@@ -663,6 +663,32 @@ namespace TinyDIP
         return output;
     }
     
+    /**
+     * determinant3x3 template function implementation
+     * @brief Calculates the determinant of a 3x3 matrix.
+     * @param mat The 3x3 input matrix.
+     * @return The determinant.
+     */
+    template<typename InputT, std::floating_point FloatingType = double>
+    constexpr FloatingType determinant3x3(const Image<InputT>& mat)
+    {
+        // Rule of Sarrus or cofactor expansion for 3x3
+        // | a b c |
+        // | d e f |
+        // | g h i |
+        const FloatingType a = static_cast<FloatingType>(mat.at(0, 0));
+        const FloatingType b = static_cast<FloatingType>(mat.at(1, 0)); // x, y access
+        const FloatingType c = static_cast<FloatingType>(mat.at(2, 0));
+        const FloatingType d = static_cast<FloatingType>(mat.at(0, 1));
+        const FloatingType e = static_cast<FloatingType>(mat.at(1, 1));
+        const FloatingType f = static_cast<FloatingType>(mat.at(2, 1));
+        const FloatingType g = static_cast<FloatingType>(mat.at(0, 2));
+        const FloatingType h = static_cast<FloatingType>(mat.at(1, 2));
+        const FloatingType i = static_cast<FloatingType>(mat.at(2, 2));
+
+        return a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
+    }
+
     #ifdef USE_OPENCV
     //  to_cv_mat function implementation
     static auto to_cv_mat(const Image<RGB>& input)
