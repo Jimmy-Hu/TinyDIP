@@ -285,6 +285,48 @@ namespace linalg
         return inverse;
     }
 
+    /**
+     * is_symmetry template function implementation
+     * @brief Checks if a matrix is symmetric.
+     */
+    template<typename T>
+    constexpr bool is_symmetry(const Matrix<T>& mat)
+    {
+        if (mat.rows() != mat.cols())
+        {
+            return false;
+        }
+
+        // For floating point comparisons
+        constexpr double epsilon = 1e-6;
+
+        for (std::size_t r = 0; r < mat.rows(); ++r)
+        {
+            for (std::size_t c = r + 1; c < mat.cols(); ++c)
+            {
+                const auto val1 = mat.at(r, c);
+                const auto val2 = mat.at(c, r);
+
+                if constexpr (std::is_integral_v<T>)
+                {
+                    if (val1 != val2)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    // Works for floating point and std::complex (magnitude of difference)
+                    if (std::abs(val1 - val2) > epsilon)
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
 } // namespace linalg
 } // namespace TinyDIP
 
