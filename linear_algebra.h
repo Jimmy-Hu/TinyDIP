@@ -314,10 +314,18 @@ namespace linalg
                         return false;
                     }
                 }
-                else
+                else if constexpr (arithmetic<T>)
                 {
                     // Works for floating point and std::complex (magnitude of difference)
                     if (std::abs(val1 - val2) > epsilon)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    // Fallback for non-arithmetic types (e.g., enum class, std::optional, std::string)
+                    if (val1 != val2)
                     {
                         return false;
                     }
