@@ -335,6 +335,61 @@ namespace linalg
         return true;
     }
 
+    /**
+     * is_symmetry template function implementation with Execution Policy
+     * @brief Checks if a matrix is symmetric (Parallel Version).
+     */
+    template<typename ExecutionPolicy, typename T>
+    requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
+    auto is_symmetry(ExecutionPolicy&& policy, const Matrix<T>& mat)
+    {
+        if (mat.rows() != mat.cols())
+        {
+            return false;
+        }
+
+        // For floating point comparisons
+        constexpr double epsilon = 1e-6;
+
+        std::vector<std::size_t> rows_indices(mat.rows());
+        std::iota(rows_indices.begin(), rows_indices.end(), 0);
+
+        // Check if any row violates symmetry in parallel
+        return !std::any_of(std::forward<ExecutionPolicy>(policy),
+            rows_indices.begin(), rows_indices.end(),
+            [&](std::size_t r)
+            {
+                for (std::size_t c = r + 1; c < mat.cols(); ++c)
+                {
+                    const auto val1 = mat.at(r, c);
+                    const auto val2 = mat.at(c, r);
+
+                    if constexpr (std::is_integral_v<T>)
+                    {
+                        if (val1 != val2)
+                        {
+                            return true;
+                        }
+                    }
+                    else if constexpr (arithmetic<T>)
+                    {
+                        if (std::abs(val1 - val2) > epsilon)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        if (val1 != val2)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            });
+    }
+
 } // namespace linalg
 } // namespace TinyDIP
 
