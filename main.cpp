@@ -211,6 +211,16 @@ void print(auto comment, auto const& seq, char term = ' ') {
 
 auto myHighLightRegion_parameters(const std::size_t index = 0)
 {
+    std::vector<std::tuple<
+        std::string,    //  filenames
+        std::size_t,    //  start_index
+        std::size_t,    //  end_index
+        std::size_t,    //  startx
+        std::size_t,    //  endx
+        std::size_t,    //  starty
+        std::size_t,    //  endy
+        std::string     //  output_location
+        >> collection;
 }
 int main()
 {
