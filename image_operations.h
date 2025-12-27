@@ -261,7 +261,7 @@ namespace TinyDIP
         // Convert Image to Matrix to check symmetry
         // Image(x, y) maps to Matrix(row, col) => Matrix(y, x)
         // Image width is cols, height is rows
-        linalg::Matrix<InputT> m(input.getHeight(), input.getWidth());
+        linalg::Matrix<ElementT> m(input.getHeight(), input.getWidth());
     
         for (std::size_t r = 0; r < input.getHeight(); ++r)
         {
