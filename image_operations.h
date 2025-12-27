@@ -258,17 +258,20 @@ namespace TinyDIP
         {
             throw std::runtime_error("Input is not a matrix!");
         }
-        for (std::size_t y = 0; y < input.getHeight(); ++y)
+        // Convert Image to Matrix to check symmetry
+        // Image(x, y) maps to Matrix(row, col) => Matrix(y, x)
+        // Image width is cols, height is rows
+        linalg::Matrix<InputT> m(input.getHeight(), input.getWidth());
+    
+        for (std::size_t r = 0; r < input.getHeight(); ++r)
         {
-            for (std::size_t x = 0; x < input.getWidth(); ++x)
+            for (std::size_t c = 0; c < input.getWidth(); ++c)
             {
-                if (input.at_without_boundary_check(x, y) != input.at_without_boundary_check(y, x))
-                {
-                    return false;
-                }
+                m.at(r, c) = input.at_without_boundary_check(c, r);
             }
         }
-        return true;
+
+        return linalg::is_symmetry(m);
     }
 
     //  zeros template function implementation
