@@ -30,6 +30,7 @@ Both `std::ranges` and [concepts](https://en.cppreference.com/w/cpp/language/con
     sudo apt-get install build-essential -y
     ```
 
+3. `software-properties-common` should be installed on the system.
 ##### 
 
 TinyDIP library could be built with [CMake](https://cmake.org/) as the following commands:
