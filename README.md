@@ -33,6 +33,7 @@ Both `std::ranges` and [concepts](https://en.cppreference.com/w/cpp/language/con
 3. `software-properties-common` should be installed on the system.
     
     ```shell
+    sudo apt install software-properties-common -y
 ##### 
 
 TinyDIP library could be built with [CMake](https://cmake.org/) as the following commands:
