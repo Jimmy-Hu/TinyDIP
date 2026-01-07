@@ -42,6 +42,7 @@ Both `std::ranges` and [concepts](https://en.cppreference.com/w/cpp/language/con
     sudo apt install libtbb-dev -y
     ```
 
+5. The current version `CMakeLists.txt` requires `opencv` library
 ##### 
 
 TinyDIP library could be built with [CMake](https://cmake.org/) as the following commands:
