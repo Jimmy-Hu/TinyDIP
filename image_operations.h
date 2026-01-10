@@ -6008,10 +6008,16 @@ namespace TinyDIP
         const FloatingType ratio_threshold)
     {
         // Step 1: Match from image 1 to image 2
-        auto matches1to2 = find_raw_matches<FloatingType>(std::execution::par, descriptors1, descriptors2, ratio_threshold);
+        auto matches1to2 = find_raw_matches<
+                                decltype(std::execution::par)&,
+                                FloatingType
+                                >(std::execution::par, descriptors1, descriptors2, ratio_threshold);
 
         // Step 2: Match from image 2 to image 1
-        auto matches2to1 = find_raw_matches<FloatingType>(std::execution::par, descriptors2, descriptors1, ratio_threshold);
+        auto matches2to1 = find_raw_matches<
+                                decltype(std::execution::par)&,
+                                FloatingType
+                                >(std::execution::par, descriptors2, descriptors1, ratio_threshold);
 
         std::vector<std::pair<std::size_t, std::size_t>> robust_matches;
         
