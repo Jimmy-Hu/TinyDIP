@@ -5934,13 +5934,21 @@ namespace TinyDIP
      * @brief Finds initial ("raw") matching keypoints between two sets of SIFT descriptors using Lowe's ratio test.
      * This is a building block for the more robust cross-checking matcher.
      */
-    template<std::floating_point FloatingType = double, class ExecutionPolicy>
-    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    template<
+        class ExecutionPolicy,
+        class DescriptorT = SiftDescriptor,
+        std::floating_point FloatingType = double,
+        typename DistanceFunction = squared_euclidean_distance
+        >
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
+             std::invocable<DistanceFunction, DescriptorT, DescriptorT>)
     std::vector<std::pair<std::size_t, std::size_t>> find_raw_matches(
         ExecutionPolicy&& policy,
-        const std::vector<SiftDescriptor>& descriptors1,
-        const std::vector<SiftDescriptor>& descriptors2,
-        const FloatingType ratio_threshold)
+        const std::vector<DescriptorT>& descriptors1,
+        const std::vector<DescriptorT>& descriptors2,
+        const FloatingType ratio_threshold,
+        DistanceFunction dist_func = DistanceFunction{}
+    )
     {
         if (descriptors1.empty() || descriptors2.empty())
         {
@@ -5962,7 +5970,9 @@ namespace TinyDIP
 
                 for (std::size_t j = 0; j < descriptors2.size(); ++j)
                 {
-                    const FloatingType dist_sq = static_cast<FloatingType>(squared_euclidean_distance(descriptors1[i], descriptors2[j]));
+                    const FloatingType dist_sq = static_cast<FloatingType>(
+                        std::invoke(dist_func, descriptors1[i], descriptors2[j])
+                    );
 
                     if (dist_sq < best_dist_sq)
                     {
