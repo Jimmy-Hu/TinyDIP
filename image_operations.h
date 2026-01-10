@@ -3057,7 +3057,7 @@ namespace TinyDIP
         requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
                 arithmetic<std::ranges::range_value_t<R1>> &&
                 std::same_as<std::ranges::range_value_t<R1>, std::ranges::range_value_t<R2>>)
-        auto  operator()(
+        auto operator()(
             ExecutionPolicy&& execution_policy,
             const R1& range1,
             const R2& range2)
@@ -3091,64 +3091,64 @@ namespace TinyDIP
                     }
                 });
         }
-    }
-
-    /**
-     * squared_euclidean_distance Template Function Implementation (without execution policy)
-     * @brief Calculates the squared Euclidean distance between two ranges of numbers. (Sequential Version)
-     *
-     * This sequential version is more general and works with any input_range.
-     *
-     * @tparam R1 The type of the first range.
-     * @tparam R2 The type of the second range.
-     * @param range1 The first range of numbers.
-     * @param range2 The second range of numbers.
-     * @return The squared Euclidean distance between the two ranges.
-     * @throws std::runtime_error if the ranges have different sizes.
-     */
-    template <
-        std::ranges::input_range R1,
-        std::ranges::input_range R2>
-    requires(arithmetic<std::ranges::range_value_t<R1>> &&
-             std::same_as<std::ranges::range_value_t<R1>, std::ranges::range_value_t<R2>>)
-    constexpr auto squared_euclidean_distance(
-        const R1& range1,
-        const R2& range2)
-    {
-        // For input_range, a manual loop is the most reliable approach, as std::distance can be O(n)
-        // and we need to iterate anyway.
-        using ValueType = std::ranges::range_value_t<R1>;
-        using ResultType = get_underlying_real_type_t<ValueType>;
-        ResultType sum_of_squares{};
-
-        auto it1 = std::ranges::cbegin(range1);
-        auto const end1 = std::ranges::cend(range1);
-        auto it2 = std::ranges::cbegin(range2);
-        auto const end2 = std::ranges::cend(range2);
-
-        while (it1 != end1 && it2 != end2)
+        
+        /**
+         * squared_euclidean_distance Template Function Implementation (without execution policy)
+         * @brief Calculates the squared Euclidean distance between two ranges of numbers. (Sequential Version)
+         *
+         * This sequential version is more general and works with any input_range.
+         *
+         * @tparam R1 The type of the first range.
+         * @tparam R2 The type of the second range.
+         * @param range1 The first range of numbers.
+         * @param range2 The second range of numbers.
+         * @return The squared Euclidean distance between the two ranges.
+         * @throws std::runtime_error if the ranges have different sizes.
+         */
+        template <
+            std::ranges::input_range R1,
+            std::ranges::input_range R2>
+        requires(arithmetic<std::ranges::range_value_t<R1>> &&
+                std::same_as<std::ranges::range_value_t<R1>, std::ranges::range_value_t<R2>>)
+        constexpr auto operator()(
+            const R1& range1,
+            const R2& range2)
         {
-            const auto diff = *it1 - *it2;
-            if constexpr (is_complex<ValueType>::value)
-            {
-                sum_of_squares += std::norm(diff);
-            }
-            else
-            {
-                sum_of_squares += diff * diff;
-            }
-            ++it1;
-            ++it2;
-        }
+            // For input_range, a manual loop is the most reliable approach, as std::distance can be O(n)
+            // and we need to iterate anyway.
+            using ValueType = std::ranges::range_value_t<R1>;
+            using ResultType = get_underlying_real_type_t<ValueType>;
+            ResultType sum_of_squares{};
 
-        // Ensure both ranges were fully traversed. If not, they had different lengths.
-        if (it1 != end1 || it2 != end2)
-        {
-            throw std::runtime_error("Ranges must have the same size for Euclidean distance calculation.");
-        }
+            auto it1 = std::ranges::cbegin(range1);
+            auto const end1 = std::ranges::cend(range1);
+            auto it2 = std::ranges::cbegin(range2);
+            auto const end2 = std::ranges::cend(range2);
 
-        return sum_of_squares;
-    }
+            while (it1 != end1 && it2 != end2)
+            {
+                const auto diff = *it1 - *it2;
+                if constexpr (is_complex<ValueType>::value)
+                {
+                    sum_of_squares += std::norm(diff);
+                }
+                else
+                {
+                    sum_of_squares += diff * diff;
+                }
+                ++it1;
+                ++it2;
+            }
+
+            // Ensure both ranges were fully traversed. If not, they had different lengths.
+            if (it1 != end1 || it2 != end2)
+            {
+                throw std::runtime_error("Ranges must have the same size for Euclidean distance calculation.");
+            }
+
+            return sum_of_squares;
+        }
+    };
 
     /**
      * euclidean_distance Template Function Implementation (with Execution Policy)
