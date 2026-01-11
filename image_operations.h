@@ -5941,7 +5941,11 @@ namespace TinyDIP
         typename DistanceFunction = squared_euclidean_distance
         >
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
-             std::invocable<DistanceFunction, DescriptorT, DescriptorT>)
+             std::invocable<DistanceFunction, DescriptorT, DescriptorT> &&
+             std::convertible_to<
+                 std::invoke_result_t<DistanceFunction, DescriptorT, DescriptorT>,
+                 FloatingType
+             >)
     std::vector<std::pair<std::size_t, std::size_t>> find_raw_matches(
         ExecutionPolicy&& policy,
         const std::vector<DescriptorT>& descriptors1,
