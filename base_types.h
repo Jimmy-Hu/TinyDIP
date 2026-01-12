@@ -102,6 +102,7 @@ namespace TinyDIP
 
     using GrayScale = std::uint8_t;
 
+    //  HSV struct implementation
     struct HSV
     {
         double channels[3];    //  Range: 0 <= H < 360, 0 <= S <= 1, 0 <= V <= 255
@@ -135,6 +136,8 @@ namespace TinyDIP
             return std::tie(channels[0], channels[1], channels[2])
                 < std::tie(other.channels[0], other.channels[1], other.channels[2]);
         }
+
+        bool operator==(const HSV& other) const = default;
     };
 
     //  MultiChannel struct implementation
