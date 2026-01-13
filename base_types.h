@@ -176,6 +176,8 @@ namespace TinyDIP
             out << '}';
             return out;
         }
+
+        bool operator==(const MultiChannel& other) const = default;
     };
 
     //  Point struct implementation
