@@ -84,7 +84,7 @@ namespace TinyDIP
             if (x < 1 || x >= src_width - 2 || y < 1 || y >= src_height - 2)
             {
                 int ix = static_cast<int>(std::round(x));
-                int iy = static_cast<int>(roundf(y));
+                int iy = static_cast<int>(std::round(y));
                 ix = max(0, min(src_width - 1, ix));
                 iy = max(0, min(src_height - 1, iy));
                 return src_data[iy * src_width + ix];
