@@ -90,7 +90,7 @@ namespace TinyDIP
                 return src_data[iy * src_width + ix];
             }
 
-            int x_floor = static_cast<int>(floorf(x));
+            int x_floor = static_cast<int>(std::floor(x));
             int y_floor = static_cast<int>(floorf(y));
 
             FloatingType total_value{};
