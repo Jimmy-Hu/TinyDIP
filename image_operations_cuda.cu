@@ -91,7 +91,7 @@ namespace TinyDIP
             }
 
             int x_floor = static_cast<int>(std::floor(x));
-            int y_floor = static_cast<int>(floorf(y));
+            int y_floor = static_cast<int>(std::floor(y));
 
             FloatingType total_value{};
 
