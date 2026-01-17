@@ -40,7 +40,8 @@ parts:
       - libopencv-imgcodecs406t64
       - libopencv-highgui406t64
       - libopencv-imgproc406t64
-      - libtbb12t64
+      # Corrected: libtbb12 did not get the 't64' suffix in Ubuntu 24.04
+      - libtbb12
       - libgomp1
       - libstdc++6
       - libgcc-s1
