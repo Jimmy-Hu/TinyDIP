@@ -1,0 +1,57 @@
+name: tinydip
+base: core24
+version: '1.0'
+summary: Tiny Digital Image Processing Library
+description: |
+  TinyDIP is a modern C++ library for digital image processing.
+  This snap packages the main demonstration executable.
+
+grade: devel # Use 'stable' once you are ready to release to the store
+confinement: devmode # Start with 'devmode' to avoid permission issues during testing
+
+parts:
+  tinydip:
+    plugin: cmake
+    source: .
+    
+    # CMake configuration flags
+    cmake-parameters:
+      - -DCMAKE_BUILD_TYPE=Release
+      # CUDA is disabled for the base snap build to ensure compatibility.
+      # Enabling CUDA in snaps requires the 'nvidia-neon' extension or manual setup.
+      - -DENABLE_CUDA=OFF
+      - -DCMAKE_INSTALL_PREFIX=/usr
+
+    # Build-time dependencies (headers and compilers)
+    build-packages:
+      - build-essential
+      - cmake
+      - libopencv-dev
+      - libtbb-dev
+      - libomp-dev
+      - libboost-all-dev
+      - pkg-config
+
+    # Runtime dependencies (shared libraries)
+    # Note: Package names below include 't64' which is specific to Ubuntu 24.04 (core24)
+    # due to the time_t 64-bit transition.
+    stage-packages:
+      - libopencv-core406t64
+      - libopencv-imgcodecs406t64
+      - libopencv-highgui406t64
+      - libopencv-imgproc406t64
+      - libtbb12t64
+      - libgomp1
+      - libstdc++6
+      - libgcc-s1
+
+apps:
+  tinydip:
+    command: bin/TinyDIP
+    # Plugs allow the app to access system resources
+    plugs:
+      - home             # Access to user's home directory (read/write non-hidden files)
+      - removable-media  # Access to USBs/External drives
+      - opengl           # Required for GUI/Rendering
+      - x11              # Legacy display server support
+      - wayland          # Modern display server support
