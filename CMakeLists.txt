@@ -436,5 +436,9 @@ IF (CMAKE_VERSION VERSION_GREATER_EQUAL "3.18" AND CMAKE_BUILD_TYPE STREQUAL "De
   cmake_language(CALL print_all_variables)
 ENDIF()
 
+include(GNUInstallDirs)
 
+install(TARGETS TinyDIP
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
