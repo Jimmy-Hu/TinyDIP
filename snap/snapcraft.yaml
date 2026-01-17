@@ -20,6 +20,7 @@ parts:
       # CUDA is disabled for the base snap build to ensure compatibility.
       # Enabling CUDA in snaps requires the 'nvidia-neon' extension or manual setup.
       - -DENABLE_CUDA=OFF
+      # Installing to /usr results in the binary being at $SNAP/usr/bin/TinyDIP
       - -DCMAKE_INSTALL_PREFIX=/usr
 
     # Build-time dependencies (headers and compilers)
@@ -33,26 +34,30 @@ parts:
       - pkg-config
 
     # Runtime dependencies (shared libraries)
-    # Note: Package names below include 't64' which is specific to Ubuntu 24.04 (core24)
-    # due to the time_t 64-bit transition.
     stage-packages:
       - libopencv-core406t64
       - libopencv-imgcodecs406t64
       - libopencv-highgui406t64
       - libopencv-imgproc406t64
-      # Corrected: libtbb12 did not get the 't64' suffix in Ubuntu 24.04
       - libtbb12
       - libgomp1
       - libstdc++6
       - libgcc-s1
+      # Explicitly stage common graphics backends for OpenCV highgui
+      - libgl1
+      - libglx-mesa0
+      - libegl1
+      - libx11-6
 
 apps:
   tinydip:
-    command: bin/TinyDIP
+    # FIX: Updated path to match CMAKE_INSTALL_PREFIX=/usr
+    command: usr/bin/TinyDIP
+    
     # Plugs allow the app to access system resources
     plugs:
-      - home             # Access to user's home directory (read/write non-hidden files)
+      - home             # Access to user's home directory
       - removable-media  # Access to USBs/External drives
-      - opengl           # Required for GUI/Rendering
+      - opengl           # Required for GUI/Rendering (OpenCV imshow)
       - x11              # Legacy display server support
       - wayland          # Modern display server support
