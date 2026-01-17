@@ -55,8 +55,19 @@ enc_temp_folder/
 # VS code folder
 .vscode/
 
+# Snapcraft build artifacts
+parts/
+stage/
+prime/
+*.snap
+
 # other ignored files
 ignored_files/ 
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
 *.bmp
 *.dbmp
 *.DS_Store
