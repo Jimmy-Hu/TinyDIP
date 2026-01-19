@@ -45,6 +45,7 @@ Both `std::ranges` and [concepts](https://en.cppreference.com/w/cpp/language/con
 5. The current version `CMakeLists.txt` requires `opencv` library
 
     ```shell
+    sudo apt-get install libopencv-dev -y
 
 
 ##### 
