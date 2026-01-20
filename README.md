@@ -46,6 +46,7 @@ Both `std::ranges` and [concepts](https://en.cppreference.com/w/cpp/language/con
 
     ```shell
     sudo apt-get install libopencv-dev -y
+    ```
 
 
 ##### 
