@@ -48,7 +48,8 @@ Both `std::ranges` and [concepts](https://en.cppreference.com/w/cpp/language/con
     sudo apt-get install libopencv-dev -y
     ```
 
-
+6. Check that `g++` is installed correctly.
+    
 ##### 
 
 TinyDIP library could be built with [CMake](https://cmake.org/) as the following commands:
