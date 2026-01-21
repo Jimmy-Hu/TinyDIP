@@ -16,6 +16,11 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev
 
+    - name: Configure and Build Tests
+      run: |
+        cmake . -DCMAKE_CXX_STANDARD=23 -DENABLE_CUDA=OFF
+        make -j2
+
     - name: Build Snap
       uses: snapcore/action-build@v1
       id: build
