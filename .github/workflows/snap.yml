@@ -1,4 +1,4 @@
-name: Cross-Platform Build and Publish
+name: Cross-Platform Build Matrix
 
 on:
   push:
@@ -39,25 +39,30 @@ jobs:
         release: edge
 
   verify-macos:
-    name: Verify Compilation (macOS/Clang)
+    name: macOS (LLVM Clang)
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install Dependencies (Homebrew)
+    - name: Install Dependencies
       run: |
         brew update
-        brew install cmake opencv tbb libomp
+        brew install llvm cmake opencv tbb libomp
 
     - name: Configure CMake (macOS)
       run: |
         mkdir build_mac
         cd build_mac
+        
+        export LLVM_PATH=$(brew --prefix llvm)
+        
         cmake .. \
           -DCMAKE_CXX_STANDARD=23 \
           -DENABLE_CUDA=OFF \
-          -DCMAKE_C_COMPILER=clang \
-          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_C_COMPILER="$LLVM_PATH/bin/clang" \
+          -DCMAKE_CXX_COMPILER="$LLVM_PATH/bin/clang++" \
+          -DCMAKE_CXX_FLAGS="-I$LLVM_PATH/include" \
+          -DCMAKE_EXE_LINKER_FLAGS="-L$LLVM_PATH/lib -Wl,-rpath,$LLVM_PATH/lib"
 
     - name: Build (macOS)
       run: |
