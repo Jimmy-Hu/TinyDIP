@@ -18,8 +18,13 @@ jobs:
 
     - name: Configure and Build Tests
       run: |
-        cmake . -DCMAKE_CXX_STANDARD=23 -DENABLE_CUDA=OFF
+        mkdir build_test
+        cd build_test
+        cmake .. -DCMAKE_CXX_STANDARD=23 -DENABLE_CUDA=OFF
         make -j2
+    
+    - name: Clean up Build Artifacts
+      run: rm -rf build_test
 
     - name: Build Snap
       uses: snapcore/action-build@v1
