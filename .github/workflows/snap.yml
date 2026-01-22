@@ -61,8 +61,8 @@ jobs:
           -DENABLE_CUDA=OFF \
           -DCMAKE_C_COMPILER="$LLVM_PATH/bin/clang" \
           -DCMAKE_CXX_COMPILER="$LLVM_PATH/bin/clang++" \
-          -DCMAKE_CXX_FLAGS="-I$LLVM_PATH/include" \
-          -DCMAKE_EXE_LINKER_FLAGS="-L$LLVM_PATH/lib -Wl,-rpath,$LLVM_PATH/lib"
+          -DCMAKE_CXX_FLAGS="-isystem $LLVM_PATH/include/c++/v1 -fexperimental-library" \
+          -DCMAKE_EXE_LINKER_FLAGS="-L$LLVM_PATH/lib -Wl,-rpath,$LLVM_PATH/lib -fexperimental-library"
 
     - name: Build (macOS)
       run: |
