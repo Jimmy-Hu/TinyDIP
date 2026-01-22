@@ -120,7 +120,7 @@ endif()
 # Reference: https://stackoverflow.com/a/10055571/6667035
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math -fopenmp") # Match standard with CMAKE_CXX_STANDARD
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math") # Match standard with CMAKE_CXX_STANDARD
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # using GCC
   # Note: -std=c++2b is C++23. Already handled by CMAKE_CXX_STANDARD.
