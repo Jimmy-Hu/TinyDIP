@@ -1,4 +1,4 @@
-name: Build and Publish Snap
+name: Cross-Platform Build and Publish
 
 on:
   push:
@@ -37,3 +37,29 @@ jobs:
       with:
         snap: ${{ steps.build.outputs.snap }}
         release: edge
+
+  verify-macos:
+    name: Verify Compilation (macOS/Clang)
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Dependencies (Homebrew)
+      run: |
+        brew update
+        brew install cmake opencv tbb libomp
+
+    - name: Configure CMake (macOS)
+      run: |
+        mkdir build_mac
+        cd build_mac
+        cmake .. \
+          -DCMAKE_CXX_STANDARD=23 \
+          -DENABLE_CUDA=OFF \
+          -DCMAKE_C_COMPILER=clang \
+          -DCMAKE_CXX_COMPILER=clang++
+
+    - name: Build (macOS)
+      run: |
+        cd build_mac
+        make -j3
