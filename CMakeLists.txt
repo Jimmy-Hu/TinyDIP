@@ -112,21 +112,25 @@ endif()
 
 if(UNIX AND NOT APPLE)
     # for Linux, BSD, Solaris, Minix
-    set(CMAKE_C_COMPILER "/usr/bin/gcc")
-    set(CMAKE_CXX_COMPILER "/usr/bin/g++")
+    # Only set specific paths if necessary, otherwise trust CMake detection
+    if(EXISTS "/usr/bin/gcc")
+        set(CMAKE_C_COMPILER "/usr/bin/gcc")
+    endif()
+    if(EXISTS "/usr/bin/g++")
+        set(CMAKE_CXX_COMPILER "/usr/bin/g++")
+    endif()
 endif()
 
 # Set CXX flags based on compiler
 # Reference: https://stackoverflow.com/a/10055571/6667035
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  # using Clang
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math") # Match standard with CMAKE_CXX_STANDARD
+# NOTE: "MATCHES Clang" handles both "Clang" and "AppleClang"
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  # using Clang or AppleClang
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math") 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # using GCC
-  # Note: -std=c++2b is C++23. Already handled by CMAKE_CXX_STANDARD.
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -fopenmp -O3 -fdiagnostics-show-template-tree -fstats -finstrument-functions")
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-  # using Intel C++
+  # Note: -fopenmp is added here manually for GCC, but we will handle it via find_package(OpenMP) later properly
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -O3 -fdiagnostics-show-template-tree -fstats -finstrument-functions")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   # using Visual Studio C++
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast /Ox /Ob2 /Oi /Ot /GT /std:c++latest /experimental:module /Zm2000 /Zc:twoPhase- /D_HAS_STD_BYTE=0 /D_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING /D_HAS_STD_BOOLEAN=0 /bigobj /openmp:llvm")
