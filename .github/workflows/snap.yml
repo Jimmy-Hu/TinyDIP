@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-snap-linux:
+    name: Linux x86 (Snap Publish)
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -16,12 +17,17 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev
 
-    - name: Configure and Build Tests
+    - name: Configure and Build Tests (Linux)
       run: |
         mkdir build_test
         cd build_test
         cmake .. -DCMAKE_CXX_STANDARD=23 -DENABLE_CUDA=OFF
         make -j2
+    
+    - name: Run Unit Tests (Linux)
+      run: |
+        cd build_test
+        ./absTest
     
     - name: Clean up Build Artifacts
       run: rm -rf build_test
