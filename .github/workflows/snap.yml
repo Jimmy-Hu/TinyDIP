@@ -53,7 +53,76 @@ jobs:
       with:
         snap: ${{ steps.build.outputs.snap }}
         release: edge
+  
+  verify-linux-gcc-15-source:
+    name: Linux x86 (GCC 15.2.0 Source)
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
 
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev flex bison libgmp-dev libmpfr-dev libmpc-dev
+
+    - name: Cache Custom GCC
+      id: cache-gcc
+      uses: actions/cache@v3
+      with:
+        path: /opt/gcc-15.2.0
+        key: gcc-15.2.0-source-build-${{ runner.os }}-v1
+
+    - name: Compile GCC 15.2.0 from Source
+      if: steps.cache-gcc.outputs.cache-hit != 'true'
+      run: |
+        echo "Compiling GCC 15.2.0 from source... This may take 1-2 hours."
+        wget https://ftp.gnu.org/gnu/gcc/gcc-15.2.0/gcc-15.2.0.tar.gz
+        tar xzf gcc-15.2.0.tar.gz
+        cd gcc-15.2.0
+        
+        ./contrib/download_prerequisites
+        
+        mkdir build && cd build
+        
+        ../configure --prefix=/opt/gcc-15.2.0 --enable-languages=c,c++ --disable-multilib
+        
+        make -j$(nproc)
+        
+        sudo make install
+        
+        cd ../..
+        rm -rf gcc-15.2.0 gcc-15.2.0.tar.gz
+
+    - name: Configure and Build Tests (Linux GCC 15)
+      run: |
+        mkdir build_test_gcc
+        cd build_test_gcc
+        
+        cmake .. \
+          -DCMAKE_CXX_STANDARD=23 \
+          -DENABLE_CUDA=OFF \
+          -DCMAKE_C_COMPILER=/opt/gcc-15.2.0/bin/gcc \
+          -DCMAKE_CXX_COMPILER=/opt/gcc-15.2.0/bin/g++ \
+          -DCMAKE_CXX_FLAGS="-Wl,-rpath,/opt/gcc-15.2.0/lib64"
+        
+        make -j$(nproc)
+    
+    - name: Run Unit Tests (Linux GCC 15)
+      run: |
+        cd build_test_gcc
+        ./absTest
+        ./dct2Test
+
+    - name: Upload Executable (GCC 15)
+      uses: actions/upload-artifact@v4
+      with:
+        name: TinyDIP-build-gcc15-${{ runner.os }}
+        path: build_test_gcc/*
+        retention-days: 90
+
+    - name: Clean up Build Artifacts
+      run: rm -rf build_test_gcc
+  
   verify-macos:
     name: macOS (GCC 14)
     runs-on: macos-latest
