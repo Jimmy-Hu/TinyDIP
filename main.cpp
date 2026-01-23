@@ -204,6 +204,17 @@ void difference_and_enhancement(std::string input_path1, std::string input_path2
 #ifndef BOOST_TEST_MODULE
 void addLeadingZeros(std::string input_path, std::string output_path);
 
+//  parse_arg template function implementation
+//  Helper for converting string to numeric types safely
+template <typename T>
+T parse_arg(const std::string& str)
+{
+    std::stringstream ss(str);
+    T result;
+    ss >> result;
+    return result;
+}
+
 void print(auto comment, auto const& seq, char term = ' ') {
     for (std::cout << comment << '\n'; auto const& elem : seq)
         std::cout << elem << term;
