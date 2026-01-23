@@ -29,6 +29,7 @@ jobs:
         cd build_test
         ./absTest
         ./dct2Test
+        ./dct2Test3
     
     - name: Clean up Build Artifacts
       run: rm -rf build_test
