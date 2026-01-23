@@ -1,4 +1,5 @@
 /* Developed by Jimmy Hu */
+/* Refactored for CLI Application capability */
 
 //  compile command:
 //  clang++ -std=c++20 -Xpreprocessor -fopenmp -I/usr/local/include -L/usr/local/lib -lomp  main.cpp -L /usr/local/Cellar/llvm/10.0.0_3/lib/ -lm -O3 -o main -v
@@ -42,6 +43,7 @@ typedef boost::mpl::list<
     unsigned int, unsigned short int, unsigned long int, unsigned long long int,
     float, double, long double> test_types;
 
+//  [TODO] Avoid code duplication (https://codereview.stackexchange.com/a/267709/231235)
 BOOST_AUTO_TEST_CASE_TEMPLATE(image_elementwise_add_test, T, test_types)
 {
     std::size_t size_x = 10;
