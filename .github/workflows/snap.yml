@@ -123,6 +123,51 @@ jobs:
     - name: Clean up Build Artifacts
       run: rm -rf build_test_gcc
   
+  verify-linux-gcc-15-self-hosted:
+    name: Linux x86 (GCC 15.2.0 - Local Machine)
+    runs-on: [self-hosted, linux]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check Environment
+      run: |
+        g++ --version
+        cmake --version
+        /opt/gcc-15.2.0/bin/g++ --version
+
+    - name: Configure and Build Tests (Fast)
+      run: |
+        rm -rf build_test_gcc_local
+        mkdir build_test_gcc_local
+        cd build_test_gcc_local
+        
+        cmake .. \
+          -DCMAKE_CXX_STANDARD=23 \
+          -DENABLE_CUDA=OFF \
+          -DCMAKE_C_COMPILER=/opt/gcc-15.2.0/bin/gcc \
+          -DCMAKE_CXX_COMPILER=/opt/gcc-15.2.0/bin/g++ \
+          -DCMAKE_CXX_FLAGS="-Wl,-rpath,/opt/gcc-15.2.0/lib64"
+        
+        make -j$(nproc)
+    
+    - name: Run Unit Tests
+      run: |
+        cd build_test_gcc_local
+        ./absTest
+        ./dct2Test
+
+    - name: Upload Executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: TinyDIP-build-gcc15-self-hosted
+        path: build_test_gcc_local/*
+        retention-days: 90
+        
+    - name: Final Clean up
+      if: always()
+      run: rm -rf build_test_gcc_local
+  
   verify-macos:
     name: macOS (GCC 14)
     runs-on: macos-latest
