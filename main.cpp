@@ -292,67 +292,6 @@ int main()
 
     
     return EXIT_SUCCESS;
-    //addLeadingZeros("../../../InputImages/", "../../../OutputImages/");
-    //bicubicInterpolationTest();
-    
-    
-    //bmp1 = TinyDIP::hsv2rgb(TinyDIP::rgb2hsv(bmp1));
-    bmp1 = TinyDIP::apply_each(bmp1, [](auto&& element) { return TinyDIP::copyResizeBicubic(element, 480, 320); });
-    TinyDIP::print_with_latex_to_file(bmp1, "test.txt");
-    TinyDIP::bmp_write("test", bmp1);
-    auto blank = TinyDIP::Image<TinyDIP::GrayScale>(bmp1.getWidth(), bmp1.getHeight());
-    TinyDIP::bmp_write("test", TinyDIP::constructRGB(
-        TinyDIP::getRplane(bmp1),
-        TinyDIP::Image<TinyDIP::GrayScale>(bmp1.getWidth(), bmp1.getHeight()),
-        TinyDIP::Image<TinyDIP::GrayScale>(bmp1.getWidth(), bmp1.getHeight())
-    ));
-    
-    std::cout << "*********\n";
-    std::size_t size = 10;
-    auto img1 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(3));
-    img1.print(",");
-    return 0;
-#ifdef USE_BOOST_SERIALIZATION
-    img1.Save("img1");
-#endif // USE_BOOST_SERIALIZATION
-
-    auto img2 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(3));
-    auto img3 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(3));
-    auto img4 = TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(3));
-
-    TinyDIP::subtract(
-        TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(5)),
-        TinyDIP::gaussianFigure2D(size, size, 5, 5, static_cast<double>(3))).print(",");
-
-    TinyDIP::pixelwise_multiplies(
-        img1, img2, img3, img4, img2, img3, img4, img2, img3, img4,
-        img2, img3, img4, img2, img3, img4, img2, img3, img4, 
-        img2, img3, img4, img2, img3, img4, img2, img3, img4, 
-        img2, img3, img4, img2, img3, img4, img2, img3, img4).print();
-    return 0;
-    
-    
-    
-    #ifdef USE_BOOST_ITERATOR
-    std::vector<int> a{1, 2, 3}, b{4, 5, 6};
-    auto result = TinyDIP::recursive_transform<1>(
-        std::execution::par,
-        [](int element1, int element2) { return element1 * element2; },
-        a, b);
-    for (size_t i = 0; i < result.size(); i++)
-    {
-        std::cout << result.at(i) << std::endl;
-    }
-
-    std::vector<decltype(a)> c{a, a, a}, d{b, b, b};
-    auto result2 = TinyDIP::recursive_transform<2>(
-        std::execution::par,
-        [](int element1, int element2) { return element1 * element2; },
-        c, d);
-    TinyDIP::recursive_print(result2);
-    #endif
-    
-    return 0;
 }
 
 #endif
