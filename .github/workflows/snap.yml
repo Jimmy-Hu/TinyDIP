@@ -22,7 +22,7 @@ jobs:
         mkdir build_test
         cd build_test
         cmake .. -DCMAKE_CXX_STANDARD=23 -DENABLE_CUDA=OFF
-        make -j2
+        make -j$(nproc)
     
     - name: Run Unit Tests (Linux)
       run: |
@@ -42,9 +42,11 @@ jobs:
     - name: Clean up Build Artifacts
       run: rm -rf build_test
 
-    - name: Build Snap
+    - name: Build Snap Package
       uses: snapcore/action-build@v1
       id: build
+      with: 
+        snapcraft-args: --target-arch amd64
 
     - name: Publish Snap
       uses: snapcore/action-publish@v1
