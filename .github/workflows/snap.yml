@@ -170,6 +170,49 @@ jobs:
       if: always()
       run: rm -rf build_test_gcc_local
   
+  linux-perf-profiling:
+    name: Linux x86 (Perf Profiling)
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev linux-tools-generic
+
+    - name: Configure and Build Tests (Linux)
+      run: |
+        mkdir build_test
+        cd build_test
+        cmake .. -DCMAKE_CXX_STANDARD=23 -DENABLE_CUDA=OFF -DCMAKE_CXX_FLAGS="-fno-omit-frame-pointer"
+        make -j$(nproc)
+
+    - name: Run Performance Profiling (perf)
+      run: |
+        cd build_test
+        
+        echo "========================================="
+        echo "Profiling ./absTest"
+        echo "========================================="
+        sudo perf record -o perf_abs.data --call-graph dwarf ./absTest
+        sudo perf report -i perf_abs.data --stdio
+
+        echo "========================================="
+        echo "Profiling ./dct2Test"
+        echo "========================================="
+        sudo perf record -o perf_dct2.data --call-graph dwarf ./dct2Test
+        sudo perf report -i perf_dct2.data --stdio
+        
+        echo "========================================="
+        echo "Profiling ./dct2Test3"
+        echo "========================================="
+        sudo perf record -o perf_dct2_3.data --call-graph dwarf ./dct2Test3
+        sudo perf report -i perf_dct2_3.data --stdio
+
+    - name: Clean up Build Artifacts
+      run: rm -rf build_test
+  
   verify-macos:
     name: macOS (GCC 14)
     runs-on: macos-latest
