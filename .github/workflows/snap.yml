@@ -203,12 +203,6 @@ jobs:
         echo "========================================="
         sudo perf record -o perf_dct2.data --call-graph dwarf ./dct2Test
         sudo perf report -i perf_dct2.data --stdio
-        
-        echo "========================================="
-        echo "Profiling ./dct2Test3"
-        echo "========================================="
-        sudo perf record -o perf_dct2_3.data --call-graph dwarf ./dct2Test3
-        sudo perf report -i perf_dct2_3.data --stdio
 
     - name: Clean up Build Artifacts
       run: rm -rf build_test
