@@ -251,6 +251,49 @@ auto myHighLightRegion_parameters(const std::size_t index = 0)
 //  Uses std::function to store lambda or function pointers
 using CommandHandler = std::function<void(const std::vector<std::string>& args)>;
 
+//  CommandRegistry class implementation
+class CommandRegistry
+{
+private:
+    std::map<std::string, std::pair<std::string, CommandHandler>> commands;
+
+public:
+    void register_command(const std::string& name, const std::string& description, CommandHandler handler)
+    {
+        commands.emplace(name, std::make_pair(description, handler));
+    }
+
+    void list_commands() const
+    {
+        std::cout << "Available Commands:\n";
+        for (const auto& [name, info] : commands)
+        {
+            std::cout << "  " << std::left << std::setw(15) << name << " : " << info.first << "\n";
+        }
+        std::cout << "\nUsage: ./tinydip <command> [args...]\n";
+    }
+
+    void execute(const std::string& command_name, const std::vector<std::string>& args)
+    {
+        if (commands.find(command_name) != commands.end())
+        {
+            try
+            {
+                // Execute the registered handler
+                commands[command_name].second(args);
+            }
+            catch (const std::exception& e)
+            {
+                std::cerr << "Error executing command '" << command_name << "': " << e.what() << "\n";
+            }
+        }
+        else
+        {
+            std::cerr << "Unknown command: " << command_name << "\n";
+            list_commands();
+        }
+    }
+};
 
 int main()
 {
