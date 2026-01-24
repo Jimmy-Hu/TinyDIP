@@ -45,8 +45,6 @@ jobs:
     - name: Build Snap Package
       uses: snapcore/action-build@v1
       id: build
-      with: 
-        snapcraft-args: --target-arch amd64
 
     - name: Publish Snap
       uses: snapcore/action-publish@v1
