@@ -295,6 +295,39 @@ public:
     }
 };
 
+//  ResizeHandler struct implementation
+//  Wrapper for the 'resize' functionality
+//  Args: input_path output_path width height
+struct ResizeHandler
+{
+    void operator()(const std::vector<std::string>& args, std::ostream& os = std::cout) const
+    {
+        if (args.size() < 4)
+        {
+            std::cerr << "Usage: resize <input_bmp> <output_bmp> <width> <height>\n";
+            return;
+        }
+
+        std::string input_path = args[0];
+        std::string output_path = args[1];
+        std::size_t width = parse_arg<std::size_t>(args[2]);
+        std::size_t height = parse_arg<std::size_t>(args[3]);
+
+        os << "Resizing " << input_path << " to " << width << "x" << height << "...\n";
+
+        // Reading image
+        auto input_img = TinyDIP::bmp_read(input_path.c_str(), true); // Assume true for convert to RGB/standard
+
+        // Perform operation
+        // Using execution policy if TinyDIP supports it internally, otherwise standard call
+        auto output_img = TinyDIP::copyResizeBicubic(input_img, width, height);
+
+        // Writing image
+        TinyDIP::bmp_write(output_path.c_str(), output_img);
+        os << "Saved to " << output_path << "\n";
+    }
+};
+
 int main()
 {
     auto start = std::chrono::system_clock::now();
