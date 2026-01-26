@@ -30,6 +30,8 @@ jobs:
 
         echo "Running absTest..."
         ./absTest
+
+        echo "Running dct2Test..."
         ./dct2Test
         ./dct2Test3
     
