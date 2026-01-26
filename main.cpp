@@ -328,6 +328,35 @@ struct ResizeHandler
     }
 };
 
+//  InfoHandler struct implementation
+//  Wrapper for 'info' functionality
+//  Args: input_path
+struct InfoHandler
+{
+    void operator()(const std::vector<std::string>& args, std::ostream& os = std::cout) const
+    {
+        if (args.empty())
+        {
+            std::cerr << "Usage: info <input_bmp>\n";
+            return;
+        }
+
+        std::string input_path = args[0];
+        if (!std::filesystem::exists(input_path))
+        {
+            std::cerr << "File not found: " << input_path << "\n";
+            return;
+        }
+
+        auto img = TinyDIP::bmp_read(input_path.c_str(), false);
+        os << "Image Info:\n";
+        os << "  Path:   " << input_path << "\n";
+        os << "  Width:  " << img.getWidth() << "\n";
+        os << "  Height: " << img.getHeight() << "\n";
+        // Add more info if available (channels, etc.)
+    }
+};
+
 int main()
 {
     auto start = std::chrono::system_clock::now();
