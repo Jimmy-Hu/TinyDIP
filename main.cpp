@@ -357,8 +357,12 @@ struct InfoHandler
     }
 };
 
-int main()
+//  run_legacy_tests function implementation
+//  Legacy test function wrapper
+void run_legacy_tests(const std::vector<std::string>& args, std::ostream& os = std::cout)
 {
+    os << "Running legacy integration tests...\n";
+    
     auto start = std::chrono::system_clock::now();
     std::string file_path = "InputImages/1";
     auto bmp1 = TinyDIP::bmp_read(file_path.c_str(), false);
@@ -384,7 +388,7 @@ int main()
     //bmp1 = gaussian_fisheye(bmp1, 800.0);
     auto v_plane = TinyDIP::getVplane(TinyDIP::rgb2hsv(bmp1));
     auto SIFT_keypoints = TinyDIP::SIFT_impl::get_potential_keypoint(std::execution::par, v_plane);
-    std::cout << "SIFT_keypoints = " << SIFT_keypoints.size() << "\n";
+    os << "SIFT_keypoints = " << SIFT_keypoints.size() << "\n";
     bmp1 = TinyDIP::draw_points(bmp1, SIFT_keypoints);
     for (auto&& each_SIFT_keypoint : SIFT_keypoints)
     {
@@ -399,8 +403,12 @@ int main()
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-    std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << " seconds\n";
+    os << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << " seconds\n";
+    return;
+}
 
+int main()
+{
     
     return EXIT_SUCCESS;
 }
