@@ -446,7 +446,7 @@ CommandRegistry command_registration()
 
 int main()
 {
-    
+    CommandRegistry registry = command_registration();
     return EXIT_SUCCESS;
 }
 
