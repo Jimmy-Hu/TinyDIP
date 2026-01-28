@@ -407,6 +407,43 @@ void run_legacy_tests(const std::vector<std::string>& args, std::ostream& os = s
     return;
 }
 
+//  command_registration function implementation
+//  Function to initialize and register all available commands
+CommandRegistry command_registration()
+{
+    CommandRegistry registry;
+
+    // Registering commands
+    // 1. Resize Command
+    registry.register_command("resize", "Resize an image using Bicubic interpolation.", ResizeHandler{});
+
+    // 2. Info Command
+    registry.register_command("info", "Display basic information about an image.", InfoHandler{});
+
+    // 3. Test Command (Legacy code)
+    // Note: Wrapped in a lambda to handle the optional std::ostream argument mismatch with CommandHandler type
+    registry.register_command("test", "Run internal integration tests.", [&](const std::vector<std::string>& args)
+    {
+        run_legacy_tests(args);
+    });
+
+    // 4. Batch Processing Example (Placeholder for future expansion)
+    registry.register_command("batch_add_zeros", "Add leading zeros to filenames in a directory.",
+        [](const std::vector<std::string>& args)
+        {
+            if (args.size() < 2)
+            {
+                std::cerr << "Usage: batch_add_zeros <input_dir> <output_dir>\n";
+                return;
+            }
+            // Implementation of addLeadingZeros logic here
+            std::cout << "Batch processing from " << args[0] << " to " << args[1] << "\n";
+        }
+    );
+
+    return registry;
+}
+
 int main()
 {
     
