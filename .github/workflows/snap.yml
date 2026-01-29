@@ -33,6 +33,8 @@ jobs:
 
         echo "Running dct2Test..."
         ./dct2Test
+
+        echo "Running dct2Test3..."
         ./dct2Test3
     
     - name: Upload Executable
