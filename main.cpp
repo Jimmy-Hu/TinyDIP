@@ -447,6 +447,14 @@ CommandRegistry command_registration()
 int main()
 {
     CommandRegistry registry = command_registration();
+
+    // Argument Parsing
+    if (argc < 2)
+    {
+        registry.list_commands();
+        return EXIT_SUCCESS;
+    }
+
     return EXIT_SUCCESS;
 }
 
