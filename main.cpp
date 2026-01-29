@@ -444,7 +444,7 @@ CommandRegistry command_registration()
     return registry;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     CommandRegistry registry = command_registration();
 
