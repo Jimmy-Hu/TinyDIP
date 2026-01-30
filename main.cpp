@@ -427,7 +427,7 @@ CommandRegistry command_registration()
         run_legacy_tests(args);
     });
 
-    // 4. Batch Processing Example (Placeholder for future expansion)
+    // 4. Batch Processing (Placeholder for future expansion)
     registry.register_command("batch_add_zeros", "Add leading zeros to filenames in a directory.",
         [](const std::vector<std::string>& args)
         {
@@ -454,6 +454,21 @@ int main(int argc, char* argv[])
         registry.list_commands();
         return EXIT_SUCCESS;
     }
+
+    std::string command = argv[1];
+    std::vector<std::string> args;
+
+    // Collect arguments for the command
+    if (argc > 2)
+    {
+        args.reserve(argc - 2);
+        for (int i = 2; i < argc; ++i)
+        {
+            args.emplace_back(argv[i]);
+        }
+    }
+
+    registry.execute(command, args);
 
     return EXIT_SUCCESS;
 }
