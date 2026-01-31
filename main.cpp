@@ -11,6 +11,7 @@
 //#define USE_BOOST_SERIALIZATION
 
 //  Standard Library Headers
+#include <algorithm>
 #include <execution>
 #include <filesystem>
 #include <fstream>
