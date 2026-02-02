@@ -119,6 +119,8 @@ jobs:
 
         echo "Running absTest..."
         ./absTest
+
+        echo "Running dct2Test..."
         ./dct2Test
 
     - name: Upload Executable (GCC 15)
