@@ -5937,10 +5937,12 @@ namespace TinyDIP
     template<
         class ExecutionPolicy,
         class DescriptorT = SiftDescriptor,
+        std::ranges::input_range RangeDescriptors,
         std::floating_point FloatingType = double,
         typename DistanceFunction = squared_euclidean_distance
         >
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
+             std::same_as<std::ranges::range_value_t<RangeDescriptors>, DescriptorT> &&
              std::invocable<DistanceFunction, DescriptorT, DescriptorT> &&
              std::convertible_to<
                  std::invoke_result_t<DistanceFunction, DescriptorT, DescriptorT>,
@@ -5948,8 +5950,8 @@ namespace TinyDIP
              >)
     std::vector<std::pair<std::size_t, std::size_t>> find_raw_matches(
         ExecutionPolicy&& policy,
-        const std::vector<DescriptorT>& descriptors1,
-        const std::vector<DescriptorT>& descriptors2,
+        const RangeDescriptors& descriptors1,
+        const RangeDescriptors& descriptors2,
         const FloatingType ratio_threshold,
         DistanceFunction dist_func = DistanceFunction{}
     )
