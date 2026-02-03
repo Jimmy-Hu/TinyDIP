@@ -6632,7 +6632,7 @@ namespace TinyDIP
         std::cout << "Matching features...\n";
         auto matches = find_robust_matches<
             DescriptorT,
-            decltype(keypoints1),
+            decltype(descriptors1),
             FloatingType
             >(std::execution::par, descriptors1, descriptors2, ratio_threshold);
 
