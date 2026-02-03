@@ -5953,7 +5953,7 @@ namespace TinyDIP
         const RangeDescriptors& descriptors1,
         const RangeDescriptors& descriptors2,
         const FloatingType ratio_threshold,
-        DistanceFunction dist_func = DistanceFunction{}
+        DistanceFunction&& dist_func = DistanceFunction{}
     )
     {
         if (descriptors1.empty() || descriptors2.empty())
@@ -5977,7 +5977,7 @@ namespace TinyDIP
                 for (std::size_t j = 0; j < descriptors2.size(); ++j)
                 {
                     const FloatingType dist_sq = static_cast<FloatingType>(
-                        std::invoke(dist_func, descriptors1[i], descriptors2[j])
+                        std::invoke(std::forward<DistanceFunction>(dist_func), descriptors1[i], descriptors2[j])
                     );
 
                     if (dist_sq < best_dist_sq)
