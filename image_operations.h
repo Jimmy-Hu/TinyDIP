@@ -6546,7 +6546,10 @@ namespace TinyDIP
      * @brief Phase 1 of stitching: Detects features and computes the homography.
      * This is always done on full-resolution images for maximum accuracy.
      */
-    template<std::floating_point FloatingType = double>
+    template<
+        std::floating_point FloatingType = double,
+        class DescriptorT = SiftDescriptor
+        >
     linalg::Matrix<FloatingType> find_stitch_homography(
         const Image<RGB>& img1,
         const Image<RGB>& img2,
@@ -6627,7 +6630,11 @@ namespace TinyDIP
         for (const auto& kp : keypoints2) descriptors2.emplace_back(SIFT_impl::get_keypoint_descriptor<double, FloatingType>(v_plane2, kp));
 
         std::cout << "Matching features...\n";
-        auto matches = find_robust_matches<FloatingType>(std::execution::par, descriptors1, descriptors2, ratio_threshold);
+        auto matches = find_robust_matches<
+            DescriptorT,
+            decltype(keypoints1),
+            FloatingType
+            >(std::execution::par, descriptors1, descriptors2, ratio_threshold);
 
         if (matches.size() < 4)
         {
