@@ -6042,26 +6042,31 @@ namespace TinyDIP
      */
     template<
         class ExecutionPolicy,
+        class DescriptorT = SiftDescriptor,
+        std::ranges::input_range RangeDescriptors,
         std::floating_point FloatingType = double
         >
+    requires(std::same_as<std::ranges::range_value_t<RangeDescriptors>, DescriptorT>)
     std::vector<std::pair<std::size_t, std::size_t>> find_robust_matches(
         ExecutionPolicy&& policy,
-        const std::vector<SiftDescriptor>& descriptors1,
-        const std::vector<SiftDescriptor>& descriptors2,
+        const RangeDescriptors& descriptors1,
+        const RangeDescriptors& descriptors2,
         const FloatingType ratio_threshold
     )
     {
         // Step 1: Match from image 1 to image 2
         auto matches1to2 = find_raw_matches<
                                 decltype(policy)&,
-                                SiftDescriptor,
+                                DescriptorT,
+                                RangeDescriptors,
                                 FloatingType
                                 >(std::forward<ExecutionPolicy>(policy), descriptors1, descriptors2, ratio_threshold);
 
         // Step 2: Match from image 2 to image 1
         auto matches2to1 = find_raw_matches<
                                 decltype(policy)&,
-                                SiftDescriptor,
+                                DescriptorT,
+                                RangeDescriptors,
                                 FloatingType
                                 >(std::forward<ExecutionPolicy>(policy), descriptors2, descriptors1, ratio_threshold);
 
