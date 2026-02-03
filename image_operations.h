@@ -6570,7 +6570,7 @@ namespace TinyDIP
         for (const auto& kp : keypoints2) descriptors2.emplace_back(SIFT_impl::get_keypoint_descriptor<double, FloatingType>(v_plane2, kp));
 
         std::cout << "Matching features...\n";
-        auto matches = find_robust_matches<FloatingType>(descriptors1, descriptors2, ratio_threshold);
+        auto matches = find_robust_matches<FloatingType>(std::execution::par, descriptors1, descriptors2, ratio_threshold);
 
         if (matches.size() < 4)
         {
