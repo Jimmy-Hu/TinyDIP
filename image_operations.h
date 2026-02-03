@@ -6004,6 +6004,39 @@ namespace TinyDIP
     }
 
     /**
+     * find_raw_matches template function implementation without execution policy
+     * @brief Finds initial ("raw") matching keypoints between two sets of SIFT descriptors using Lowe's ratio test.
+     * This is a building block for the more robust cross-checking matcher.
+     */
+    template<
+        class DescriptorT = SiftDescriptor,
+        std::ranges::input_range RangeDescriptors,
+        std::floating_point FloatingType = double,
+        typename DistanceFunction = squared_euclidean_distance
+        >
+    requires(std::same_as<std::ranges::range_value_t<RangeDescriptors>, DescriptorT> &&
+             std::invocable<DistanceFunction, DescriptorT, DescriptorT> &&
+             std::convertible_to<
+                 std::invoke_result_t<DistanceFunction, DescriptorT, DescriptorT>,
+                 FloatingType
+             >)
+    std::vector<std::pair<std::size_t, std::size_t>> find_raw_matches(
+        const RangeDescriptors& descriptors1,
+        const RangeDescriptors& descriptors2,
+        const FloatingType ratio_threshold,
+        DistanceFunction&& dist_func = DistanceFunction{}
+    )
+    {
+        return find_raw_matches(
+            std::execution::seq,
+            descriptors1,
+            descriptors2,
+            ratio_threshold,
+            std::forward<DistanceFunction>(dist_func)
+        );
+    }
+
+    /**
      * find_robust_matches template function implementation
      * @brief Refines feature matches using a symmetry/cross-check test for higher precision.
      */
