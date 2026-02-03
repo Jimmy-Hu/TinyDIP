@@ -241,3 +241,9 @@ jobs:
       run: |
         cd build_mac
         make -j3
+
+    - name: Run Unit Tests (macOS)
+      run: |
+        cd build_mac
+        echo "Running Tests on macOS..."
+        ./absTest
