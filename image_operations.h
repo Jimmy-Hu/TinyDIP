@@ -6088,6 +6088,25 @@ namespace TinyDIP
     }
 
     /**
+     * find_robust_matches template function implementation without execution policy
+     * @brief Refines feature matches using a symmetry/cross-check test for higher precision.
+     */
+    template<
+        class DescriptorT = SiftDescriptor,
+        std::ranges::input_range RangeDescriptors,
+        std::floating_point FloatingType = double
+        >
+    requires(std::same_as<std::ranges::range_value_t<RangeDescriptors>, DescriptorT>)
+    std::vector<std::pair<std::size_t, std::size_t>> find_robust_matches(
+        const RangeDescriptors& descriptors1,
+        const RangeDescriptors& descriptors2,
+        const FloatingType ratio_threshold
+    )
+    {
+        return find_robust_matches(std::execution::seq, descriptors1, descriptors2, ratio_threshold);
+    }
+
+    /**
      * compute_homography template function implementation
      * @brief Computes the homography matrix from 4 or more point correspondences using the SVD-based Direct Linear Transform (DLT) algorithm.
      * This involves solving the system of linear equations Ah = 0.
