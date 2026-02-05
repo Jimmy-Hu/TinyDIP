@@ -6655,6 +6655,30 @@ namespace TinyDIP
     }
 
     /**
+     * find_stitch_homography template function implementation without execution policy
+     * @brief Phase 1 of stitching: Detects features and computes the homography.
+     * This is always done on full-resolution images for maximum accuracy.
+     */
+    template<
+        std::floating_point FloatingType = double,
+        class DescriptorT = SiftDescriptor
+        >
+    linalg::Matrix<FloatingType> find_stitch_homography(
+        const Image<RGB>& img1,
+        const Image<RGB>& img2,
+        const SiftParams<FloatingType>& sift_params = {},
+        const FloatingType ratio_threshold = 0.7,
+        const int ransac_iterations = 2000,
+        const FloatingType ransac_inlier_threshold = 2.0)
+    {
+        return find_stitch_homography<
+            decltype(std::execution::par),
+            FloatingType,
+            DescriptorT
+            >(std::execution::par, img1, img2, sift_params, ratio_threshold, ransac_iterations, ransac_inlier_threshold);
+    }
+
+    /**
      * create_stitched_image template function implementation
      * @brief Phase 2 of stitching: Warps and blends images using a pre-computed homography.
      */
