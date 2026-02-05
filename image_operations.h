@@ -6672,7 +6672,7 @@ namespace TinyDIP
         const FloatingType ransac_inlier_threshold = 2.0)
     {
         return find_stitch_homography<
-            decltype(std::execution::par),
+            decltype(std::execution::par)&,
             FloatingType,
             DescriptorT
             >(std::execution::par, img1, img2, sift_params, ratio_threshold, ransac_iterations, ransac_inlier_threshold);
