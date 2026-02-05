@@ -6542,15 +6542,18 @@ namespace TinyDIP
     };
 
     /**
-     * find_stitch_homography template function implementation
+     * find_stitch_homography template function implementation with execution policy
      * @brief Phase 1 of stitching: Detects features and computes the homography.
      * This is always done on full-resolution images for maximum accuracy.
      */
     template<
+        class ExecutionPolicy,
         std::floating_point FloatingType = double,
         class DescriptorT = SiftDescriptor
         >
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
     linalg::Matrix<FloatingType> find_stitch_homography(
+        ExecutionPolicy&& policy,
         const Image<RGB>& img1,
         const Image<RGB>& img2,
         const SiftParams<FloatingType>& sift_params = {},
@@ -6592,6 +6595,7 @@ namespace TinyDIP
         */
 
         auto keypoints1 = SIFT_impl::get_potential_keypoint(
+            std::forward<ExecutionPolicy>(policy),
             v_plane1,
             sift_params.octaves_count,
             sift_params.number_of_scale_levels,
@@ -6602,6 +6606,7 @@ namespace TinyDIP
         );
 
         auto keypoints2 = SIFT_impl::get_potential_keypoint(
+            std::forward<ExecutionPolicy>(policy),
             v_plane2,
             sift_params.octaves_count,
             sift_params.number_of_scale_levels,
@@ -6631,11 +6636,11 @@ namespace TinyDIP
 
         std::cout << "Matching features...\n";
         auto matches = find_robust_matches<
-            decltype(std::execution::par)&,
+            decltype(policy)&,
             DescriptorT,
             decltype(descriptors1),
             FloatingType
-            >(std::execution::par, descriptors1, descriptors2, ratio_threshold);
+            >(std::forward<ExecutionPolicy>(policy), descriptors1, descriptors2, ratio_threshold);
 
         if (matches.size() < 4)
         {
