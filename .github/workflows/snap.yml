@@ -246,4 +246,8 @@ jobs:
       run: |
         cd build_mac
         echo "Running Tests on macOS..."
+        echo "Running absTest..."
         ./absTest
+
+        echo "Running dct2Test..."
+        ./dct2Test
