@@ -251,3 +251,7 @@ jobs:
 
         echo "Running dct2Test..."
         ./dct2Test
+
+    - name: Clean up Build Artifacts
+      run: rm -rf build_mac
+
