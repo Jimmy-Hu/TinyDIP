@@ -166,6 +166,8 @@ jobs:
         cd build_test_gcc_local
         echo "Running absTest..."
         ./absTest
+
+        echo "Running dct2Test..."
         ./dct2Test
 
     - name: Upload Executable
