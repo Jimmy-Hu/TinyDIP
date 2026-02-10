@@ -258,3 +258,17 @@ jobs:
     - name: Clean up Build Artifacts
       run: rm -rf build_mac
 
+  verify-windows:
+    name: Windows (MSVC)
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Restore vcpkg artifacts
+      uses: actions/cache@v3
+      with:
+        path: |
+          C:\vcpkg\installed
+          C:\vcpkg\packages
+        key: vcpkg-${{ runner.os }}-opencv-tbb-v1
+
