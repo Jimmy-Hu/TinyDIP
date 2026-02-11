@@ -272,3 +272,7 @@ jobs:
           C:\vcpkg\packages
         key: vcpkg-${{ runner.os }}-opencv-tbb-v1
 
+    - name: Install Libraries via vcpkg
+      run: |
+        vcpkg install opencv:x64-windows tbb:x64-windows openmp:x64-windows
+
