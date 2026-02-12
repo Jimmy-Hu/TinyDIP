@@ -274,7 +274,7 @@ jobs:
 
     - name: Install Libraries via vcpkg
       run: |
-        vcpkg install opencv:x64-windows tbb:x64-windows
+        vcpkg install opencv:x64-windows tbb:x64-windows boost:x64-windows
 
     - name: Configure CMake
       run: |
