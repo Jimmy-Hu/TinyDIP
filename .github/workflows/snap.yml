@@ -283,4 +283,7 @@ jobs:
           -DCMAKE_CXX_STANDARD=23 `
           -DENABLE_CUDA=OFF
 
+    - name: Build
+      run: cmake --build build_win --config Release
+
 
