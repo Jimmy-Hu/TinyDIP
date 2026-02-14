@@ -209,14 +209,14 @@ jobs:
         echo "========================================="
         echo "Profiling ./absTest"
         echo "========================================="
-        sudo perf record -o perf_abs.data --call-graph dwarf ./absTest
-        sudo perf report -i perf_abs.data --stdio
+        sudo /usr/bin/perf record -o perf_abs.data --call-graph dwarf ./absTest
+        sudo /usr/bin/perf report -i perf_abs.data --stdio
 
         echo "========================================="
         echo "Profiling ./dct2Test"
         echo "========================================="
-        sudo perf record -o perf_dct2.data --call-graph dwarf ./dct2Test
-        sudo perf report -i perf_dct2.data --stdio
+        sudo /usr/bin/perf record -o perf_dct2.data --call-graph dwarf ./dct2Test
+        sudo /usr/bin/perf report -i perf_dct2.data --stdio
 
     - name: Clean up Build Artifacts
       run: rm -rf build_test
