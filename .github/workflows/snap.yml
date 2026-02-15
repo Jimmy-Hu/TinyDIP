@@ -190,10 +190,9 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev linux-tools-common linux-tools-generic
-        sudo apt-get install -y "linux-tools-$(uname -r)" "linux-cloud-tools-$(uname -r)"
-        # Verify perf is available
-        which perf || (echo "WARNING: perf not found, profiling will be skipped" && exit 0)
+        sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev linux-tools-common linux-tools-generic linux-tools-azure
+        sudo apt-get install -y "linux-tools-$(uname -r)" "linux-cloud-tools-$(uname -r)" || true
+        find /usr/lib/linux-tools -name perf -type f -executable | head -n 1
 
     - name: Configure and Build Tests (Linux)
       run: |
@@ -205,18 +204,26 @@ jobs:
     - name: Run Performance Profiling (perf)
       run: |
         cd build_test
+        PERF_BIN=$(find /usr/lib/linux-tools -name perf -type f -executable | head -n 1)
+        
+        if [ -z "$PERF_BIN" ]; then
+          echo "Error: Could not find any perf binary in /usr/lib/linux-tools"
+          exit 1
+        fi
+        
+        echo "Using perf binary at: $PERF_BIN"
         
         echo "========================================="
         echo "Profiling ./absTest"
         echo "========================================="
-        sudo /usr/bin/perf record -o perf_abs.data --call-graph dwarf ./absTest
-        sudo /usr/bin/perf report -i perf_abs.data --stdio
+        sudo "$PERF_BIN" record -o perf_abs.data --call-graph dwarf ./absTest
+        sudo "$PERF_BIN" report -i perf_abs.data --stdio
 
         echo "========================================="
         echo "Profiling ./dct2Test"
         echo "========================================="
-        sudo /usr/bin/perf record -o perf_dct2.data --call-graph dwarf ./dct2Test
-        sudo /usr/bin/perf report -i perf_dct2.data --stdio
+        sudo "$PERF_BIN" record -o perf_dct2.data --call-graph dwarf ./dct2Test
+        sudo "$PERF_BIN" report -i perf_dct2.data --stdio
 
     - name: Clean up Build Artifacts
       run: rm -rf build_test
@@ -288,5 +295,37 @@ jobs:
 
     - name: Build
       run: cmake --build build_win --config Release
+
+    - name: Run Test
+      run: .\build_win\Release\absTest.exe
+
+    - name: Clean up Build Artifacts
+      run: rm -rf build_win
+
+  verify-linux-arm:
+    name: Linux ARM64 (QEMU)
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build & Test in ARM64 Emulator
+      uses: uraimo/run-on-arch-action@v2
+      with:
+        arch: aarch64
+        distro: ubuntu22.04
+        
+        run: |
+          apt-get update
+          apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev
+          
+          mkdir build_arm
+          cd build_arm
+          cmake .. -DCMAKE_CXX_STANDARD=23 -DENABLE_CUDA=OFF
+          make -j2
+          
+          echo "Running ARM64 tests..."
+          ./absTest
+          ./dct2Test
+
 
 
