@@ -204,29 +204,32 @@ jobs:
     - name: Run Performance Profiling (perf)
       run: |
         cd build_test
-        if [ ! -d "/usr/lib/linux-tools" ]; then
-            echo "Directory /usr/lib/linux-tools does not exist. Listing /usr/lib:"
-            ls -d /usr/lib/linux* || true
-        else
-            echo "Listing /usr/lib/linux-tools contents for debugging:"
-            ls -R /usr/lib/linux-tools
-        fi
+        echo "Listing /usr/lib/linux-tools contents:"
+        ls -R /usr/lib/linux-tools || true
         
-        PERF_BIN=$(find /usr/lib/linux-tools -name perf -type f 2>/dev/null | head -n 1)
+        PERF_BIN=""
+        
+        echo "Searching for executable perf binary in /usr/lib/linux-tools/*/"
+        
+        for p in /usr/lib/linux-tools/*/perf; do
+            if [ -x "$p" ]; then
+                echo "Found executable: $p"
+                PERF_BIN="$p"
+                break
+            fi
+        done
         
         if [ -z "$PERF_BIN" ]; then
-             echo "Standard path failed. Searching /usr/bin for versioned perf..."
-             PERF_BIN=$(find /usr/bin -name "perf_*" -type f -executable 2>/dev/null | grep -v "perf-archive" | head -n 1)
+             echo "Glob search failed. Trying recursive find without type constraints..."
+             PERF_BIN=$(find /usr/lib/linux-tools -name perf -executable 2>/dev/null | head -n 1)
         fi
-        
+
         if [ -z "$PERF_BIN" ]; then
-          echo "Error: Could not find any perf binary in /usr/lib/linux-tools or /usr/bin."
-          echo "Checking installed packages:"
-          dpkg -l | grep linux-tools
+          echo "Error: Could not find any perf binary."
           exit 1
         fi
         
-        echo "Using perf binary at: $PERF_BIN"
+        echo "Selected perf binary: $PERF_BIN"
         
         echo "========================================="
         echo "Profiling ./absTest"
