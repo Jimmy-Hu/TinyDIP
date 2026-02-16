@@ -436,14 +436,20 @@ endif()
 # Add boost library
 if  (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # Reference: https://github.com/Microsoft/vcpkg/issues/4188
-    set(Boost_USE_STATIC_LIBS ON)
-    set(Boost_USE_MULTITHREADED OFF)
-    set(Boost_USE_STATIC_RUNTIME OFF)
-    find_package(BOOST 76.0 REQUIRED COMPONENTS iterator serialization test)
-    find_path(BOOST_INCLUDE_DIR boost)
-    include_directories(${BOOST_INCLUDE_DIR})
-
-    target_link_libraries(TinyDIP Boost::boost ${BOOST_LIBRARIES})
+    # Vcpkg default for x64-windows is Shared (Dynamic) and Multithreaded.
+    # We should let Vcpkg/CMake handle the selection or explicitly match Vcpkg.
+    # Removing Boost_USE_STATIC_LIBS etc. to allow automatic detection of vcpkg's shared libs.
+    
+    # Fix package name case (BOOST -> Boost) and remove version constraint
+    # Change component 'test' to 'unit_test_framework' which is the standard name
+    find_package(Boost REQUIRED COMPONENTS iterator serialization unit_test_framework)
+    
+    if(Boost_FOUND)
+        include_directories(${Boost_INCLUDE_DIRS})
+        # Link against imported targets or libraries variable
+        # Note: Boost::boost is header-only, for components use Boost::component_name
+        target_link_libraries(TinyDIP Boost::boost ${Boost_LIBRARIES})
+    endif()
 endif()
 
 # Add opencv library
