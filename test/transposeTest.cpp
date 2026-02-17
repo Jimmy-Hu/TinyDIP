@@ -51,14 +51,16 @@ void transposeTestWithFile(const std::string& image_filename)
             transpose_result = TinyDIP::transpose(transpose_result);
         }
         std::chrono::duration<double> elapsed_seconds1 = std::chrono::high_resolution_clock::now() - start_time1;
-        std::print(std::cout, "Without execution policy: elapsed time: {} seconds.\n", elapsed_seconds1.count());
+        //std::print(std::cout, "Without execution policy: elapsed time: {} seconds.\n", elapsed_seconds1.count());
+        std::cout << "Without execution policy: elapsed time: " << elapsed_seconds1.count() << " seconds.\n";
         std::chrono::high_resolution_clock::time_point start_time2 = std::chrono::high_resolution_clock::now();
         for (std::size_t i = 0; i < 100; ++i)
         {
             transpose_result = TinyDIP::transpose(std::execution::par, transpose_result);
         }
         std::chrono::duration<double> elapsed_seconds2 = std::chrono::high_resolution_clock::now() - start_time2;
-        std::print(std::cout, "With execution policy: elapsed time: {} seconds.\n", elapsed_seconds2.count());
+        //std::print(std::cout, "With execution policy: elapsed time: {} seconds.\n", elapsed_seconds2.count());
+        std::cout << "With execution policy: elapsed time: " << elapsed_seconds2.count() << " seconds.\n";
     }
     TinyDIP::bmp_write(
         "../OutputImages/RainImages/S__55246868_transpose",
