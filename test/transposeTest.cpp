@@ -34,13 +34,46 @@ void transposeTest()
     TinyDIP::transpose(test_input).print();
 }
 
+void transposeTestWithFile(const std::string& image_filename)
+{
+    auto input_img = TinyDIP::bmp_read(image_filename.c_str(), true);
+    if (input_img.getDimensionality() != 2)
+    {
+        std::cerr << "Input image is not a 2D image!\n";
+        return;
+    }
+    auto transpose_result = TinyDIP::transpose(input_img);
+    for (std::size_t test_loop = 0; test_loop < 10; test_loop++)
+    {
+        std::chrono::high_resolution_clock::time_point start_time1 = std::chrono::high_resolution_clock::now();
+        for (std::size_t i = 0; i < 100; ++i)
+        {
+            transpose_result = TinyDIP::transpose(transpose_result);
+        }
+        std::chrono::duration<double> elapsed_seconds1 = std::chrono::high_resolution_clock::now() - start_time1;
+        std::print(std::cout, "Without execution policy: elapsed time: {} seconds.\n", elapsed_seconds1.count());
+        std::chrono::high_resolution_clock::time_point start_time2 = std::chrono::high_resolution_clock::now();
+        for (std::size_t i = 0; i < 100; ++i)
+        {
+            transpose_result = TinyDIP::transpose(std::execution::par, transpose_result);
+        }
+        std::chrono::duration<double> elapsed_seconds2 = std::chrono::high_resolution_clock::now() - start_time2;
+        std::print(std::cout, "With execution policy: elapsed time: {} seconds.\n", elapsed_seconds2.count());
+    }
+    TinyDIP::bmp_write(
+        "../OutputImages/RainImages/S__55246868_transpose",
+        transpose_result);
+}
+
 int main()
 {
-    auto start = std::chrono::system_clock::now();
+    TinyDIP::Timer timer;
     transposeTest<int>();
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-    std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
+    std::string input_path = "../InputImages/RainImages/S__55246868.bmp";
+    if (!std::filesystem::is_regular_file(input_path))
+    {
+        input_path = "InputImages/RainImages/S__55246868.bmp";
+    }
+    transposeTestWithFile(input_path);
     return EXIT_SUCCESS;
 }
