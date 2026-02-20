@@ -9,8 +9,8 @@ void recursiveSizeTest();
 
 int main()
 {
-	recursiveSizeTest();
-	return 0;
+    recursiveSizeTest();
+    return EXIT_SUCCESS;
 }
 
 void recursiveSizeTest()
