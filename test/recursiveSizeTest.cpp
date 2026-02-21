@@ -4,6 +4,7 @@
 #include "../basic_functions.h"
 #include "../image.h"
 #include "../image_operations.h"
+#include "../timer.h"
 
 void recursiveSizeTest();
 
