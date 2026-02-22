@@ -6674,11 +6674,12 @@ namespace TinyDIP
         const int ransac_iterations = 2000,
         const FloatingType ransac_inlier_threshold = 2.0)
     {
+        std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
         return find_stitch_homography<
             decltype(std::execution::par)&,
             FloatingType,
             DescriptorT
-            >(std::execution::par, img1, img2, sift_params, ratio_threshold, ransac_iterations, ransac_inlier_threshold);
+            >(std::execution::par, img1, img2, rng, RobustEstimatorMethod::MSAC, sift_params, ratio_threshold, ransac_iterations, ransac_inlier_threshold);
     }
 
     /**
