@@ -6549,13 +6549,17 @@ namespace TinyDIP
     template<
         class ExecutionPolicy,
         std::floating_point FloatingType = double,
-        class DescriptorT = SiftDescriptor
+        class DescriptorT = SiftDescriptor,
+        class URBG
         >
-    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) and
+            (std::uniform_random_bit_generator<std::remove_reference_t<URBG>>)
     linalg::Matrix<FloatingType> find_stitch_homography(
         ExecutionPolicy&& policy,
         const Image<RGB>& img1,
         const Image<RGB>& img2,
+        URBG& rng,
+        const RobustEstimatorMethod method = RobustEstimatorMethod::MSAC,
         const SiftParams<FloatingType>& sift_params = {},
         const FloatingType ratio_threshold = 0.7,
         const int ransac_iterations = 2000,
@@ -6648,8 +6652,7 @@ namespace TinyDIP
             return linalg::Matrix<FloatingType>();
         }
 
-        std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-        auto initial_H = find_homography_robust<FloatingType>(keypoints1, keypoints2, matches, rng, RobustEstimatorMethod::MSAC, ransac_iterations, ransac_inlier_threshold);
+        auto initial_H = find_homography_robust<FloatingType>(keypoints1, keypoints2, matches, rng, method, ransac_iterations, ransac_inlier_threshold);
 
         return refine_homography<FloatingType>(keypoints1, keypoints2, matches, initial_H, ransac_inlier_threshold);
     }
