@@ -13,6 +13,21 @@
 #include "../image_operations.h"
 #include "../timer.h"
 
+//  print_usage template function implementation:
+//  print_usage provides instructions on how to run the program,
+//  including the expected command-line arguments and their formats.
+//  It also gives an example of how to use the program,
+//  along with explanations of optional parameters.
+//  This function is called when the user provides insufficient arguments or requests help,
+//  ensuring they understand how to properly use the program for multi-image stitching.
+void print_usage(const char* program_name)
+{
+    std::cerr << "Usage: " << program_name << " <output_base.bmp> <img1.bmp> <img2.bmp> [img3.bmp ...] [ratio_threshold] [--save-intermediate]\n";
+    std::cerr << "Example: " << program_name << " panorama.bmp s1.bmp s2.bmp 0.7\n";
+    std::cerr << "  - ratio_threshold (optional): A value between 0.0 and 1.0. Lower is stricter. Default is 0.7.\n";
+    std::cerr << "  - --save-intermediate (optional): Saves the panorama after each successful stitch.\n";
+}
+
 int main(int argc, char* argv[])
 {
     TinyDIP::Timer timer1;
