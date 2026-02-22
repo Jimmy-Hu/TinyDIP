@@ -5880,13 +5880,24 @@ namespace TinyDIP
      * find_keypoint_matches template function implementation
      * @brief Finds matching keypoints between two sets of SIFT descriptors using Lowe's ratio test.
      */
-    template<class ExecutionPolicy>
-    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    template<
+        class ExecutionPolicy,
+		class FloatingType = double,
+        typename DescriptorT = SiftDescriptor,
+        typename DistanceFunction = squared_euclidean_distance>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and
+             std::invocable<DistanceFunction, DescriptorT, DescriptorT> &&
+             std::convertible_to<
+                 std::invoke_result_t<DistanceFunction, DescriptorT, DescriptorT>,
+                 FloatingType
+             >)
     std::vector<std::pair<std::size_t, std::size_t>> find_keypoint_matches(
         ExecutionPolicy&& policy,
         const std::vector<SiftDescriptor>& descriptors1,
         const std::vector<SiftDescriptor>& descriptors2,
-        const double ratio_threshold)
+        const FloatingType ratio_threshold,
+        DistanceFunction&& dist_func = DistanceFunction{}
+        )
     {
         if (descriptors1.empty() || descriptors2.empty())
         {
@@ -5902,13 +5913,13 @@ namespace TinyDIP
         std::for_each(std::forward<ExecutionPolicy>(policy), std::ranges::begin(indices), std::ranges::end(indices),
             [&](std::size_t i)
             {
-                double best_dist_sq = std::numeric_limits<double>::max();
-                double second_best_dist_sq = std::numeric_limits<double>::max();
+                FloatingType best_dist_sq = std::numeric_limits<FloatingType>::max();
+                FloatingType second_best_dist_sq = std::numeric_limits<FloatingType>::max();
                 std::size_t best_match_index = static_cast<std::size_t>(-1);
 
                 for (std::size_t j = 0; j < descriptors2.size(); ++j)
                 {
-                    const double dist_sq = squared_euclidean_distance(descriptors1[i], descriptors2[j]);
+                    const FloatingType dist_sq = std::invoke(std::forward<DistanceFunction>(dist_func), descriptors1[i], descriptors2[j]);
 
                     if (dist_sq < best_dist_sq)
                     {
