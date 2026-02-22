@@ -5034,6 +5034,10 @@ namespace TinyDIP
     template<typename ElementT>
     Image<ElementT> draw_line(const Image<ElementT>& canvas, Point<2> p1, Point<2> p2, const ElementT color)
     {
+        if (canvas.getDimensionality() != 2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
         auto output = canvas;
         auto x1 = static_cast<long>(p1.p[0]);
         auto y1 = static_cast<long>(p1.p[1]);
