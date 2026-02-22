@@ -5455,7 +5455,9 @@ namespace TinyDIP
             const std::size_t octave_index,
             const std::size_t scale_index,
             const ElementT contrast_check_threshold = 8,
-            const ElementT edge_response_threshold = 12.1)
+            const ElementT edge_response_threshold = 12.1,
+			const bool perform_keypoint_filtering = true
+        )
         {
             if (input1.getDimensionality() != 2)
             {
@@ -5489,16 +5491,33 @@ namespace TinyDIP
                     auto subimage1 = subimage(input1, block_size, block_size, x, y);
                     auto subimage2 = subimage(input2, block_size, block_size, x, y);
                     auto subimage3 = subimage(input3, block_size, block_size, x, y);
-                    if (is_it_extremum(subimage1, subimage2, subimage3, contrast_check_threshold) && keypoint_filtering(subimage2, contrast_check_threshold, edge_response_threshold))
+                    if (perform_keypoint_filtering)
                     {
-                        auto new_location = keypoint_refinement(subimage2, std::make_tuple(x, y));
-                        output.emplace_back(
-                            std::make_tuple(
-                                octave_index,
-                                scale_index,
-                                std::get<0>(new_location),
-                                std::get<1>(new_location)));
+                        if (is_it_extremum(subimage1, subimage2, subimage3, contrast_check_threshold) && keypoint_filtering(subimage2, contrast_check_threshold, edge_response_threshold))
+                        {
+                            auto new_location = keypoint_refinement(subimage2, std::make_tuple(x, y));
+                            output.emplace_back(
+                                std::make_tuple(
+                                    octave_index,
+                                    scale_index,
+                                    std::get<0>(new_location),
+                                    std::get<1>(new_location)));
+                        }
                     }
+                    else
+                    {
+                        if (is_it_extremum(subimage1, subimage2, subimage3, contrast_check_threshold))
+                        {
+                            auto new_location = keypoint_refinement(subimage2, std::make_tuple(x, y));
+                            output.emplace_back(
+                                std::make_tuple(
+                                    octave_index,
+                                    scale_index,
+                                    std::get<0>(new_location),
+                                    std::get<1>(new_location)));
+                        }
+                    }
+                    
                 }
             }
             return output;
