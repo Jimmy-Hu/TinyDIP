@@ -5612,6 +5612,8 @@ namespace TinyDIP
                     auto each_octave = octaves[octave_index];
                     for (int scale_index = 0; scale_index < each_octave.size() - 2; ++scale_index)
                     {
+                        //  `find_local_extrema` function is already parallelized with OpenMP,
+                        //  so we can call it directly here without additional parallelization.
                         auto new_points = find_local_extrema(
                             each_octave[scale_index],
                             each_octave[scale_index + 1],
@@ -5619,7 +5621,8 @@ namespace TinyDIP
                             octave_index,
                             scale_index,
                             contrast_check_threshold,
-                            edge_response_threshold);
+                            edge_response_threshold,
+                            false);                         //  set `perform_keypoint_filtering` to false here, since we want to keep more keypoints to the original image
                         //if `append_range` function is supported
                         #ifdef __cpp_lib_containers_ranges
                         keypoints.append_range(new_points | std::views::as_rvalue);
@@ -5649,7 +5652,8 @@ namespace TinyDIP
                             octave_index,
                             scale_index,
                             contrast_check_threshold,
-                            edge_response_threshold);
+                            edge_response_threshold,
+                            false);                     //  set `perform_keypoint_filtering` to false here, since we want to keep more keypoints to the original image
                         // This block ensures only one thread at a time
                         // can modify the 'keypoints' vector.
                         #pragma omp critical
