@@ -6,6 +6,7 @@
 #include "../image.h"
 #include "../image_io.h"
 #include "../image_operations.h"
+#include "../timer.h"
 
 int main()
 {
