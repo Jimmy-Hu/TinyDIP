@@ -10,8 +10,7 @@
 
 int main()
 {
-    auto start = std::chrono::system_clock::now();
-    
+    TinyDIP::Timer timer1;
     auto image1 = TinyDIP::bmp_read("InputImages/1", false);
     auto double_image = TinyDIP::im2double(image1);
     std::size_t mask_size = 5;
@@ -26,10 +25,5 @@ int main()
     TinyDIP::bmp_write("OutputImages/1_difference",
                         TinyDIP::im2uint8(TinyDIP::multiplies(TinyDIP::difference(double_image, output_image), 3))
                         );
-
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-    std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << '\n';
     return EXIT_SUCCESS;
 }
