@@ -10,6 +10,7 @@
 #include "../image.h"
 #include "../image_io.h"
 #include "../image_operations.h"
+#include "../timer.h"
 
 //  get_offset template function implementation
 template<class ExPo, class ElementT, class DistanceFunction>
