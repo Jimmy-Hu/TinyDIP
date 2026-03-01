@@ -1,5 +1,7 @@
 # TinyDIP
 
+[![Cross-Platform Build Matrix](https://github.com/Jimmy-Hu/TinyDIP/actions/workflows/snap.yml/badge.svg)](https://github.com/Jimmy-Hu/TinyDIP/actions/workflows/snap.yml)
+
 Tiny Digital Image Processing Library is a C++ library designed with C++20 syntax.
 
 **Note: The implementation in this repository is under experimental purpose. The condition of requirment for development environment, library dependencies, even the used C++ language version may be updated.**
