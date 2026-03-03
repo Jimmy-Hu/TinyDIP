@@ -6249,14 +6249,16 @@ namespace TinyDIP
                                  std::same_as<T, MsacScorer<FloatingType>>;
         
         /**
+		 * find_homography_robust_impl template function implementation
          * @brief Generic implementation for robust homography estimation (RANSAC, MSAC, etc.).
          * This function is templatized on the scoring method.
          */
-        template<std::floating_point FloatingType, IsRobustScorer<FloatingType> Scorer, class URBG>
-        requires(std::uniform_random_bit_generator<std::remove_reference_t<URBG>>)
+        template<std::floating_point FloatingType, IsRobustScorer<FloatingType> Scorer, std::ranges::input_range RangeType, class URBG>
+        requires(std::uniform_random_bit_generator<std::remove_reference_t<URBG>> and
+                 std::same_as<std::ranges::range_value_t<RangeType>, Point<2>>)
         auto find_homography_robust_impl(
-            const std::vector<Point<2>>& keypoints1,
-            const std::vector<Point<2>>& keypoints2,
+            const RangeType& keypoints1,
+            const RangeType& keypoints2,
             const std::vector<std::pair<std::size_t, std::size_t>>& matches,
             URBG& rng,
             const int iterations,
