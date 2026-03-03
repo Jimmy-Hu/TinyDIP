@@ -335,7 +335,16 @@ int main(int argc, char* argv[])
     }
     else
     {
-        auto dictionary = impl::load_dictionary_RGB();
+        std::string dictionary_path = "Dictionary";
+        if (!std::filesystem::is_directory(dictionary_path))
+        {
+            dictionary_path = "../Dictionary";
+        }
+        if (!std::filesystem::is_directory(dictionary_path))
+        {
+            dictionary_path = "../../Dictionary";
+        }
+        auto dictionary = impl::load_dictionary_RGB(dictionary_path);
         std::string input_path = "InputImages/LowRes/Bucubic0.1/0012.bmp";
         auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
         auto output_img = each_image(std::execution::seq, input_img, dictionary, 8, 8, 1.2);
