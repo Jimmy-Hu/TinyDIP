@@ -6344,11 +6344,12 @@ namespace TinyDIP
      * find_homography_robust template function implementation
      * @brief Finds the best initial homography using a selectable robust estimation method.
      */
-    template<std::floating_point FloatingType = double, class URBG>
-    requires(std::uniform_random_bit_generator<std::remove_reference_t<URBG>>)
+    template<std::floating_point FloatingType = double, class URBG, std::ranges::input_range RangeType>
+    requires(std::uniform_random_bit_generator<std::remove_reference_t<URBG>> and
+             std::same_as<std::ranges::range_value_t<RangeType>, Point<2>>)
     auto find_homography_robust(
-        const std::vector<Point<2>>& keypoints1,
-        const std::vector<Point<2>>& keypoints2,
+        const RangeType& keypoints1,
+        const RangeType& keypoints2,
         const std::vector<std::pair<std::size_t, std::size_t>>& matches,
         URBG& rng,
         const RobustEstimatorMethod method = RobustEstimatorMethod::MSAC,
