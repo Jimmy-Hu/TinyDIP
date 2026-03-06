@@ -149,13 +149,14 @@ namespace TinyDIP
             std::for_each(std::forward<ExecutionPolicy>(policy), std::ranges::begin(indices), std::ranges::end(indices), std::forward<Func>(func));
         }
 
+        // transform_pixel_processing_omp template function implementation
         // Overload specifically designed to fall back to OpenMP
-        template <typename Func>
-        requires std::invocable<Func, std::size_t>
-        void transform_pixel_processing(const std::vector<std::size_t>& indices, Func&& func)
+        template <typename Func, std::ranges::random_access_range RangeT>
+        requires std::invocable<Func, std::ranges::range_value_t<RangeT>>
+        void transform_pixel_processing_omp(const RangeT& indices, Func&& func)
         {
             #pragma omp parallel for
-            for (std::ptrdiff_t i = 0; i < static_cast<std::ptrdiff_t>(indices.size()); ++i)
+            for (std::ptrdiff_t i = 0; i < static_cast<std::ptrdiff_t>(std::ranges::size(indices)); ++i)
             {
                 func(indices[i]);
             }
