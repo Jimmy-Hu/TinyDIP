@@ -152,7 +152,7 @@ namespace TinyDIP
         // Overload specifically designed to fall back to OpenMP
         template <typename Func>
         requires std::invocable<Func, std::size_t>
-        void execute_pixel_processing_omp(const std::vector<std::size_t>& indices, Func&& func)
+        void transform_pixel_processing(const std::vector<std::size_t>& indices, Func&& func)
         {
             #pragma omp parallel for
             for (std::ptrdiff_t i = 0; i < static_cast<std::ptrdiff_t>(indices.size()); ++i)
