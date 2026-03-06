@@ -138,12 +138,13 @@ namespace TinyDIP
         };
         
         // -------------------------------------------------------------------------
+        // transform_pixel_processing template function implementation
         // Generic Threading Engine for Data Processing (with invocable constraint)
         // -------------------------------------------------------------------------
-        template <class ExecutionPolicy, typename Func>
+        template <class ExecutionPolicy, typename Func, std::ranges::input_range RangeT>
         requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
-                  std::invocable<Func, std::size_t>)
-        void execute_pixel_processing(ExecutionPolicy&& policy, const std::vector<std::size_t>& indices, Func&& func)
+                  std::invocable<Func, std::ranges::range_value_t<RangeT>>)
+        void transform_pixel_processing(ExecutionPolicy&& policy, const RangeT& indices, Func&& func)
         {
             std::for_each(std::forward<ExecutionPolicy>(policy), std::ranges::begin(indices), std::ranges::end(indices), std::forward<Func>(func));
         }
