@@ -278,6 +278,71 @@ namespace TinyDIP
 
             return image;
         }
+
+        // -------------------------------------------------------------------------
+        // write function implementation
+        // This function writes an Image<RGB> to a PNM file with specified magic number
+        // Modern write_pnm for exporting Image<RGB> to PNM files
+        // -------------------------------------------------------------------------
+        inline void write(
+            const TinyDIP::Image<RGB>& image, 
+            const std::filesystem::path& file_path, 
+            const std::string& magic = "P3", 
+            const int max_value = 255)
+        {
+            std::ofstream file(file_path, std::ios::binary);
+            if (!file.is_open())
+            {
+                throw std::runtime_error("Could not open file for writing: " + file_path.string());
+            }
+
+            if (magic != "P1" && magic != "P2" && magic != "P3")
+            {
+                throw std::invalid_argument("Unsupported magic number for writing. Please use P1, P2, or P3.");
+            }
+
+            const std::size_t width = image.getWidth();
+            const std::size_t height = image.getHeight();
+
+            // Write header information
+            file << magic << '\n';
+            file << width << ' ' << height << '\n';
+            if (magic != "P1")
+            {
+                file << max_value << '\n';
+            }
+
+            // Write pixel data sequentially mapped top-to-bottom
+            for (std::size_t y = 0; y < height; ++y)
+            {
+                // Must flip y-axis back to match the standard PPM specification
+                const std::size_t flipped_y = height - 1 - y;
+                
+                for (std::size_t x = 0; x < width; ++x)
+                {
+                    const RGB& pixel = image.at_without_boundary_check(x, flipped_y);
+                    
+                    if (magic == "P1")
+                    {
+                        // In P1, '1' traditionally corresponds to black pixel (0 intensity)
+                        const int val = (pixel.channels[0] == 0) ? 1 : 0;
+                        file << val << '\n';
+                    }
+                    else if (magic == "P2")
+                    {
+                        // In P2, write the first channel (grayscale)
+                        file << +pixel.channels[0] << '\n';
+                    }
+                    else if (magic == "P3")
+                    {
+                        // In P3, write all three channels (RGB)
+                        file << +pixel.channels[0] << ' ' 
+                            << +pixel.channels[1] << ' ' 
+                            << +pixel.channels[2] << '\n';
+                    }
+                }
+            }
+        }
     }
 
     int hsv_write_detail(const char* const filename, const int xsize, const int ysize, const double* const image);
