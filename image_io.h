@@ -163,6 +163,7 @@ namespace TinyDIP
         }
 
         // -------------------------------------------------------------------------
+        // read template function implementation
         // Modern read_pnm incorporating execution policies and safety checks
         // -------------------------------------------------------------------------
         template <class ExecutionPolicy>
@@ -217,11 +218,12 @@ namespace TinyDIP
             ProcessPPMData processor{ raw_data, magic, shift_bit, width, height, image };
 
             // Dispatches to execution policy with constraints verified
-            execute_pixel_processing(std::forward<ExecutionPolicy>(policy), indices, processor);
+            transform_pixel_processing_omp(std::forward<ExecutionPolicy>(policy), indices, processor);
 
             return image;
         }
 
+        // read template function implementation
         // Overload fallback avoiding execution policies, instead opting for OpenMP
         inline TinyDIP::Image<RGB> read(const std::filesystem::path& file_path, const int outbits = 8)
         {
@@ -272,7 +274,7 @@ namespace TinyDIP
             ProcessPPMData processor{ raw_data, magic, shift_bit, width, height, image };
 
             // Dispatch explicitly to the OpenMP implementation
-            execute_pixel_processing_omp(indices, processor);
+            transform_pixel_processing_omp(indices, processor);
 
             return image;
         }
