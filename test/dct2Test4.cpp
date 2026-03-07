@@ -346,6 +346,10 @@ int main(int argc, char* argv[])
         }
         auto dictionary = impl::load_dictionary_RGB(dictionary_path);
         std::string input_path = "InputImages/LowRes/Bucubic0.1/0012.bmp";
+        if (!std::filesystem::is_regular_file(input_path))
+        {
+            input_path = "../InputImages/LowRes/Bucubic0.1/0012.bmp";
+        }
         auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
         auto output_img = each_image(std::execution::seq, input_img, dictionary, 8, 8, 1.2);
         auto output_path = std::string("OutputImages/0012_superres") + std::to_string(1.2);
