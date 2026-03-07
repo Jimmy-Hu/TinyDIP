@@ -66,9 +66,15 @@ void dct3LargeImageTest(std::size_t N = 100)
     }
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     TinyDIP::Timer timer1;
-    dct3LargeImageTest<double>();
+    if (argc < 2)
+    {
+        std::cerr << "Usage: " << argv[0] << " <N>\n";
+        return EXIT_FAILURE;
+    }
+    std::size_t N = std::stoull(argv[1]);
+    dct3LargeImageTest<double>(N);
     return EXIT_SUCCESS;
 }
