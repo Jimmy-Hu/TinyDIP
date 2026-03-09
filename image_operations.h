@@ -3479,6 +3479,39 @@ namespace TinyDIP
         }
     };
 
+    // FisheyePixelMapper struct implementation
+    // Functor to handle the core pixel mapping logic, reusable across multi-threading implementations
+    template <typename ElementT, std::floating_point FloatingType, typename RootFinder>
+    struct FisheyePixelMapper
+    {
+        const Image<ElementT>& input;
+        Image<ElementT>& output;
+        FloatingType D0;
+        RootFinder root_finder;
+
+        constexpr void operator()(const std::size_t x, const std::size_t y) const
+        {
+            FloatingType distance_x = static_cast<FloatingType>(x) - static_cast<FloatingType>(output.getWidth()) / static_cast<FloatingType>(2.0);
+            FloatingType distance_y = static_cast<FloatingType>(y) - static_cast<FloatingType>(output.getHeight()) / static_cast<FloatingType>(2.0);
+            FloatingType r_out = std::hypot(distance_x, distance_y);
+
+            FloatingType r_in = root_finder(r_out, D0);
+
+            FloatingType scale = (r_out == static_cast<FloatingType>(0.0)) ? static_cast<FloatingType>(1.0) : (r_in / r_out);
+
+            FloatingType in_x_f = distance_x * scale + static_cast<FloatingType>(input.getWidth()) / static_cast<FloatingType>(2.0);
+            FloatingType in_y_f = distance_y * scale + static_cast<FloatingType>(input.getHeight()) / static_cast<FloatingType>(2.0);
+
+            auto in_x = static_cast<std::size_t>(std::round(in_x_f));
+            auto in_y = static_cast<std::size_t>(std::round(in_y_f));
+
+            if (in_x < input.getWidth() && in_y < input.getHeight())
+            {
+                output.at_without_boundary_check(x, y) = input.at_without_boundary_check(in_x, in_y);
+            }
+        }
+    };
+
     //  gaussian_fisheye template function implementation
     //  Reference: https://codereview.stackexchange.com/q/291059/231235
     template<arithmetic ElementT, std::floating_point FloatingType = double>
