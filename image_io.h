@@ -44,6 +44,63 @@ namespace TinyDIP
         TinyDIP::Image<double> read(const char* const filename, const bool extension);
 
         double* array_to_raw_image(Image<HSV> input);
+
+        // -------------------------------------------------------------------------
+        // write_to_csv template function implementation (Execution Policy Overload)
+        // -------------------------------------------------------------------------
+        template <class ExecutionPolicy, class ElementT = double>
+        requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
+                  TinyDIP::is_streamable<ElementT>)
+        void write_to_csv(ExecutionPolicy&& policy, const char* const filename, const Image<ElementT>& input, const int precision = -1)
+        {
+            if (input.getDimensionality() != 2)
+            {
+                throw std::runtime_error("Input is not a 2D image!\n");
+            }
+
+            std::ofstream file(filename);
+            if (!file.is_open())
+            {
+                throw std::runtime_error("Could not open file for writing!\n");
+            }
+
+            const std::size_t height = input.getHeight();
+            const std::size_t width = input.getWidth();
+            
+            // Pre-allocate vector size to prevent race conditions during thread execution
+            std::vector<std::string> row_strings(height);
+            std::vector<std::size_t> indices(height);
+            std::ranges::iota(indices, 0);
+
+            // Using standard library execution policy for multi-threading
+            std::for_each(std::forward<ExecutionPolicy>(policy), std::ranges::begin(indices), std::ranges::end(indices),
+                [&](const std::size_t y)
+                {
+                    std::ostringstream oss;
+                    if (precision >= 0)
+                    {
+                        oss << std::fixed << std::setprecision(precision);
+                    }
+                    
+                    for (std::size_t x = 0; x < width; ++x)
+                    {
+                        oss << input.at_without_boundary_check(x, y);
+                        if (x < width - 1)
+                        {
+                            oss << ",";
+                        }
+                    }
+                    // Thread-safe: Each thread writes to an exclusive index
+                    row_strings[y] = oss.str();
+                });
+
+            // Write correctly ordered sequences into the file purely sequentially
+            for (std::size_t y = 0; y < height; ++y)
+            {
+                file << row_strings[y] << '\n';
+            }
+        }
+
     }
 
     namespace pnm
