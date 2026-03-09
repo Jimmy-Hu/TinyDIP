@@ -3512,32 +3512,47 @@ namespace TinyDIP
         }
     };
 
-    //  gaussian_fisheye template function implementation
+    //  gaussian_fisheye template function implementation (Execution Policy Overload)
     //  Reference: https://codereview.stackexchange.com/q/291059/231235
-    template<arithmetic ElementT, std::floating_point FloatingType = double>
-    constexpr static auto gaussian_fisheye(const Image<ElementT>& input, FloatingType D0)
+    template<
+        class ExecutionPolicy,
+        arithmetic ElementT,
+        std::floating_point FloatingType = double,
+        typename RootFinder = GaussianFisheyeInverseRootFinder<FloatingType>
+    >
+    requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
+             std::invocable<RootFinder, FloatingType, FloatingType>
+    constexpr static auto gaussian_fisheye(
+        ExecutionPolicy&& policy,
+        const Image<ElementT>& input,
+        const FloatingType D0,
+        RootFinder root_finder = GaussianFisheyeInverseRootFinder<FloatingType>{}
+    )
     {
-        if (input.getDimensionality()!=2)
+        if (input.getDimensionality() != 2)
         {
             throw std::runtime_error("Unsupported dimension!");
         }
-        
+
         Image<ElementT> output(input.getWidth(), input.getHeight());
-        for (std::size_t y = 0; y < input.getHeight(); ++y)
-        {
-            for (std::size_t x = 0; x < input.getWidth(); ++x)
+        
+        std::vector<std::size_t> indices(output.count());
+        std::ranges::iota(indices, 0);
+
+        FisheyePixelMapper<ElementT, FloatingType, RootFinder> mapper{input, output, D0, root_finder};
+
+        std::for_each(
+            std::forward<ExecutionPolicy>(policy),
+            std::ranges::begin(indices),
+            std::ranges::end(indices),
+            [&](const std::size_t index)
             {
-                FloatingType distance_x = x - static_cast<FloatingType>(input.getWidth()) / 2.0;
-                FloatingType distance_y = y - static_cast<FloatingType>(input.getHeight()) / 2.0;
-                FloatingType weight = normalDistribution2D(std::fabs(distance_x), std::fabs(distance_y), D0) / normalDistribution2D(0.0, 0.0, D0);
-                FloatingType new_distance_x = distance_x * weight;
-                FloatingType new_distance_y = distance_y * weight;
-                output.at(
-                    static_cast<std::size_t>(new_distance_x + static_cast<FloatingType>(input.getWidth()) / 2.0),
-                    static_cast<std::size_t>(new_distance_y + static_cast<FloatingType>(input.getHeight()) / 2.0)) = 
-                    input.at(x, y);
+                const std::size_t x = index % output.getWidth();
+                const std::size_t y = index / output.getWidth();
+                mapper(x, y);
             }
-        }
+        );
+
         return output;
     }
 
