@@ -3436,6 +3436,49 @@ namespace TinyDIP
         return output;
     }
 
+    // GaussianFisheyeInverseRootFinder struct implementation
+    // Functor used as a default lambda object for finding the inverse root
+    template <std::floating_point FloatingType = double>
+    struct GaussianFisheyeInverseRootFinder
+    {
+        constexpr FloatingType operator()(const FloatingType r_out, const FloatingType D0) const
+        {
+            if (r_out <= static_cast<FloatingType>(0.0))
+            {
+                return static_cast<FloatingType>(0.0);
+            }
+
+            FloatingType low = static_cast<FloatingType>(0.0);
+            FloatingType high = D0;
+            
+            // The maximum output radius is reached at R_in = D0
+            const FloatingType max_r_out = D0 * std::exp(static_cast<FloatingType>(-0.5));
+
+            if (r_out >= max_r_out)
+            {
+                return D0;
+            }
+
+            // Binary search to find R_in for maximum precision
+            for (std::size_t iter = 0; iter < 50; ++iter)
+            {
+                FloatingType mid = low + (high - low) / static_cast<FloatingType>(2.0);
+                FloatingType f_mid = mid * std::exp(-(mid * mid) / (static_cast<FloatingType>(2.0) * D0 * D0));
+
+                if (f_mid < r_out)
+                {
+                    low = mid;
+                }
+                else
+                {
+                    high = mid;
+                }
+            }
+            
+            return low + (high - low) / static_cast<FloatingType>(2.0);
+        }
+    };
+
     //  gaussian_fisheye template function implementation
     //  Reference: https://codereview.stackexchange.com/q/291059/231235
     template<arithmetic ElementT, std::floating_point FloatingType = double>
