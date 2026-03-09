@@ -3579,9 +3579,9 @@ namespace TinyDIP
         FisheyePixelMapper<ElementT, FloatingType, RootFinder> mapper{input, output, D0, root_finder};
 
         #pragma omp parallel for collapse(2)
-        for (std::ptrdiff_t y = 0; y < static_cast<std::ptrdiff_t>(input.getHeight()); ++y)
+        for (std::ptrdiff_t y = 0; y < static_cast<std::ptrdiff_t>(output.getHeight()); ++y)
         {
-            for (std::ptrdiff_t x = 0; x < static_cast<std::ptrdiff_t>(input.getWidth()); ++x)
+            for (std::ptrdiff_t x = 0; x < static_cast<std::ptrdiff_t>(output.getWidth()); ++x)
             {
                 mapper(static_cast<std::size_t>(x), static_cast<std::size_t>(y));
             }
