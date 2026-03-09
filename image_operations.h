@@ -3556,6 +3556,40 @@ namespace TinyDIP
         return output;
     }
 
+    //  gaussian_fisheye template function implementation (OpenMP default fallback)
+    template<
+        arithmetic ElementT,
+        std::floating_point FloatingType = double,
+        typename RootFinder = GaussianFisheyeInverseRootFinder<FloatingType>
+    >
+    requires std::invocable<RootFinder, FloatingType, FloatingType>
+    constexpr static auto gaussian_fisheye(
+        const Image<ElementT>& input,
+        const FloatingType D0,
+        RootFinder root_finder = GaussianFisheyeInverseRootFinder<FloatingType>{}
+    )
+    {
+        if (input.getDimensionality() != 2)
+        {
+            throw std::runtime_error("Unsupported dimension!");
+        }
+
+        Image<ElementT> output(input.getWidth(), input.getHeight());
+        
+        FisheyePixelMapper<ElementT, FloatingType, RootFinder> mapper{input, output, D0, root_finder};
+
+        #pragma omp parallel for collapse(2)
+        for (std::ptrdiff_t y = 0; y < static_cast<std::ptrdiff_t>(input.getHeight()); ++y)
+        {
+            for (std::ptrdiff_t x = 0; x < static_cast<std::ptrdiff_t>(input.getWidth()); ++x)
+            {
+                mapper(static_cast<std::size_t>(x), static_cast<std::size_t>(y));
+            }
+        }
+
+        return output;
+    }
+
     //  gaussian_fisheye template function implementation for the types other than std::floating_point
     template<arithmetic ElementT, std::integral T = int>
     constexpr static auto gaussian_fisheye(const Image<ElementT>& input, T D0)
