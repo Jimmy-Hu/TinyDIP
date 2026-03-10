@@ -322,7 +322,7 @@ struct BicubicResizeHandler
         }
 
         std::string input_path = args[0];
-        std::string output_path = args[1];
+        std::filesystem::path output_filepath = std::string(args[1]);
         std::size_t width = parse_arg<std::size_t>(args[2]);
         std::size_t height = parse_arg<std::size_t>(args[3]);
 
@@ -336,7 +336,8 @@ struct BicubicResizeHandler
         auto output_img = TinyDIP::copyResizeBicubic(input_img, width, height);
 
         // Writing image
-        TinyDIP::bmp_write(output_path.c_str(), output_img);
+        std::filesystem::path path_without_extension = output_filepath.parent_path() / output_filepath.stem();
+        TinyDIP::bmp_write(path_without_extension.string().c_str(), output_img);
         os << "Saved to " << output_path << "\n";
     }
 };
