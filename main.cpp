@@ -308,10 +308,10 @@ public:
     }
 };
 
-//  ResizeHandler struct implementation
+//  BicubicResizeHandler struct implementation
 //  Wrapper for the 'resize' functionality
 //  Args: input_path output_path width height
-struct ResizeHandler
+struct BicubicResizeHandler
 {
     void operator()(const std::vector<std::string>& args, std::ostream& os = std::cout) const
     {
@@ -428,7 +428,7 @@ CommandRegistry command_registration()
 
     // Registering commands
     // 1. Resize Command
-    registry.register_command("resize", "Resize an image using Bicubic interpolation.", ResizeHandler{});
+    registry.register_command("bicubic_resize", "Resize an image using Bicubic interpolation.", BicubicResizeHandler{});
 
     // 2. Info Command
     registry.register_command("info", "Display basic information about an image.", InfoHandler{});
