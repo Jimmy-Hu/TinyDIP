@@ -205,6 +205,11 @@ namespace impl{
                 },
                 dct_block_y);
         }
+        else
+        {
+            std::cout << "dct_block_x.size() is " << dct_block_x.size() << "; dct_block_y.size() is " << dct_block_y.size() << '\n';
+            std::cout << "dct_block_x.at(0).size() is " << dct_block_x.at(0).size() << "; dct_block_y.at(0).size() is " << dct_block_y.at(0).size() << '\n';
+        }
         return std::make_tuple(x, y);
     }
 
