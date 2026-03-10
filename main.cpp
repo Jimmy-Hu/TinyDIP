@@ -338,7 +338,7 @@ struct BicubicResizeHandler
         // Writing image
         std::filesystem::path path_without_extension = output_filepath.parent_path() / output_filepath.stem();
         TinyDIP::bmp_write(path_without_extension.string().c_str(), output_img);
-        os << "Saved to " << output_path << "\n";
+        os << "Saved to " << output_filepath.string() << "\n";
     }
 };
 
