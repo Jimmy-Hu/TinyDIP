@@ -25,7 +25,8 @@ static auto get_block_output(
     const std::vector<TinyDIP::Image<ElementT>>& dictionary_x,
     const std::vector<TinyDIP::Image<ElementT>>& dictionary_y,
     const ElementT sigma,
-    const ElementT threshold
+    const ElementT threshold,
+    std::ostream& os = std::cout
 ) noexcept
 {
     if (dictionary_x.empty())
@@ -45,15 +46,15 @@ static auto get_block_output(
         }, dictionary_x);
     auto sum_of_weights = TinyDIP::recursive_reduce(weights, ElementT{});
     #if _HAS_CXX23
-    std::cout << "sum_of_weights: " << std::format("{}", sum_of_weights) << '\n';
+    os << "sum_of_weights: " << std::format("{}", sum_of_weights) << '\n';
     #else
-    std::cout << "sum_of_weights: " << sum_of_weights << '\n';
+    os << "sum_of_weights: " << sum_of_weights << '\n';
     #endif
     if (sum_of_weights < threshold)
     {
         return output;
     }
-    //std::cout << "#weights: " << std::to_string(weights.size()) << "\t#dictionary_y: " << std::to_string(dictionary_y.size()) << '\n';
+    //os << "#weights: " << std::to_string(weights.size()) << "\t#dictionary_y: " << std::to_string(dictionary_y.size()) << '\n';
     if constexpr(true)    //    Use OpenMP
     {
         std::vector<TinyDIP::Image<ElementT>> outputs;
