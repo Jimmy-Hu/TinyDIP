@@ -355,14 +355,14 @@ struct InfoHandler
             return;
         }
 
-        std::string input_path = args[0];
+        std::filesystem::path input_path = std::string(args[0]);
         if (!std::filesystem::exists(input_path))
         {
             std::cerr << "File not found: " << input_path << "\n";
             return;
         }
-
-        auto img = TinyDIP::bmp_read(input_path.c_str(), false);
+        std::filesystem::path path_without_extension = input_path.parent_path() / input_path.stem();
+        auto img = TinyDIP::bmp_read(path_without_extension.string().c_str(), false);
         os << "Image Info:\n";
         os << "  Path:   " << input_path << "\n";
         os << "  Width:  " << img.getWidth() << "\n";
