@@ -437,23 +437,23 @@ void run_legacy_tests(const std::vector<std::string_view>& args, std::ostream& o
 
 //  command_registration function implementation
 //  Function to initialize and register all available commands
-CommandRegistry command_registration()
+template <std::invocable<const std::vector<std::string_view>&, std::ostream&> BicubicResizeFun = BicubicResizeHandler>
+CommandRegistry command_registration(BicubicResizeFun&& bicubic_resize_fun = {})
 {
     CommandRegistry registry;
 
-    // Registering commands
-    // 1. Resize Command
-    registry.register_command("bicubic_resize", "Resize an image using Bicubic interpolation.", BicubicResizeHandler{});
+    //  Registering commands
+    registry.register_command("bicubic_resize", "Resize an image using Bicubic interpolation.", std::forward<BicubicResizeFun>(bicubic_resize_fun));
 
-    // 2. Info Command
     registry.register_command("info", "Display basic information about an image.", InfoHandler{});
 
-    // 3. Test Command (Legacy code)
-    // Note: Wrapped in a lambda to handle the optional std::ostream argument mismatch with CommandHandler type
-    registry.register_command("test", "Run internal integration tests.", [&](const std::vector<std::string_view>& args, std::ostream& os)
-    {
-        run_legacy_tests(args);
-    });
+    //  Note: Wrapped in a lambda to handle the optional std::ostream argument mismatch with CommandHandler type
+    registry.register_command("test", "Run internal integration tests.", 
+        [](const std::vector<std::string_view>& args, std::ostream& os)
+        {
+            run_legacy_tests(args, os);
+        }
+    );
 
     // 4. Batch Processing (Placeholder for future expansion)
     registry.register_command("batch_add_zeros", "Add leading zeros to filenames in a directory.",
@@ -464,8 +464,9 @@ CommandRegistry command_registration()
                 std::cerr << "Usage: batch_add_zeros <input_dir> <output_dir>\n";
                 return;
             }
-            // Implementation of addLeadingZeros logic here
-            std::cout << "Batch processing from " << args[0] << " to " << args[1] << "\n";
+            //  Note: args[0] and args[1] need to be converted to std::string if your underlying function expects strings
+            //  Example: addLeadingZeros(std::string(args[0]), std::string(args[1]));
+            os << "Batch processing from " << args[0] << " to " << args[1] << "\n";
         }
     );
 
