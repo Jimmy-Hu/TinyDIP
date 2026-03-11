@@ -300,14 +300,14 @@ public:
         std::cout << "\nUsage: ./tinydip <command> [args...]\n";
     }
 
-    void execute(const std::string& command_name, const std::vector<std::string>& args)
+    void execute(const std::string& command_name, const std::vector<std::string_view>& args)
     {
         if (commands.find(command_name) != commands.end())
         {
             try
             {
-                // Execute the registered handler
-                commands[command_name].second(args);
+                //  Execute the registered handler, injecting std::cout as default output stream
+                commands[command_name].second(args, std::cout);
             }
             catch (const std::exception& e)
             {
