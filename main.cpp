@@ -327,7 +327,7 @@ public:
 //  Args: input_path output_path width height
 struct BicubicResizeHandler
 {
-    void operator()(const std::vector<std::string>& args, std::ostream& os = std::cout) const
+    void operator()(const std::vector<std::string_view>& args, std::ostream& os = std::cout) const
     {
         if (args.size() < 4)
         {
@@ -335,7 +335,7 @@ struct BicubicResizeHandler
             return;
         }
 
-        std::string input_path = args[0];
+        std::string input_path(args[0]);
         std::filesystem::path output_filepath = std::string(args[1]);
         std::size_t width = parse_arg<std::size_t>(args[2]);
         std::size_t height = parse_arg<std::size_t>(args[3]);
