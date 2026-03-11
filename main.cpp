@@ -276,7 +276,7 @@ auto myHighLightRegion_parameters(const std::size_t index = 0)
 
 //  Command handler type definition
 //  Uses std::function to store lambda or function pointers
-using CommandHandler = std::function<void(const std::vector<std::string>& args)>;
+using CommandHandler = std::function<void(const std::vector<std::string_view>& args, std::ostream& os)>;
 
 //  CommandRegistry class implementation
 class CommandRegistry
