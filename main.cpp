@@ -387,7 +387,7 @@ struct InfoHandler
 
 //  run_legacy_tests function implementation
 //  Legacy test function wrapper
-void run_legacy_tests(const std::vector<std::string>& args, std::ostream& os = std::cout)
+void run_legacy_tests(const std::vector<std::string_view>& args, std::ostream& os = std::cout)
 {
     os << "Running legacy integration tests...\n";
     
