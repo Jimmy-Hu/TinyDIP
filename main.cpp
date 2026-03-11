@@ -450,14 +450,14 @@ CommandRegistry command_registration()
 
     // 3. Test Command (Legacy code)
     // Note: Wrapped in a lambda to handle the optional std::ostream argument mismatch with CommandHandler type
-    registry.register_command("test", "Run internal integration tests.", [&](const std::vector<std::string>& args)
+    registry.register_command("test", "Run internal integration tests.", [&](const std::vector<std::string_view>& args, std::ostream& os)
     {
         run_legacy_tests(args);
     });
 
     // 4. Batch Processing (Placeholder for future expansion)
     registry.register_command("batch_add_zeros", "Add leading zeros to filenames in a directory.",
-        [](const std::vector<std::string>& args)
+        [](const std::vector<std::string_view>& args, std::ostream& os)
         {
             if (args.size() < 2)
             {
