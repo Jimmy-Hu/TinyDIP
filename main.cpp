@@ -361,7 +361,7 @@ struct BicubicResizeHandler
 //  Args: input_path
 struct InfoHandler
 {
-    void operator()(const std::vector<std::string>& args, std::ostream& os = std::cout) const
+    void operator()(const std::vector<std::string_view>& args, std::ostream& os = std::cout) const
     {
         if (args.empty())
         {
