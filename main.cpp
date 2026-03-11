@@ -484,7 +484,9 @@ int main(int argc, char* argv[])
     }
 
     std::string command = argv[1];
-    std::vector<std::string> args;
+    
+    //  Using std::string_view for arguments to avoid heap allocation
+    std::vector<std::string_view> args;
 
     // Collect arguments for the command
     if (argc > 2)
