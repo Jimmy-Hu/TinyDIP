@@ -231,11 +231,25 @@ void addLeadingZeros(std::string input_path, std::string output_path);
 //  parse_arg template function implementation
 //  Helper for converting string to numeric types safely
 template <typename T>
-T parse_arg(const std::string& str)
+T parse_arg(std::string_view sv)
 {
-    std::stringstream ss(str);
-    T result;
-    ss >> result;
+    T result{};
+    if constexpr (std::is_arithmetic_v<T>)
+    {
+        auto [ptr, ec] = std::from_chars(sv.data(), sv.data() + sv.size(), result);
+        if (ec != std::errc())
+        {
+            throw std::runtime_error(TinyDIP::Formatter() << "Error parsing argument: " << sv << " \n");
+        }
+    }
+    else
+    {
+        //  Fallback for non-arithmetic types (unlikely to be used with this function in current context)
+        //  This path forces allocation, but is rarely hit for numeric parsing
+        std::string temp(sv);
+        std::stringstream ss(temp);
+        ss >> result;
+    }
     return result;
 }
 
