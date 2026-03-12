@@ -374,14 +374,14 @@ public:
         commands.emplace(name, std::make_pair(description, std::move(handler)));
     }
 
-    void list_commands() const
+    void list_commands(std::ostream& os = std::cout) const
     {
-        std::cout << "Available Commands:\n";
+        os << "Available Commands:\n";
         for (const auto& [name, info] : commands)
         {
-            std::cout << "  " << std::left << std::setw(15) << name << " : " << info.first << "\n";
+            os << "  " << std::left << std::setw(15) << name << " : " << info.first << "\n";
         }
-        std::cout << "\nUsage: ./tinydip <command> [args...]\n";
+        os << "\nUsage: ./tinydip <command> [args...]\n";
     }
 
     template <std::ranges::random_access_range ArgsT>
