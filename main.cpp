@@ -363,9 +363,11 @@ struct BicubicResizeHandler
 //  Args: input_path
 struct InfoHandler
 {
-    void operator()(const std::vector<std::string_view>& args, std::ostream& os = std::cout) const
+    template <std::ranges::random_access_range ArgsT>
+    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
+    void operator()(const ArgsT& args, std::ostream& os = std::cout) const
     {
-        if (args.empty())
+        if (std::ranges::empty(args))
         {
             std::cerr << "Usage: info <input_bmp>\n";
             return;
@@ -383,7 +385,7 @@ struct InfoHandler
         os << "  Path:   " << input_path << "\n";
         os << "  Width:  " << img.getWidth() << "\n";
         os << "  Height: " << img.getHeight() << "\n";
-        // Add more info if available (channels, etc.)
+        //  Add more info if available (channels, etc.)
     }
 };
 
