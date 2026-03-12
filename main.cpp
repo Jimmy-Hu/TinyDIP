@@ -437,15 +437,19 @@ void run_legacy_tests(const std::vector<std::string_view>& args, std::ostream& o
 
 //  command_registration function implementation
 //  Function to initialize and register all available commands
-template <std::invocable<const std::vector<std::string_view>&, std::ostream&> BicubicResizeFun = BicubicResizeHandler>
-CommandRegistry command_registration(BicubicResizeFun&& bicubic_resize_fun = {})
+template <
+    std::invocable<const std::vector<std::string_view>&, std::ostream&> BicubicResizeFun = BicubicResizeHandler,
+    std::invocable<const std::vector<std::string_view>&, std::ostream&> InfoHandlerFun = InfoHandler>
+CommandRegistry command_registration(
+    BicubicResizeFun&& bicubic_resize_fun = {},
+    InfoHandlerFun&& info_handler_fun = {})
 {
     CommandRegistry registry;
 
     //  Registering commands
     registry.register_command("bicubic_resize", "Resize an image using Bicubic interpolation.", std::forward<BicubicResizeFun>(bicubic_resize_fun));
 
-    registry.register_command("info", "Display basic information about an image.", InfoHandler{});
+    registry.register_command("info", "Display basic information about an image.", std::forward<InfoHandlerFun>(info_handler_fun));
 
     //  Note: Wrapped in a lambda to handle the optional std::ostream argument mismatch with CommandHandler type
     registry.register_command("test", "Run internal integration tests.", 
@@ -455,7 +459,6 @@ CommandRegistry command_registration(BicubicResizeFun&& bicubic_resize_fun = {})
         }
     );
 
-    // 4. Batch Processing (Placeholder for future expansion)
     registry.register_command("batch_add_zeros", "Add leading zeros to filenames in a directory.",
         [](const std::vector<std::string_view>& args, std::ostream& os)
         {
