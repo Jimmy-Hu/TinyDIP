@@ -604,10 +604,12 @@ void run_legacy_tests(const ArgsT& args, std::ostream& os = std::cout)
 //  Function to initialize and register all available commands
 template <
     std::invocable<std::span<const std::string_view>, std::ostream&> BicubicResizeFun = BicubicResizeHandler,
-    std::invocable<std::span<const std::string_view>, std::ostream&> InfoHandlerFun = InfoHandler>
+    std::invocable<std::span<const std::string_view>, std::ostream&> InfoHandlerFun = InfoHandler,
+    std::invocable<std::span<const std::string_view>, std::ostream&> RandHandlerFun = RandHandler>
 CommandRegistry command_registration(
     BicubicResizeFun&& bicubic_resize_fun = {},
-    InfoHandlerFun&& info_handler_fun = {})
+    InfoHandlerFun&& info_handler_fun = {},
+    RandHandlerFun&& rand_handler_fun = {})
 {
     CommandRegistry registry;
 
@@ -615,6 +617,8 @@ CommandRegistry command_registration(
     registry.register_command("bicubic_resize", "Resize an image using Bicubic interpolation.", std::forward<BicubicResizeFun>(bicubic_resize_fun));
 
     registry.register_command("info", "Display basic information about an image.", std::forward<InfoHandlerFun>(info_handler_fun));
+
+    registry.register_command("rand", "Generate random multi-dimensional image.", std::forward<RandHandlerFun>(rand_handler_fun));
 
     //  Note: Wrapped in a lambda to conform to the type-erased span boundary
     registry.register_command("test", "Run internal integration tests.", 
