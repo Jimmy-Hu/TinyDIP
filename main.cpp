@@ -424,7 +424,7 @@ public:
 };
 
 //  BicubicResizeHandler struct implementation
-//  Wrapper for the 'resize' functionality
+//  Wrapper for the 'bicubic_resize' functionality
 //  Args: input_path output_path width height
 struct BicubicResizeHandler
 {
@@ -579,11 +579,12 @@ CommandRegistry command_registration(
     return registry;
 }
 
+//  Main Entry Point
 int main(int argc, char* argv[])
 {
     CommandRegistry registry = command_registration();
 
-    // Argument Parsing
+    //  Argument Parsing
     if (argc < 2)
     {
         registry.list_commands();
@@ -595,12 +596,14 @@ int main(int argc, char* argv[])
     //  Using std::string_view for arguments to avoid heap allocation
     std::vector<std::string_view> args;
 
-    // Collect arguments for the command
+    //  Collect arguments for the command
     if (argc > 2)
     {
         args.reserve(argc - 2);
         for (int i = 2; i < argc; ++i)
         {
+            //  Construct string_view directly from argv char pointers
+            //  No string copying happens here!
             args.emplace_back(argv[i]);
         }
     }
