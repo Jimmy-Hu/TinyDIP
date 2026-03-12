@@ -371,7 +371,7 @@ private:
 public:
     void register_command(const std::string& name, const std::string& description, CommandHandler handler)
     {
-        commands.emplace(name, std::make_pair(description, handler));
+        commands.emplace(name, std::make_pair(description, std::move(handler)));
     }
 
     void list_commands() const
@@ -384,14 +384,31 @@ public:
         std::cout << "\nUsage: ./tinydip <command> [args...]\n";
     }
 
-    void execute(const std::string& command_name, const std::vector<std::string_view>& args)
+    template <std::ranges::random_access_range ArgsT>
+    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
+    void execute(const std::string& command_name, const ArgsT& args)
     {
-        if (commands.find(command_name) != commands.end())
+        if (auto it = commands.find(command_name); it != std::ranges::end(commands))
         {
             try
             {
-                //  Execute the registered handler, injecting std::cout as default output stream
-                commands[command_name].second(args, std::cout);
+                //  Zero-copy path: If the incoming generic range is already contiguous (e.g., std::vector, std::array),
+                //  we can wrap it directly in a std::span without allocating any memory.
+                if constexpr (std::ranges::contiguous_range<ArgsT> && std::same_as<std::ranges::range_value_t<ArgsT>, std::string_view>)
+                {
+                    it->second.second(std::span<const std::string_view>{std::ranges::data(args), std::ranges::size(args)}, std::cout);
+                }
+                //  Fallback path: Convert non-contiguous generic random-access range to a contiguous block.
+                else
+                {
+                    std::vector<std::string_view> contiguous_args;
+                    contiguous_args.reserve(std::ranges::size(args));
+                    for (const auto& arg : args)
+                    {
+                        contiguous_args.emplace_back(arg);
+                    }
+                    it->second.second(std::span<const std::string_view>{std::ranges::data(contiguous_args), std::ranges::size(contiguous_args)}, std::cout);
+                }
             }
             catch (const std::exception& e)
             {
