@@ -541,8 +541,8 @@ void run_legacy_tests(const ArgsT& args, std::ostream& os = std::cout)
 //  command_registration function implementation
 //  Function to initialize and register all available commands
 template <
-    std::invocable<const std::vector<std::string_view>&, std::ostream&> BicubicResizeFun = BicubicResizeHandler,
-    std::invocable<const std::vector<std::string_view>&, std::ostream&> InfoHandlerFun = InfoHandler>
+    std::invocable<std::span<const std::string_view>, std::ostream&> BicubicResizeFun = BicubicResizeHandler,
+    std::invocable<std::span<const std::string_view>, std::ostream&> InfoHandlerFun = InfoHandler>
 CommandRegistry command_registration(
     BicubicResizeFun&& bicubic_resize_fun = {},
     InfoHandlerFun&& info_handler_fun = {})
@@ -554,18 +554,18 @@ CommandRegistry command_registration(
 
     registry.register_command("info", "Display basic information about an image.", std::forward<InfoHandlerFun>(info_handler_fun));
 
-    //  Note: Wrapped in a lambda to handle the optional std::ostream argument mismatch with CommandHandler type
+    //  Note: Wrapped in a lambda to conform to the type-erased span boundary
     registry.register_command("test", "Run internal integration tests.", 
-        [](const std::vector<std::string_view>& args, std::ostream& os)
+        [](std::span<const std::string_view> args, std::ostream& os)
         {
             run_legacy_tests(args, os);
         }
     );
 
     registry.register_command("batch_add_zeros", "Add leading zeros to filenames in a directory.",
-        [](const std::vector<std::string_view>& args, std::ostream& os)
+        [](std::span<const std::string_view> args, std::ostream& os)
         {
-            if (args.size() < 2)
+            if (std::ranges::size(args) < 2)
             {
                 std::cerr << "Usage: batch_add_zeros <input_dir> <output_dir>\n";
                 return;
