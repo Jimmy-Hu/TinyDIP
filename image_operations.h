@@ -3563,7 +3563,7 @@ namespace TinyDIP
         typename RootFinder = GaussianFisheyeInverseRootFinder<FloatingType>
     >
     requires std::invocable<RootFinder, FloatingType, FloatingType>
-    constexpr static auto gaussian_fisheye(
+    inline static auto gaussian_fisheye(
         const Image<ElementT>& input,
         const FloatingType D0,
         RootFinder root_finder = GaussianFisheyeInverseRootFinder<FloatingType>{}
