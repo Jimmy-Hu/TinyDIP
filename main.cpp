@@ -490,6 +490,68 @@ struct InfoHandler
     }
 };
 
+//  RandHandler struct implementation
+//  Wrapper for 'rand' functionality
+//  Args: output_path dim1 [dim2] [dim3] ...
+struct RandHandler
+{
+    //  Define a struct with a call operator to be used as the generator lambda, 
+    //  allowing for generic type deduction and avoiding raw lambdas.
+    struct RandomGenerator
+    {
+        std::mt19937& urbg_;
+        std::uniform_real_distribution<double>& dist_;
+
+        constexpr double operator()()
+        {
+            return dist_(urbg_);
+        }
+    };
+
+    template <std::ranges::random_access_range ArgsT>
+    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
+    void operator()(const ArgsT& args, std::ostream& os = std::cout) const
+    {
+        if (std::ranges::size(args) < 2)
+        {
+            std::cerr << "Usage: rand <output_bmp> <dim1> [dim2] [dim3] ...\n";
+            return;
+        }
+
+        std::filesystem::path output_filepath = std::string(std::string_view{args[0]});
+        
+        //  Constructing sizes vector sequentially from arbitrary dimensions given in the CLI
+        std::vector<std::size_t> sizes;
+        sizes.reserve(std::ranges::size(args) - 1);
+        
+        for (std::size_t i = 1; i < std::ranges::size(args); ++i)
+        {
+            sizes.emplace_back(parse_arg<std::size_t>(std::string_view{args[i]}));
+        }
+
+        os << "Generating random image with dimensions: ";
+        for (const auto& size : sizes)
+        {
+            os << size << " ";
+        }
+        os << "...\n";
+
+        //  Setup highest precision RNG components
+        std::mt19937 urbg{std::random_device{}()};
+        std::uniform_real_distribution<double> dist{};
+        RandomGenerator gen{urbg, dist};
+
+        //  Calling the dynamic range-based generate overload directly from TinyDIP.
+        //  This efficiently bypasses the impossibility of unrolling a dynamic std::vector into variadic template parameters.
+        auto output_img = TinyDIP::generate(gen, sizes);
+
+        //  Writing image
+        std::filesystem::path path_without_extension = output_filepath.parent_path() / output_filepath.stem();
+        TinyDIP::double_image::write(path_without_extension.string().c_str(), output_img);
+        os << "Saved to " << output_filepath.string() << "\n";
+    }
+};
+
 //  run_legacy_tests function implementation
 //  Legacy test function wrapper
 template <std::ranges::random_access_range ArgsT>
