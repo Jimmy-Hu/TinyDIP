@@ -327,29 +327,31 @@ public:
 //  Args: input_path output_path width height
 struct BicubicResizeHandler
 {
-    void operator()(const std::vector<std::string_view>& args, std::ostream& os = std::cout) const
+    template <std::ranges::random_access_range ArgsT>
+    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
+    void operator()(const ArgsT& args, std::ostream& os = std::cout) const
     {
-        if (args.size() < 4)
+        if (std::ranges::size(args) < 4)
         {
-            std::cerr << "Usage: resize <input_bmp> <output_bmp> <width> <height>\n";
+            std::cerr << "Usage: bicubic_resize <input_bmp> <output_bmp> <width> <height>\n";
             return;
         }
 
-        std::string input_path(args[0]);
-        std::filesystem::path output_filepath = std::string(args[1]);
-        std::size_t width = parse_arg<std::size_t>(args[2]);
-        std::size_t height = parse_arg<std::size_t>(args[3]);
+        std::string input_path(std::string_view{args[0]});
+        std::filesystem::path output_filepath = std::string(std::string_view{args[1]});
+        std::size_t width = parse_arg<std::size_t>(std::string_view{args[2]});
+        std::size_t height = parse_arg<std::size_t>(std::string_view{args[3]});
 
         os << "Resizing " << input_path << " to " << width << "x" << height << "...\n";
 
-        // Reading image
+        //  Reading image
         auto input_img = TinyDIP::bmp_read(input_path.c_str(), true); // Assume true for convert to RGB/standard
 
-        // Perform operation
-        // Using execution policy if TinyDIP supports it internally, otherwise standard call
+        //  Perform operation
+        //  Using execution policy if TinyDIP supports it internally, otherwise standard call
         auto output_img = TinyDIP::copyResizeBicubic(input_img, width, height);
 
-        // Writing image
+        //  Writing image
         std::filesystem::path path_without_extension = output_filepath.parent_path() / output_filepath.stem();
         TinyDIP::bmp_write(path_without_extension.string().c_str(), output_img);
         os << "Saved to " << output_filepath.string() << "\n";
