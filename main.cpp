@@ -492,11 +492,13 @@ struct InfoHandler
 
 //  run_legacy_tests function implementation
 //  Legacy test function wrapper
-void run_legacy_tests(const std::vector<std::string_view>& args, std::ostream& os = std::cout)
+template <std::ranges::random_access_range ArgsT>
+requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
+void run_legacy_tests(const ArgsT& args, std::ostream& os = std::cout)
 {
     os << "Running legacy integration tests...\n";
     
-    auto start = std::chrono::system_clock::now();
+    TinyDIP::Timer timer1;
     std::string file_path = "InputImages/1";
     auto bmp1 = TinyDIP::bmp_read(file_path.c_str(), false);
     std::size_t N1 = 8, N2 = 8;
@@ -533,10 +535,6 @@ void run_legacy_tests(const std::vector<std::string_view>& args, std::ostream& o
     cv::waitKey(0);
     #endif
     TinyDIP::bmp_write("test20241026", bmp1);
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-    os << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << " seconds\n";
     return;
 }
 
