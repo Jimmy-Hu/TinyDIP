@@ -274,9 +274,93 @@ auto myHighLightRegion_parameters(const std::size_t index = 0)
         >> collection;
 }
 
-//  Command handler type definition
-//  Uses std::function to store lambda or function pointers
-using CommandHandler = std::function<void(const std::vector<std::string_view>& args, std::ostream& os)>;
+//  Custom Type-Erasure Wrapper (Concept-Model Idiom)
+//  This acts like std::any/std::function but enforces a highly optimized span boundary internally
+class CommandHandler
+{
+private:
+    //  The abstract interface (Concept)
+    struct Concept
+    {
+        virtual ~Concept() = default;
+        //  Using std::span provides a zero-allocation, type-erased boundary for any contiguous range
+        virtual void call(std::span<const std::string_view> args, std::ostream& os) const = 0;
+        virtual std::unique_ptr<Concept> clone() const = 0;
+    };
+
+    //  The concrete implementation wrapper (Model)
+    template <typename HandlerT>
+    struct Model final : Concept
+    {
+        HandlerT handler_;
+
+        constexpr explicit Model(HandlerT handler) : handler_(std::move(handler))
+        {
+        }
+
+        void call(std::span<const std::string_view> args, std::ostream& os) const override
+        {
+            //  Forward the span argument to the generic operator() of the encapsulated handler
+            handler_(args, os);
+        }
+
+        std::unique_ptr<Concept> clone() const override
+        {
+            return std::make_unique<Model>(*this);
+        }
+    };
+
+    std::unique_ptr<Concept> pimpl_;
+
+public:
+    //  Default constructor
+    constexpr CommandHandler() noexcept : pimpl_(nullptr)
+    {
+    }
+
+    //  Generic constructor for absolutely any callable
+    template <typename HandlerT>
+    requires (!std::same_as<std::decay_t<HandlerT>, CommandHandler>)
+    constexpr CommandHandler(HandlerT&& handler)
+        : pimpl_(std::make_unique<Model<std::decay_t<HandlerT>>>(std::forward<HandlerT>(handler)))
+    {
+    }
+
+    //  Copy constructor (Deep copy of the type-erased object)
+    CommandHandler(const CommandHandler& other)
+        : pimpl_(other.pimpl_ ? other.pimpl_->clone() : nullptr)
+    {
+    }
+
+    //  Move constructor
+    constexpr CommandHandler(CommandHandler&&) noexcept = default;
+
+    //  Copy assignment
+    CommandHandler& operator=(const CommandHandler& other)
+    {
+        if (this != &other)
+        {
+            pimpl_ = other.pimpl_ ? other.pimpl_->clone() : nullptr;
+        }
+        return *this;
+    }
+
+    //  Move assignment
+    constexpr CommandHandler& operator=(CommandHandler&&) noexcept = default;
+
+    //  Execution operator
+    void operator()(std::span<const std::string_view> args, std::ostream& os) const
+    {
+        if (pimpl_)
+        {
+            pimpl_->call(args, os);
+        }
+        else
+        {
+            throw std::bad_function_call();
+        }
+    }
+};
 
 //  CommandRegistry class implementation
 class CommandRegistry
