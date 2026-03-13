@@ -418,7 +418,7 @@ public:
         else
         {
             std::cerr << "Unknown command: " << command_name << "\n";
-            list_commands();
+            list_commands(std::cerr);
         }
     }
 };
