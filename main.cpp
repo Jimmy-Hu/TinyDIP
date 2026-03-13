@@ -497,14 +497,15 @@ struct RandHandler
 {
     //  Define a struct with a call operator to be used as the generator lambda, 
     //  allowing for generic type deduction and avoiding raw lambdas.
-    template<typename Urbg>
-    requires(std::uniform_random_bit_generator<std::remove_reference_t<Urbg>>)
+    template <typename Urbg, typename Dist>
+    requires (std::uniform_random_bit_generator<std::remove_reference_t<Urbg>> &&
+              std::invocable<Dist&, Urbg&>)
     struct RandomGenerator
     {
         Urbg& urbg_;
-        std::uniform_real_distribution<double>& dist_;
+        Dist& dist_;
 
-        constexpr double operator()()
+        constexpr auto operator()()
         {
             return dist_(urbg_);
         }
@@ -541,7 +542,7 @@ struct RandHandler
         //  Setup highest precision RNG components
         std::mt19937 urbg{std::random_device{}()};
         std::uniform_real_distribution<double> dist{};
-        RandomGenerator<std::mt19937> gen{urbg, dist};
+        RandomGenerator<std::mt19937, std::uniform_real_distribution<double>> gen{urbg, dist};
 
         //  Calling the dynamic range-based generate overload directly from TinyDIP.
         //  This efficiently bypasses the impossibility of unrolling a dynamic std::vector into variadic template parameters.
