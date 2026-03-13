@@ -34,7 +34,8 @@ int main(int argc, char* argv[])
         std::cerr << "File not found: " << input_path << "\n";
         return EXIT_SUCCESS;
     }
-    
-    pnmFileReadTest(input_path, std::string(argv[2]));
+    std::filesystem::path output_path = std::string(argv[2]);
+    std::filesystem::path path_without_extension = output_path.parent_path() / output_path.stem();
+    pnmFileReadTest(input_path, path_without_extension.string());
     return EXIT_SUCCESS;
 }
