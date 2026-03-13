@@ -22,9 +22,9 @@ void pnmFileReadTest(const std::filesystem::path& file_path, std::string_view ou
 int main(int argc, char* argv[])
 {
     TinyDIP::Timer timer1;
-    if (argc < 2)
+    if (argc < 3)
     {
-        
+        std::cerr << "Usage: " << argv[0] << "<input_bmp> <output_bmp>\n";
         return EXIT_SUCCESS;
     }
     
@@ -35,6 +35,6 @@ int main(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
     
-    pnmFileReadTest(input_path, "");
+    pnmFileReadTest(input_path, std::string(argv[2]));
     return EXIT_SUCCESS;
 }
