@@ -113,12 +113,12 @@ endif()
 if(UNIX AND NOT APPLE)
     # for Linux, BSD, Solaris, Minix
     # Only set specific paths if necessary, otherwise trust CMake detection
-    if(EXISTS "/usr/bin/gcc")
-        set(CMAKE_C_COMPILER "/usr/bin/gcc")
-    endif()
-    if(EXISTS "/usr/bin/g++")
-        set(CMAKE_CXX_COMPILER "/usr/bin/g++")
-    endif()
+    #if(EXISTS "/usr/bin/gcc")
+    #    set(CMAKE_C_COMPILER "/usr/bin/gcc")
+    #endif()
+    #if(EXISTS "/usr/bin/g++")
+    #    set(CMAKE_CXX_COMPILER "/usr/bin/g++")
+    #endif()
 endif()
 
 # Set CXX flags based on compiler
