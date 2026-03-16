@@ -492,7 +492,7 @@ struct InfoHandler
 
 //  RandHandler struct implementation
 //  Wrapper for 'rand' functionality
-//  Args: output_path dim1 [dim2] [dim3] ...
+//  Args: urbg_type output_path dim1 [dim2] [dim3] ...
 struct RandHandler
 {
     //  Define a struct with a call operator to be used as the generator lambda, 
@@ -515,19 +515,95 @@ struct RandHandler
     requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
     void operator()(const ArgsT& args, std::ostream& os = std::cout) const
     {
-        if (std::ranges::size(args) < 2)
+        //  Generic lambda to dispatch the generation logic using the built-in concept constraint
+        //  Takes initialized variables as explicitly passed arguments to eliminate state dependency
+        auto dispatch_generation = [&]
+        <std::ranges::random_access_range SzArgsT>
+        requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
+        (std::uniform_random_bit_generator auto&& urbg, const std::filesystem::path& out_path, const SzArgsT& sz)
         {
-            std::cerr << "Usage: rand <output_bmp> <dim1> [dim2] [dim3] ...\n";
+            std::uniform_real_distribution<double> dist{};
+            using UrbgType = std::remove_cvref_t<decltype(urbg)>;
+            using DistType = decltype(dist);
+
+            RandomGenerator<UrbgType, DistType> gen{urbg, dist};
+
+            //  Calling the dynamic range-based generate overload directly from TinyDIP.
+            auto output_img = TinyDIP::generate(gen, sz);
+
+            //  Writing image
+            std::filesystem::path path_without_extension = out_path.parent_path() / out_path.stem();
+            TinyDIP::double_image::write(path_without_extension.string().c_str(), output_img);
+            os << "Saved to " << out_path.string() << "\n";
+        };
+
+        //  Runtime string dispatch mapping to compile-time URBG types via std::map
+        //  Uses std::span to avoid hardcoding std::vector, establishing a fully generic type-erased boundary
+        std::map<std::string_view, std::function<void(const std::filesystem::path&, std::span<const std::size_t>)>> urbg_mapping = {
+            {"mt19937",     [&]
+                <std::ranges::random_access_range SzArgsT>
+                requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
+                (const std::filesystem::path& out_path, const SzArgsT& sz)
+                { 
+                    dispatch_generation(std::mt19937{std::random_device{}()}, out_path, sz); 
+                }
+            },
+            {"mt19937_64",  [&]
+                <std::ranges::random_access_range SzArgsT>
+                requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
+                (const std::filesystem::path& out_path, const SzArgsT& sz)
+                { 
+                    dispatch_generation(std::mt19937_64{std::random_device{}()}, out_path, sz); 
+                }
+            },
+            {"minstd_rand", [&]
+                <std::ranges::random_access_range SzArgsT>
+                requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
+                (const std::filesystem::path& out_path, const SzArgsT& sz)
+                { 
+                    dispatch_generation(std::minstd_rand{std::random_device{}()}, out_path, sz); 
+                }
+            },
+            {"ranlux48",    [&]
+                <std::ranges::random_access_range SzArgsT>
+                requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
+                (const std::filesystem::path& out_path, const SzArgsT& sz)
+                { 
+                    dispatch_generation(std::ranlux48{std::random_device{}()}, out_path, sz); 
+                }
+            }
+        };
+
+        //  Helper lambda to dynamically print available URBGs safely formatted
+        auto print_available_urbgs = [&]()
+        {
+            os << "Available URBGs: ";
+            for (auto it = urbg_mapping.begin(); it != urbg_mapping.end(); ++it)
+            {
+                os << it->first;
+                if (std::next(it) != urbg_mapping.end())
+                {
+                    os << ", ";
+                }
+            }
+            os << '\n';
+        };
+
+        if (std::ranges::size(args) < 3)
+        {
+            os << "Usage: rand <urbg_type> <output_bmp> <dim1> [dim2] [dim3] ...\n";
+            print_available_urbgs();
             return;
         }
 
-        std::filesystem::path output_filepath = std::string(std::string_view{args[0]});
+        std::string_view urbg_type = args[0];
+        std::filesystem::path output_filepath = std::string(std::string_view{args[1]});
         
         //  Constructing sizes vector sequentially from arbitrary dimensions given in the CLI
         std::vector<std::size_t> sizes;
-        sizes.reserve(std::ranges::size(args) - 1);
+        sizes.reserve(std::ranges::size(args) - 2);
         
-        for (std::size_t i = 1; i < std::ranges::size(args); ++i)
+        for (std::size_t i = 2; i < std::ranges::size(args); ++i)
         {
             sizes.emplace_back(parse_arg<std::size_t>(std::string_view{args[i]}));
         }
@@ -537,21 +613,17 @@ struct RandHandler
         {
             os << size << " ";
         }
-        os << "...\n";
+        os << "using URBG '" << urbg_type << "'...\n";
 
-        //  Setup highest precision RNG components
-        std::mt19937 urbg{std::random_device{}()};
-        std::uniform_real_distribution<double> dist{};
-        RandomGenerator<std::mt19937, std::uniform_real_distribution<double>> gen{urbg, dist};
-
-        //  Calling the dynamic range-based generate overload directly from TinyDIP.
-        //  This efficiently bypasses the impossibility of unrolling a dynamic std::vector into variadic template parameters.
-        auto output_img = TinyDIP::generate(gen, sizes);
-
-        //  Writing image
-        std::filesystem::path path_without_extension = output_filepath.parent_path() / output_filepath.stem();
-        TinyDIP::double_image::write(path_without_extension.string().c_str(), output_img);
-        os << "Saved to " << output_filepath.string() << "\n";
+        if (auto it = urbg_mapping.find(urbg_type); it != urbg_mapping.end())
+        {
+            it->second(output_filepath, sizes);
+        }
+        else
+        {
+            os << "Error: Unknown URBG type '" << urbg_type << "'.\n";
+            print_available_urbgs();
+        }
     }
 };
 
