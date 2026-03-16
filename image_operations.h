@@ -3482,6 +3482,7 @@ namespace TinyDIP
     // FisheyePixelMapper struct implementation
     // Functor to handle the core pixel mapping logic, reusable across multi-threading implementations
     template <typename ElementT, std::floating_point FloatingType, typename RootFinder>
+    requires(std::invocable<RootFinder, FloatingType, FloatingType>)
     struct FisheyePixelMapper
     {
         const Image<ElementT>& input;
