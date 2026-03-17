@@ -1880,11 +1880,12 @@ namespace TinyDIP
             std::vector<Image<ElementT>> output2;
             for (std::size_t x = 0; x < xsegments; ++x)
             {
-                std::vector<std::size_t> new_sizes{block_size_x + x_extension_pixel_count, block_size_y + y_extension_pixel_count};
+                std::vector<std::size_t> new_sizes{block_size_x + 2 * x_extension_pixel_count, block_size_y + 2 * y_extension_pixel_count};
                 auto centerx = x * block_size_x + static_cast<std::size_t>((block_size_x - 1) / 2.0);
                 auto centery = y * block_size_y + static_cast<std::size_t>((block_size_y - 1) / 2.0);
                 std::vector<std::size_t> centers{centerx, centery};
                 output2.push_back(subimage(
+                    std::forward<ExecutionPolicy>(execution_policy),
                     extended_input,
                     new_sizes,
                     centers
