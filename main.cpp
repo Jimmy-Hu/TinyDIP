@@ -819,10 +819,13 @@ int main(int argc, char* argv[])
 {
     CommandRegistry registry = command_registration();
 
-    //  Argument Parsing
+    //  Dynamically register the generic help command handler
+    registry.register_command("help", "List all available commands.", HelpHandler{registry});
+
+    //  Argument Parsing (No argument launches interactive REPL mode)
     if (argc < 2)
     {
-        registry.list_commands();
+        run_interactive_mode(registry);
         return EXIT_SUCCESS;
     }
 
