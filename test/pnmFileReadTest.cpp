@@ -41,18 +41,34 @@ int main(int argc, char* argv[])
     TinyDIP::Timer timer1;
     if (argc < 3)
     {
-        std::cerr << "Usage: " << argv[0] << "<input_bmp> <output_bmp>\n";
+        std::cerr << "Usage: " << argv[0] << "<input_bmp> <output_bmp> or\n"
+                  << argv[0] << "<input_bmp_folder> <output_bmp_folder>";
         return EXIT_SUCCESS;
     }
     
     std::filesystem::path input_path = std::string(argv[1]);
+    std::filesystem::path output_path = std::string(argv[2]);
     if (!std::filesystem::exists(input_path))
     {
         std::cerr << "File not found: " << input_path << "\n";
         return EXIT_SUCCESS;
     }
-    std::filesystem::path output_path = std::string(argv[2]);
-    std::filesystem::path path_without_extension = output_path.parent_path() / output_path.stem();
-    pnmFileReadTest(input_path, path_without_extension.string());
+    std::string target_ext = ".ppm";
+    if (std::filesystem::is_directory(input_path) && std::filesystem::is_directory(output_path))
+    {
+        for (const auto & entry : std::filesystem::directory_iterator(input_path))
+        {
+            if (entry.is_regular_file() && entry.path().extension() == target_ext)
+            {
+                std::cout << "Processing " << entry.path() << '\n';
+                pnmFileReadTest(entry.path(), std::string(output_path / entry.path().stem()));
+            }
+        }
+    }
+    else
+    {
+        std::filesystem::path path_without_extension = output_path.parent_path() / output_path.stem();
+        pnmFileReadTest(input_path, path_without_extension.string());
+    }
     return EXIT_SUCCESS;
 }
