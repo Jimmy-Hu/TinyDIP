@@ -760,6 +760,60 @@ CommandRegistry command_registration(
     return registry;
 }
 
+//  run_interactive_mode function implementation
+//  Interactive REPL loop implementation
+void run_interactive_mode(const CommandRegistry& registry, std::ostream& os = std::cout)
+{
+    os << "TinyDIP Interactive Interpreter\n";
+    os << "Type 'help' to list commands, or 'exit' / 'quit' to terminate.\n";
+
+    std::string line;
+    while (true)
+    {
+        os << "tinydip> ";
+        if (!std::getline(std::cin, line))
+        {
+            break;
+        }
+
+        if (line.empty())
+        {
+            continue;
+        }
+
+        std::vector<std::string> tokens;
+        std::istringstream iss(line);
+        std::string token;
+        
+        while (iss >> token)
+        {
+            tokens.emplace_back(std::move(token));
+        }
+
+        if (std::ranges::empty(tokens))
+        {
+            continue;
+        }
+
+        std::string command = tokens[0];
+        
+        if (command == "exit" || command == "quit")
+        {
+            break;
+        }
+
+        std::vector<std::string_view> args;
+        args.reserve(std::ranges::size(tokens) - 1);
+        
+        for (std::size_t i = 1; i < std::ranges::size(tokens); ++i)
+        {
+            args.emplace_back(tokens[i]);
+        }
+
+        registry.execute(command, args);
+    }
+}
+
 //  Main Entry Point
 int main(int argc, char* argv[])
 {
