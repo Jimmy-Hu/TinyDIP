@@ -21,6 +21,13 @@
 
 namespace TinyDIP
 {
+    
+    enum BoundaryCondition {
+        constant,
+        mirror,
+        replicate
+    };
+
     template<typename T>
     concept image_element_standard_floating_point_type =
         std::same_as<double, T>
@@ -4514,12 +4521,6 @@ namespace TinyDIP
     {
         return 2 * std::ceil(2 * sigma) + 1;
     }
-
-    enum BoundaryCondition {
-        constant,
-        mirror,
-        replicate
-    };
 
     //  generate_padded_image template function implementation
     template<class ExecutionPolicy, typename ElementT>
