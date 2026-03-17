@@ -423,6 +423,22 @@ public:
     }
 };
 
+//  HelpHandler struct implementation
+//  Wrapper for the 'help' functionality inside the REPL
+struct HelpHandler
+{
+    const CommandRegistry& registry_;
+
+    template <std::ranges::random_access_range ArgsT>
+    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
+    void operator()(const ArgsT& args, std::ostream& os = std::cout) const
+    {
+        //  Silencing unused parameter warning
+        (void)args;
+        registry_.list_commands(os);
+    }
+};
+
 //  BicubicResizeHandler struct implementation
 //  Wrapper for the 'bicubic_resize' functionality
 //  Args: input_path output_path width height
