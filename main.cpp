@@ -276,6 +276,47 @@ auto myHighLightRegion_parameters(const std::size_t index = 0)
         >> collection;
 }
 
+//  Workspace struct implementation
+//  In-Memory Workspace for REPL session state
+struct Workspace
+{
+    std::map<std::string, std::any> memory_store;
+
+    template <typename T>
+    void store(const std::string_view name, T&& item)
+    {
+        memory_store[std::string(name)] = std::forward<T>(item);
+    }
+
+    template <typename T>
+    const T* retrieve(const std::string_view name) const
+    {
+        if (auto it = memory_store.find(std::string(name)); it != memory_store.end())
+        {
+            if (it->second.type() == typeid(T))
+            {
+                return std::any_cast<T>(&(it->second));
+            }
+        }
+        return nullptr;
+    }
+
+    void list_variables(std::ostream& os) const
+    {
+        if (memory_store.empty())
+        {
+            os << "  (Workspace is empty)\n";
+            return;
+        }
+        for (const auto& [name, value] : memory_store)
+        {
+            // Note: value.type().name() will print the mangled compiler name, 
+            // but is helpful enough for debugging type information dynamically.
+            os << "  $" << std::left << std::setw(15) << name << " : [Type Hash: " << value.type().hash_code() << "]\n";
+        }
+    }
+};
+
 //  Custom Type-Erasure Wrapper (Concept-Model Idiom)
 //  This acts like std::any/std::function but enforces a highly optimized span boundary internally
 class CommandHandler
