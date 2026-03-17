@@ -19,6 +19,23 @@ void pnmFileReadTest(const std::filesystem::path& file_path, std::string_view ou
     TinyDIP::bmp_write(std::string(output_path).c_str(), image_input);
 }
 
+//  batchPnmFileReadTest template function implementation
+template<std::ranges::random_access_range FilePathsT, std::ranges::random_access_range OutputPathsT>
+requires(std::convertible_to<std::ranges::range_value_t<FilePathsT>, std::filesystem::path> and
+         std::convertible_to<std::ranges::range_value_t<OutputPathsT>, std::string_view>)
+void batchPnmFileReadTest(const FilePathsT& file_paths, const OutputPathsT& output_paths)
+{
+    if (std::ranges::size(file_paths) != std::ranges::size(output_paths))
+    {
+        throw std::runtime_error("Path count mismatched!");
+    }
+    for (std::size_t i = 0; i < std::ranges::size(file_paths); ++i)
+    {
+        pnmFileReadTest(file_paths[i], output_paths[i]);
+    }
+    return;
+}
+
 int main(int argc, char* argv[])
 {
     TinyDIP::Timer timer1;
