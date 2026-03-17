@@ -1847,6 +1847,54 @@ namespace TinyDIP
         return output;
     }
 
+    /*  split_overlap template function implementation
+    *   xsegments is a number for the block count in x axis
+    *   ysegments is a number for the block count in y axis
+    */
+    template<class ExecutionPolicy, typename ElementT>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr static auto split_overlap(
+        ExecutionPolicy&& execution_policy,
+        const Image<ElementT>& input,
+        std::size_t xsegments,
+        std::size_t ysegments,
+        std::size_t x_extension_pixel_count,
+        std::size_t y_extension_pixel_count,
+        const BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
+        const ElementT& value_for_constant_padding = ElementT{}
+    )
+    {
+        std::vector<std::vector<Image<ElementT>>> output;
+        std::size_t block_size_x = input.getWidth() / xsegments;
+        std::size_t block_size_y = input.getHeight() / ysegments;
+        auto extended_input = generate_padded_image(
+            std::forward<ExecutionPolicy>(execution_policy),
+            input,
+            x_extension_pixel_count,
+            y_extension_pixel_count,
+            boundaryCondition,
+            value_for_constant_padding
+        );
+        for (std::size_t y = 0; y < ysegments; ++y)
+        {
+            std::vector<Image<ElementT>> output2;
+            for (std::size_t x = 0; x < xsegments; ++x)
+            {
+                std::vector<std::size_t> new_sizes{block_size_x + x_extension_pixel_count, block_size_y + y_extension_pixel_count};
+                auto centerx = x * block_size_x + static_cast<std::size_t>((block_size_x - 1) / 2.0);
+                auto centery = y * block_size_y + static_cast<std::size_t>((block_size_y - 1) / 2.0);
+                std::vector<std::size_t> centers{centerx, centery};
+                output2.push_back(subimage(
+                    extended_input,
+                    new_sizes,
+                    centers
+                    ));
+            }
+            output.push_back(output2);
+        }
+        return output;
+    }
+
     //  pixelwiseOperation template function implementation
     template<std::size_t unwrap_level = 1, class... Args>
     constexpr static auto pixelwiseOperation(auto op, const Args&... inputs)
