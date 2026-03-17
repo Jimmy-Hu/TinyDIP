@@ -317,6 +317,34 @@ struct Workspace
     }
 };
 
+//  ImageLoader struct implementation
+//  Generic functor to abstract loading an image from either a Workspace Memory Variable or Disk
+struct ImageLoader
+{
+    template <typename ImageType = TinyDIP::Image<TinyDIP::RGB>>
+    constexpr ImageType operator()(const std::string_view arg, const std::shared_ptr<Workspace>& ws) const
+    {
+        if (arg.starts_with('$'))
+        {
+            std::string_view var_name = arg.substr(1);
+            if (const ImageType* img_ptr = ws->retrieve<ImageType>(var_name))
+            {
+                return *img_ptr;
+            }
+            throw std::invalid_argument(std::string("Memory variable not found or type mismatch: ") + std::string(var_name));
+        }
+
+        if constexpr (std::is_same_v<ImageType, TinyDIP::Image<TinyDIP::RGB>>)
+        {
+            return TinyDIP::bmp_read(std::string(arg).c_str(), true);
+        }
+        else
+        {
+            throw std::invalid_argument("Direct file reading is not explicitly implemented for this abstract image type.");
+        }
+    }
+};
+
 //  Custom Type-Erasure Wrapper (Concept-Model Idiom)
 //  This acts like std::any/std::function but enforces a highly optimized span boundary internally
 class CommandHandler
