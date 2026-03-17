@@ -1821,7 +1821,7 @@ namespace TinyDIP
         return output;
     }
 
-    /*  split function
+    /*  split template function
     *   xsegments is a number for the block count in x axis
     *   ysegments is a number for the block count in y axis
     */
@@ -1831,10 +1831,10 @@ namespace TinyDIP
         std::vector<std::vector<Image<ElementT>>> output;
         std::size_t block_size_x = input.getWidth() / xsegments;
         std::size_t block_size_y = input.getHeight() / ysegments;
-        for (std::size_t y = 0; y < ysegments; y++)
+        for (std::size_t y = 0; y < ysegments; ++y)
         {
             std::vector<Image<ElementT>> output2;
-            for (std::size_t x = 0; x < xsegments; x ++)
+            for (std::size_t x = 0; x < xsegments; ++x)
             {
                 output2.push_back(subimage2(input,
                     x * block_size_x,
