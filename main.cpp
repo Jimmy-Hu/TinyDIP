@@ -345,6 +345,35 @@ struct ImageLoader
     }
 };
 
+//  ImageSaver struct implementation
+//  Generic functor to abstract saving an image to either a Workspace Memory Variable or Disk
+struct ImageSaver
+{
+    template <typename ImageType>
+    constexpr void operator()(const std::string_view arg, const std::shared_ptr<Workspace>& ws, ImageType&& img) const
+    {
+        if (arg.starts_with('$'))
+        {
+            std::string_view var_name = arg.substr(1);
+            ws->store(var_name, std::forward<ImageType>(img));
+        }
+        else
+        {
+            std::filesystem::path output_filepath = std::string(arg);
+            std::filesystem::path path_without_extension = output_filepath.parent_path() / output_filepath.stem();
+            
+            if constexpr (std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<double>>)
+            {
+                TinyDIP::double_image::write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
+            }
+            else
+            {
+                TinyDIP::bmp_write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
+            }
+        }
+    }
+};
+
 //  Custom Type-Erasure Wrapper (Concept-Model Idiom)
 //  This acts like std::any/std::function but enforces a highly optimized span boundary internally
 class CommandHandler
