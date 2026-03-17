@@ -384,9 +384,10 @@ public:
         os << "\nUsage: ./tinydip <command> [args...]\n";
     }
 
+    //  Refactored execute to pass the std::ostream& context directly down to handlers
     template <std::ranges::random_access_range ArgsT>
     requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
-    void execute(const std::string& command_name, const ArgsT& args)
+    void execute(const std::string& command_name, const ArgsT& args, std::ostream& os = std::cout) const
     {
         if (auto it = commands.find(command_name); it != std::ranges::end(commands))
         {
@@ -396,7 +397,7 @@ public:
                 //  we can wrap it directly in a std::span without allocating any memory.
                 if constexpr (std::ranges::contiguous_range<ArgsT> && std::same_as<std::ranges::range_value_t<ArgsT>, std::string_view>)
                 {
-                    it->second.second(std::span<const std::string_view>{std::ranges::data(args), std::ranges::size(args)}, std::cout);
+                    it->second.second(std::span<const std::string_view>{std::ranges::data(args), std::ranges::size(args)}, os);
                 }
                 //  Fallback path: Convert non-contiguous generic random-access range to a contiguous block.
                 else
@@ -407,18 +408,18 @@ public:
                     {
                         contiguous_args.emplace_back(arg);
                     }
-                    it->second.second(std::span<const std::string_view>{std::ranges::data(contiguous_args), std::ranges::size(contiguous_args)}, std::cout);
+                    it->second.second(std::span<const std::string_view>{std::ranges::data(contiguous_args), std::ranges::size(contiguous_args)}, os);
                 }
             }
             catch (const std::exception& e)
             {
-                std::cerr << "Error executing command '" << command_name << "': " << e.what() << "\n";
+                os << "Error executing command '" << command_name << "': " << e.what() << "\n";
             }
         }
         else
         {
-            std::cerr << "Unknown command: " << command_name << "\n";
-            list_commands(std::cerr);
+            os << "Unknown command: " << command_name << "\n";
+            list_commands(os); 
         }
     }
 };
