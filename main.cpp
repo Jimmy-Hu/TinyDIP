@@ -540,23 +540,15 @@ struct RandHandler
         //  Runtime string dispatch mapping to compile-time URBG types via std::map
         //  Uses std::span to avoid hardcoding std::vector, establishing a fully generic type-erased boundary
         std::map<std::string_view, std::function<void(const std::filesystem::path&, std::span<const std::size_t>)>> urbg_mapping = {
-            {"mt19937",     [&]
+            {"knuth_b",       [&]
                 <std::ranges::random_access_range SzArgsT>
                 requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
                 (const std::filesystem::path& out_path, const SzArgsT& sz)
                 { 
-                    dispatch_generation(std::mt19937{std::random_device{}()}, out_path, sz); 
+                    dispatch_generation(std::knuth_b{std::random_device{}()}, out_path, sz); 
                 }
             },
-            {"mt19937_64",  [&]
-                <std::ranges::random_access_range SzArgsT>
-                requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
-                (const std::filesystem::path& out_path, const SzArgsT& sz)
-                { 
-                    dispatch_generation(std::mt19937_64{std::random_device{}()}, out_path, sz); 
-                }
-            },
-            {"minstd_rand", [&]
+            {"minstd_rand",   [&]
                 <std::ranges::random_access_range SzArgsT>
                 requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
                 (const std::filesystem::path& out_path, const SzArgsT& sz)
@@ -564,12 +556,60 @@ struct RandHandler
                     dispatch_generation(std::minstd_rand{std::random_device{}()}, out_path, sz); 
                 }
             },
-            {"ranlux48",    [&]
+            {"minstd_rand0",  [&]
+                <std::ranges::random_access_range SzArgsT>
+                requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
+                (const std::filesystem::path& out_path, const SzArgsT& sz)
+                { 
+                    dispatch_generation(std::minstd_rand0{std::random_device{}()}, out_path, sz); 
+                }
+            },
+            {"mt19937",       [&]
+                <std::ranges::random_access_range SzArgsT>
+                requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
+                (const std::filesystem::path& out_path, const SzArgsT& sz)
+                { 
+                    dispatch_generation(std::mt19937{std::random_device{}()}, out_path, sz); 
+                }
+            },
+            {"mt19937_64",    [&]
+                <std::ranges::random_access_range SzArgsT>
+                requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
+                (const std::filesystem::path& out_path, const SzArgsT& sz)
+                { 
+                    dispatch_generation(std::mt19937_64{std::random_device{}()}, out_path, sz); 
+                }
+            },
+            {"ranlux24",      [&]
+                <std::ranges::random_access_range SzArgsT>
+                requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
+                (const std::filesystem::path& out_path, const SzArgsT& sz)
+                { 
+                    dispatch_generation(std::ranlux24{std::random_device{}()}, out_path, sz); 
+                }
+            },
+            {"ranlux24_base", [&]
+                <std::ranges::random_access_range SzArgsT>
+                requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
+                (const std::filesystem::path& out_path, const SzArgsT& sz)
+                { 
+                    dispatch_generation(std::ranlux24_base{std::random_device{}()}, out_path, sz); 
+                }
+            },
+            {"ranlux48",      [&]
                 <std::ranges::random_access_range SzArgsT>
                 requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
                 (const std::filesystem::path& out_path, const SzArgsT& sz)
                 { 
                     dispatch_generation(std::ranlux48{std::random_device{}()}, out_path, sz); 
+                }
+            },
+            {"ranlux48_base", [&]
+                <std::ranges::random_access_range SzArgsT>
+                requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
+                (const std::filesystem::path& out_path, const SzArgsT& sz)
+                { 
+                    dispatch_generation(std::ranlux48_base{std::random_device{}()}, out_path, sz); 
                 }
             }
         };
