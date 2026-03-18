@@ -641,6 +641,51 @@ struct VarsHandler
     }
 };
 
+//  SaveWorkspaceHandler struct implementation
+struct SaveWorkspaceHandler
+{
+    std::shared_ptr<Workspace> workspace_;
+
+    template <std::ranges::random_access_range ArgsT>
+    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
+    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout) const
+    {
+        if (std::ranges::size(args) < 1)
+        {
+            os << "Usage: save_workspace <directory_bundle_path>\n";
+            return;
+        }
+
+        const std::filesystem::path dir_path = std::string(args[0]);
+        std::filesystem::create_directories(dir_path);
+
+        os << "Saving workspace bundle to " << dir_path.string() << "...\n";
+
+        for (const auto& [name, value] : workspace_->memory_store)
+        {
+            if (value.type() == typeid(TinyDIP::Image<TinyDIP::RGB>))
+            {
+                auto img = std::any_cast<TinyDIP::Image<TinyDIP::RGB>>(value);
+                const std::filesystem::path file_path = dir_path / (name + ".bmp");
+                TinyDIP::bmp_write(file_path.string().c_str(), img);
+                os << "  Saved $" << name << " -> " << file_path.string() << "\n";
+            }
+            else if (value.type() == typeid(TinyDIP::Image<double>))
+            {
+                auto img = std::any_cast<TinyDIP::Image<double>>(value);
+                const std::filesystem::path file_path = dir_path / (name + ".dbmp");
+                TinyDIP::double_image::write(file_path.string().c_str(), img);
+                os << "  Saved $" << name << " -> " << file_path.string() << "\n";
+            }
+            else
+            {
+                os << "  Skipped $" << name << " (Unsupported serialization type)\n";
+            }
+        }
+        os << "Workspace saved successfully.\n";
+    }
+};
+
 //  HelpHandler struct implementation
 //  Wrapper for the 'help' functionality inside the REPL
 struct HelpHandler
