@@ -1112,9 +1112,22 @@ void run_interactive_mode(const CommandRegistry& registry, std::ostream& os = st
 //  Main Entry Point
 int main(int argc, char* argv[])
 {
-    CommandRegistry registry = command_registration();
+    // Configure the shared state memory workspace
+    auto workspace = std::make_shared<Workspace>();
 
-    //  Dynamically register the generic help command handler
+    // Register commands directly with context-injected instances using generic variadic bundles
+    CommandRegistry registry = command_registration(
+        CommandBundle{"read", "Read an image from disk into a memory variable.", ReadHandler{workspace}},
+        CommandBundle{"write", "Write a memory variable out to a disk file.", WriteHandler{workspace}},
+        CommandBundle{"vars", "List all currently allocated memory variables.", VarsHandler{workspace}},
+        CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", SaveWorkspaceHandler{workspace}},
+        CommandBundle{"load_workspace", "Load memory variables from a directory bundle.", LoadWorkspaceHandler{workspace}},
+        CommandBundle{"bicubic_resize", "Resize an image using Bicubic interpolation.", BicubicResizeHandler{workspace}},
+        CommandBundle{"info", "Display basic information about an image.", InfoHandler{workspace}},
+        CommandBundle{"rand", "Generate random multi-dimensional image with specified URBG.", RandHandler{workspace}}
+    );
+
+    // Register the help command dynamically to ensure it has access to the final mapped registry
     registry.register_command("help", "List all available commands.", HelpHandler{registry});
 
     //  Argument Parsing (No argument launches interactive REPL mode)
