@@ -666,16 +666,16 @@ struct SaveWorkspaceHandler
             if (value.type() == typeid(TinyDIP::Image<TinyDIP::RGB>))
             {
                 auto img = std::any_cast<TinyDIP::Image<TinyDIP::RGB>>(value);
-                const std::filesystem::path file_path = dir_path / (name + ".bmp");
+                const std::filesystem::path file_path = dir_path / (name);
                 TinyDIP::bmp_write(file_path.string().c_str(), img);
-                os << "  Saved $" << name << " -> " << file_path.string() << "\n";
+                os << "  Saved $" << name << " -> " << file_path.string() << ".bmp\n";
             }
             else if (value.type() == typeid(TinyDIP::Image<double>))
             {
                 auto img = std::any_cast<TinyDIP::Image<double>>(value);
-                const std::filesystem::path file_path = dir_path / (name + ".dbmp");
+                const std::filesystem::path file_path = dir_path / (name);
                 TinyDIP::double_image::write(file_path.string().c_str(), img);
-                os << "  Saved $" << name << " -> " << file_path.string() << "\n";
+                os << "  Saved $" << name << " -> " << file_path.string() << ".dbmp\n";
             }
             else
             {
