@@ -475,9 +475,9 @@ private:
     std::map<std::string, std::pair<std::string, CommandHandler>> commands;
 
 public:
-    void register_command(const std::string& name, const std::string& description, CommandHandler handler)
+    void register_command(const std::string_view name, const std::string_view description, CommandHandler handler)
     {
-        commands.emplace(name, std::make_pair(description, std::move(handler)));
+        commands.emplace(std::string(name), std::make_pair(std::string(description), std::move(handler)));
     }
 
     void list_commands(std::ostream& os = std::cout) const
@@ -488,6 +488,7 @@ public:
             os << "  " << std::left << std::setw(15) << name << " : " << info.first << "\n";
         }
         os << "\nUsage: ./tinydip <command> [args...]\n";
+        os << "Tip: Use '$name' to read/write from in-memory variables.\n";
     }
 
     //  Refactored execute to pass the std::ostream& context directly down to handlers
