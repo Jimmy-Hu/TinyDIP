@@ -935,6 +935,16 @@ void run_legacy_tests(const ArgsT& args, std::ostream& os = std::cout)
     return;
 }
 
+//  CommandBundle template struct implementation
+//  Helper struct to bundle command metadata with its functor for variadic registration
+//  Utilizing std::string_view eliminates dynamic allocations on string literal input.
+template <typename FunT>
+struct CommandBundle
+{
+    std::string_view name;
+    std::string_view description;
+    FunT handler;
+};
 
 //  Deduction guide to guarantee smooth C++20 CTAD with string literals
 template <typename FunT>
