@@ -1059,6 +1059,7 @@ struct CommandBundle
 {
     std::string_view name;
     std::string_view description;
+    IOSchema schema;
     FunT handler;
 };
 
