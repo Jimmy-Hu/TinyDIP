@@ -726,7 +726,7 @@ struct LoadWorkspaceHandler
                 }
                 else if (ext == ".dbmp")
                 {
-                    auto img = TinyDIP::double_image::read(entry.path().string().c_str());
+                    auto img = TinyDIP::double_image::read(entry.path().string().c_str(), true);
                     workspace_->store(name, std::move(img));
                     os << "  Loaded " << entry.path().filename().string() << " -> $" << name << "\n";
                 }
