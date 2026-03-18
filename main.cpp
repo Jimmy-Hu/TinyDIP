@@ -726,7 +726,9 @@ struct LoadWorkspaceHandler
                 }
                 else if (ext == ".dbmp")
                 {
-                    os << "  Skipped " << entry.path().filename().string() << " (double_image::read not yet implemented)\n";
+                    auto img = TinyDIP::double_image::read(entry.path().string().c_str());
+                    workspace_->store(name, std::move(img));
+                    os << "  Loaded " << entry.path().filename().string() << " -> $" << name << "\n";
                 }
             }
         }
