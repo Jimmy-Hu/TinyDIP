@@ -583,29 +583,28 @@ struct BicubicResizeHandler
 //  Args: input_path
 struct InfoHandler
 {
-    template <std::ranges::random_access_range ArgsT>
+    std::shared_ptr<Workspace> workspace_;
+
+    template <
+        std::ranges::random_access_range ArgsT,
+        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&> ImageLoaderFun = ImageLoader
+    >
     requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
-    void operator()(const ArgsT& args, std::ostream& os = std::cout) const
+    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}) const
     {
         if (std::ranges::empty(args))
         {
-            std::cerr << "Usage: info <input_bmp>\n";
+            os << "Usage: info <input_bmp | $var>\n";
             return;
         }
 
-        std::filesystem::path input_path = std::string(args[0]);
-        if (!std::filesystem::exists(input_path))
-        {
-            std::cerr << "File not found: " << input_path << "\n";
-            return;
-        }
-        std::filesystem::path path_without_extension = input_path.parent_path() / input_path.stem();
-        auto img = TinyDIP::bmp_read(path_without_extension.string().c_str(), false);
+        std::string_view input_arg = args[0];
+        auto img = image_loader_fun(input_arg, workspace_);
+        
         os << "Image Info:\n";
-        os << "  Path:   " << input_path << "\n";
+        os << "  Source: " << input_arg << "\n";
         os << "  Width:  " << img.getWidth() << "\n";
         os << "  Height: " << img.getHeight() << "\n";
-        //  Add more info if available (channels, etc.)
     }
 };
 
