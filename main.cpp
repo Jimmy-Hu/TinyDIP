@@ -545,34 +545,36 @@ struct HelpHandler
 //  Args: input_path output_path width height
 struct BicubicResizeHandler
 {
-    template <std::ranges::random_access_range ArgsT>
+    std::shared_ptr<Workspace> workspace_;
+
+    template <
+        std::ranges::random_access_range ArgsT,
+        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&> ImageLoaderFun = ImageLoader,
+        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&> ImageSaverFun = ImageSaver
+    >
     requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
-    void operator()(const ArgsT& args, std::ostream& os = std::cout) const
+    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
     {
         if (std::ranges::size(args) < 4)
         {
-            std::cerr << "Usage: bicubic_resize <input_bmp> <output_bmp> <width> <height>\n";
+            os << "Usage: bicubic_resize <input_bmp | $var> <output_bmp | $var> <width> <height>\n";
             return;
         }
 
-        std::string input_path(std::string_view{args[0]});
-        std::filesystem::path output_filepath = std::string(std::string_view{args[1]});
-        std::size_t width = parse_arg<std::size_t>(std::string_view{args[2]});
-        std::size_t height = parse_arg<std::size_t>(std::string_view{args[3]});
+        std::string_view input_arg = args[0];
+        std::string_view output_arg = args[1];
+        std::size_t width = parse_arg<std::size_t>(args[2]);
+        std::size_t height = parse_arg<std::size_t>(args[3]);
 
-        os << "Resizing " << input_path << " to " << width << "x" << height << "...\n";
+        os << "Resizing " << input_arg << " to " << width << "x" << height << "...\n";
 
-        //  Reading image
-        auto input_img = TinyDIP::bmp_read(input_path.c_str(), true); // Assume true for convert to RGB/standard
-
-        //  Perform operation
-        //  Using execution policy if TinyDIP supports it internally, otherwise standard call
+        //  Reads gracefully from Memory if it starts with '$', else Disk
+        auto input_img = image_loader_fun(input_arg, workspace_);
         auto output_img = TinyDIP::copyResizeBicubic(input_img, width, height);
 
-        //  Writing image
-        std::filesystem::path path_without_extension = output_filepath.parent_path() / output_filepath.stem();
-        TinyDIP::bmp_write(path_without_extension.string().c_str(), output_img);
-        os << "Saved to " << output_filepath.string() << "\n";
+        //  Saves gracefully to Memory if it starts with '$', else Disk
+        image_saver_fun(output_arg, workspace_, std::move(output_img));
+        os << "Saved to " << output_arg << "\n";
     }
 };
 
