@@ -1076,7 +1076,7 @@ constexpr CommandRegistry command_registration(CommandBundle<Funs>&&... bundles)
     CommandRegistry registry;
 
     //  Unpack and register all provided command bundles automatically using a C++17 fold expression
-    (registry.register_command(bundles.name, bundles.description, std::forward<Funs>(bundles.handler)), ...);
+    (registry.register_command(bundles.name, bundles.description, bundles.schema, std::forward<Funs>(bundles.handler)), ...);
 
     //  Internal / Anonymous Handlers can still be registered statically here
     registry.register_command("test", "Run internal integration tests.", 
