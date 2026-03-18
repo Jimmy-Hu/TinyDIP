@@ -479,13 +479,36 @@ struct IOSchema
 //  CommandRegistry class implementation
 class CommandRegistry
 {
+public:
+    struct CommandInfo
+    {
+        std::string description;
+        IOSchema schema;
+        CommandHandler handler;
+    };
+
 private:
-    std::map<std::string, std::pair<std::string, CommandHandler>> commands;
+    std::map<std::string, CommandInfo> commands;
 
 public:
+    void register_command(const std::string_view name, const std::string_view description, const IOSchema schema, CommandHandler handler)
+    {
+        commands.emplace(std::string(name), CommandInfo{std::string(description), schema, std::move(handler)});
+    }
+
+    //  Fallback for commands without pipeline routing specifications
     void register_command(const std::string_view name, const std::string_view description, CommandHandler handler)
     {
-        commands.emplace(std::string(name), std::make_pair(std::string(description), std::move(handler)));
+        commands.emplace(std::string(name), CommandInfo{std::string(description), IOSchema{-1, -1}, std::move(handler)});
+    }
+
+    std::optional<IOSchema> get_schema(const std::string_view command_name) const
+    {
+        if (auto it = commands.find(std::string(command_name)); it != std::ranges::end(commands))
+        {
+            return it->second.schema;
+        }
+        return std::nullopt;
     }
 
     void list_commands(std::ostream& os = std::cout) const
@@ -493,13 +516,13 @@ public:
         os << "Available Commands:\n";
         for (const auto& [name, info] : commands)
         {
-            os << "  " << std::left << std::setw(15) << name << " : " << info.first << "\n";
+            os << "  " << std::left << std::setw(15) << name << " : " << info.description << "\n";
         }
         os << "\nUsage: ./tinydip <command> [args...]\n";
         os << "Tip: Use '$name' to read/write from in-memory variables.\n";
+        os << "Tip: Chain commands with '|' pipelines. (e.g. read file.bmp | bicubic_resize 512 512 | $out)\n";
     }
 
-    //  Refactored execute to pass the std::ostream& context directly down to handlers
     template <std::ranges::random_access_range ArgsT>
     requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
     void execute(const std::string& command_name, const ArgsT& args, std::ostream& os = std::cout) const
@@ -508,13 +531,10 @@ public:
         {
             try
             {
-                //  Zero-copy path: If the incoming generic range is already contiguous (e.g., std::vector, std::array),
-                //  we can wrap it directly in a std::span without allocating any memory.
                 if constexpr (std::ranges::contiguous_range<ArgsT> && std::same_as<std::ranges::range_value_t<ArgsT>, std::string_view>)
                 {
-                    it->second.second(std::span<const std::string_view>{std::ranges::data(args), std::ranges::size(args)}, os);
+                    it->second.handler(std::span<const std::string_view>{std::ranges::data(args), std::ranges::size(args)}, os);
                 }
-                //  Fallback path: Convert non-contiguous generic random-access range to a contiguous block.
                 else
                 {
                     std::vector<std::string_view> contiguous_args;
@@ -523,7 +543,7 @@ public:
                     {
                         contiguous_args.emplace_back(arg);
                     }
-                    it->second.second(std::span<const std::string_view>{std::ranges::data(contiguous_args), std::ranges::size(contiguous_args)}, os);
+                    it->second.handler(std::span<const std::string_view>{std::ranges::data(contiguous_args), std::ranges::size(contiguous_args)}, os);
                 }
             }
             catch (const std::exception& e)
