@@ -573,6 +573,59 @@ struct ReadHandler
     }
 };
 
+//  WriteHandler struct implementation
+struct WriteHandler
+{
+    std::shared_ptr<Workspace> workspace_;
+
+    template <
+        std::ranges::random_access_range ArgsT,
+        typename ImageLoaderFun = ImageLoader,
+        typename ImageSaverFun = ImageSaver
+    >
+    requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
+              std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&> &&
+              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&> &&
+              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<double>&&>)
+    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
+    {
+        if (std::ranges::size(args) < 2)
+        {
+            os << "Usage: write <$var> <output_file>\n";
+            return;
+        }
+
+        const std::string_view input_arg = args[0];
+        const std::string_view output_arg = args[1];
+
+        if (!input_arg.starts_with('$'))
+        {
+            os << "Error: Input must be a memory variable starting with '$'.\n";
+            return;
+        }
+
+        os << "Writing memory variable " << input_arg << " to file " << output_arg << "...\n";
+
+        // Dynamic type-erasure boundary resolution to safely write correct type
+        if (workspace_->retrieve<TinyDIP::Image<TinyDIP::RGB>>(input_arg.substr(1)))
+        {
+            auto img = image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_);
+            image_saver_fun(output_arg, workspace_, std::move(img));
+        }
+        else if (workspace_->retrieve<TinyDIP::Image<double>>(input_arg.substr(1)))
+        {
+            auto img = image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_);
+            image_saver_fun(output_arg, workspace_, std::move(img));
+        }
+        else
+        {
+            os << "Error: Memory variable not found or unsupported type.\n";
+            return;
+        }
+        os << "Done.\n";
+    }
+};
+
 //  HelpHandler struct implementation
 //  Wrapper for the 'help' functionality inside the REPL
 struct HelpHandler
