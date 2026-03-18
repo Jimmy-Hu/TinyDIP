@@ -531,6 +531,48 @@ public:
     }
 };
 
+//  --------------------------------------------------------------------------
+//  Workspace Memory Operation Handlers
+//  --------------------------------------------------------------------------
+
+//  ReadHandler struct implementation
+struct ReadHandler
+{
+    std::shared_ptr<Workspace> workspace_;
+
+    template <
+        std::ranges::random_access_range ArgsT, 
+        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&> ImageLoaderFun = ImageLoader,
+        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&> ImageSaverFun = ImageSaver
+    >
+    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
+    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
+    {
+        if (std::ranges::size(args) < 2)
+        {
+            os << "Usage: read <input_file> <$var>\n";
+            return;
+        }
+
+        const std::string_view input_arg = args[0];
+        const std::string_view output_arg = args[1];
+
+        if (!output_arg.starts_with('$'))
+        {
+            os << "Error: Output must be a memory variable starting with '$'.\n";
+            return;
+        }
+
+        os << "Reading " << input_arg << " into memory as " << output_arg << "...\n";
+        
+        //  Implicitly utilizes the default template parameter TinyDIP::Image<TinyDIP::RGB>
+        auto img = image_loader_fun(input_arg, workspace_);
+        
+        image_saver_fun(output_arg, workspace_, std::move(img));
+        os << "Done.\n";
+    }
+};
+
 //  HelpHandler struct implementation
 //  Wrapper for the 'help' functionality inside the REPL
 struct HelpHandler
