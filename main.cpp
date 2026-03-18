@@ -1131,7 +1131,7 @@ void run_interactive_mode(const CommandRegistry& registry, std::ostream& os = st
             args.emplace_back(tokens[i]);
         }
 
-        registry.execute(command, args);
+        registry.execute(command, args, os);
     }
 }
 
