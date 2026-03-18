@@ -823,8 +823,8 @@ struct InfoHandler
 //  Args: urbg_type output_path dim1 [dim2] [dim3] ...
 struct RandHandler
 {
-    //  Define a struct with a call operator to be used as the generator lambda, 
-    //  allowing for generic type deduction and avoiding raw lambdas.
+    std::shared_ptr<Workspace> workspace_;
+
     template <typename Urbg, typename Dist>
     requires (std::uniform_random_bit_generator<std::remove_reference_t<Urbg>> &&
               std::invocable<Dist&, Urbg&>)
@@ -839,16 +839,17 @@ struct RandHandler
         }
     };
 
-    template <std::ranges::random_access_range ArgsT>
+    template <
+        std::ranges::random_access_range ArgsT,
+        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<double>&&> ImageSaverFun = ImageSaver
+    >
     requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
-    void operator()(const ArgsT& args, std::ostream& os = std::cout) const
+    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
     {
-        //  Generic lambda to dispatch the generation logic using the built-in concept constraint
-        //  Takes initialized variables as explicitly passed arguments to eliminate state dependency
         auto dispatch_generation = [&]
         <std::ranges::random_access_range SzArgsT>
         requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
-        (std::uniform_random_bit_generator auto&& urbg, const std::filesystem::path& out_path, const SzArgsT& sz)
+        (std::uniform_random_bit_generator auto&& urbg, const std::string_view& out_path, const SzArgsT& sz)
         {
             std::uniform_real_distribution<double> dist{};
             using UrbgType = std::remove_cvref_t<decltype(urbg)>;
@@ -859,97 +860,75 @@ struct RandHandler
             //  Calling the dynamic range-based generate overload directly from TinyDIP.
             auto output_img = TinyDIP::generate(gen, sz);
 
-            //  Writing image
-            std::filesystem::path path_without_extension = out_path.parent_path() / out_path.stem();
-            TinyDIP::double_image::write(path_without_extension.string().c_str(), output_img);
-            os << "Saved to " << out_path.string() << "\n";
+            // Dynamically save image via the injected saver abstraction
+            image_saver_fun(out_path, workspace_, std::move(output_img));
+            os << "Saved to " << out_path << "\n";
         };
 
-        //  Runtime string dispatch mapping to compile-time URBG types via std::map
-        //  Uses std::span to avoid hardcoding std::vector, establishing a fully generic type-erased boundary
-        std::map<std::string_view, std::function<void(const std::filesystem::path&, std::span<const std::size_t>)>> urbg_mapping = {
+        std::map<std::string_view, std::function<void(const std::string_view&, std::span<const std::size_t>)>> urbg_mapping = {
             {"knuth_b",       [&]
                 <std::ranges::random_access_range SzArgsT>
                 requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
-                (const std::filesystem::path& out_path, const SzArgsT& sz)
-                { 
-                    dispatch_generation(std::knuth_b{std::random_device{}()}, out_path, sz); 
-                }
+                (const std::string_view& out_path, const SzArgsT& sz)
+                { dispatch_generation(std::knuth_b{std::random_device{}()}, out_path, sz); }
             },
             {"minstd_rand",   [&]
                 <std::ranges::random_access_range SzArgsT>
                 requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
-                (const std::filesystem::path& out_path, const SzArgsT& sz)
-                { 
-                    dispatch_generation(std::minstd_rand{std::random_device{}()}, out_path, sz); 
-                }
+                (const std::string_view& out_path, const SzArgsT& sz)
+                { dispatch_generation(std::minstd_rand{std::random_device{}()}, out_path, sz); }
             },
             {"minstd_rand0",  [&]
                 <std::ranges::random_access_range SzArgsT>
                 requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
-                (const std::filesystem::path& out_path, const SzArgsT& sz)
-                { 
-                    dispatch_generation(std::minstd_rand0{std::random_device{}()}, out_path, sz); 
-                }
+                (const std::string_view& out_path, const SzArgsT& sz)
+                { dispatch_generation(std::minstd_rand0{std::random_device{}()}, out_path, sz); }
             },
             {"mt19937",       [&]
                 <std::ranges::random_access_range SzArgsT>
                 requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
-                (const std::filesystem::path& out_path, const SzArgsT& sz)
-                { 
-                    dispatch_generation(std::mt19937{std::random_device{}()}, out_path, sz); 
-                }
+                (const std::string_view& out_path, const SzArgsT& sz)
+                { dispatch_generation(std::mt19937{std::random_device{}()}, out_path, sz); }
             },
             {"mt19937_64",    [&]
                 <std::ranges::random_access_range SzArgsT>
                 requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
-                (const std::filesystem::path& out_path, const SzArgsT& sz)
-                { 
-                    dispatch_generation(std::mt19937_64{std::random_device{}()}, out_path, sz); 
-                }
+                (const std::string_view& out_path, const SzArgsT& sz)
+                { dispatch_generation(std::mt19937_64{std::random_device{}()}, out_path, sz); }
             },
             {"ranlux24",      [&]
                 <std::ranges::random_access_range SzArgsT>
                 requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
-                (const std::filesystem::path& out_path, const SzArgsT& sz)
-                { 
-                    dispatch_generation(std::ranlux24{std::random_device{}()}, out_path, sz); 
-                }
+                (const std::string_view& out_path, const SzArgsT& sz)
+                { dispatch_generation(std::ranlux24{std::random_device{}()}, out_path, sz); }
             },
             {"ranlux24_base", [&]
                 <std::ranges::random_access_range SzArgsT>
                 requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
-                (const std::filesystem::path& out_path, const SzArgsT& sz)
-                { 
-                    dispatch_generation(std::ranlux24_base{std::random_device{}()}, out_path, sz); 
-                }
+                (const std::string_view& out_path, const SzArgsT& sz)
+                { dispatch_generation(std::ranlux24_base{std::random_device{}()}, out_path, sz); }
             },
             {"ranlux48",      [&]
                 <std::ranges::random_access_range SzArgsT>
                 requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
-                (const std::filesystem::path& out_path, const SzArgsT& sz)
-                { 
-                    dispatch_generation(std::ranlux48{std::random_device{}()}, out_path, sz); 
-                }
+                (const std::string_view& out_path, const SzArgsT& sz)
+                { dispatch_generation(std::ranlux48{std::random_device{}()}, out_path, sz); }
             },
             {"ranlux48_base", [&]
                 <std::ranges::random_access_range SzArgsT>
                 requires std::convertible_to<std::ranges::range_value_t<SzArgsT>, std::size_t>
-                (const std::filesystem::path& out_path, const SzArgsT& sz)
-                { 
-                    dispatch_generation(std::ranlux48_base{std::random_device{}()}, out_path, sz); 
-                }
+                (const std::string_view& out_path, const SzArgsT& sz)
+                { dispatch_generation(std::ranlux48_base{std::random_device{}()}, out_path, sz); }
             }
         };
 
-        //  Helper lambda to dynamically print available URBGs safely formatted
         auto print_available_urbgs = [&]()
         {
             os << "Available URBGs: ";
-            for (auto it = urbg_mapping.begin(); it != urbg_mapping.end(); ++it)
+            for (auto it = std::ranges::begin(urbg_mapping); it != std::ranges::end(urbg_mapping); ++it)
             {
                 os << it->first;
-                if (std::next(it) != urbg_mapping.end())
+                if (std::next(it) != std::ranges::end(urbg_mapping))
                 {
                     os << ", ";
                 }
@@ -959,21 +938,20 @@ struct RandHandler
 
         if (std::ranges::size(args) < 3)
         {
-            os << "Usage: rand <urbg_type> <output_bmp> <dim1> [dim2] [dim3] ...\n";
+            os << "Usage: rand <urbg_type> <output_bmp | $var> <dim1> [dim2] [dim3] ...\n";
             print_available_urbgs();
             return;
         }
 
-        std::string_view urbg_type = args[0];
-        std::filesystem::path output_filepath = std::string(std::string_view{args[1]});
+        const std::string_view urbg_type = args[0];
+        const std::string_view output_arg = args[1];
         
-        //  Constructing sizes vector sequentially from arbitrary dimensions given in the CLI
         std::vector<std::size_t> sizes;
         sizes.reserve(std::ranges::size(args) - 2);
         
         for (std::size_t i = 2; i < std::ranges::size(args); ++i)
         {
-            sizes.emplace_back(parse_arg<std::size_t>(std::string_view{args[i]}));
+            sizes.emplace_back(parse_arg<std::size_t>(args[i]));
         }
 
         os << "Generating random image with dimensions: ";
@@ -983,9 +961,9 @@ struct RandHandler
         }
         os << "using URBG '" << urbg_type << "'...\n";
 
-        if (auto it = urbg_mapping.find(urbg_type); it != urbg_mapping.end())
+        if (auto it = urbg_mapping.find(urbg_type); it != std::ranges::end(urbg_mapping))
         {
-            it->second(output_filepath, sizes);
+            it->second(output_arg, sizes);
         }
         else
         {
