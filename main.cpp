@@ -1105,7 +1105,7 @@ constexpr CommandRegistry command_registration(CommandBundle<Funs>&&... bundles)
 }
 
 //  run_interactive_mode function implementation
-//  Interactive REPL loop implementation
+//  Interactive REPL loop implementation with dynamic Pipeline '|' argument injection
 void run_interactive_mode(const CommandRegistry& registry, std::ostream& os = std::cout)
 {
     os << "TinyDIP Interactive Interpreter\n";
@@ -1120,41 +1120,109 @@ void run_interactive_mode(const CommandRegistry& registry, std::ostream& os = st
             break;
         }
 
-        if (line.empty())
+        if (std::ranges::empty(line))
         {
             continue;
         }
 
-        std::vector<std::string> tokens;
-        std::istringstream iss(line);
-        std::string token;
+        std::vector<std::string> segments_raw;
+        std::stringstream ss_line(line);
+        std::string segment;
         
-        while (iss >> token)
+        while (std::getline(ss_line, segment, '|'))
         {
-            tokens.emplace_back(std::move(token));
+            segments_raw.emplace_back(std::move(segment));
         }
 
-        if (std::ranges::empty(tokens))
+        std::vector<std::vector<std::string>> segments_tokens;
+        for (const auto& seg_raw : segments_raw)
+        {
+            std::vector<std::string> tokens;
+            std::istringstream iss(seg_raw);
+            std::string token;
+            while (iss >> token)
+            {
+                tokens.emplace_back(std::move(token));
+            }
+            if (!std::ranges::empty(tokens))
+            {
+                segments_tokens.emplace_back(std::move(tokens));
+            }
+        }
+
+        if (std::ranges::empty(segments_tokens))
         {
             continue;
         }
 
-        std::string command = tokens[0];
-        
-        if (command == "exit" || command == "quit")
+        std::string final_output_var = "";
+        if (std::ranges::size(segments_tokens) > 1 && 
+            std::ranges::size(segments_tokens.back()) == 1 && 
+            segments_tokens.back()[0].starts_with('$'))
         {
-            break;
+            final_output_var = segments_tokens.back()[0];
+            segments_tokens.pop_back();
         }
 
-        std::vector<std::string_view> args;
-        args.reserve(std::ranges::size(tokens) - 1);
-        
-        for (std::size_t i = 1; i < std::ranges::size(tokens); ++i)
+        std::string prev_pipe_var = "";
+        for (std::size_t i = 0; i < std::ranges::size(segments_tokens); ++i)
         {
-            args.emplace_back(tokens[i]);
-        }
+            const auto& tokens = segments_tokens[i];
+            const std::string command_name = tokens[0];
 
-        registry.execute(command, args, os);
+            if (command_name == "exit" || command_name == "quit")
+            {
+                return;
+            }
+
+            std::optional<IOSchema> schema_opt = registry.get_schema(command_name);
+            if (!schema_opt)
+            {
+                os << "Unknown command: " << command_name << "\n";
+                break;
+            }
+            const IOSchema schema = *schema_opt;
+
+            std::string next_pipe_var = "";
+            if (i < std::ranges::size(segments_tokens) - 1)
+            {
+                next_pipe_var = "$__pipe_" + std::to_string(i);
+            }
+            else if (!std::ranges::empty(final_output_var))
+            {
+                next_pipe_var = final_output_var;
+            }
+
+            std::vector<std::string> args_str;
+            for (std::size_t j = 1; j < std::ranges::size(tokens); ++j)
+            {
+                args_str.emplace_back(tokens[j]);
+            }
+
+            // Inject intermediate variables into the correct argument index
+            if (schema.in_idx != -1 && !std::ranges::empty(prev_pipe_var))
+            {
+                const int insert_pos = std::min(schema.in_idx, static_cast<int>(std::ranges::size(args_str)));
+                args_str.insert(std::ranges::begin(args_str) + insert_pos, prev_pipe_var);
+            }
+
+            if (schema.out_idx != -1 && !std::ranges::empty(next_pipe_var))
+            {
+                const int insert_pos = std::min(schema.out_idx, static_cast<int>(std::ranges::size(args_str)));
+                args_str.insert(std::ranges::begin(args_str) + insert_pos, next_pipe_var);
+            }
+
+            std::vector<std::string_view> args_sv;
+            args_sv.reserve(std::ranges::size(args_str));
+            for (const auto& arg : args_str)
+            {
+                args_sv.emplace_back(arg);
+            }
+
+            registry.execute(command_name, args_sv, os);
+
+            prev_pipe_var = next_pipe_var;
+        }
     }
 }
 
