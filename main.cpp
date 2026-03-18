@@ -1065,7 +1065,7 @@ struct CommandBundle
 
 //  Deduction guide to guarantee smooth C++20 CTAD with string literals
 template <typename FunT>
-CommandBundle(const char*, const char*, FunT) -> CommandBundle<FunT>;
+CommandBundle(const char*, const char*, IOSchema, FunT) -> CommandBundle<FunT>;
 
 //  command_registration template function implementation
 //  command_registration utilizes C++20 constrained variadic templates and C++17 Fold Expressions
