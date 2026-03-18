@@ -468,6 +468,14 @@ public:
     }
 };
 
+//  IOSchema struct implementation
+//  Schema defining implicit argument positions for the pipeline engine to auto-inject memory variables
+struct IOSchema
+{
+    int in_idx = -1;
+    int out_idx = -1;
+};
+
 //  CommandRegistry class implementation
 class CommandRegistry
 {
