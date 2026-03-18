@@ -1163,20 +1163,19 @@ int main(int argc, char* argv[])
 
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"read", "Read an image from disk into a memory variable.", ReadHandler{workspace}},
-        CommandBundle{"write", "Write a memory variable out to a disk file.", WriteHandler{workspace}},
-        CommandBundle{"vars", "List all currently allocated memory variables.", VarsHandler{workspace}},
-        CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", SaveWorkspaceHandler{workspace}},
-        CommandBundle{"load_workspace", "Load memory variables from a directory bundle.", LoadWorkspaceHandler{workspace}},
-        CommandBundle{"bicubic_resize", "Resize an image using Bicubic interpolation.", BicubicResizeHandler{workspace}},
-        CommandBundle{"info", "Display basic information about an image.", InfoHandler{workspace}},
-        CommandBundle{"rand", "Generate random multi-dimensional image with specified URBG.", RandHandler{workspace}}
+        CommandBundle{"read", "Read an image from disk into a memory variable.", IOSchema{-1, 1}, ReadHandler{workspace}},
+        CommandBundle{"write", "Write a memory variable out to a disk file.", IOSchema{0, -1}, WriteHandler{workspace}},
+        CommandBundle{"vars", "List all currently allocated memory variables.", IOSchema{-1, -1}, VarsHandler{workspace}},
+        CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IOSchema{-1, -1}, SaveWorkspaceHandler{workspace}},
+        CommandBundle{"load_workspace", "Load memory variables from a directory bundle.", IOSchema{-1, -1}, LoadWorkspaceHandler{workspace}},
+        CommandBundle{"bicubic_resize", "Resize an image using Bicubic interpolation.", IOSchema{0, 1}, BicubicResizeHandler{workspace}},
+        CommandBundle{"info", "Display basic information about an image.", IOSchema{0, -1}, InfoHandler{workspace}},
+        CommandBundle{"rand", "Generate random multi-dimensional image with specified URBG.", IOSchema{-1, 1}, RandHandler{workspace}}
     );
 
     // Register the help command dynamically to ensure it has access to the final mapped registry
-    registry.register_command("help", "List all available commands.", HelpHandler{registry});
+    registry.register_command("help", "List all available commands.", IOSchema{-1, -1}, HelpHandler{registry});
 
-    //  Argument Parsing (No argument launches interactive REPL mode)
     if (argc < 2)
     {
         run_interactive_mode(registry);
@@ -1184,18 +1183,13 @@ int main(int argc, char* argv[])
     }
 
     std::string command = argv[1];
-    
-    //  Using std::string_view for arguments to avoid heap allocation
     std::vector<std::string_view> args;
 
-    //  Collect arguments for the command
     if (argc > 2)
     {
         args.reserve(argc - 2);
         for (int i = 2; i < argc; ++i)
         {
-            //  Construct string_view directly from argv char pointers
-            //  No string copying happens here!
             args.emplace_back(argv[i]);
         }
     }
