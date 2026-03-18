@@ -1036,27 +1036,18 @@ struct CommandBundle
 template <typename FunT>
 CommandBundle(const char*, const char*, FunT) -> CommandBundle<FunT>;
 
-//  command_registration function implementation
-//  Function to initialize and register all available commands
-template <
-    std::invocable<std::span<const std::string_view>, std::ostream&> BicubicResizeFun = BicubicResizeHandler,
-    std::invocable<std::span<const std::string_view>, std::ostream&> InfoHandlerFun = InfoHandler,
-    std::invocable<std::span<const std::string_view>, std::ostream&> RandHandlerFun = RandHandler>
-CommandRegistry command_registration(
-    BicubicResizeFun&& bicubic_resize_fun = {},
-    InfoHandlerFun&& info_handler_fun = {},
-    RandHandlerFun&& rand_handler_fun = {})
+//  command_registration template function implementation
+//  command_registration utilizes C++20 constrained variadic templates and C++17 Fold Expressions
+//  to automatically iterate and register an arbitrary number of handlers gracefully.
+template <std::invocable<std::span<const std::string_view>, std::ostream&>... Funs>
+constexpr CommandRegistry command_registration(CommandBundle<Funs>&&... bundles)
 {
     CommandRegistry registry;
 
-    //  Registering commands
-    registry.register_command("bicubic_resize", "Resize an image using Bicubic interpolation.", std::forward<BicubicResizeFun>(bicubic_resize_fun));
+    //  Unpack and register all provided command bundles automatically using a C++17 fold expression
+    (registry.register_command(bundles.name, bundles.description, std::forward<Funs>(bundles.handler)), ...);
 
-    registry.register_command("info", "Display basic information about an image.", std::forward<InfoHandlerFun>(info_handler_fun));
-
-    registry.register_command("rand", "Generate random multi-dimensional image.", std::forward<RandHandlerFun>(rand_handler_fun));
-
-    //  Note: Wrapped in a lambda to conform to the type-erased span boundary
+    //  Internal / Anonymous Handlers can still be registered statically here
     registry.register_command("test", "Run internal integration tests.", 
         [](std::span<const std::string_view> args, std::ostream& os)
         {
@@ -1069,11 +1060,9 @@ CommandRegistry command_registration(
         {
             if (std::ranges::size(args) < 2)
             {
-                std::cerr << "Usage: batch_add_zeros <input_dir> <output_dir>\n";
+                os << "Usage: batch_add_zeros <input_dir> <output_dir>\n";
                 return;
             }
-            //  Note: args[0] and args[1] need to be converted to std::string if your underlying function expects strings
-            //  Example: addLeadingZeros(std::string(args[0]), std::string(args[1]));
             os << "Batch processing from " << args[0] << " to " << args[1] << "\n";
         }
     );
