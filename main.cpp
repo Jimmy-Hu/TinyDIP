@@ -686,6 +686,54 @@ struct SaveWorkspaceHandler
     }
 };
 
+//  LoadWorkspaceHandler struct implementation
+struct LoadWorkspaceHandler
+{
+    std::shared_ptr<Workspace> workspace_;
+
+    template <std::ranges::random_access_range ArgsT>
+    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
+    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout) const
+    {
+        if (std::ranges::size(args) < 1)
+        {
+            os << "Usage: load_workspace <directory_bundle_path>\n";
+            return;
+        }
+
+        const std::filesystem::path dir_path = std::string(args[0]);
+
+        if (!std::filesystem::exists(dir_path) || !std::filesystem::is_directory(dir_path))
+        {
+            os << "Error: Workspace directory bundle does not exist: " << dir_path.string() << "\n";
+            return;
+        }
+
+        os << "Loading workspace bundle from " << dir_path.string() << "...\n";
+
+        for (const auto& entry : std::filesystem::directory_iterator(dir_path))
+        {
+            if (entry.is_regular_file())
+            {
+                const std::string name = entry.path().stem().string();
+                const std::string ext = entry.path().extension().string();
+
+                if (ext == ".bmp")
+                {
+                    auto img = TinyDIP::bmp_read(entry.path().string().c_str(), true);
+                    workspace_->store(name, std::move(img));
+                    os << "  Loaded " << entry.path().filename().string() << " -> $" << name << "\n";
+                }
+                else if (ext == ".dbmp")
+                {
+                    os << "  Skipped " << entry.path().filename().string() << " (double_image::read not yet implemented)\n";
+                }
+            }
+        }
+        os << "Workspace loaded successfully.\n";
+    }
+};
+
 //  HelpHandler struct implementation
 //  Wrapper for the 'help' functionality inside the REPL
 struct HelpHandler
