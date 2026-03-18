@@ -935,6 +935,11 @@ void run_legacy_tests(const ArgsT& args, std::ostream& os = std::cout)
     return;
 }
 
+
+//  Deduction guide to guarantee smooth C++20 CTAD with string literals
+template <typename FunT>
+CommandBundle(const char*, const char*, FunT) -> CommandBundle<FunT>;
+
 //  command_registration function implementation
 //  Function to initialize and register all available commands
 template <
