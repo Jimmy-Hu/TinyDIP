@@ -322,7 +322,7 @@ struct Workspace
 struct ImageLoader
 {
     template <typename ImageType = TinyDIP::Image<TinyDIP::RGB>>
-    constexpr ImageType operator()(const std::string_view arg, const std::shared_ptr<Workspace>& ws) const
+    ImageType operator()(const std::string_view arg, const std::shared_ptr<Workspace>& ws) const
     {
         if (arg.starts_with('$'))
         {
@@ -332,6 +332,12 @@ struct ImageLoader
                 return *img_ptr;
             }
             throw std::invalid_argument(std::string("Memory variable not found or type mismatch: ") + std::string(var_name));
+        }
+
+        const std::filesystem::path input_path = std::string(arg);
+        if (!std::filesystem::exists(input_path))
+        {
+            throw std::invalid_argument(std::string("File not found: ") + input_path.string());
         }
 
         if constexpr (std::is_same_v<ImageType, TinyDIP::Image<TinyDIP::RGB>>)
