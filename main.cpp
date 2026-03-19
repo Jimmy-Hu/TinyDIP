@@ -806,10 +806,13 @@ struct BicubicResizeHandler
 
     template <
         std::ranges::random_access_range ArgsT,
-        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&> ImageLoaderFun = ImageLoader,
-        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&> ImageSaverFun = ImageSaver
+        typename ImageLoaderFun = ImageLoader,
+        typename ImageSaverFun = ImageSaver
     >
-    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
+    requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
+              std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&> &&
+              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&> &&
+              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<double>&&>)
     constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
     {
         if (std::ranges::size(args) < 4)
@@ -818,20 +821,50 @@ struct BicubicResizeHandler
             return;
         }
 
-        std::string_view input_arg = args[0];
-        std::string_view output_arg = args[1];
-        std::size_t width = parse_arg<std::size_t>(args[2]);
-        std::size_t height = parse_arg<std::size_t>(args[3]);
+        const std::string_view input_arg = args[0];
+        const std::string_view output_arg = args[1];
+        const std::size_t width = parse_arg<std::size_t>(args[2]);
+        const std::size_t height = parse_arg<std::size_t>(args[3]);
 
         os << "Resizing " << input_arg << " to " << width << "x" << height << "...\n";
 
-        //  Reads gracefully from Memory if it starts with '$', else Disk
-        auto input_img = image_loader_fun(input_arg, workspace_);
-        auto output_img = TinyDIP::copyResizeBicubic(input_img, width, height);
+        // Polymorphic lambda to cleanly execute the algorithm dynamically independent of image type
+        auto process_resize = [&]<typename ImageType>(ImageType&& input_img)
+        {
+            auto output_img = TinyDIP::copyResizeBicubic(std::forward<ImageType>(input_img), width, height);
+            image_saver_fun(output_arg, workspace_, std::move(output_img));
+            os << "Saved to " << output_arg << "\n";
+        };
 
-        //  Saves gracefully to Memory if it starts with '$', else Disk
-        image_saver_fun(output_arg, workspace_, std::move(output_img));
-        os << "Saved to " << output_arg << "\n";
+        if (input_arg.starts_with('$'))
+        {
+            const std::string_view var_name = input_arg.substr(1);
+            if (workspace_->retrieve<TinyDIP::Image<TinyDIP::RGB>>(var_name))
+            {
+                process_resize(image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_));
+            }
+            else if (workspace_->retrieve<TinyDIP::Image<double>>(var_name))
+            {
+                process_resize(image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_));
+            }
+            else
+            {
+                os << "Error: Memory variable not found or unsupported type.\n";
+                return;
+            }
+        }
+        else
+        {
+            const std::filesystem::path input_path = std::string(input_arg);
+            if (input_path.extension() == ".dbmp")
+            {
+                process_resize(image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_));
+            }
+            else
+            {
+                process_resize(image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_));
+            }
+        }
     }
 };
 
