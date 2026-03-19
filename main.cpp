@@ -1279,20 +1279,26 @@ int main(int argc, char* argv[])
     // Configure the shared state memory workspace
     auto workspace = std::make_shared<Workspace>();
 
+    // Define human-readable pipeline schema routing constants
+    constexpr auto GeneratorSchema   = IOSchema{-1, 1};
+    constexpr auto TerminatorSchema  = IOSchema{0, -1};
+    constexpr auto TransformerSchema = IOSchema{0, 1};
+    constexpr auto IndependentSchema = IOSchema{-1, -1};
+
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"read", "Read an image from disk into a memory variable.", IOSchema{-1, 1}, ReadHandler{workspace}},
-        CommandBundle{"write", "Write a memory variable out to a disk file.", IOSchema{0, -1}, WriteHandler{workspace}},
-        CommandBundle{"vars", "List all currently allocated memory variables.", IOSchema{-1, -1}, VarsHandler{workspace}},
-        CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IOSchema{-1, -1}, SaveWorkspaceHandler{workspace}},
-        CommandBundle{"load_workspace", "Load memory variables from a directory bundle.", IOSchema{-1, -1}, LoadWorkspaceHandler{workspace}},
-        CommandBundle{"bicubic_resize", "Resize an image using Bicubic interpolation.", IOSchema{0, 1}, BicubicResizeHandler{workspace}},
-        CommandBundle{"info", "Display basic information about an image.", IOSchema{0, -1}, InfoHandler{workspace}},
-        CommandBundle{"rand", "Generate random multi-dimensional image with specified URBG.", IOSchema{-1, 1}, RandHandler{workspace}}
+        CommandBundle{"read", "Read an image from disk into a memory variable.", GeneratorSchema, ReadHandler{workspace}},
+        CommandBundle{"write", "Write a memory variable out to a disk file.", TerminatorSchema, WriteHandler{workspace}},
+        CommandBundle{"vars", "List all currently allocated memory variables.", IndependentSchema, VarsHandler{workspace}},
+        CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IndependentSchema, SaveWorkspaceHandler{workspace}},
+        CommandBundle{"load_workspace", "Load memory variables from a directory bundle.", IndependentSchema, LoadWorkspaceHandler{workspace}},
+        CommandBundle{"bicubic_resize", "Resize an image using Bicubic interpolation.", TransformerSchema, BicubicResizeHandler{workspace}},
+        CommandBundle{"info", "Display basic information about an image.", TerminatorSchema, InfoHandler{workspace}},
+        CommandBundle{"rand", "Generate random multi-dimensional image with specified URBG.", GeneratorSchema, RandHandler{workspace}}
     );
 
     // Register the help command dynamically to ensure it has access to the final mapped registry
-    registry.register_command("help", "List all available commands.", IOSchema{-1, -1}, HelpHandler{registry});
+    registry.register_command("help", "List all available commands.", IndependentSchema, HelpHandler{registry});
 
     if (argc < 2)
     {
