@@ -329,7 +329,7 @@ struct ImageLoader
     {
         if (arg.starts_with('$'))
         {
-            std::string_view var_name = arg.substr(1);
+            const std::string_view var_name = arg.substr(1);
             if (const ImageType* img_ptr = ws->retrieve<ImageType>(var_name))
             {
                 return *img_ptr;
@@ -346,6 +346,10 @@ struct ImageLoader
         if constexpr (std::is_same_v<ImageType, TinyDIP::Image<TinyDIP::RGB>>)
         {
             return TinyDIP::bmp_read(std::string(arg).c_str(), true);
+        }
+        else if constexpr (std::is_same_v<ImageType, TinyDIP::Image<double>>)
+        {
+            return TinyDIP::double_image::read(std::string(arg).c_str(), true);
         }
         else
         {
