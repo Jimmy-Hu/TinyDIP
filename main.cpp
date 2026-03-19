@@ -577,10 +577,13 @@ struct ReadHandler
 
     template <
         std::ranges::random_access_range ArgsT, 
-        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&> ImageLoaderFun = ImageLoader,
-        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&> ImageSaverFun = ImageSaver
+        typename ImageLoaderFun = ImageLoader,
+        typename ImageSaverFun = ImageSaver
     >
-    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
+    requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
+              std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&> &&
+              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&> &&
+              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<double>&&>)
     constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
     {
         if (std::ranges::size(args) < 2)
@@ -600,10 +603,17 @@ struct ReadHandler
 
         os << "Reading " << input_arg << " into memory as " << output_arg << "...\n";
         
-        //  Implicitly utilizes the default template parameter TinyDIP::Image<TinyDIP::RGB>
-        auto img = image_loader_fun(input_arg, workspace_);
-        
-        image_saver_fun(output_arg, workspace_, std::move(img));
+        const std::filesystem::path input_path = std::string(input_arg);
+        if (input_path.extension() == ".dbmp")
+        {
+            auto img = image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_);
+            image_saver_fun(output_arg, workspace_, std::move(img));
+        }
+        else
+        {
+            auto img = image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_);
+            image_saver_fun(output_arg, workspace_, std::move(img));
+        }
         os << "Done.\n";
     }
 };
