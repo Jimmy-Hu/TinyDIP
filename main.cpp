@@ -877,9 +877,10 @@ struct InfoHandler
 
     template <
         std::ranges::random_access_range ArgsT,
-        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&> ImageLoaderFun = ImageLoader
+        typename ImageLoaderFun = ImageLoader
     >
-    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
+    requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
+              std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&>)
     constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}) const
     {
         if (std::ranges::empty(args))
@@ -888,13 +889,46 @@ struct InfoHandler
             return;
         }
 
-        std::string_view input_arg = args[0];
-        auto img = image_loader_fun(input_arg, workspace_);
-        
-        os << "Image Info:\n";
-        os << "  Source: " << input_arg << "\n";
-        os << "  Width:  " << img.getWidth() << "\n";
-        os << "  Height: " << img.getHeight() << "\n";
+        const std::string_view input_arg = args[0];
+
+        // Polymorphic lambda to cleanly print dimensions dynamically independent of image type
+        auto process_info = [&]<typename ImageType>(const ImageType& img)
+        {
+            os << "Image Info:\n";
+            os << "  Source: " << input_arg << "\n";
+            os << "  Width:  " << img.getWidth() << "\n";
+            os << "  Height: " << img.getHeight() << "\n";
+        };
+
+        if (input_arg.starts_with('$'))
+        {
+            const std::string_view var_name = input_arg.substr(1);
+            if (workspace_->retrieve<TinyDIP::Image<TinyDIP::RGB>>(var_name))
+            {
+                process_info(image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_));
+            }
+            else if (workspace_->retrieve<TinyDIP::Image<double>>(var_name))
+            {
+                process_info(image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_));
+            }
+            else
+            {
+                os << "Error: Memory variable not found or unsupported type.\n";
+                return;
+            }
+        }
+        else
+        {
+            const std::filesystem::path input_path = std::string(input_arg);
+            if (input_path.extension() == ".dbmp")
+            {
+                process_info(image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_));
+            }
+            else
+            {
+                process_info(image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_));
+            }
+        }
     }
 };
 
