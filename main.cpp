@@ -932,6 +932,67 @@ struct InfoHandler
     }
 };
 
+//  PrintHandler struct implementation
+struct PrintHandler
+{
+    std::shared_ptr<Workspace> workspace_;
+
+    template <
+        std::ranges::random_access_range ArgsT,
+        typename ImageLoaderFun = ImageLoader
+    >
+    requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
+              std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&>)
+    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}) const
+    {
+        if (std::ranges::empty(args))
+        {
+            os << "Usage: print <input_bmp | $var>\n";
+            return;
+        }
+
+        const std::string_view input_arg = args[0];
+
+        // Polymorphic lambda to cleanly print image content dynamically independent of image type
+        auto process_print = [&]<typename ImageType>(const ImageType& img)
+        {
+            os << "Printing image content for " << input_arg << ":\n";
+            img.print(",");
+            os << "Done.\n";
+        };
+
+        if (input_arg.starts_with('$'))
+        {
+            const std::string_view var_name = input_arg.substr(1);
+            if (workspace_->retrieve<TinyDIP::Image<TinyDIP::RGB>>(var_name))
+            {
+                process_print(image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_));
+            }
+            else if (workspace_->retrieve<TinyDIP::Image<double>>(var_name))
+            {
+                process_print(image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_));
+            }
+            else
+            {
+                os << "Error: Memory variable not found or unsupported type.\n";
+                return;
+            }
+        }
+        else
+        {
+            const std::filesystem::path input_path = std::string(input_arg);
+            if (input_path.extension() == ".dbmp")
+            {
+                process_print(image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_));
+            }
+            else
+            {
+                process_print(image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_));
+            }
+        }
+    }
+};
+
 //  RandHandler struct implementation
 //  Wrapper for 'rand' functionality
 //  Args: urbg_type output_path dim1 [dim2] [dim3] ...
