@@ -65,17 +65,22 @@ function [output] = dictionaryBasedNonlocalMean(Dictionary, input)
 end
 */
 
-template<class ExPo, class ElementT = double>
-requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+//  dictionaryBasedNonlocalMean Function Implementation
+template<class ExPo, class ElementT = double, std::ranges::random_access_range RangeOfRange1, std::ranges::random_access_range RangeOfRange2>
+requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>> and
+          std::ranges::random_access_range<std::remove_cvref_t<RangeOfRange1>> and
+          std::ranges::random_access_range<std::remove_cvref_t<RangeOfRange2>> and
+          std::same_as<std::ranges::range_value_t<std::ranges::range_value_t<RangeOfRange1>>, TinyDIP::Image<ElementT>> and
+          std::same_as<std::ranges::range_value_t<std::ranges::range_value_t<RangeOfRange2>>, TinyDIP::Image<ElementT>>)
 constexpr static auto dictionaryBasedNonlocalMean(  ExPo execution_policy,
                                                     const std::tuple<
-                                                        std::vector<std::vector<TinyDIP::Image<ElementT>>>,
-                                                        std::vector<std::vector<TinyDIP::Image<ElementT>>>
+                                                        RangeOfRange1,
+                                                        RangeOfRange2
                                                         >& dictionary,
                                                     const std::vector<TinyDIP::Image<ElementT>>& input,
-                                                    const double gaussian_sigma = 3.0,
-                                                    const double gaussian_mean = 0,
-                                                    const double threshold = 1e-160) noexcept
+                                                    const ElementT gaussian_sigma = 3.0,
+                                                    const ElementT gaussian_mean = 0,
+                                                    const ElementT threshold = 1e-160) noexcept
 {
     std::vector<TinyDIP::Image<ElementT>> output = 
         TinyDIP::n_dim_vector_generator<1>(
