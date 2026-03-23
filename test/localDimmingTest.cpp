@@ -32,7 +32,21 @@ int main(int argc, char* argv[])
         auto input_path = std::string(argv[1]);
         auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
         auto RGB_max_result = RGB_max(input_img);
+        TinyDIP::bmp_write("RGB_max_result", RGB_max_result);
     }
+    else if  (argc == 3)
+    {
+        auto input_path = std::string(argv[1]);
+        auto output_path = std::string(argv[2]);
+        auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
+        auto RGB_max_result = RGB_max(input_img);
+        TinyDIP::bmp_write(output_path.c_str(), RGB_max_result);
+    }
+    else
+    {
+        std::cout << "Usage: " << argv[0] << " <input_image_path> [output_image_path]\n";
+    }
+    return EXIT_SUCCESS;
 }
 
 
