@@ -2928,8 +2928,9 @@ namespace TinyDIP
         return output;
     }
 
+    //  dct2 template function implementation
     template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
-    constexpr static Image<ElementT> dct2(Image<ElementT> input)
+    constexpr static auto dct2(const Image<ElementT>& input)
     {
         Image<ElementT> output;
         std::vector v{ input };
