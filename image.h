@@ -327,7 +327,7 @@ namespace TinyDIP
 
         //  cast template function implementation
         template<typename TargetT>
-        constexpr Image<TargetT> cast()
+        constexpr Image<TargetT> cast() const
         {
             std::vector<TargetT> output_data;
             output_data.resize(image_data.size());
