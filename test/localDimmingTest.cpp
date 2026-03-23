@@ -19,8 +19,8 @@ static auto RGB_max(const TinyDIP::Image<TinyDIP::RGB>& input_image)
             {
                 auto max_value = std::ranges::max(each_pixel.channels);
                 TinyDIP::RGB new_pixel{ max_value, max_value, max_value };
-                each_pixel = new_pixel;
-            }, input_image)
+                return new_pixel;
+            }, input_image);
 }
 
 int main(int argc, char* argv[])
