@@ -476,7 +476,7 @@ namespace TinyDIP
         {
             throw std::runtime_error("Size mismatched!");
         }
-        return pixelwiseOperation(
+        return pixelwise_transform(
             [&](auto&& real_element, auto&& imaginary_element)
             {
                 return std::complex{ real_element, imaginary_element };
@@ -1903,9 +1903,9 @@ namespace TinyDIP
         return output;
     }
 
-    //  pixelwiseOperation template function implementation
+    //  pixelwise_transform template function implementation
     template<std::size_t unwrap_level = 1, class... Args>
-    constexpr static auto pixelwiseOperation(auto op, const Args&... inputs)
+    constexpr static auto pixelwise_transform(auto op, const Args&... inputs)
     {
         auto transformed_data = recursive_transform<unwrap_level>(
                 op,
@@ -1916,10 +1916,10 @@ namespace TinyDIP
         return output;
     }
 
-    //  pixelwiseOperation template function implementation
+    //  pixelwise_transform template function implementation
     template<std::size_t unwrap_level = 1, class ExPo, class InputT>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr static auto pixelwiseOperation(ExPo&& execution_policy, auto op, const Image<InputT>& input1)
+    constexpr static auto pixelwise_transform(ExPo&& execution_policy, auto op, const Image<InputT>& input1)
     {
         auto transformed_data = recursive_transform<unwrap_level>(
                                     std::forward<ExPo>(execution_policy),
@@ -1936,7 +1936,7 @@ namespace TinyDIP
     requires (std::same_as<ElementT, RGB> || std::same_as<ElementT, RGB_DOUBLE>)
     constexpr static auto rgb2hsv(const Image<ElementT>& input)
     {
-        return pixelwiseOperation([](ElementT input) { return rgb2hsv(input); }, input);
+        return pixelwise_transform([](ElementT input) { return rgb2hsv(input); }, input);
     }
 
     //  rgb2hsv template function implementation
@@ -1945,14 +1945,14 @@ namespace TinyDIP
     (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto rgb2hsv(ExPo&& execution_policy, const Image<ElementT>& input)
     {
-        return pixelwiseOperation(std::forward<ExPo>(execution_policy), [](ElementT input) { return rgb2hsv(input); }, input);
+        return pixelwise_transform(std::forward<ExPo>(execution_policy), [](ElementT input) { return rgb2hsv(input); }, input);
     }
 
     //  hsv2rgb template function implementation
     template<typename OutputT = RGB>
     constexpr static auto hsv2rgb(const Image<HSV>& input)
     {
-        return pixelwiseOperation([](HSV input) { return hsv2rgb(input); }, input);
+        return pixelwise_transform([](HSV input) { return hsv2rgb(input); }, input);
     }
 
     //  hsv2rgb template function implementation
@@ -1960,7 +1960,7 @@ namespace TinyDIP
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto hsv2rgb(ExPo&& execution_policy, const Image<HSV>& input)
     {
-        return pixelwiseOperation(std::forward<ExPo>(execution_policy), [](HSV input) { return hsv2rgb(input); }, input);
+        return pixelwise_transform(std::forward<ExPo>(execution_policy), [](HSV input) { return hsv2rgb(input); }, input);
     }
 
     template<typename ElementT>
@@ -2595,7 +2595,7 @@ namespace TinyDIP
     template<class InputT, class... Args>
     constexpr static Image<InputT> plus(const Image<InputT>& input1, const Args&... inputs)
     {
-        return pixelwiseOperation(std::plus<>{}, input1, plus(inputs...));
+        return pixelwise_transform(std::plus<>{}, input1, plus(inputs...));
     }
 
     template<class InputT, class... Args>
@@ -2613,7 +2613,7 @@ namespace TinyDIP
     static Image<InputT> subtract(const Image<InputT>& input1, const Image<InputT>& input2)
     {
         check_size_same(input1, input2);
-        return pixelwiseOperation(std::minus<>{}, input1, input2);
+        return pixelwise_transform(std::minus<>{}, input1, input2);
     }
 
     //  subtract Template Function Implementation
@@ -2635,7 +2635,7 @@ namespace TinyDIP
     static Image<RGB> subtract(const Image<RGB>& input1, const Image<RGB>& input2)
     {
         check_size_same(input1, input2);
-        return pixelwiseOperation(
+        return pixelwise_transform(
                 [](RGB x, RGB y)
                 {
                     RGB rgb;
@@ -2661,7 +2661,7 @@ namespace TinyDIP
     static auto subtract(const Image<InputT>& input1, const Image<InputT>& input2)
     {
         check_size_same(input1, input2);
-        return pixelwiseOperation(
+        return pixelwise_transform(
                 [](InputT x, InputT y)
                 {
                     InputT output;
@@ -2684,7 +2684,7 @@ namespace TinyDIP
         {
             throw std::runtime_error("Size mismatched!");
         }
-        return pixelwiseOperation(std::multiplies<>{}, input1, input2);
+        return pixelwise_transform(std::multiplies<>{}, input1, input2);
     }
 
     //  multiplies Template Function Implementation
@@ -2728,14 +2728,14 @@ namespace TinyDIP
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto pixelwise_multiplies(ExPo&& execution_policy, const Image<InputT1>& input1, const Image<InputT2>& input2)
     {
-        return pixelwiseOperation(std::forward<ExPo>(execution_policy), std::multiplies<>{}, input1, input2);
+        return pixelwise_transform(std::forward<ExPo>(execution_policy), std::multiplies<>{}, input1, input2);
     }
 
     //  pixelwise_multiplies Template Function Implementation
     template<class InputT, class... Args>
     constexpr static auto pixelwise_multiplies(const Image<InputT>& input1, const Args&... inputs)
     {
-        return pixelwiseOperation(std::multiplies<>{}, input1, pixelwise_multiplies(inputs...));
+        return pixelwise_transform(std::multiplies<>{}, input1, pixelwise_multiplies(inputs...));
     }
 
     //  pixelwise_multiplies Template Function Implementation
@@ -2743,7 +2743,7 @@ namespace TinyDIP
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto pixelwise_multiplies(ExPo&& execution_policy, const Image<InputT>& input1, const Args&... inputs)
     {
-        return pixelwiseOperation(std::forward<ExPo>(execution_policy), std::multiplies<>{}, input1, pixelwise_multiplies(inputs...));
+        return pixelwise_transform(std::forward<ExPo>(execution_policy), std::multiplies<>{}, input1, pixelwise_multiplies(inputs...));
     }
 
     template<class InputT, class... Args>
@@ -2762,7 +2762,7 @@ namespace TinyDIP
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static Image<InputT> divides(ExPo&& execution_policy, const Image<InputT>& input1, const Image<InputT>& input2)
     {
-        return pixelwiseOperation(std::forward<ExPo>(execution_policy), std::divides<>{}, input1, input2);
+        return pixelwise_transform(std::forward<ExPo>(execution_policy), std::divides<>{}, input1, input2);
     }
 
     //  divides Template Function Implementation
@@ -2804,19 +2804,19 @@ namespace TinyDIP
     template<class InputT>
     constexpr static Image<InputT> divides(const Image<InputT>& input1, const Image<InputT>& input2)
     {
-        return pixelwiseOperation(std::divides<>{}, input1, input2);
+        return pixelwise_transform(std::divides<>{}, input1, input2);
     }
     
     template<class InputT>
     constexpr static Image<InputT> modulus(const Image<InputT>& input1, const Image<InputT>& input2)
     {
-        return pixelwiseOperation(std::modulus<>{}, input1, input2);
+        return pixelwise_transform(std::modulus<>{}, input1, input2);
     }
 
     template<class InputT>
     constexpr static Image<InputT> negate(const Image<InputT>& input1)
     {
-        return pixelwiseOperation(std::negate<>{}, input1);
+        return pixelwise_transform(std::negate<>{}, input1);
     }
 
     //  negate template function implementation
@@ -2824,7 +2824,7 @@ namespace TinyDIP
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static Image<InputT> negate(ExPo&& execution_policy, const Image<InputT>& input1)
     {
-        return pixelwiseOperation(std::forward<ExPo>(execution_policy), std::negate<>{}, input1);
+        return pixelwise_transform(std::forward<ExPo>(execution_policy), std::negate<>{}, input1);
     }
 
     template<std::floating_point ElementT = double, std::floating_point OutputT = ElementT>
@@ -2956,7 +2956,7 @@ namespace TinyDIP
     template<class ElementT = double>
     constexpr static auto abs(const Image<ElementT>& input)
     {
-        return pixelwiseOperation([](auto&& element) { return abs(element); }, input);
+        return pixelwise_transform([](auto&& element) { return abs(element); }, input);
     }
 
     //  abs template function implementation
@@ -2965,7 +2965,7 @@ namespace TinyDIP
               !(std::same_as<ElementT, RGB>) and !(std::same_as<ElementT, RGB_DOUBLE>) and !(std::same_as<ElementT, HSV>) and !is_MultiChannel<ElementT>::value)
     constexpr static auto abs(ExPo&& execution_policy, const Image<ElementT>& input)
     {
-        return pixelwiseOperation(
+        return pixelwise_transform(
             std::forward<ExPo>(execution_policy),
             [&](auto&& element)
             {
@@ -2996,7 +2996,7 @@ namespace TinyDIP
     template<arithmetic ElementT = double>
     constexpr static auto difference(const Image<ElementT>& input1, const Image<ElementT>& input2)
     {
-        return pixelwiseOperation([](auto&& element1, auto&& element2)
+        return pixelwise_transform([](auto&& element1, auto&& element2)
             {
                 if (element1 > element2)
                     return element1 - element2;
@@ -3009,7 +3009,7 @@ namespace TinyDIP
     requires((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>) || is_MultiChannel<InputT>::value)
     constexpr static auto difference(const Image<InputT>& input1, const Image<InputT>& input2)
     {
-        return pixelwiseOperation(
+        return pixelwise_transform(
             [](InputT element1, InputT element2)
             {
                 InputT output;
@@ -3353,7 +3353,7 @@ namespace TinyDIP
     template<arithmetic ElementT = double, arithmetic ExpT = double>
     constexpr static auto pow(const Image<ElementT>& input, ExpT exp)
     {
-        return pixelwiseOperation([&](auto&& element) { return std::pow(element, exp); }, input);
+        return pixelwise_transform([&](auto&& element) { return std::pow(element, exp); }, input);
     }
 
     //  pow template function implementation
@@ -3361,7 +3361,7 @@ namespace TinyDIP
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     constexpr static auto pow(ExPo&& execution_policy, const Image<ElementT>& input, ExpT exp)
     {
-        return pixelwiseOperation(std::forward<ExPo>(execution_policy), [&](auto&& element) { return std::pow(element, exp); }, input);
+        return pixelwise_transform(std::forward<ExPo>(execution_policy), [&](auto&& element) { return std::pow(element, exp); }, input);
     }
 
     //  pow template function implementation
