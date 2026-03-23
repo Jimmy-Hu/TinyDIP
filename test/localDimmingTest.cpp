@@ -23,6 +23,17 @@ static auto RGB_max(const TinyDIP::Image<TinyDIP::RGB>& input_image)
             }, input_image);
 }
 
+//  RGB_max_parallel Function Implementation
+static auto RGB_max_parallel(const TinyDIP::Image<TinyDIP::RGB>& input_image)
+{
+    return TinyDIP::pixelwise_transform(std::execution::par_unseq, [](auto&& each_pixel)
+            {
+                auto max_value = std::ranges::max(each_pixel.channels);
+                TinyDIP::RGB new_pixel{ max_value, max_value, max_value };
+                return new_pixel;
+            }, input_image);
+}
+
 int main(int argc, char* argv[])
 {
     TinyDIP::Timer timer1;
