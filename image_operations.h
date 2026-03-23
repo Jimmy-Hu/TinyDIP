@@ -2933,7 +2933,7 @@ namespace TinyDIP
     constexpr static auto dct2(const Image<ElementT>& input)
     {
         Image<ElementT> output;
-        std::vector v{ input };
+        std::vector v{ input.cast<double>() };
         output = dct3_one_plane(v, 0);
         return output;
     }
