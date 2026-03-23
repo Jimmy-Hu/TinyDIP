@@ -379,7 +379,7 @@ struct ImageSaver
             {
                 TinyDIP::double_image::write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
             }
-            else
+            else if constexpr (std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<TinyDIP::RGB>>)
             {
                 TinyDIP::bmp_write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
             }
