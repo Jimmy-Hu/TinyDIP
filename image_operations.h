@@ -2938,6 +2938,14 @@ namespace TinyDIP
         return output;
     }
 
+    //  dct2 template function implementation
+    template<typename ElementT = double>
+    requires((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
+    constexpr static auto dct2(const Image<ElementT>& input)
+    {
+        return apply_each(input, [&](auto&& each_plane) { return dct2(each_plane); });
+    }
+
     template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
     constexpr static Image<ElementT> idct2(Image<ElementT> input)
     {
