@@ -24,7 +24,7 @@ void increaseIntensityTest()
             auto output = TinyDIP::hsv2rgb(TinyDIP::constructHSV(
                 TinyDIP::getHplane(hsv1),
                 TinyDIP::getSplane(hsv1),
-                TinyDIP::pixelwiseOperation([i](auto&& element) { return element + i; }, TinyDIP::getVplane(hsv1))
+                TinyDIP::pixelwise_transform([i](auto&& element) { return element + i; }, TinyDIP::getVplane(hsv1))
             ));
             TinyDIP::bmp_write(std::to_string(i), output);
         }
@@ -36,7 +36,7 @@ void increaseIntensityTest()
             auto output = TinyDIP::hsv2rgb(TinyDIP::constructHSV(
                 TinyDIP::getHplane(hsv1),
                 TinyDIP::getSplane(hsv1),
-                TinyDIP::pixelwiseOperation([i](auto&& element) { return element + i; }, TinyDIP::getVplane(hsv1))
+                TinyDIP::pixelwise_transform([i](auto&& element) { return element + i; }, TinyDIP::getVplane(hsv1))
             ));
             TinyDIP::bmp_write(std::to_string(i), output);
             std::cout << "Image output with increasing " << i << " in value plane is done.\n";
