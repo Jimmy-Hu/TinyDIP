@@ -17,7 +17,7 @@
 void flipVerticalTest(const std::filesystem::path& file_path, std::string_view output_path)
 {
     auto image_input = TinyDIP::bmp_read(file_path.string().c_str(), true);
-    output_image = TinyDIP::flip_vertical(image_input);
+    auto output_image = TinyDIP::flip_vertical(image_input);
     TinyDIP::bmp_write(std::string(output_path).c_str(), output_image);
 }
 
