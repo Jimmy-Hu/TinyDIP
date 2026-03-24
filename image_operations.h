@@ -3071,6 +3071,18 @@ namespace TinyDIP
         return recursive_reduce(difference(input1, input2).getImageData(), OutputT{});
     }
 
+    //  manhattan_distance Template Function Implementation for RGB, RGB_DOUBLE and HSV
+    template<typename ElementT>
+    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
+    constexpr static auto manhattan_distance(const Image<ElementT>& input1, const Image<ElementT>& input2)
+    {
+        if(input1.getSize() != input2.getSize())
+        {
+            throw std::runtime_error("Size mismatched!");
+        }
+        return apply_each_single_output(3, input1, input2, [&](auto&& each_plane1, auto&& each_plane2) { return manhattan_distance(each_plane1, each_plane2); });
+    }
+
     //  euclidean_distance Template Function Implementation
     template <arithmetic OutputT = double, typename T, std::size_t N>
     constexpr static OutputT euclidean_distance(const std::array<T, N>& p1, const std::array<T, N>& p2)
