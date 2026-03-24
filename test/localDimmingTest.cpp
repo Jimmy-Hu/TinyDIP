@@ -1,5 +1,6 @@
 //  Developed by Jimmy Hu
 
+#include <algorithm>
 #include <cassert>
 #include <execution>
 #include <filesystem>
@@ -73,11 +74,17 @@ static auto gray2gamma(
 }
 
 //  localDimmingTest Function Implementation
-static auto localDimmingTest(const std::filesystem::path& input_path, const std::string_view output_path)
+static auto localDimmingTest(
+    const std::filesystem::path& input_path,
+    const std::string_view output_path
+)
 {
     auto input_img = TinyDIP::bmp_read(input_path.string().c_str(), true);
     auto RGB_max_result = RGB_max(input_img);
-    TinyDIP::bmp_write(std::string(output_path).c_str(), RGB_max_result);
+    std::vector<int> gamma_node = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256};
+    std::vector<int> gamma_vale = {0, 2, 9, 23, 43, 69, 104, 146, 195, 253, 320, 394, 477, 569, 670, 780, 899, 1026, 1165, 1312, 1468, 1635, 1810, 1997, 2193, 2399, 2615, 2842, 3079, 3326, 3584, 3851, 4130};
+    auto output_image = gray2gamma(std::execution::par_unseq, RGB_max_result, gamma_node, gamma_vale);
+    TinyDIP::bmp_write(std::string(output_path).c_str(), output_image);
 }
 
 int main(int argc, char* argv[])
