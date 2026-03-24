@@ -37,6 +37,7 @@ static auto RGB_max_parallel(const TinyDIP::Image<TinyDIP::RGB>& input_image)
 //  belongs_bin_index Function Implementation
 template<std::ranges::random_access_range RangeT, class ElementT>
 requires(std::equality_comparable<std::ranges::range_value_t<RangeT>> and
+         std::equality_comparable<ElementT> and
          std::convertible_to<std::ranges::range_value_t<RangeT>, ElementT>)
 static auto belongs_bin_index(const RangeT& thresholds, const ElementT& value)
 {
