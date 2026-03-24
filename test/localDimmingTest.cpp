@@ -34,6 +34,16 @@ static auto RGB_max_parallel(const TinyDIP::Image<TinyDIP::RGB>& input_image)
             }, input_image);
 }
 
+//  belongs_bin_index Function Implementation
+template<std::ranges::random_access_range RangeT, class ElementT>
+requires(std::equality_comparable<std::ranges::range_value_t<RangeT>> and
+         std::convertible_to<std::ranges::range_value_t<RangeT>, ElementT>)
+static auto belongs_bin_index(const RangeT& thresholds, const ElementT& value)
+{
+    auto it = std::ranges::lower_bound(thresholds, value);
+    return static_cast<int>(std::distance(std::ranges::begin(thresholds), it)) - 1;
+}
+
 //  localDimmingTest Function Implementation
 static auto localDimmingTest(const std::filesystem::path& input_path, const std::string_view output_path)
 {
