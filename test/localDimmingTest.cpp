@@ -34,6 +34,14 @@ static auto RGB_max_parallel(const TinyDIP::Image<TinyDIP::RGB>& input_image)
             }, input_image);
 }
 
+//  localDimmingTest Function Implementation
+static auto localDimmingTest(const std::filesystem::path& input_path, const std::string_view output_path)
+{
+    auto input_img = TinyDIP::bmp_read(input_path.string().c_str(), true);
+    auto RGB_max_result = RGB_max(input_img);
+    TinyDIP::bmp_write(std::string(output_path).c_str(), RGB_max_result);
+}
+
 int main(int argc, char* argv[])
 {
     TinyDIP::Timer timer1;
