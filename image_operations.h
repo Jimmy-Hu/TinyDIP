@@ -4783,7 +4783,10 @@ namespace TinyDIP
 
     //  windowed_filter template function implementation
     template<class ElementT, class ExecutionPolicy, class Filter, std::ranges::input_range SizeRange>
-    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and
+             std::invocable<Filter, Image<ElementT>> and
+             (std::same_as<std::ranges::range_value_t<SizeRange>, std::size_t> or
+              std::same_as<std::ranges::range_value_t<SizeRange>, int>))
     constexpr static auto windowed_filter(
         ExecutionPolicy&& execution_policy,
         const Image<ElementT>& input,
@@ -4862,8 +4865,8 @@ namespace TinyDIP
             };
         std::for_each(
             std::forward<ExecutionPolicy>(execution_policy),
-            indices_view.begin(),
-            indices_view.end(),
+            std::ranges::begin(indices_view),
+            std::ranges::end(indices_view),
             process_element
         );
         #else
