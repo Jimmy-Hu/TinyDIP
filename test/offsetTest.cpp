@@ -24,7 +24,7 @@ void offsetTest(const std::filesystem::path& file_path, std::string_view output_
                 TinyDIP::RGB output;
                 for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
                 {
-                    if (output.channels[channel_index] < 10)
+                    if (element.channels[channel_index] < 10)
                     {
                         output.channels[channel_index] = 64;
                     }
