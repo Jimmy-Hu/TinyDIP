@@ -48,18 +48,25 @@ int main(int argc, char* argv[])
     std::cout << "argc = " << std::to_string(argc) << '\n';
     if(argc == 2)
     {
-        auto input_path = std::string(argv[1]);
-        auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
-        auto RGB_max_result = RGB_max(input_img);
-        TinyDIP::bmp_write("RGB_max_result", RGB_max_result);
+        std::filesystem::path input_path = std::string(argv[1]);
+        if (!std::filesystem::exists(input_path))
+        {
+            std::cerr << "File not found: " << input_path << '\n';
+            return EXIT_SUCCESS;
+        }
+        localDimmingTest(input_path, std::string("localDimmingTest"));
     }
     else if  (argc == 3)
     {
-        auto input_path = std::string(argv[1]);
-        auto output_path = std::string(argv[2]);
-        auto input_img = TinyDIP::bmp_read(input_path.c_str(), true);
-        auto RGB_max_result = RGB_max(input_img);
-        TinyDIP::bmp_write(output_path.c_str(), RGB_max_result);
+        std::filesystem::path input_path = std::string(argv[1]);
+        std::filesystem::path output_path = std::string(argv[2]);
+        if (!std::filesystem::exists(input_path))
+        {
+            std::cerr << "File not found: " << input_path << '\n';
+            return EXIT_SUCCESS;
+        }
+        std::filesystem::path path_without_extension = output_path.parent_path() / output_path.stem();
+        localDimmingTest(input_path, path_without_extension.string())
     }
     else
     {
