@@ -18,12 +18,20 @@ void offsetTest(const std::filesystem::path& file_path, std::string_view output_
 {
     auto image_input = TinyDIP::bmp_read(file_path.string().c_str(), true);
     auto output_image = TinyDIP::pixelwise_transform(
+            std::execution::par_unseq,
             [](auto&& element)
             {
                 TinyDIP::RGB output;
                 for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
                 {
-                    output.channels[channel_index] = std::clamp(static_cast<int>(static_cast<double>(element.channels[channel_index]) * 0.78 + 64), 0, 255);
+                    if (output.channels[channel_index] < 10)
+                    {
+                        output.channels[channel_index] = 64;
+                    }
+                    else
+                    {
+                        output.channels[channel_index] = std::clamp(static_cast<int>(static_cast<double>(element.channels[channel_index]) * 0.78), 0, 255);
+                    }
                 }
                 return output;
             }, image_input);
