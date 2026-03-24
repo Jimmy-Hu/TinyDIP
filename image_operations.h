@@ -3061,14 +3061,14 @@ namespace TinyDIP
 
     //  manhattan_distance Template Function Implementation
     //  https://codereview.stackexchange.com/q/270857/231235
-    template<arithmetic ElementT = double>
+    template<arithmetic ElementT = double, arithmetic OutputT = double>
     constexpr static auto manhattan_distance(const Image<ElementT>& input1, const Image<ElementT>& input2)
     {
         if(input1.getSize() != input2.getSize())
         {
             throw std::runtime_error("Size mismatched!");
         }
-        return recursive_reduce(difference(input1, input2).getImageData(), ElementT{});
+        return recursive_reduce(difference(input1, input2).getImageData(), OutputT{});
     }
 
     //  euclidean_distance Template Function Implementation
