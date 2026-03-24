@@ -51,7 +51,9 @@ template<
     class ExecutionPolicy,
     std::ranges::random_access_range GammaRange1,
     std::ranges::random_access_range GammaRange2>
-requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and
+         std::equality_comparable<std::ranges::range_value_t<GammaRange1>> and
+         std::equality_comparable<std::ranges::range_value_t<GammaRange2>>)
 static auto gray2gamma(
     ExecutionPolicy&& policy,
     const TinyDIP::Image<TinyDIP::RGB>& input_image,
