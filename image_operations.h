@@ -5107,6 +5107,51 @@ namespace TinyDIP
         );
     }
 
+    //  DefaultPatchDistance template struct implementation
+    //  Default lambda struct implementation to calculate Mean Squared Error between two patches
+    template<typename ElementT, class FloatingType = double>
+    struct DefaultPatchDistance
+    {
+        template<std::ranges::input_range SizeRange, std::ranges::input_range PCenterRange, std::ranges::input_range QCenterRange>
+        requires((std::same_as<std::ranges::range_value_t<SizeRange>, std::size_t> or
+                  std::same_as<std::ranges::range_value_t<SizeRange>, int>) and
+                 (std::same_as<std::ranges::range_value_t<PCenterRange>, std::size_t> or
+                  std::same_as<std::ranges::range_value_t<PCenterRange>, int>) and
+                 (std::same_as<std::ranges::range_value_t<QCenterRange>, std::size_t> or
+                  std::same_as<std::ranges::range_value_t<QCenterRange>, int>))
+        constexpr FloatingType operator()(
+            const Image<ElementT>& large_window,
+            const PCenterRange& p_center,
+            const QCenterRange& q_center,
+            const SizeRange& patch_sizes) const
+        {
+            auto p_image = subimage(std::execution::seq, large_window, patch_sizes, p_center);
+            auto q_image = subimage(std::execution::seq, large_window, patch_sizes, q_center);
+            
+            auto diff_image = pixelwise_transform(
+                [](const auto& pixel1, const auto& pixel2)
+                {
+                    if constexpr (is_complex<ElementT>::value)
+                    {
+                        auto diff = pixel1 - pixel2;
+                        auto diff_sq = static_cast<FloatingType>(std::norm(diff));
+                        return diff_sq;
+                    }
+                    else
+                    {
+                        FloatingType diff = static_cast<FloatingType>(pixel1) - static_cast<FloatingType>(pixel2);
+                        auto diff_sq = diff * diff;
+                        return diff_sq;
+                    }
+                },
+                p_image,
+                q_image
+            );
+            
+            return static_cast<FloatingType>(mean(diff_image));
+        }
+    };
+
     //  increase_intensity template function implementation
     template<typename ElementT, class TimesT>
     requires (std::same_as<ElementT, RGB> || std::same_as<ElementT, RGB_DOUBLE>)
