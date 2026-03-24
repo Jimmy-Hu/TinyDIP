@@ -28,6 +28,7 @@ int main(int argc, char* argv[])
     if(argc == 3)
     {
         std::filesystem::path input_path = std::string(argv[1]);
+        std::filesystem::path output_path = std::string(argv[2]);
         if (!std::filesystem::exists(input_path))
         {
             std::cerr << "File / Path not found: " << input_path << '\n';
