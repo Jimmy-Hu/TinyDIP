@@ -13,6 +13,7 @@
 #include "../cube_operations.h"
 #include "../timer.h"
 
+//  offsetTest Function Implementation
 void offsetTest(const std::filesystem::path& file_path, std::string_view output_path)
 {
     auto image_input = TinyDIP::bmp_read(file_path.string().c_str(), true);
@@ -22,7 +23,7 @@ void offsetTest(const std::filesystem::path& file_path, std::string_view output_
                 TinyDIP::RGB output;
                 for(std::size_t channel_index = 0; channel_index < 3; ++channel_index)
                 {
-                    output.channels[channel_index] = element.channels[channel_index] * 0.78 + 64;
+                    output.channels[channel_index] = std::clamp(static_cast<int>(static_cast<double>(element.channels[channel_index]) * 0.78 + 64), 0, 255);
                 }
                 return output;
             }, image_input);
