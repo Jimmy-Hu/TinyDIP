@@ -77,7 +77,10 @@ static auto gray2gamma(
 }
 
 //  localDimmingTest Function Implementation
+template<class ExecutionPolicy>
+requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
 static auto localDimmingTest(
+    ExecutionPolicy&& policy,
     const std::filesystem::path& input_path,
     const std::string_view output_path,
     const std::size_t light_bead_width = 22,
@@ -92,9 +95,9 @@ static auto localDimmingTest(
     auto RGB_max_result = RGB_max(input_img);
     std::vector<int> gamma_node = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256};
     std::vector<int> gamma_vale = {0, 2, 9, 23, 43, 69, 104, 146, 195, 253, 320, 394, 477, 569, 670, 780, 899, 1026, 1165, 1312, 1468, 1635, 1810, 1997, 2193, 2399, 2615, 2842, 3079, 3326, 3584, 3851, 4130};
-    auto gray2gamma_12bits = gray2gamma(std::execution::par_unseq, RGB_max_result, gamma_node, gamma_vale);
+    auto gray2gamma_12bits = gray2gamma(std::forward<ExecutionPolicy>(policy), RGB_max_result, gamma_node, gamma_vale);
     auto split_overlap_output = TinyDIP::split_overlap(
-        std::execution::par_unseq,
+        std::forward<ExecutionPolicy>(policy),
         gray2gamma_12bits,
         light_bead_width,
         light_bead_height,
@@ -102,16 +105,19 @@ static auto localDimmingTest(
         y_extension_pixel_count
     );
     auto split_overlap_max = TinyDIP::recursive_transform<2>(
+        std::forward<ExecutionPolicy>(policy),
         [&](const auto& each_block)
         {
             return static_cast<int>(TinyDIP::max(TinyDIP::getRplane(each_block)));
         }, split_overlap_output);
     auto split_overlap_estimated_average = TinyDIP::recursive_transform<2>(
+        std::forward<ExecutionPolicy>(policy),
         [&](const auto& each_block)
         {
             return (((static_cast<int>(TinyDIP::sum(TinyDIP::getRplane(each_block))) * reg_avg_div_inv) >> 18) + 1) >> 1;
         }, split_overlap_output);
     auto split_overlap_histogram = TinyDIP::recursive_transform<2>(
+        std::forward<ExecutionPolicy>(policy),
         [&](const auto& each_block)
         {
             auto each_block_r = TinyDIP::getRplane(each_block);
@@ -120,7 +126,7 @@ static auto localDimmingTest(
             {
                 for (std::size_t x = 0; x < each_block_r.getWidth(); ++x)
                 {
-                    histogram_output[static_cast<int>(each_block_r.at_without_boundary_check(x, y)) >> 7];
+                    ++histogram_output[static_cast<int>(each_block_r.at_without_boundary_check(x, y)) >> 7];
                 }
             }
             return histogram_output;
