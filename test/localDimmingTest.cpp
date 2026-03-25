@@ -79,7 +79,7 @@ static auto gray2gamma(
 //  localDimmingTest Function Implementation
 template<class ExecutionPolicy>
 requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
-static auto localDimmingTest(
+static auto get_real_size_PWM_image(
     ExecutionPolicy&& policy,
     const std::filesystem::path& input_path,
     const std::string_view output_path,
