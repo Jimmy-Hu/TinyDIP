@@ -102,17 +102,17 @@ static auto localDimmingTest(
         y_extension_pixel_count
     );
     auto split_overlap_max = TinyDIP::recursive_transform<2>(
-        [](const auto& each_block)
+        [&](const auto& each_block)
         {
             return static_cast<int>(TinyDIP::max(TinyDIP::getRplane(each_block)));
         }, split_overlap_output);
     auto split_overlap_estimated_average = TinyDIP::recursive_transform<2>(
-        [](const auto& each_block)
+        [&](const auto& each_block)
         {
             return (((static_cast<int>(TinyDIP::sum(TinyDIP::getRplane(each_block))) * reg_avg_div_inv) >> 18) + 1) >> 1;
         }, split_overlap_output);
     auto split_overlap_histogram = TinyDIP::recursive_transform<2>(
-        [](const auto& each_block)
+        [&](const auto& each_block)
         {
             auto each_block_r = TinyDIP::getRplane(each_block);
             std::array<int, 5> histogram_output{0, 0, 0, 0, 0};
