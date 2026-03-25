@@ -141,7 +141,8 @@ static auto get_real_size_PWM_image(
         [](const auto& element1, const auto& element2, const auto& element3)
         {
             TinyDIP::Image<TinyDIP::RGB> output_subimage(std::size_t{ 1 }, std::size_t{ 1 });
-            TinyDIP::RGB output_pixel{ static_cast<std::uint8_t>(element1), static_cast<std::uint8_t>(element1), static_cast<std::uint8_t>(element1) };
+            auto pixel_value = static_cast<std::uint8_t>(element1 >> 4);
+            TinyDIP::RGB output_pixel{ pixel_value, pixel_value, pixel_value };
             output_subimage.at_without_boundary_check(0, 0) = output_pixel;
             return output_subimage;
         },
