@@ -121,7 +121,7 @@ static auto localDimmingTest(
         [&](const auto& each_block)
         {
             auto each_block_r = TinyDIP::getRplane(each_block);
-            std::array<int, 5> histogram_output{0, 0, 0, 0, 0};
+            std::array<int, 32> histogram_output{};
             for (std::size_t y = 0; y < each_block_r.getHeight(); ++y)
             {
                 for (std::size_t x = 0; x < each_block_r.getWidth(); ++x)
