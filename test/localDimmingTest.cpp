@@ -47,6 +47,7 @@ static auto belongs_bin_index(const RangeT& thresholds, const ElementT& value)
 }
 
 //  gray2gamma Template Function Implementation
+//  Output is TinyDIP::Image<TinyDIP::RGB_DOUBLE>, 12 bits
 template<
     class ExecutionPolicy,
     std::ranges::random_access_range GammaRange1,
@@ -69,8 +70,8 @@ static auto gray2gamma(
                     gamma_range2[bin_index] + (((gamma_range2[bin_index + 1] - gamma_range2[bin_index]) * (pixel_value - gamma_range1[bin_index])) >> (static_cast<int>(std::log2(gamma_range1[bin_index + 1] - gamma_range1[bin_index])))),
                     0, static_cast<int>(std::pow(2, 12) - 1)
                 );
-                final_pixel_value = final_pixel_value >> 4;         //  12 bits to 8 bits
-                TinyDIP::RGB new_pixel{ static_cast<std::uint8_t>(final_pixel_value), static_cast<std::uint8_t>(final_pixel_value), static_cast<std::uint8_t>(final_pixel_value) };
+                //final_pixel_value = final_pixel_value >> 4;         //  12 bits to 8 bits
+                TinyDIP::RGB_DOUBLE new_pixel{ final_pixel_value, final_pixel_value, final_pixel_value };
                 return new_pixel;
             }, input_image);
 }
