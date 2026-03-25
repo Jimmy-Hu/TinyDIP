@@ -76,13 +76,12 @@ static auto gray2gamma(
             }, input_image);
 }
 
-//  localDimmingTest Function Implementation
-template<class ExecutionPolicy>
+//  get_real_size_PWM_image Template Function Implementation
+template<class ExecutionPolicy, class ElementT>
 requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
 static auto get_real_size_PWM_image(
     ExecutionPolicy&& policy,
-    const std::filesystem::path& input_path,
-    const std::string_view output_path,
+    const TinyDIP::Image<ElementT>& input_img,
     const std::size_t light_bead_width = 22,
     const std::size_t light_bead_height = 8,
     const std::size_t x_extension_pixel_count = 41,
@@ -91,7 +90,6 @@ static auto get_real_size_PWM_image(
     std::ostream& os = std::cout
 )
 {
-    auto input_img = TinyDIP::bmp_read(input_path.string().c_str(), true);
     auto RGB_max_result = RGB_max(input_img);
     std::vector<int> gamma_node = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256};
     std::vector<int> gamma_vale = {0, 2, 9, 23, 43, 69, 104, 146, 195, 253, 320, 394, 477, 569, 670, 780, 899, 1026, 1165, 1312, 1468, 1635, 1810, 1997, 2193, 2399, 2615, 2842, 3079, 3326, 3584, 3851, 4130};
@@ -138,6 +136,18 @@ static auto get_real_size_PWM_image(
         os << "split_overlap_estimated_average[0][0] = " << +split_overlap_estimated_average[0][0] << '\n';
         TinyDIP::recursive_print(split_overlap_histogram[0][0]);
     }
+
+    auto output_image = TinyDIP::concat(TinyDIP::recursive_transform<2>(
+        [](const auto& element1, const auto& element2, const auto& element3)
+        {
+            TinyDIP::Image<TinyDIP::RGB> output_subimage(std::size_t{ 1 }, std::size_t{ 1 });
+            TinyDIP::RGB output_pixel{ static_cast<std::uint8_t>(element1), static_cast<std::uint8_t>(element1), static_cast<std::uint8_t>(element1) };
+            output_subimage.at_without_boundary_check(0, 0) = output_pixel;
+            return output_subimage;
+        },
+        split_overlap_max, split_overlap_estimated_average, split_overlap_histogram
+    ));
+    return output_image;
 }
 
 //  localDimmingTest Template Function Implementation
