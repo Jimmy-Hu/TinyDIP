@@ -83,7 +83,9 @@ static auto localDimmingTest(
     const std::size_t light_bead_width = 22,
     const std::size_t light_bead_height = 8,
     const std::size_t x_extension_pixel_count = 41,
-    const std::size_t y_extension_pixel_count = 45
+    const std::size_t y_extension_pixel_count = 45,
+    const int reg_avg_div_inv = 17,
+    std::ostream& os = std::cout
 )
 {
     auto input_img = TinyDIP::bmp_read(input_path.string().c_str(), true);
@@ -99,6 +101,41 @@ static auto localDimmingTest(
         x_extension_pixel_count,
         y_extension_pixel_count
     );
+    auto split_overlap_max = TinyDIP::recursive_transform<2>(
+        [](const auto& each_block)
+        {
+            return static_cast<int>(TinyDIP::max(TinyDIP::getRplane(each_block)));
+        }, split_overlap_output);
+    auto split_overlap_estimated_average = TinyDIP::recursive_transform<2>(
+        [](const auto& each_block)
+        {
+            return (((static_cast<int>(TinyDIP::sum(TinyDIP::getRplane(each_block))) * reg_avg_div_inv) >> 18) + 1) >> 1;
+        }, split_overlap_output);
+    auto split_overlap_histogram = TinyDIP::recursive_transform<2>(
+        [](const auto& each_block)
+        {
+            auto each_block_r = TinyDIP::getRplane(each_block);
+            std::array<int, 5> histogram_output{0, 0, 0, 0, 0};
+            for (std::size_t y = 0; y < each_block_r.getHeight(); ++y)
+            {
+                for (std::size_t x = 0; x < each_block_r.getWidth(); ++x)
+                {
+                    histogram_output[static_cast<int>(each_block_r.at_without_boundary_check(x, y)) >> 7];
+                }
+            }
+            return histogram_output;
+        }, split_overlap_output);
+    if (true)
+    {
+        //  Print Value for Debugging
+        os << "split_overlap_max[0][0] = " << +split_overlap_max[0][0] << '\n';
+        os << "split_overlap_estimated_average[0][0] = " << +split_overlap_estimated_average[0][0] << '\n';
+        os << "split_overlap_histogram[0][0] = " << +split_overlap_histogram[0][0][0] << ", "
+                                                 << +split_overlap_histogram[0][0][1] << ", "
+                                                 << +split_overlap_histogram[0][0][2] << ", "
+                                                 << +split_overlap_histogram[0][0][3] << ", "
+                                                 << +split_overlap_histogram[0][0][4] << ", " << '\n';
+    }
 }
 
 int main(int argc, char* argv[])
