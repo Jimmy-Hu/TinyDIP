@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
             return EXIT_SUCCESS;
         }
         std::filesystem::path path_without_extension = output_path.parent_path() / output_path.stem();
-        localDimmingTest(input_path, path_without_extension.string());
+        localDimmingTest(std::execution::par_unseq, input_path, path_without_extension.string());
     }
     else
     {
