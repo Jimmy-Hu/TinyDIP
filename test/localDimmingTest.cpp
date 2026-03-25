@@ -136,11 +136,7 @@ static auto localDimmingTest(
         //  Print Value for Debugging
         os << "split_overlap_max[0][0] = " << +split_overlap_max[0][0] << '\n';
         os << "split_overlap_estimated_average[0][0] = " << +split_overlap_estimated_average[0][0] << '\n';
-        os << "split_overlap_histogram[0][0] = " << +split_overlap_histogram[0][0][0] << ", "
-                                                 << +split_overlap_histogram[0][0][1] << ", "
-                                                 << +split_overlap_histogram[0][0][2] << ", "
-                                                 << +split_overlap_histogram[0][0][3] << ", "
-                                                 << +split_overlap_histogram[0][0][4] << ", " << '\n';
+        TinyDIP::recursive_print(split_overlap_histogram[0][0]);
     }
 }
 
