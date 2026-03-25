@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
             std::cerr << "File not found: " << input_path << '\n';
             return EXIT_SUCCESS;
         }
-        localDimmingTest(input_path, std::string("localDimmingTest"));
+        localDimmingTest(std::execution::par_unseq, input_path, std::string("localDimmingTest"));
     }
     else if  (argc == 3)
     {
