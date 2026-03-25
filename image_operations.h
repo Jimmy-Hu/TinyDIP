@@ -5152,6 +5152,23 @@ namespace TinyDIP
         }
     };
 
+    //  DefaultWeightCalculation template struct implementation
+    // Default lambda struct implementation to calculate weight based on distance
+    template<class FloatingType = double>
+    struct DefaultWeightCalculation
+    {
+        FloatingType h;
+
+        constexpr DefaultWeightCalculation(const FloatingType h_val) : h(h_val)
+        {
+        }
+
+        constexpr FloatingType operator()(const FloatingType dist) const
+        {
+            return std::exp(-dist / (h * h));
+        }
+    };
+
     //  increase_intensity template function implementation
     template<typename ElementT, class TimesT>
     requires (std::same_as<ElementT, RGB> || std::same_as<ElementT, RGB_DOUBLE>)
