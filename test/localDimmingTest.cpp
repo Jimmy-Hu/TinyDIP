@@ -140,6 +140,20 @@ static auto get_real_size_PWM_image(
     }
 }
 
+//  localDimmingTest Template Function Implementation
+template<class ExecutionPolicy>
+requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
+static auto localDimmingTest(
+    ExecutionPolicy&& policy,
+    const std::filesystem::path& input_path,
+    const std::string_view output_path
+)
+{
+    auto input_img = TinyDIP::bmp_read(input_path.string().c_str(), true);
+    auto real_size_PWM_image = get_real_size_PWM_image(std::forward<ExecutionPolicy>(policy), input_img);
+    TinyDIP::bmp_write(std::string(output_path).c_str(), real_size_PWM_image);
+}
+
 int main(int argc, char* argv[])
 {
     TinyDIP::Timer timer1;
