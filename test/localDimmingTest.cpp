@@ -87,6 +87,10 @@ static auto get_real_size_PWM_image(
     const std::size_t x_extension_pixel_count = 41,
     const std::size_t y_extension_pixel_count = 45,
     const int reg_avg_div_inv = 17,
+    const bool adp_adj_hist_weight_en = true,
+    const bool local_dimming_en = true,
+    const std::size_t output_scale_x = 1,
+    const std::size_t output_scale_y = 1
     std::ostream& os = std::cout
 )
 {
@@ -138,7 +142,7 @@ static auto get_real_size_PWM_image(
     }
 
     auto output_image = TinyDIP::concat(TinyDIP::recursive_transform<2>(
-        [](const auto& element1, const auto& element2, const auto& element3)
+        [&](const auto& element1, const auto& element2, const auto& element3)
         {
             TinyDIP::Image<TinyDIP::RGB> output_subimage(std::size_t{ 1 }, std::size_t{ 1 });
             auto pixel_value = static_cast<std::uint8_t>(element1 >> 4);
@@ -148,6 +152,7 @@ static auto get_real_size_PWM_image(
         },
         split_overlap_max, split_overlap_estimated_average, split_overlap_histogram
     ));
+    output_image = TinyDIP::resize_nearest_neighbor(output_image, output_image.getWidth() * output_scale_x, output_image.getHeight() * output_scale_y);
     return output_image;
 }
 
