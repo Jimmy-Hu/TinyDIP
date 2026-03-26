@@ -97,7 +97,7 @@ static auto get_real_size_PWM_image(
     const bool adp_adj_hist_weight_en = true,
     const bool local_dimming_en = true,
     const std::size_t output_scale_x = 1,
-    const std::size_t output_scale_y = 1
+    const std::size_t output_scale_y = 1,
     std::ostream& os = std::cout
 )
 {
