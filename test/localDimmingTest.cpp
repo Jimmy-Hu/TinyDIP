@@ -76,6 +76,13 @@ static auto gray2gamma(
             }, input_image);
 }
 
+//  clamp12bit Template Function Implementation
+template<TinyDIP::arithmetic ElementT>
+constexpr static auto clamp12bit(const ElementT input)
+{
+    return std::clamp(input, static_cast<ElementT>(0), static_cast<ElementT>(std::pow(2, 12) - 1));
+}
+
 //  get_real_size_PWM_image Template Function Implementation
 template<class ExecutionPolicy, class ElementT>
 requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
