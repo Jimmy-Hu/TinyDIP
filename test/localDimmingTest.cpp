@@ -71,7 +71,7 @@ static auto gray2gamma(
                     0, static_cast<int>(std::pow(2, 12) - 1)
                 );
                 //final_pixel_value = final_pixel_value >> 4;         //  12 bits to 8 bits
-                TinyDIP::RGB_DOUBLE new_pixel{ final_pixel_value, final_pixel_value, final_pixel_value };
+                TinyDIP::RGB_DOUBLE new_pixel{ static_cast<double>(final_pixel_value), static_cast<double>(final_pixel_value), static_cast<double>(final_pixel_value) };
                 return new_pixel;
             }, input_image);
 }
