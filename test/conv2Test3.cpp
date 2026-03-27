@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
         }
         conv2Test3(input_path1, input_path2, std::string("convolution2Output"));
     }
-    else if  (argc == 3)
+    else if  (argc == 4)
     {
         std::filesystem::path input_path1 = std::string(argv[1]);
         if (!std::filesystem::exists(input_path1))
