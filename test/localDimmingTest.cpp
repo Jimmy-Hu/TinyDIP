@@ -94,7 +94,8 @@ static auto get_real_size_PWM_image(
     const std::size_t x_extension_pixel_count = 41,
     const std::size_t y_extension_pixel_count = 45,
     const int reg_avg_div_inv = 17,
-    const bool adp_adj_hist_weight_en = true,
+    const int estimated_average_offset = 20,
+    const bool adp_adj_hist_weight_en = true,       //  adaptive adjustment histogram weight
     const bool local_dimming_en = true,
     const std::size_t output_scale_x = 1,
     const std::size_t output_scale_y = 1,
