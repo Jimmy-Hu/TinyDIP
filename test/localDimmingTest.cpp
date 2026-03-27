@@ -150,10 +150,17 @@ static auto get_real_size_PWM_image(
     }
 
     auto output_image = TinyDIP::concat(TinyDIP::recursive_transform<2>(
-        [&](const auto& element1, const auto& element2, const auto& element3)
+        [&](const auto& local_maximum, const auto& local_estimated_average, const auto& local_histogram)
         {
+            std::map<std::string, int> local_dimming_modes;
+            local_dimming_modes.insert(std::make_pair("local_maximum", local_maximum));
+            local_dimming_modes.insert(std::make_pair("estimated_average", local_estimated_average));
             TinyDIP::Image<TinyDIP::RGB> output_subimage(std::size_t{ 1 }, std::size_t{ 1 });
-            auto pixel_value = static_cast<std::uint8_t>(element1 >> 4);
+            auto pixel_value = static_cast<std::uint8_t>((
+                (!local_dimming_en)?
+                (static_cast<int>(std::pow(2.0, 12.0)) - 1):
+                local_dimming_modes["estimated_average"]
+            ) >> 4); //  Make pixel_value 8 bits
             TinyDIP::RGB output_pixel{ pixel_value, pixel_value, pixel_value };
             output_subimage.at_without_boundary_check(0, 0) = output_pixel;
             return output_subimage;
