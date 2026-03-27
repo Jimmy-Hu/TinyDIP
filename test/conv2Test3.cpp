@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
             std::cerr << "File not found: " << input_path1 << '\n';
             return EXIT_SUCCESS;
         }
-        std::filesystem::path input_path2 = std::string(argv[1]);
+        std::filesystem::path input_path2 = std::string(argv[2]);
         if (!std::filesystem::exists(input_path2))
         {
             std::cerr << "File not found: " << input_path2 << '\n';
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
             std::cerr << "File not found: " << input_path1 << '\n';
             return EXIT_SUCCESS;
         }
-        std::filesystem::path input_path2 = std::string(argv[1]);
+        std::filesystem::path input_path2 = std::string(argv[2]);
         if (!std::filesystem::exists(input_path2))
         {
             std::cerr << "File not found: " << input_path2 << '\n';
