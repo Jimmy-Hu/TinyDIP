@@ -521,6 +521,21 @@ namespace TinyDIP
         return apply_each(input1, [&](auto&& planes) { return conv2(planes, input2, is_size_same); });
     }
 
+    //  DefaultConv2Functor struct implementation
+    template<class ExecutionPolicy, typename KernelT>
+    struct DefaultConv2Functor
+    {
+        ExecutionPolicy policy;
+        const Image<KernelT>& kernel;
+        bool is_size_same;
+
+        template<typename PlaneT>
+        constexpr auto operator()(const PlaneT& plane) const
+        {
+            return conv2(policy, plane, kernel, is_size_same);
+        }
+    };
+
     namespace impl {
         //  convolution_detail template function implementation
         //  This function is a recursive implementation of convolution.
