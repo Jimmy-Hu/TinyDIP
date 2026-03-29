@@ -536,6 +536,85 @@ namespace TinyDIP
         }
     };
 
+    //  conv2 template function implementation (with Execution Policy)
+    template<class ExecutionPolicy, typename ElementT1, typename ElementT2>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) &&
+             (arithmetic<ElementT1>) &&
+             (arithmetic<ElementT2>)
+    constexpr static auto conv2(
+        ExecutionPolicy&& policy,
+        const Image<ElementT1>& x,
+        const Image<ElementT2>& y,
+        const bool is_size_same = false
+    )
+    {
+        using OutputT = std::common_type_t<ElementT1, ElementT2>;
+        const std::size_t out_w = x.getWidth() + y.getWidth() - 1;
+        const std::size_t out_h = x.getHeight() + y.getHeight() - 1;
+        Image<OutputT> output(out_w, out_h);
+
+        // Pre-flip the kernel 'y' to achieve contiguous memory access in the inner loop (cross-correlation)
+        std::vector<ElementT2> y_flipped_data = y.getImageData();
+        std::ranges::reverse(y_flipped_data);
+        Image<ElementT2> y_flipped(y_flipped_data, y.getSize());
+
+        const std::ptrdiff_t x_h = static_cast<std::ptrdiff_t>(x.getHeight());
+        const std::ptrdiff_t x_w = static_cast<std::ptrdiff_t>(x.getWidth());
+        const std::ptrdiff_t y_h = static_cast<std::ptrdiff_t>(y.getHeight());
+        const std::ptrdiff_t y_w = static_cast<std::ptrdiff_t>(y.getWidth());
+
+        auto indices = std::views::iota(std::size_t{ 0 }, out_w * out_h);
+
+        std::for_each(
+            std::forward<ExecutionPolicy>(policy),
+            std::ranges::begin(indices),
+            std::ranges::end(indices),
+            [&](const std::size_t idx)
+            {
+                const std::ptrdiff_t out_y = static_cast<std::ptrdiff_t>(idx / out_w);
+                const std::ptrdiff_t out_x = static_cast<std::ptrdiff_t>(idx % out_w);
+
+                OutputT sum{};
+
+                const std::ptrdiff_t y1_start = std::max(std::ptrdiff_t{ 0 }, out_y - y_h + 1);
+                const std::ptrdiff_t y1_end = std::min(x_h - 1, out_y);
+
+                const std::ptrdiff_t x1_start = std::max(std::ptrdiff_t{ 0 }, out_x - y_w + 1);
+                const std::ptrdiff_t x1_end = std::min(x_w - 1, out_x);
+
+                const std::ptrdiff_t offset_y = y_h - 1 - out_y;
+                const std::ptrdiff_t offset_x = y_w - 1 - out_x;
+
+                for (std::ptrdiff_t y1 = y1_start; y1 <= y1_end; ++y1)
+                {
+                    const auto* x_row = &(x.at_without_boundary_check(std::size_t{ 0 }, static_cast<std::size_t>(y1)));
+                    const auto* y_f_row = &(y_flipped.at_without_boundary_check(std::size_t{ 0 }, static_cast<std::size_t>(offset_y + y1)));
+
+                    // Inner loop has perfect sequential memory access for both arrays! (SIMD Auto-Vectorization)
+                    for (std::ptrdiff_t x1 = x1_start; x1 <= x1_end; ++x1)
+                    {
+                        sum += static_cast<OutputT>(x_row[x1]) * static_cast<OutputT>(y_f_row[offset_x + x1]);
+                    }
+                }
+                output.at_without_boundary_check(static_cast<std::size_t>(out_x), static_cast<std::size_t>(out_y)) = sum;
+            }
+        );
+
+        if (is_size_same)
+        {
+            output = subimage(
+                std::forward<ExecutionPolicy>(policy),
+                output,
+                x.getWidth(),
+                x.getHeight(),
+                out_w / 2,
+                out_h / 2
+            );
+        }
+
+        return output;
+    }
+
     namespace impl {
         //  convolution_detail template function implementation
         //  This function is a recursive implementation of convolution.
