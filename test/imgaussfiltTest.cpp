@@ -49,13 +49,13 @@ void imgaussfiltTest2(
     auto output_img = 
         TinyDIP::imgaussfilt(
             std::execution::par,
-            input_img,
+            TinyDIP::im2double(input_img),
             20.0,
-            20.0,
+            3.0,
             1.0,
             50,
             50,
-            TinyDIP::constant
+            TinyDIP::replicate
             );
     /*
     auto output_img = TinyDIP::im2uint8(
@@ -73,7 +73,7 @@ void imgaussfiltTest2(
     */
     TinyDIP::bmp_write(
         (std::string(output_image_path)).c_str(),
-        output_img);
+        TinyDIP::im2uint8(output_img));
 }
 
 int main(int argc, char* argv[])
