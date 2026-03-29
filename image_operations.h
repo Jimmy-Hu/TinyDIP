@@ -486,6 +486,7 @@ namespace TinyDIP
         );
     }
 
+    /*
     //  conv2 template function implementation
     template<typename ElementT1, typename ElementT2>
     requires(std::floating_point<ElementT1> || std::integral<ElementT1> || is_complex<ElementT1>::value) &&
@@ -511,6 +512,7 @@ namespace TinyDIP
         }
         return output;
     }
+    */
 
     //  conv2 template function implementation
     template<typename ElementT, typename ElementT2>
@@ -613,6 +615,19 @@ namespace TinyDIP
         }
 
         return output;
+    }
+
+    //  conv2 template function implementation (with default Execution Policy)
+    template<typename ElementT1, typename ElementT2>
+    requires (arithmetic<ElementT1>) && (arithmetic<ElementT2>)
+    constexpr static auto conv2(
+        const Image<ElementT1>& x,
+        const Image<ElementT2>& y,
+        const bool is_size_same = false
+    )
+    {
+        // Use par_unseq to enable maximum multithreading & SIMD vectorization automatically
+        return conv2(std::execution::par_unseq, x, y, is_size_same);
     }
 
     namespace impl {
