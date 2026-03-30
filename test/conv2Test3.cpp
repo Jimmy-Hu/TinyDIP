@@ -30,6 +30,13 @@ void conv2Test3(
     auto output_image_r = TinyDIP::conv2(input_img1_r_double, input_img2_r_double, true);
     auto output_image_g = TinyDIP::conv2(input_img1_g_double, input_img2_g_double, true);
     auto output_image_b = TinyDIP::conv2(input_img1_b_double, input_img2_b_double, true);
+    if (true)           //  Save to .dbmp files
+    {
+        TinyDIP::double_image::write("output_image_r", output_image_r);
+        TinyDIP::double_image::write("output_image_g", output_image_g);
+        TinyDIP::double_image::write("output_image_b", output_image_b);
+    }
+    TinyDIP::double_image::write_to_csv("conv2Test3Test_R.csv", output_image_r);
     TinyDIP::bmp_write(std::string(output_path).c_str(), TinyDIP::im2uint8(TinyDIP::constructRGBDOUBLE(output_image_r, output_image_g, output_image_b)));
 }
 
