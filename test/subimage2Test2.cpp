@@ -17,7 +17,7 @@
 void subimage2Test2(const std::filesystem::path& file_path, std::string_view output_path)
 {
     auto image_input = TinyDIP::bmp_read(file_path.string().c_str(), true);
-    output_image = TinyDIP::subimage2(image_input, 0, 1919, 0, 719);
+    auto output_image = TinyDIP::subimage2(image_input, 0, 1919, 0, 719);
     TinyDIP::bmp_write(std::string(output_path).c_str(), output_image);
 }
 
