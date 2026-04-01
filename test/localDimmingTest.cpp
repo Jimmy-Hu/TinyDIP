@@ -181,7 +181,7 @@ static auto get_real_size_PWM_image(
             }
             
             int final_adptive_weight = clamp12bit(clamp12bit((
-                    (sum_of_histogram * 1103 + std::pow(2, 11)) >> 12
+                    static_cast<int>((sum_of_histogram * 1103 + std::pow(2, 11))) >> 12
                 )) + std::invoke(
                 [](const int maximum, const int average, const bool light_spot_protect_en = false)
                 {
