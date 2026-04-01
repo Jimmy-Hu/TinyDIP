@@ -227,7 +227,8 @@ static auto localDimmingTest(
     const std::filesystem::path& input_path,
     const std::string_view output_path,
     const int output_scale_x,
-    const int output_scale_y
+    const int output_scale_y,
+    const std::string_veiw local_dimming_mode = "adaptive_blending"
 )
 {
     auto input_img = TinyDIP::bmp_read(input_path.string().c_str(), true);
@@ -246,6 +247,7 @@ static auto localDimmingTest(
         output_scale_x,
         output_scale_y,
         histogram_weight,
+        local_dimming_mode,
         std::cout
     );
     TinyDIP::bmp_write(std::string(output_path).c_str(), real_size_PWM_image);
