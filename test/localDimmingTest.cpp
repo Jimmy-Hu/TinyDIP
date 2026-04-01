@@ -156,6 +156,16 @@ static auto get_real_size_PWM_image(
     auto output_image = TinyDIP::concat(TinyDIP::recursive_transform<2>(
         [&](const auto& local_maximum, const auto& local_estimated_average, const auto& local_histogram)
         {
+            auto sum_of_histogram = 0;
+            if (adp_adj_hist_weight_en)
+            {
+            }
+            else
+            {
+                auto selected_local_histogram { std::span{local_histogram}.subspan((local_estimated_average >> 7 + 1), local_histogram.size() - (local_estimated_average >> 7 + 1)) };
+                sum_of_histogram = std::reduce(std::ranges::cbegin(selected_local_histogram), std::ranges::cend(selected_local_histogram), 0);
+            }
+            
             std::map<std::string, int> local_dimming_modes;
             local_dimming_modes.insert(std::make_pair("local_maximum", local_maximum));
             local_dimming_modes.insert(std::make_pair("estimated_average", local_estimated_average));
