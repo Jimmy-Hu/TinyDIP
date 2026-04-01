@@ -103,6 +103,7 @@ static auto get_real_size_PWM_image(
     const std::size_t output_scale_x = 1,
     const std::size_t output_scale_y = 1,
     const HistogramWeightRange& histogram_weight = {},
+    const std::string_view local_dimming_mode = "adaptive_blending",
     std::ostream& os = std::cout
 )
 {
