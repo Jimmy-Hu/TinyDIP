@@ -228,7 +228,7 @@ static auto localDimmingTest(
     const std::string_view output_path,
     const int output_scale_x,
     const int output_scale_y,
-    const std::string_veiw local_dimming_mode = "adaptive_blending"
+    const std::string_view local_dimming_mode = "adaptive_blending"
 )
 {
     auto input_img = TinyDIP::bmp_read(input_path.string().c_str(), true);
