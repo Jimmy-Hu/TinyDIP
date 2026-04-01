@@ -163,7 +163,12 @@ static auto get_real_size_PWM_image(
             else
             {
                 auto selected_local_histogram { std::span{local_histogram}.subspan((local_estimated_average >> 7 + 1), local_histogram.size() - (local_estimated_average >> 7 + 1)) };
-                sum_of_histogram = std::reduce(std::ranges::cbegin(selected_local_histogram), std::ranges::cend(selected_local_histogram), 0);
+                sum_of_histogram = std::reduce(
+                    std::forward<ExecutionPolicy>(policy),
+                    std::ranges::cbegin(selected_local_histogram),
+                    std::ranges::cend(selected_local_histogram),
+                    0
+                );
             }
             
             std::map<std::string, int> local_dimming_modes;
