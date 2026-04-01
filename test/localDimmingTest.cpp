@@ -159,6 +159,15 @@ static auto get_real_size_PWM_image(
             auto sum_of_histogram = 0;
             if (adp_adj_hist_weight_en)
             {
+                for (int index = (local_estimated_average >> 7 + 1); index < std::ranges::size(local_histogram); ++index)
+                {
+                    sum_of_histogram += std::min(
+                        (local_histogram[index] * 
+                        (histogram_weight[
+                            std::clamp(index - std::max(local_estimated_average >> 7, 24), 0, 7)
+                        ] + 8)) >> 3
+                        , (1 << 18) - 1);
+                }
             }
             else
             {
