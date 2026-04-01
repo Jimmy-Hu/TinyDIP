@@ -185,7 +185,23 @@ static auto localDimmingTest(
 )
 {
     auto input_img = TinyDIP::bmp_read(input_path.string().c_str(), true);
-    auto real_size_PWM_image = get_real_size_PWM_image(std::forward<ExecutionPolicy>(policy), input_img);
+    const std::array<int, 8> histogram_weight = {0, 8, 16, 24, 32, 40, 48, 56};
+    auto real_size_PWM_image = get_real_size_PWM_image(
+        std::forward<ExecutionPolicy>(policy),
+        input_img,
+        22,
+        8,
+        static_cast<std::size_t>(41),
+        static_cast<std::size_t>(45),
+        17,
+        20,
+        true,       //  adaptive adjustment histogram weight
+        true,
+        1,
+        1,
+        histogram_weight,
+        std::cout
+    );
     TinyDIP::bmp_write(std::string(output_path).c_str(), real_size_PWM_image);
 }
 
