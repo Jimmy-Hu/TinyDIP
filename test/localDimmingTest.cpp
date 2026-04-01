@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
             std::cerr << "File not found: " << input_path << '\n';
             return EXIT_SUCCESS;
         }
-        localDimmingTest(std::execution::par_unseq, input_path, std::string("localDimmingTest"));
+        localDimmingTest(std::execution::par_unseq, input_path, std::string("localDimmingTest"), 1, 1);
     }
     else if  (argc == 3)
     {
@@ -231,7 +231,7 @@ int main(int argc, char* argv[])
             return EXIT_SUCCESS;
         }
         std::filesystem::path path_without_extension = output_path.parent_path() / output_path.stem();
-        localDimmingTest(std::execution::par_unseq, input_path, path_without_extension.string());
+        localDimmingTest(std::execution::par_unseq, input_path, path_without_extension.string(), 1, 1);
     }
     else if  (argc == 5)
     {
