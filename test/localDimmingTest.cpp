@@ -102,7 +102,7 @@ static auto get_real_size_PWM_image(
     const bool local_dimming_en = true,
     const std::size_t output_scale_x = 1,
     const std::size_t output_scale_y = 1,
-    const HistogramWeightRange& histogram_weight,
+    const HistogramWeightRange& histogram_weight = {},
     std::ostream& os = std::cout
 )
 {
