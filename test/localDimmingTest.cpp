@@ -84,7 +84,10 @@ constexpr static auto clamp12bit(const ElementT input)
 }
 
 //  get_real_size_PWM_image Template Function Implementation
-template<class ExecutionPolicy, class ElementT>
+template<
+    class ExecutionPolicy,
+    class ElementT,
+    std::ranges::random_access_range HistogramWeightRange>
 requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
 static auto get_real_size_PWM_image(
     ExecutionPolicy&& policy,
@@ -99,6 +102,7 @@ static auto get_real_size_PWM_image(
     const bool local_dimming_en = true,
     const std::size_t output_scale_x = 1,
     const std::size_t output_scale_y = 1,
+    const HistogramWeightRange& histogram_weight,
     std::ostream& os = std::cout
 )
 {
