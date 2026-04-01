@@ -181,7 +181,9 @@ requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
 static auto localDimmingTest(
     ExecutionPolicy&& policy,
     const std::filesystem::path& input_path,
-    const std::string_view output_path
+    const std::string_view output_path,
+    const int output_scale_x,
+    const int output_scale_y
 )
 {
     auto input_img = TinyDIP::bmp_read(input_path.string().c_str(), true);
@@ -197,8 +199,8 @@ static auto localDimmingTest(
         20,
         true,       //  adaptive adjustment histogram weight
         true,
-        1,
-        1,
+        output_scale_x,
+        output_scale_y,
         histogram_weight,
         std::cout
     );
