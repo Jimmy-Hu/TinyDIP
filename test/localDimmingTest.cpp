@@ -145,7 +145,7 @@ static auto get_real_size_PWM_image(
             }
             return histogram_output;
         }, split_overlap_output);
-    if (true)
+    if (false)
     {
         //  Print Value for Debugging
         os << "split_overlap_max[0][0] = " << +split_overlap_max[0][0] << '\n';
@@ -180,14 +180,33 @@ static auto get_real_size_PWM_image(
                 );
             }
             
+            int final_adptive_weight = clamp12bit(clamp12bit((
+                    (sum_of_histogram * 1103 + std::pow(2, 11)) >> 12
+                )) + std::invoke(
+                [](const int maximum, const int average, const bool light_spot_protect_en = false)
+                {
+                    if (!light_spot_protect_en)
+                        return 0;
+                    return std::max((maximum >> 1) - ((average >> 1) + 0), 0);
+                },
+                local_maximum, local_estimated_average
+            ));
+            
             std::map<std::string, int> local_dimming_modes;
             local_dimming_modes.insert(std::make_pair("local_maximum", local_maximum));
             local_dimming_modes.insert(std::make_pair("estimated_average", local_estimated_average));
+            local_dimming_modes.insert(std::make_pair("adaptive_blending", 
+                clamp12bit(
+                    ((std::min(local_estimated_average + estimated_average_offset, local_maximum)
+                    * (std::pow(2, 12) - final_adptive_weight) + local_maximum * final_adptive_weight + std::pow(2, 11)) >> 12)
+                )
+            ));
+            
             TinyDIP::Image<TinyDIP::RGB> output_subimage(std::size_t{ 1 }, std::size_t{ 1 });
             auto pixel_value = static_cast<std::uint8_t>((
                 (!local_dimming_en)?
                 (static_cast<int>(std::pow(2.0, 12.0)) - 1):
-                local_dimming_modes["estimated_average"]
+                local_dimming_modes["adaptive_blending"]
             ) >> 4); //  Make pixel_value 8 bits
             TinyDIP::RGB output_pixel{ pixel_value, pixel_value, pixel_value };
             output_subimage.at_without_boundary_check(0, 0) = output_pixel;
