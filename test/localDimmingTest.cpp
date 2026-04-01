@@ -207,7 +207,7 @@ static auto get_real_size_PWM_image(
             auto pixel_value = static_cast<std::uint8_t>((
                 (!local_dimming_en)?
                 (static_cast<int>(std::pow(2.0, 12.0)) - 1):
-                local_dimming_modes["adaptive_blending"]
+                local_dimming_modes[std::string(local_dimming_mode)]
             ) >> 4); //  Make pixel_value 8 bits
             TinyDIP::RGB output_pixel{ pixel_value, pixel_value, pixel_value };
             output_subimage.at_without_boundary_check(0, 0) = output_pixel;
