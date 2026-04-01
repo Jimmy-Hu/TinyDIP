@@ -233,9 +233,23 @@ int main(int argc, char* argv[])
         std::filesystem::path path_without_extension = output_path.parent_path() / output_path.stem();
         localDimmingTest(std::execution::par_unseq, input_path, path_without_extension.string());
     }
+    else if  (argc == 5)
+    {
+        std::filesystem::path input_path = std::string(argv[1]);
+        std::filesystem::path output_path = std::string(argv[2]);
+        if (!std::filesystem::exists(input_path))
+        {
+            std::cerr << "File not found: " << input_path << '\n';
+            return EXIT_SUCCESS;
+        }
+        auto output_scale_x = std::atoi(argv[3]);
+        auto output_scale_y = std::atoi(argv[4]);
+        std::filesystem::path path_without_extension = output_path.parent_path() / output_path.stem();
+        localDimmingTest(std::execution::par_unseq, input_path, path_without_extension.string(), output_scale_x, output_scale_y);
+    }
     else
     {
-        std::cout << "Usage: " << argv[0] << " <input_image_path> [output_image_path]\n";
+        std::cout << "Usage: " << argv[0] << " <input_image_path> [output_image_path] [output_scale_x] [output_scale_y]\n";
     }
     return EXIT_SUCCESS;
 }
