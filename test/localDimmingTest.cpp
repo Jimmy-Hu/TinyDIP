@@ -197,8 +197,8 @@ static auto get_real_size_PWM_image(
             local_dimming_modes.insert(std::make_pair("estimated_average", local_estimated_average));
             local_dimming_modes.insert(std::make_pair("adaptive_blending", 
                 clamp12bit(
-                    ((std::min(local_estimated_average + estimated_average_offset, local_maximum)
-                    * (std::pow(2, 12) - final_adptive_weight) + local_maximum * final_adptive_weight + std::pow(2, 11)) >> 12)
+                    (static_cast<int>((std::min(local_estimated_average + estimated_average_offset, local_maximum)
+                    * (std::pow(2, 12) - final_adptive_weight) + local_maximum * final_adptive_weight + std::pow(2, 11))) >> 12)
                 )
             ));
             
