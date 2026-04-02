@@ -3055,7 +3055,7 @@ namespace TinyDIP
 
     //  idct2 template function implementation
     template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
-    constexpr static Image<ElementT> idct2(Image<ElementT> input)
+    constexpr static auto idct2(Image<ElementT> input)
     {
         std::vector v{ input.template cast<double>() };
         return idct3_one_plane(v, 0);
