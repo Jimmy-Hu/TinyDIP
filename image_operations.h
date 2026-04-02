@@ -2483,7 +2483,7 @@ namespace TinyDIP
 
     //  lanczos_resample template function implementation with execution policy
     template<class ExecutionPolicy, typename ElementT>
-    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and
             ((std::same_as<ElementT, RGB>) ||
              (std::same_as<ElementT, RGB_DOUBLE>) ||
              (std::same_as<ElementT, HSV>) ||
