@@ -673,6 +673,43 @@ struct ReadHandler
     }
 };
 
+//  RemoveHandler struct implementation
+struct RemoveHandler
+{
+    std::shared_ptr<Workspace> workspace_;
+
+    template <std::ranges::random_access_range ArgsT>
+    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
+    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout) const
+    {
+        if (std::ranges::empty(args))
+        {
+            os << "Usage: remove <$var1> [$var2] ...\n";
+            return;
+        }
+
+        for (const auto& arg : args)
+        {
+            const std::string_view var_arg = arg;
+            if (!var_arg.starts_with('$'))
+            {
+                os << "Error: Argument must be a memory variable starting with '$'. Skipped " << var_arg << ".\n";
+                continue;
+            }
+
+            const std::string_view var_name = var_arg.substr(1);
+            if (workspace_->remove(var_name))
+            {
+                os << "Removed memory variable $" << var_name << ".\n";
+            }
+            else
+            {
+                os << "Warning: Memory variable $" << var_name << " not found.\n";
+            }
+        }
+    }
+};
+
 //  WriteHandler struct implementation
 struct WriteHandler
 {
