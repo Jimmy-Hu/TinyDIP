@@ -36,7 +36,7 @@ if(ENABLE_CUDA)
     message(STATUS "CUDA is enabled. Configuring CUDA support...")
 
     # === ADDED: Explicitly set the CUDA compiler (nvcc) path ===
-    set(CMAKE_CUDA_COMPILER "/usr/local/cuda-13.1/bin/nvcc")
+    set(CMAKE_CUDA_COMPILER "/usr/local/cuda-13.2/bin/nvcc")
     message(STATUS "Setting CUDA compiler (nvcc) to ${CMAKE_CUDA_COMPILER}")
     # === END ADDED SECTION ===
 
