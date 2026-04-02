@@ -368,7 +368,7 @@ struct Workspace
             }
             else
             {
-                os << " (Unsupported serialization type)";
+                os << " (Unsupported serialization type), type is " << value.type().name();
             }
             os << '\n';
         }
