@@ -2499,7 +2499,7 @@ namespace TinyDIP
         {
             return lanczos_resample(
                 std::forward<ExecutionPolicy>(policy),
-                each_plane,
+                each_plane.template cast<double>(),
                 new_width,
                 new_height,
                 a);
