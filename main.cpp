@@ -1158,6 +1158,136 @@ struct InfoHandler
     }
 };
 
+//  LanczosResampleHandler struct implementation
+struct LanczosResampleHandler
+{
+    std::shared_ptr<Workspace> workspace_;
+
+    template <
+        std::ranges::random_access_range ArgsT,
+        typename ImageLoaderFun = ImageLoader,
+        typename ImageSaverFun = ImageSaver
+    >
+    requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
+              std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&> &&
+              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&> &&
+              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<double>&&>)
+    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
+    {
+        std::string_view policy_str = "";
+        std::vector<std::string_view> filtered_args;
+        filtered_args.reserve(std::ranges::size(args));
+
+        for (const auto& arg : args)
+        {
+            const std::string_view sv_arg = arg;
+            if (sv_arg == "seq" || sv_arg == "par" || sv_arg == "par_unseq" || sv_arg == "unseq")
+            {
+                policy_str = sv_arg;
+            }
+            else
+            {
+                filtered_args.emplace_back(sv_arg);
+            }
+        }
+
+        if (std::ranges::size(filtered_args) < 4)
+        {
+            os << "Usage: lanczos_resample [execution_policy] <input_img | $var> <output_img | $var> <width> <height> [a=3]\n";
+            os << "       Execution policies: seq, par, par_unseq, unseq\n";
+            return;
+        }
+
+        const std::string_view input_arg = filtered_args[0];
+        const std::string_view output_arg = filtered_args[1];
+        const std::size_t width = parse_arg<std::size_t>(filtered_args[2]);
+        const std::size_t height = parse_arg<std::size_t>(filtered_args[3]);
+        std::size_t a = 3;
+        
+        if (std::ranges::size(filtered_args) >= 5)
+        {
+            a = parse_arg<std::size_t>(filtered_args[4]);
+        }
+
+        if (!std::ranges::empty(policy_str))
+        {
+            os << "Resizing " << input_arg << " to " << width << "x" << height << " with Lanczos radius " << a << " (Policy: " << policy_str << ")...\n";
+        }
+        else
+        {
+            os << "Resizing " << input_arg << " to " << width << "x" << height << " with Lanczos radius " << a << "...\n";
+        }
+
+        // Polymorphic lambda to cleanly execute the algorithm dynamically independent of image type
+        auto process_resample = [&]<typename ImageType>(ImageType&& input_img)
+        {
+            auto execute_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
+                requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+            {
+                if constexpr (requires { TinyDIP::lanczos_resample(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(input_img), width, height, static_cast<int>(a)); })
+                {
+                    auto output_img = TinyDIP::lanczos_resample(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(input_img), width, height, static_cast<int>(a));
+                    image_saver_fun(output_arg, workspace_, std::move(output_img));
+                }
+                else
+                {
+                    os << "Warning: Execution policy requested but not supported for this image type. Falling back to default.\n";
+                    auto output_img = TinyDIP::lanczos_resample(std::forward<ImageType>(input_img), width, height, static_cast<int>(a));
+                    image_saver_fun(output_arg, workspace_, std::move(output_img));
+                }
+            };
+
+            const std::map<std::string_view, std::function<void()>> execute_policy_map = {
+                {"par",       [&]() { execute_policy(std::execution::par); }},
+                {"par_unseq", [&]() { execute_policy(std::execution::par_unseq); }},
+                {"unseq",     [&]() { execute_policy(std::execution::unseq); }},
+                {"seq",       [&]() { execute_policy(std::execution::seq); }}
+            };
+
+            if (auto it = execute_policy_map.find(policy_str); it != std::ranges::end(execute_policy_map))
+            {
+                it->second();
+            }
+            else
+            {
+                auto output_img = TinyDIP::lanczos_resample(std::forward<ImageType>(input_img), width, height, static_cast<int>(a));
+                image_saver_fun(output_arg, workspace_, std::move(output_img));
+            }
+            os << "Saved to " << output_arg << "\n";
+        };
+
+        if (input_arg.starts_with('$'))
+        {
+            const std::string_view var_name = input_arg.substr(1);
+            if (workspace_->retrieve<TinyDIP::Image<TinyDIP::RGB>>(var_name))
+            {
+                process_resample(image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_));
+            }
+            else if (workspace_->retrieve<TinyDIP::Image<double>>(var_name))
+            {
+                process_resample(image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_));
+            }
+            else
+            {
+                os << "Error: Memory variable not found or unsupported type.\n";
+                return;
+            }
+        }
+        else
+        {
+            const std::filesystem::path input_path = std::string(input_arg);
+            if (input_path.extension() == ".dbmp")
+            {
+                process_resample(image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_));
+            }
+            else
+            {
+                process_resample(image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_));
+            }
+        }
+    }
+};
+
 //  PrintHandler struct implementation
 struct PrintHandler
 {
