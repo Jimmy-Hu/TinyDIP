@@ -84,7 +84,7 @@ if(ENABLE_CUDA)
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -O3")
 
     # Add other common nvcc flags. --use_fast_math is good with -O3. For coroutines, -fcoroutines is needed.
-    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --use_fast_math -fcoroutines")
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --use_fast_math -fcoroutines -fstack-usage")
 
     # -G is for device-side debug info.
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -130,7 +130,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # using GCC
   # Note: -std=c++2b is C++23. Already handled by CMAKE_CXX_STANDARD.
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -fopenmp -O3 -fdiagnostics-show-template-tree -fstats")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -fopenmp -O3 -fdiagnostics-show-template-tree -fstats -fstack-usage")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
   # using Intel C++
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
