@@ -2481,6 +2481,31 @@ namespace TinyDIP
         return output_image;
     }
 
+    //  lanczos_resample template function implementation with execution policy
+    template<class ExecutionPolicy, typename ElementT>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
+            ((std::same_as<ElementT, RGB>) ||
+             (std::same_as<ElementT, RGB_DOUBLE>) ||
+             (std::same_as<ElementT, HSV>) ||
+             is_MultiChannel<ElementT>::value))
+    constexpr static auto lanczos_resample(
+        ExecutionPolicy&& policy,
+        const Image<ElementT>& input_image,
+        const std::size_t new_width,
+        const std::size_t new_height,
+        const int a = 3)
+    {
+        return apply_each(input_image, [&](auto&& each_plane)
+        {
+            return lanczos_resample(
+                std::forward<ExecutionPolicy>(policy),
+                each_plane,
+                new_width,
+                new_height,
+                a);
+        });
+    }
+
     //  lanczos_resample template function implementation
     template<typename ElementT>
     requires((std::same_as<ElementT, RGB>) ||
