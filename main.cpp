@@ -374,7 +374,40 @@ struct Workspace
             }
             else
             {
-                os << " (Unsupported serialization type), type is " << value.type().name();
+                bool is_numeric = false;
+
+                // Polymorphic lambda to evaluate and safely cast numerical types
+                auto try_print_numeric = [&]<typename T>()
+                {
+                    if (value.type() == typeid(T))
+                    {
+                        if constexpr (sizeof(T) == 1) // Safely print 8-bit integer types as numbers, not unprintable chars
+                        {
+                            os << ", scalar value = " << +std::any_cast<T>(value);
+                        }
+                        else
+                        {
+                            os << ", scalar value = " << std::any_cast<T>(value);
+                        }
+                        is_numeric = true;
+                    }
+                };
+
+                // C++20 Immediately Invoked Template Lambda (IITL) with fold expression over common arithmetic types
+                [&]<typename... Ts>(std::type_identity<std::tuple<Ts...>>)
+                {
+                    // Short-circuiting evaluation: stops invoking try_print_numeric once is_numeric becomes true
+                    (..., (is_numeric ? void() : try_print_numeric.template operator()<Ts>()));
+                }(std::type_identity<std::tuple<
+                    bool, char, signed char, unsigned char,
+                    short, unsigned short, int, unsigned int,
+                    long, unsigned long, long long, unsigned long long,
+                    float, double, long double, std::size_t>>{});
+
+                if (!is_numeric)
+                {
+                    os << " (Unsupported serialization type), type is " << value.type().name();
+                }
             }
             os << '\n';
         }
