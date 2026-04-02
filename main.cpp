@@ -1742,6 +1742,7 @@ int main(int argc, char* argv[])
         CommandBundle{"dct2", "Calculate Discrete Cosine Transformation for an image.", TransformerSchema, Dct2Handler{workspace}},
         CommandBundle{"idct2", "Calculate Inverse Discrete Cosine Transformation for an image.", TransformerSchema, Idct2Handler{workspace}},
         CommandBundle{"info", "Display basic information about an image.", TerminatorSchema, InfoHandler{workspace}},
+        CommandBundle{"lanczos_resample", "Resize an image using Lanczos resampling.", TransformerSchema, LanczosResampleHandler{workspace}},
         CommandBundle{"load_workspace", "Load memory variables from a directory bundle.", IndependentSchema, LoadWorkspaceHandler{workspace}},
         CommandBundle{"print", "Print the contents of a memory variable.", TerminatorSchema, PrintHandler{workspace}},
         CommandBundle{"rand", "Generate random multi-dimensional image with specified URBG.", GeneratorSchema, RandHandler{workspace}},
