@@ -693,7 +693,14 @@ struct RemoveHandler
     {
         if (std::ranges::empty(args))
         {
-            os << "Usage: remove <$var1> [$var2] ...\n";
+            os << "Usage: remove <$var1> [$var2] ... OR remove all\n";
+            return;
+        }
+
+        if (std::ranges::size(args) == 1 && std::string_view(args[0]) == "all")
+        {
+            workspace_->clear();
+            os << "Removed all memory variables. Workspace is now empty.\n";
             return;
         }
 
@@ -702,7 +709,7 @@ struct RemoveHandler
             const std::string_view var_arg = arg;
             if (!var_arg.starts_with('$'))
             {
-                os << "Error: Argument must be a memory variable starting with '$'. Skipped " << var_arg << ".\n";
+                os << "Error: Argument must be a memory variable starting with '$' or 'all'. Skipped " << var_arg << ".\n";
                 continue;
             }
 
