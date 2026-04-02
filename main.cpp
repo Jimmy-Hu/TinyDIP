@@ -632,28 +632,37 @@ struct ReadHandler
 
     template <
         std::ranges::random_access_range ArgsT, 
-        typename ImageLoaderFun = ImageLoader,
-        typename ImageSaverFun = ImageSaver
+        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&> ImageLoaderFun = ImageLoader,
+        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&> ImageSaverFun = ImageSaver
     >
-    requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
-              std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&> &&
-              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&> &&
-              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<double>&&>)
+    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
     constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
     {
-        if (std::ranges::size(args) < 2)
+        if (std::ranges::empty(args))
         {
-            os << "Usage: read <input_file> <$var>\n";
+            os << "Usage: read <input_file> [$var]\n";
             return;
         }
 
         const std::string_view input_arg = args[0];
-        const std::string_view output_arg = args[1];
+        std::string output_arg_str;
+        std::string_view output_arg;
 
-        if (!output_arg.starts_with('$'))
+        if (std::ranges::size(args) > 1)
         {
-            os << "Error: Output must be a memory variable starting with '$'.\n";
-            return;
+            output_arg = args[1];
+            if (!output_arg.starts_with('$'))
+            {
+                os << "Error: Output must be a memory variable starting with '$'.\n";
+                return;
+            }
+        }
+        else
+        {
+            // Dynamically assign variable name from origin file name stem
+            const std::filesystem::path input_path = std::string(input_arg);
+            output_arg_str = "$" + input_path.stem().string();
+            output_arg = output_arg_str;
         }
 
         os << "Reading " << input_arg << " into memory as " << output_arg << "...\n";
