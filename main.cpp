@@ -304,6 +304,18 @@ struct Workspace
         return nullptr;
     }
 
+    //  remove function implementation
+    bool remove(const std::string_view name)
+    {
+        const std::string key = std::string(name);
+        if (auto it = memory_store.find(key); it != std::ranges::end(memory_store))
+        {
+            memory_store.erase(it);
+            return true;
+        }
+        return false;
+    }
+
     //  list_variables function implementation
     void list_variables(std::ostream& os) const
     {
