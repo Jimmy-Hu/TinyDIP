@@ -3053,13 +3053,12 @@ namespace TinyDIP
         return apply_each(input, [&](auto&& each_plane) { return dct2(each_plane); });
     }
 
+    //  idct2 template function implementation
     template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
     constexpr static Image<ElementT> idct2(Image<ElementT> input)
     {
-        Image<ElementT> output;
-        std::vector v{ input };
-        output = idct3_one_plane(v, 0);
-        return output;
+        std::vector v{ input.template cast<double>() };
+        return idct3_one_plane(v, 0);
     }
 
     //  idct2 template function implementation
