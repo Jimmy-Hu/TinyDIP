@@ -294,7 +294,7 @@ struct Workspace
     template <typename T>
     const T* retrieve(const std::string_view name) const
     {
-        if (auto it = memory_store.find(std::string(name)); it != memory_store.end())
+        if (auto it = memory_store.find(std::string(name)); it != std::ranges::end(memory_store))
         {
             if (it->second.type() == typeid(T))
             {
@@ -314,6 +314,12 @@ struct Workspace
             return true;
         }
         return false;
+    }
+
+    //  Clear all elements in the workspace memory store
+    void clear()
+    {
+        memory_store.clear();
     }
 
     //  list_variables function implementation
