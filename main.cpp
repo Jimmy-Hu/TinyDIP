@@ -1519,23 +1519,20 @@ void run_legacy_tests(const ArgsT& args, std::ostream& os = std::cout)
     auto block_count_x = bmp1.getWidth() / N1;
     auto block_count_y = bmp1.getHeight() / N2;
 
-    bmp1 = TinyDIP::concat(TinyDIP::recursive_transform<2>(
+    auto hsv_image = TinyDIP::rgb2hsv(TinyDIP::im2double(element));
+    auto h_plane = TinyDIP::getHplane(hsv_image);
+    auto s_plane = TinyDIP::getSplane(hsv_image);
+    auto v_plane = TinyDIP::getVplane(hsv_image);
+    v_plane = TinyDIP::concat(TinyDIP::recursive_transform<2>(
         //std::execution::par,
         [](auto&& element)
         {
-            auto hsv_block = TinyDIP::rgb2hsv(TinyDIP::im2double(element));
-            auto v_block = TinyDIP::getVplane(hsv_block);
-            auto v_block_dct = TinyDIP::dct2(v_block);
-            return TinyDIP::hsv2rgb(TinyDIP::constructHSV(
-                TinyDIP::getHplane(hsv_block),
-                TinyDIP::getSplane(hsv_block),
-                TinyDIP::idct2(v_block_dct)
-            ));
+            auto v_block_dct = TinyDIP::dct2(element);
+            return TinyDIP::idct2(v_block_dct);
         },
-        TinyDIP::split(bmp1, block_count_x, block_count_y)));
+        TinyDIP::split(v_plane, block_count_x, block_count_y)));
     bmp1 = copyResizeBicubic(bmp1, bmp1.getWidth() * 2, bmp1.getHeight() * 2);
     //bmp1 = gaussian_fisheye(bmp1, 800.0);
-    auto v_plane = TinyDIP::getVplane(TinyDIP::rgb2hsv(bmp1));
     auto SIFT_keypoints = TinyDIP::SIFT_impl::get_potential_keypoint(std::execution::par, v_plane);
     os << "SIFT_keypoints = " << SIFT_keypoints.size() << "\n";
     bmp1 = TinyDIP::draw_points(bmp1, SIFT_keypoints);
