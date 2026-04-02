@@ -304,9 +304,10 @@ struct Workspace
         return nullptr;
     }
 
+    //  list_variables function implementation
     void list_variables(std::ostream& os) const
     {
-        if (memory_store.empty())
+        if (std::ranges::empty(memory_store))
         {
             os << "  (Workspace is empty)\n";
             return;
@@ -315,7 +316,49 @@ struct Workspace
         {
             // Note: value.type().name() will print the mangled compiler name, 
             // but is helpful enough for debugging type information dynamically.
-            os << "  $" << std::left << std::setw(15) << name << " : [Type Hash: " << value.type().hash_code() << "]\n";
+            os << "  $" << std::left << std::setw(15) << name << " : [Type Hash: " << value.type().hash_code() << "]";
+            
+            if (value.type() == typeid(TinyDIP::Image<TinyDIP::RGB>))
+            {
+                os << ", size = ";
+                const auto* image_ptr = std::any_cast<TinyDIP::Image<TinyDIP::RGB>>(&value);
+                const auto& image_size = image_ptr->getSize();
+                
+                auto it = std::ranges::begin(image_size);
+                const auto end = std::ranges::end(image_size);
+                if (it != end)
+                {
+                    os << +(*it);
+                    ++it;
+                    for (; it != end; ++it)
+                    {
+                        os << " x " << +(*it);
+                    }
+                }
+            }
+            else if (value.type() == typeid(TinyDIP::Image<double>))
+            {
+                os << ", size = ";
+                const auto* image_ptr = std::any_cast<TinyDIP::Image<double>>(&value);
+                const auto& image_size = image_ptr->getSize();
+                
+                auto it = std::ranges::begin(image_size);
+                const auto end = std::ranges::end(image_size);
+                if (it != end)
+                {
+                    os << +(*it);
+                    ++it;
+                    for (; it != end; ++it)
+                    {
+                        os << " x " << +(*it);
+                    }
+                }
+            }
+            else
+            {
+                os << " (Unsupported serialization type)";
+            }
+            os << '\n';
         }
     }
 };
