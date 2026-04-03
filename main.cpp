@@ -330,6 +330,24 @@ struct Workspace
             os << "  (Workspace is empty)\n";
             return;
         }
+
+        //  print_size lambda implementation
+        //  Helper lambda to print size information for image types
+        auto print_size = [&os](const std::ranges::random_access_range auto& size_range)
+        {
+            auto it = std::ranges::begin(size_range);
+            const auto end = std::ranges::end(size_range);
+            if (it != end)
+            {
+                os << +(*it);
+                ++it;
+                for (; it != end; ++it)
+                {
+                    os << " x " << +(*it);
+                }
+            }
+        };
+
         for (const auto& [name, value] : memory_store)
         {
             // Note: value.type().name() will print the mangled compiler name, 
