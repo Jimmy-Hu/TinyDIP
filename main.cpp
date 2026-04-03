@@ -358,37 +358,13 @@ struct Workspace
             {
                 os << ", size = ";
                 const auto* image_ptr = std::any_cast<TinyDIP::Image<TinyDIP::RGB>>(&value);
-                const auto& image_size = image_ptr->getSize();
-                
-                auto it = std::ranges::begin(image_size);
-                const auto end = std::ranges::end(image_size);
-                if (it != end)
-                {
-                    os << +(*it);
-                    ++it;
-                    for (; it != end; ++it)
-                    {
-                        os << " x " << +(*it);
-                    }
-                }
+                print_size(image_ptr->getSize());
             }
             else if (value.type() == typeid(TinyDIP::Image<double>))
             {
                 os << ", size = ";
                 const auto* image_ptr = std::any_cast<TinyDIP::Image<double>>(&value);
-                const auto& image_size = image_ptr->getSize();
-                
-                auto it = std::ranges::begin(image_size);
-                const auto end = std::ranges::end(image_size);
-                if (it != end)
-                {
-                    os << +(*it);
-                    ++it;
-                    for (; it != end; ++it)
-                    {
-                        os << " x " << +(*it);
-                    }
-                }
+                print_size(image_ptr->getSize());
             }
             else
             {
