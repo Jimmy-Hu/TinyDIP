@@ -891,6 +891,106 @@ constexpr auto make_meta_transform_handler(std::string_view usage, std::shared_p
     };
 }
 
+//  MetaScalarHandler template struct implementation
+//  Generic Meta Handler strictly refactoring scalar reduction commands like max, min, and sum
+template <std::size_t MinArgs, typename SetupFun>
+struct MetaScalarHandler
+{
+    std::string_view usage_string_;
+    std::string_view op_name_;
+    std::string_view capitalized_op_name_;
+    std::shared_ptr<Workspace> workspace_;
+    SetupFun setup_fun_;
+
+    template <
+        std::ranges::random_access_range ArgsT,
+        typename ImageLoaderFun = MetaImageIO::Loader
+    >
+    requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
+              std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&>)
+    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}) const
+    {
+        std::string_view policy_str = "";
+        std::vector<std::string_view> filtered_args;
+        filtered_args.reserve(std::ranges::size(args));
+
+        for (const auto& arg : args)
+        {
+            const std::string_view sv_arg = arg;
+            if (sv_arg == "seq" || sv_arg == "par" || sv_arg == "par_unseq" || sv_arg == "unseq")
+            {
+                policy_str = sv_arg;
+            }
+            else
+            {
+                filtered_args.emplace_back(sv_arg);
+            }
+        }
+
+        if (std::ranges::size(filtered_args) < MinArgs)
+        {
+            os << "Usage: " << usage_string_ << "\n";
+            os << "       Optional Execution policies: seq, par, par_unseq, unseq\n";
+            return;
+        }
+
+        const std::string_view input_arg = filtered_args[0];
+        std::string_view output_arg = "";
+        
+        if (std::ranges::size(filtered_args) > 1)
+        {
+            output_arg = filtered_args[1];
+        }
+
+        auto core_processor = setup_fun_(filtered_args, policy_str, os);
+
+        // Polymorphic lambda to cleanly execute the algorithm dynamically independent of image type
+        auto process_scalar = [&]<typename ImageType>(ImageType&& input_img)
+        {
+            auto handle_result = [&](auto&& scalar_result)
+            {
+                if (!std::ranges::empty(output_arg))
+                {
+                    if (output_arg.starts_with('$'))
+                    {
+                        workspace_->store(output_arg.substr(1), scalar_result);
+                        os << "Saved " << op_name_ << " result to " << output_arg << "\n";
+                    }
+                    else
+                    {
+                        os << "Error: Output must be a memory variable starting with '$'.\n";
+                    }
+                }
+                else
+                {
+                    if constexpr (requires { os << scalar_result; })
+                    {
+                        if constexpr (sizeof(decltype(scalar_result)) == 1 && std::is_integral_v<std::decay_t<decltype(scalar_result)>>)
+                        {
+                            os << capitalized_op_name_ << " result: " << +scalar_result << "\n";
+                        }
+                        else
+                        {
+                            os << capitalized_op_name_ << " result: " << scalar_result << "\n";
+                        }
+                    }
+                    else
+                    {
+                        os << capitalized_op_name_ << " result evaluated successfully (Non-printable complex type).\n";
+                    }
+                }
+            };
+
+            handle_result(core_processor(std::forward<ImageType>(input_img)));
+        };
+
+        if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_scalar))
+        {
+            os << "Error: Memory variable not found or unsupported type.\n";
+        }
+    }
+};
+
 //  ReadHandler struct implementation
 struct ReadHandler
 {
