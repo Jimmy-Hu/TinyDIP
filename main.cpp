@@ -1850,18 +1850,392 @@ int main(int argc, char* argv[])
 
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"bicubic_resize", "Resize an image using Bicubic interpolation.", TransformerSchema, BicubicResizeHandler{workspace}},
-        CommandBundle{"dct2", "Calculate Discrete Cosine Transformation for an image.", TransformerSchema, Dct2Handler{workspace}},
-        CommandBundle{"idct2", "Calculate Inverse Discrete Cosine Transformation for an image.", TransformerSchema, Idct2Handler{workspace}},
+        CommandBundle{"bicubic_resize", "Resize an image using Bicubic interpolation.", TransformerSchema, 
+            make_meta_transform_handler<4>(
+                "bicubic_resize [execution_policy] <input_img | $var> <output_img | $var> <width> <height>", 
+                workspace,
+                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+                {
+                    const std::size_t width = parse_arg<std::size_t>(filtered_args[2]);
+                    const std::size_t height = parse_arg<std::size_t>(filtered_args[3]);
+                    
+                    if (!std::ranges::empty(policy_str))
+                    {
+                        os << "Resizing " << filtered_args[0] << " to " << width << "x" << height << " (Policy: " << policy_str << ")...\n";
+                    }
+                    else
+                    {
+                        os << "Resizing " << filtered_args[0] << " to " << width << "x" << height << "...\n";
+                    }
+
+                    return [width, height, policy_str, &os]<typename ImageType>(ImageType&& img)
+                    {
+                        auto exec_default = [&]()
+                        {
+                            return TinyDIP::copyResizeBicubic(std::forward<ImageType>(img), width, height);
+                        };
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            if constexpr (requires { TinyDIP::copyResizeBicubic(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), width, height); })
+                            {
+                                return TinyDIP::copyResizeBicubic(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), width, height);
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                }
+                                return exec_default();
+                            }
+                        };
+
+                        if (policy_str == "par") return exec_policy(std::execution::par);
+                        else if (policy_str == "par_unseq") return exec_policy(std::execution::par_unseq);
+                        else if (policy_str == "unseq") return exec_policy(std::execution::unseq);
+                        else if (policy_str == "seq") return exec_policy(std::execution::seq);
+                        else return exec_default();
+                    };
+                }
+            )
+        },
+        CommandBundle{"dct2", "Calculate Discrete Cosine Transformation for an image.", TransformerSchema, 
+            make_meta_transform_handler<2>(
+                "dct2 [execution_policy] <input_img | $var> <output_img | $var>", 
+                workspace,
+                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+                {
+                    if (!std::ranges::empty(policy_str))
+                    {
+                        os << "Calculating DCT-2 for " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                    }
+                    else
+                    {
+                        os << "Calculating DCT-2 for " << filtered_args[0] << "...\n";
+                    }
+
+                    return [policy_str, &os]<typename ImageType>(ImageType&& img)
+                    {
+                        auto exec_default = [&]()
+                        {
+                            return TinyDIP::dct2(std::forward<ImageType>(img));
+                        };
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            if constexpr (requires { TinyDIP::dct2(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img)); })
+                            {
+                                return TinyDIP::dct2(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img));
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                }
+                                return exec_default();
+                            }
+                        };
+
+                        if (policy_str == "par") return exec_policy(std::execution::par);
+                        else if (policy_str == "par_unseq") return exec_policy(std::execution::par_unseq);
+                        else if (policy_str == "unseq") return exec_policy(std::execution::unseq);
+                        else if (policy_str == "seq") return exec_policy(std::execution::seq);
+                        else return exec_default();
+                    };
+                }
+            )
+        },
+        CommandBundle{"idct2", "Calculate Inverse Discrete Cosine Transformation for an image.", TransformerSchema, 
+            make_meta_transform_handler<2>(
+                "idct2 [execution_policy] <input_img | $var> <output_img | $var>", 
+                workspace,
+                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+                {
+                    if (!std::ranges::empty(policy_str))
+                    {
+                        os << "Calculating Inverse DCT-2 for " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                    }
+                    else
+                    {
+                        os << "Calculating Inverse DCT-2 for " << filtered_args[0] << "...\n";
+                    }
+
+                    return [policy_str, &os]<typename ImageType>(ImageType&& img)
+                    {
+                        auto exec_default = [&]()
+                        {
+                            return TinyDIP::idct2(std::forward<ImageType>(img));
+                        };
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            if constexpr (requires { TinyDIP::idct2(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img)); })
+                            {
+                                return TinyDIP::idct2(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img));
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                }
+                                return exec_default();
+                            }
+                        };
+
+                        if (policy_str == "par") return exec_policy(std::execution::par);
+                        else if (policy_str == "par_unseq") return exec_policy(std::execution::par_unseq);
+                        else if (policy_str == "unseq") return exec_policy(std::execution::unseq);
+                        else if (policy_str == "seq") return exec_policy(std::execution::seq);
+                        else return exec_default();
+                    };
+                }
+            )
+        },
         CommandBundle{"info", "Display basic information about an image.", TerminatorSchema, InfoHandler{workspace}},
-        CommandBundle{"lanczos_resample", "Resize an image using Lanczos resampling.", TransformerSchema, LanczosResampleHandler{workspace}},
+        CommandBundle{"lanczos_resample", "Resize an image using Lanczos resampling.", TransformerSchema, 
+            make_meta_transform_handler<4>(
+                "lanczos_resample [execution_policy] <input_img | $var> <output_img | $var> <width> <height> [a=3]", 
+                workspace,
+                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+                {
+                    const std::size_t width = parse_arg<std::size_t>(filtered_args[2]);
+                    const std::size_t height = parse_arg<std::size_t>(filtered_args[3]);
+                    std::size_t a = 3;
+                    
+                    if (std::ranges::size(filtered_args) >= 5)
+                    {
+                        a = parse_arg<std::size_t>(filtered_args[4]);
+                    }
+
+                    if (!std::ranges::empty(policy_str))
+                    {
+                        os << "Resizing " << filtered_args[0] << " to " << width << "x" << height << " with Lanczos radius " << a << " (Policy: " << policy_str << ")...\n";
+                    }
+                    else
+                    {
+                        os << "Resizing " << filtered_args[0] << " to " << width << "x" << height << " with Lanczos radius " << a << "...\n";
+                    }
+
+                    return [width, height, a, policy_str, &os]<typename ImageType>(ImageType&& img)
+                    {
+                        auto exec_default = [&]()
+                        {
+                            return TinyDIP::lanczos_resample(std::forward<ImageType>(img), width, height, static_cast<int>(a));
+                        };
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            if constexpr (requires { TinyDIP::lanczos_resample(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), width, height, static_cast<int>(a)); })
+                            {
+                                return TinyDIP::lanczos_resample(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), width, height, static_cast<int>(a));
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                }
+                                return exec_default();
+                            }
+                        };
+
+                        if (policy_str == "par") return exec_policy(std::execution::par);
+                        else if (policy_str == "par_unseq") return exec_policy(std::execution::par_unseq);
+                        else if (policy_str == "unseq") return exec_policy(std::execution::unseq);
+                        else if (policy_str == "seq") return exec_policy(std::execution::seq);
+                        else return exec_default();
+                    };
+                }
+            )
+        },
         CommandBundle{"load_workspace", "Load memory variables from a directory bundle.", IndependentSchema, LoadWorkspaceHandler{workspace}},
+        CommandBundle{"max", "Calculate the maximum value of an image.", TransformerSchema, 
+            make_meta_scalar_handler<1>(
+                "max [execution_policy] <input_img | $var> [output_var | $var]", 
+                "max", "Max", 
+                workspace,
+                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+                {
+                    if (!std::ranges::empty(policy_str))
+                    {
+                        os << "Calculating max of " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                    }
+                    else
+                    {
+                        os << "Calculating max of " << filtered_args[0] << "...\n";
+                    }
+
+                    return [policy_str, &os]<typename ImageType>(ImageType&& img)
+                    {
+                        auto exec_default = [&]()
+                        {
+                            return TinyDIP::max(std::forward<ImageType>(img));
+                        };
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            if constexpr (requires { TinyDIP::max(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img)); })
+                            {
+                                return TinyDIP::max(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img));
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                }
+                                return exec_default();
+                            }
+                        };
+
+                        if (policy_str == "par") return exec_policy(std::execution::par);
+                        else if (policy_str == "par_unseq") return exec_policy(std::execution::par_unseq);
+                        else if (policy_str == "unseq") return exec_policy(std::execution::unseq);
+                        else if (policy_str == "seq") return exec_policy(std::execution::seq);
+                        else return exec_default();
+                    };
+                }
+            )
+        },
+        CommandBundle{"min", "Calculate the minimum value of an image.", TransformerSchema, 
+            make_meta_scalar_handler<1>(
+                "min [execution_policy] <input_img | $var> [output_var | $var]", 
+                "min", "Min", 
+                workspace,
+                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+                {
+                    if (!std::ranges::empty(policy_str))
+                    {
+                        os << "Calculating min of " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                    }
+                    else
+                    {
+                        os << "Calculating min of " << filtered_args[0] << "...\n";
+                    }
+
+                    return [policy_str, &os]<typename ImageType>(ImageType&& img)
+                    {
+                        auto exec_default = [&]()
+                        {
+                            return TinyDIP::min(std::forward<ImageType>(img));
+                        };
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            if constexpr (requires { TinyDIP::min(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img)); })
+                            {
+                                return TinyDIP::min(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img));
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                }
+                                return exec_default();
+                            }
+                        };
+
+                        if (policy_str == "par") return exec_policy(std::execution::par);
+                        else if (policy_str == "par_unseq") return exec_policy(std::execution::par_unseq);
+                        else if (policy_str == "unseq") return exec_policy(std::execution::unseq);
+                        else if (policy_str == "seq") return exec_policy(std::execution::seq);
+                        else return exec_default();
+                    };
+                }
+            )
+        },
         CommandBundle{"print", "Print the contents of a memory variable.", TerminatorSchema, PrintHandler{workspace}},
         CommandBundle{"rand", "Generate random multi-dimensional image with specified URBG.", GeneratorSchema, RandHandler{workspace}},
         CommandBundle{"read", "Read an image from disk into a memory variable.", GeneratorSchema, ReadHandler{workspace}},
         CommandBundle{"remove", "Remove memory variables from the workspace (or 'all' to clear).", IndependentSchema, RemoveHandler{workspace}},
         CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IndependentSchema, SaveWorkspaceHandler{workspace}},
-        CommandBundle{"sum", "Calculate the sum of all elements in an image.", TransformerSchema, SumHandler{workspace}},
+        CommandBundle{"sum", "Calculate the sum of all elements in an image.", TransformerSchema, 
+            make_meta_scalar_handler<1>(
+                "sum [execution_policy] <input_img | $var> [output_var | $var]", 
+                "sum", "Sum", 
+                workspace,
+                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+                {
+                    if (!std::ranges::empty(policy_str))
+                    {
+                        os << "Calculating sum of " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                    }
+                    else
+                    {
+                        os << "Calculating sum of " << filtered_args[0] << "...\n";
+                    }
+
+                    return [policy_str, &os]<typename ImageType>(ImageType&& img)
+                    {
+                        // Helper to safely execute sum on the potentially casted image
+                        auto process_sum_impl = [&]<typename T>(T&& actual_img)
+                        {
+                            auto exec_default = [&]()
+                            {
+                                return TinyDIP::sum(std::forward<T>(actual_img));
+                            };
+
+                            auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
+                                requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                            {
+                                if constexpr (requires { TinyDIP::sum(std::forward<ExecPolicy>(exec_policy), std::forward<T>(actual_img)); })
+                                {
+                                    return TinyDIP::sum(std::forward<ExecPolicy>(exec_policy), std::forward<T>(actual_img));
+                                }
+                                else
+                                {
+                                    if (!std::ranges::empty(policy_str))
+                                    {
+                                        os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                    }
+                                    return exec_default();
+                                }
+                            };
+
+                            if (policy_str == "par") return exec_policy(std::execution::par);
+                            else if (policy_str == "par_unseq") return exec_policy(std::execution::par_unseq);
+                            else if (policy_str == "unseq") return exec_policy(std::execution::unseq);
+                            else if (policy_str == "seq") return exec_policy(std::execution::seq);
+                            else return exec_default();
+                        };
+
+                        if constexpr (std::same_as<std::remove_cvref_t<ImageType>, TinyDIP::Image<TinyDIP::RGB>>)
+                        {
+                            // Explicitly cast to RGB_DOUBLE prior to calling process_sum_impl to prevent internal summation overflow
+                            TinyDIP::Image<TinyDIP::RGB_DOUBLE> rgb_double_img(img.getWidth(), img.getHeight());
+                            
+                            for (std::size_t y = 0; y < img.getHeight(); ++y)
+                            {
+                                for (std::size_t x = 0; x < img.getWidth(); ++x)
+                                {
+                                    const auto& p = img.at(x, y);
+                                    rgb_double_img.at(x, y) = TinyDIP::RGB_DOUBLE{
+                                        static_cast<double>(p.channels[0]),
+                                        static_cast<double>(p.channels[1]),
+                                        static_cast<double>(p.channels[2])
+                                    };
+                                }
+                            }
+                            return process_sum_impl(std::move(rgb_double_img));
+                        }
+                        else
+                        {
+                            return process_sum_impl(std::forward<ImageType>(img));
+                        }
+                    };
+                }
+            )
+        },
         CommandBundle{"vars", "List all currently allocated memory variables.", IndependentSchema, VarsHandler{workspace}},
         CommandBundle{"write", "Write a memory variable out to a disk file.", TerminatorSchema, WriteHandler{workspace}}
     );
