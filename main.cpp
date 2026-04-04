@@ -289,13 +289,6 @@ constexpr bool match_any_type(FunT&& func)
     }(std::type_identity<TupleT>{});
 }
 
-//  make_type_action template function implementation
-template <typename TargetT, typename ActionFun>
-constexpr auto make_type_action(ActionFun&& action)
-{
-    return TypeActionPair<TargetT, std::remove_cvref_t<ActionFun>>{std::forward<ActionFun>(action)};
-}
-
 //  execute_type_action template function implementation
 template <typename TargetT, typename TupleT, typename FallbackFun, std::size_t I = 0>
 constexpr decltype(auto) execute_type_action(TupleT&& action_map, FallbackFun&& fallback)
