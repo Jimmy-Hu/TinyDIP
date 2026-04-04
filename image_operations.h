@@ -1676,6 +1676,19 @@ namespace TinyDIP
 
     //  apply_each_single_output template function implementation
     template<class ElementT, class F, class... Args>
+    constexpr static auto apply_each_single_output(const std::size_t channel_count, const Image<ElementT>& input1, F operation, Args&&... args)
+    {
+        std::vector<decltype(std::invoke(operation, getPlane(input1, 0), args...))> output;
+        output.reserve(channel_count);
+        for (std::size_t channel_index = 0; channel_index < channel_count; ++channel_index)
+        {
+            output.emplace_back(std::invoke(operation, getPlane(input1, channel_index), args...));
+        }
+        return output;
+    }
+
+    //  apply_each_single_output template function implementation
+    template<class ElementT, class F, class... Args>
     constexpr static auto apply_each_single_output(const std::size_t channel_count, const Image<ElementT>& input1, const Image<ElementT>& input2, F operation, Args&&... args)
     {
         std::vector<decltype(std::invoke(operation, getPlane(input1, 0), getPlane(input2, 0), args...))> output;
