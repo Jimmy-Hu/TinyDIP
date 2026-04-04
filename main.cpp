@@ -545,26 +545,46 @@ struct ImageLoader
 struct ImageSaver
 {
     template <typename ImageType>
-    constexpr void operator()(const std::string_view arg, const std::shared_ptr<Workspace>& ws, ImageType&& img) const
+    void operator()(const std::string_view arg, const std::shared_ptr<Workspace>& ws, ImageType&& img) const
     {
         if (arg.starts_with('$'))
         {
-            std::string_view var_name = arg.substr(1);
+            const std::string_view var_name = arg.substr(1);
             ws->store(var_name, std::forward<ImageType>(img));
         }
         else
         {
-            std::filesystem::path output_filepath = std::string(arg);
-            std::filesystem::path path_without_extension = output_filepath.parent_path() / output_filepath.stem();
+            const std::filesystem::path output_filepath = std::string(arg);
+            const std::filesystem::path path_without_extension = output_filepath.parent_path() / output_filepath.stem();
             
-            if constexpr (std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<double>>)
+            // Construct a compile-time map linking concrete types directly to their saving lambdas
+            auto action_map = std::make_tuple(
+                make_type_action<TinyDIP::Image<double>>([&]() { TinyDIP::double_image::write(path_without_extension.string().c_str(), std::forward<ImageType>(img)); }),
+                make_type_action<TinyDIP::Image<TinyDIP::RGB>>([&]() { TinyDIP::bmp_write(path_without_extension.string().c_str(), std::forward<ImageType>(img)); })
+            );
+
+            auto fallback_action = [&]()
             {
-                TinyDIP::double_image::write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
-            }
-            else if constexpr (std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<TinyDIP::RGB>>)
-            {
-                TinyDIP::bmp_write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
-            }
+                using unsupported_types = std::tuple<
+                    TinyDIP::Image<TinyDIP::RGB_DOUBLE>,
+                    TinyDIP::Image<TinyDIP::HSV>,
+                    TinyDIP::Image<TinyDIP::MultiChannel<double>>
+                >;
+
+                constexpr auto is_target_type = []<typename T>() { return std::is_same_v<std::decay_t<ImageType>, T>; };
+
+                if constexpr (match_any_type<unsupported_types>(is_target_type))
+                {
+                    throw std::invalid_argument("Direct file writing is not implemented for this complex/high-precision image type.");
+                }
+                else
+                {
+                    throw std::invalid_argument("Direct file writing is not explicitly implemented for this abstract image type.");
+                }
+            };
+
+            // Recursively executes the matching action from the map tuple, entirely generated at compile-time
+            execute_type_action<std::decay_t<ImageType>>(action_map, fallback_action);
         }
     }
 };
