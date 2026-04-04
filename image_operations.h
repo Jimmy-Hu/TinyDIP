@@ -3599,7 +3599,7 @@ namespace TinyDIP
 
     //  min template function implementation
     template<class ElementT = RGB>
-    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
+    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>) || is_MultiChannel<ElementT>::value)
     constexpr static auto min(const Image<ElementT>& input)
     {
         return apply_each_single_output(3, input, [&](auto&& each_plane) { return min(each_plane); });
