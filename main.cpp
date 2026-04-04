@@ -1417,6 +1417,10 @@ struct MaxHandler
             {
                 process_max(image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_));
             }
+            else if (workspace_->retrieve<TinyDIP::Image<TinyDIP::RGB_DOUBLE>>(var_name))
+            {
+                process_max(image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB_DOUBLE>>(input_arg, workspace_));
+            }
             else
             {
                 os << "Error: Memory variable not found or unsupported type.\n";
