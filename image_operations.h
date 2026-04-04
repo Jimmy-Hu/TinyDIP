@@ -3599,6 +3599,14 @@ namespace TinyDIP
         return std::ranges::max(input.getImageData());
     }
 
+    //  max template function implementation
+    template<class ElementT = RGB>
+    requires ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
+    constexpr static auto max(const Image<ElementT>& input)
+    {
+        return apply_each_single_output(input, [&](auto&& each_plane) { return max(each_plane); });
+    }
+
     //  minmax template function implementation
     template<typename ElementT = double>
     constexpr static auto minmax(const Image<ElementT>& input)
