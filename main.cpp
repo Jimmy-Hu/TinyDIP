@@ -363,25 +363,45 @@ struct Workspace
             // Note: value.type().name() will print the mangled compiler name, 
             // but is helpful enough for debugging type information dynamically.
             os << "  $" << std::left << std::setw(15) << name << " : [Type Hash: " << value.type().hash_code() << "]";
-            
-            if (value.type() == typeid(TinyDIP::Image<TinyDIP::RGB>))
+
+            using image_types = std::tuple<
+                TinyDIP::Image<TinyDIP::RGB>, 
+                TinyDIP::Image<double>, 
+                TinyDIP::Image<TinyDIP::RGB_DOUBLE>
+            >;
+
+            // Polymorphic lambda returning true if the image type matched
+            auto try_print_image = [&]<typename T>() -> bool
             {
-                os << ", size = ";
-                const auto* image_ptr = std::any_cast<TinyDIP::Image<TinyDIP::RGB>>(&value);
-                print_size(image_ptr->getSize());
+                if (value.type() == typeid(T))
+                {
+                    os << ", size = ";
+                    const auto* image_ptr = std::any_cast<T>(&value);
+                    print_size(image_ptr->getSize());
+                    return true;
+                }
+                return false;
+            };
+
+            if (match_any_type<image_types>(try_print_image))
+            {
+                // Handled successfully by try_print_image short-circuit logic
             }
-            else if (value.type() == typeid(TinyDIP::Image<double>))
+            else if (value.type() == typeid(TinyDIP::RGB_DOUBLE))
             {
-                os << ", size = ";
-                const auto* image_ptr = std::any_cast<TinyDIP::Image<double>>(&value);
-                print_size(image_ptr->getSize());
+                os << ", scalar value = " << std::any_cast<TinyDIP::RGB_DOUBLE>(value);
             }
             else
             {
-                bool is_numeric = false;
+                using numeric_types = std::tuple<
+                    bool, char, signed char, unsigned char,
+                    short, unsigned short, int, unsigned int,
+                    long, unsigned long, long long, unsigned long long,
+                    float, double, long double, std::size_t
+                >;
 
-                // Polymorphic lambda to evaluate and safely cast numerical types
-                auto try_print_numeric = [&]<typename T>()
+                // Polymorphic lambda returning true if the numeric type matched
+                auto try_print_numeric = [&]<typename T>() -> bool
                 {
                     if (value.type() == typeid(T))
                     {
@@ -393,22 +413,12 @@ struct Workspace
                         {
                             os << ", scalar value = " << std::any_cast<T>(value);
                         }
-                        is_numeric = true;
+                        return true;
                     }
+                    return false;
                 };
 
-                // C++20 Immediately Invoked Template Lambda (IITL) with fold expression over common arithmetic types
-                [&]<typename... Ts>(std::type_identity<std::tuple<Ts...>>)
-                {
-                    // Short-circuiting evaluation: stops invoking try_print_numeric once is_numeric becomes true
-                    (..., (is_numeric ? void() : try_print_numeric.template operator()<Ts>()));
-                }(std::type_identity<std::tuple<
-                    bool, char, signed char, unsigned char,
-                    short, unsigned short, int, unsigned int,
-                    long, unsigned long, long long, unsigned long long,
-                    float, double, long double, std::size_t>>{});
-
-                if (!is_numeric)
+                if (!match_any_type<numeric_types>(try_print_numeric))
                 {
                     os << " (Unsupported serialization type), type is " << value.type().name();
                 }
