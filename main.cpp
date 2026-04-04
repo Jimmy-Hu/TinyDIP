@@ -1357,7 +1357,7 @@ struct PrintHandler
 
     template <
         std::ranges::random_access_range ArgsT,
-        typename ImageLoaderFun = ImageLoader
+        typename ImageLoaderFun = MetaImageIO::Loader
     >
     requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
               std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&>)
@@ -1379,33 +1379,65 @@ struct PrintHandler
             os << "Done.\n";
         };
 
-        if (input_arg.starts_with('$'))
+        if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_print))
         {
+            // If dispatch_image_operation returns false, it must be a $ variable holding a scalar or unsupported type
             const std::string_view var_name = input_arg.substr(1);
-            if (workspace_->retrieve<TinyDIP::Image<TinyDIP::RGB>>(var_name))
+            
+            using complex_scalar_types = std::tuple<
+                TinyDIP::RGB_DOUBLE,
+                TinyDIP::HSV,
+                TinyDIP::MultiChannel<double>
+            >;
+
+            // Polymorphic lambda returning true if the complex custom scalar type matched
+            auto try_print_complex_scalar = [&]<typename T>() -> bool
             {
-                process_print(image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_));
-            }
-            else if (workspace_->retrieve<TinyDIP::Image<double>>(var_name))
+                if (workspace_->retrieve<T>(var_name))
+                {
+                    os << "Printing scalar value for " << input_arg << ":\n";
+                    os << *workspace_->retrieve<T>(var_name) << "\nDone.\n";
+                    return true;
+                }
+                return false;
+            };
+
+            if (match_any_type<complex_scalar_types>(try_print_complex_scalar))
             {
-                process_print(image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_));
+                // Handled successfully by try_print_complex_scalar short-circuit logic
             }
             else
             {
-                os << "Error: Memory variable not found or unsupported type.\n";
-                return;
-            }
-        }
-        else
-        {
-            const std::filesystem::path input_path = std::string(input_arg);
-            if (input_path.extension() == ".dbmp")
-            {
-                process_print(image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_));
-            }
-            else
-            {
-                process_print(image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_));
+                using numeric_types = std::tuple<
+                    bool, char, signed char, unsigned char,
+                    short, unsigned short, int, unsigned int,
+                    long, unsigned long, long long, unsigned long long,
+                    float, double, long double, std::size_t
+                >;
+
+                // Polymorphic lambda returning true if the numeric type matched
+                auto try_print_numeric = [&]<typename T>() -> bool
+                {
+                    if (workspace_->retrieve<T>(var_name))
+                    {
+                        os << "Printing scalar value for " << input_arg << ":\n";
+                        if constexpr (sizeof(T) == 1) // Safely print 8-bit integer types as numbers, not unprintable chars
+                        {
+                            os << +(*workspace_->retrieve<T>(var_name)) << "\nDone.\n";
+                        }
+                        else
+                        {
+                            os << *workspace_->retrieve<T>(var_name) << "\nDone.\n";
+                        }
+                        return true;
+                    }
+                    return false;
+                };
+
+                if (!match_any_type<numeric_types>(try_print_numeric))
+                {
+                    os << "Error: Memory variable not found or unsupported type.\n";
+                }
             }
         }
     }
