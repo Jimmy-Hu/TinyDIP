@@ -829,8 +829,8 @@ struct MetaTransformHandler
 
     template <
         std::ranges::random_access_range ArgsT,
-        typename ImageLoaderFun = ImageLoader,
-        typename ImageSaverFun = ImageSaver
+        typename ImageLoaderFun = MetaImageIO::Loader,
+        typename ImageSaverFun = MetaImageIO::Saver
     >
     requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
               std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&> &&
@@ -838,17 +838,35 @@ struct MetaTransformHandler
               std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<double>&&>)
     constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
     {
-        if (std::ranges::size(args) < MinArgs)
+        std::string_view policy_str = "";
+        std::vector<std::string_view> filtered_args;
+        filtered_args.reserve(std::ranges::size(args));
+
+        for (const auto& arg : args)
+        {
+            const std::string_view sv_arg = arg;
+            if (sv_arg == "seq" || sv_arg == "par" || sv_arg == "par_unseq" || sv_arg == "unseq")
+            {
+                policy_str = sv_arg;
+            }
+            else
+            {
+                filtered_args.emplace_back(sv_arg);
+            }
+        }
+
+        if (std::ranges::size(filtered_args) < MinArgs)
         {
             os << "Usage: " << usage_string_ << "\n";
+            os << "       Optional Execution policies: seq, par, par_unseq, unseq\n";
             return;
         }
 
-        const std::string_view input_arg = args[0];
-        const std::string_view output_arg = args[1];
+        const std::string_view input_arg = filtered_args[0];
+        const std::string_view output_arg = filtered_args[1];
 
         // Parse trailing args, output initial message, and retrieve dedicated transformation process
-        auto core_processor = setup_fun_(args, os);
+        auto core_processor = setup_fun_(filtered_args, policy_str, os);
 
         auto process_wrapper = [&]<typename ImageType>(ImageType&& input_img)
         {
