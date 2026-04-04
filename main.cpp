@@ -367,7 +367,9 @@ struct Workspace
             using image_types = std::tuple<
                 TinyDIP::Image<TinyDIP::RGB>, 
                 TinyDIP::Image<double>, 
-                TinyDIP::Image<TinyDIP::RGB_DOUBLE>
+                TinyDIP::Image<TinyDIP::RGB_DOUBLE>,
+                TinyDIP::Image<TinyDIP::HSV>,
+                TinyDIP::Image<TinyDIP::MultiChannel<double>>
             >;
 
             // Polymorphic lambda returning true if the image type matched
@@ -383,13 +385,30 @@ struct Workspace
                 return false;
             };
 
+            using complex_scalar_types = std::tuple<
+                TinyDIP::RGB_DOUBLE,
+                TinyDIP::HSV,
+                TinyDIP::MultiChannel<double>
+            >;
+
+            // Polymorphic lambda returning true if the complex custom scalar type matched
+            auto try_print_complex_scalar = [&]<typename T>() -> bool
+            {
+                if (value.type() == typeid(T))
+                {
+                    os << ", scalar value = " << std::any_cast<T>(value);
+                    return true;
+                }
+                return false;
+            };
+
             if (match_any_type<image_types>(try_print_image))
             {
                 // Handled successfully by try_print_image short-circuit logic
             }
-            else if (value.type() == typeid(TinyDIP::RGB_DOUBLE))
+            else if (match_any_type<complex_scalar_types>(try_print_complex_scalar))
             {
-                os << ", scalar value = " << std::any_cast<TinyDIP::RGB_DOUBLE>(value);
+                // Handled successfully by try_print_complex_scalar short-circuit logic
             }
             else
             {
