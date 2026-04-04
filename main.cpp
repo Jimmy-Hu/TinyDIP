@@ -1885,16 +1885,14 @@ int main(int argc, char* argv[])
                         os << "Resizing " << filtered_args[0] << " to " << width << "x" << height << "...\n";
                     }
 
-                    return [width, height, policy_str, &os]<typename ImageType>(ImageType&& img)
+                    return [width, height, policy_str, &os]<typename ImageType>(ImageType&& img) -> std::any
                     {
-                        auto exec_default = [&]()
+                        auto exec_default = [&]() -> std::any
                         {
                             return TinyDIP::copyResizeBicubic(std::forward<ImageType>(img), width, height);
                         };
 
-                        using RetType = decltype(exec_default());
-
-                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> RetType
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
                             requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                         {
                             if constexpr (requires { TinyDIP::copyResizeBicubic(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), width, height); })
@@ -1935,16 +1933,14 @@ int main(int argc, char* argv[])
                         os << "Calculating DCT-2 for " << filtered_args[0] << "...\n";
                     }
 
-                    return [policy_str, &os]<typename ImageType>(ImageType&& img)
+                    return [policy_str, &os]<typename ImageType>(ImageType&& img) -> std::any
                     {
-                        auto exec_default = [&]()
+                        auto exec_default = [&]() -> std::any
                         {
                             return TinyDIP::dct2(std::forward<ImageType>(img));
                         };
 
-                        using RetType = decltype(exec_default());
-
-                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> RetType
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
                             requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                         {
                             if constexpr (requires { TinyDIP::dct2(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img)); })
@@ -1985,16 +1981,14 @@ int main(int argc, char* argv[])
                         os << "Calculating Inverse DCT-2 for " << filtered_args[0] << "...\n";
                     }
 
-                    return [policy_str, &os]<typename ImageType>(ImageType&& img)
+                    return [policy_str, &os]<typename ImageType>(ImageType&& img) -> std::any
                     {
-                        auto exec_default = [&]()
+                        auto exec_default = [&]() -> std::any
                         {
                             return TinyDIP::idct2(std::forward<ImageType>(img));
                         };
 
-                        using RetType = decltype(exec_default());
-
-                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> RetType
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
                             requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                         {
                             if constexpr (requires { TinyDIP::idct2(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img)); })
@@ -2045,16 +2039,14 @@ int main(int argc, char* argv[])
                         os << "Resizing " << filtered_args[0] << " to " << width << "x" << height << " with Lanczos radius " << a << "...\n";
                     }
 
-                    return [width, height, a, policy_str, &os]<typename ImageType>(ImageType&& img)
+                    return [width, height, a, policy_str, &os]<typename ImageType>(ImageType&& img) -> std::any
                     {
-                        auto exec_default = [&]()
+                        auto exec_default = [&]() -> std::any
                         {
                             return TinyDIP::lanczos_resample(std::forward<ImageType>(img), width, height, static_cast<int>(a));
                         };
 
-                        using RetType = decltype(exec_default());
-
-                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> RetType
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
                             requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                         {
                             if constexpr (requires { TinyDIP::lanczos_resample(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), width, height, static_cast<int>(a)); })
@@ -2094,7 +2086,7 @@ int main(int argc, char* argv[])
                     }
                     os << "Calculating max of " << filtered_args[0] << "...\n";
 
-                    return []<typename ImageType>(ImageType&& img)
+                    return []<typename ImageType>(ImageType&& img) -> std::any
                     {
                         return TinyDIP::max(std::forward<ImageType>(img));
                     };
@@ -2114,7 +2106,7 @@ int main(int argc, char* argv[])
                     }
                     os << "Calculating min of " << filtered_args[0] << "...\n";
 
-                    return []<typename ImageType>(ImageType&& img)
+                    return []<typename ImageType>(ImageType&& img) -> std::any
                     {
                         return TinyDIP::min(std::forward<ImageType>(img));
                     };
@@ -2142,19 +2134,17 @@ int main(int argc, char* argv[])
                         os << "Calculating sum of " << filtered_args[0] << "...\n";
                     }
 
-                    return [policy_str, &os]<typename ImageType>(ImageType&& img)
+                    return [policy_str, &os]<typename ImageType>(ImageType&& img) -> std::any
                     {
                         // Helper to safely execute sum on the potentially casted image
-                        auto process_sum_impl = [&]<typename T>(T&& actual_img)
+                        auto process_sum_impl = [&]<typename T>(T&& actual_img) -> std::any
                         {
-                            auto exec_default = [&]()
+                            auto exec_default = [&]() -> std::any
                             {
                                 return TinyDIP::sum(std::forward<T>(actual_img));
                             };
 
-                            using RetType = decltype(exec_default());
-
-                            auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> RetType
+                            auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
                                 requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                             {
                                 if constexpr (requires { TinyDIP::sum(std::forward<ExecPolicy>(exec_policy), std::forward<T>(actual_img)); })
