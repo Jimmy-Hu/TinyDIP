@@ -847,9 +847,33 @@ struct MetaTransformHandler
 
         auto process_wrapper = [&]<typename ImageType>(ImageType&& input_img)
         {
-            auto output_img = core_processor(std::forward<ImageType>(input_img));
-            image_saver_fun(output_arg, workspace_, std::move(output_img));
-            os << "Saved to " << output_arg << "\n";
+            std::any output_any = core_processor(std::forward<ImageType>(input_img));
+
+            using output_image_types = std::tuple<
+                TinyDIP::Image<TinyDIP::RGB>, 
+                TinyDIP::Image<double>, 
+                TinyDIP::Image<TinyDIP::RGB_DOUBLE>,
+                TinyDIP::Image<TinyDIP::HSV>,
+                TinyDIP::Image<TinyDIP::MultiChannel<double>>
+            >;
+
+            bool handled = false;
+            auto try_save_output = [&]<typename OutT>() -> bool
+            {
+                if (output_any.type() == typeid(OutT))
+                {
+                    image_saver_fun(output_arg, workspace_, std::move(std::any_cast<OutT&>(output_any)));
+                    os << "Saved to " << output_arg << "\n";
+                    handled = true;
+                    return true;
+                }
+                return false;
+            };
+
+            if (!match_any_type<output_image_types>(try_save_output))
+            {
+                os << "Error: Output type from processor is unknown or unsupported.\n";
+            }
         };
 
         if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_wrapper))
