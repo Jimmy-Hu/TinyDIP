@@ -305,6 +305,29 @@ constexpr auto make_type_action(ActionFun&& action)
     return TypeActionPair<TargetT, std::remove_cvref_t<ActionFun>>{std::forward<ActionFun>(action)};
 }
 
+//  execute_type_action template function implementation
+template <typename TargetT, typename TupleT, typename FallbackFun, std::size_t I = 0>
+constexpr decltype(auto) execute_type_action(TupleT&& action_map, FallbackFun&& fallback)
+{
+    if constexpr (I < std::tuple_size_v<std::remove_cvref_t<TupleT>>)
+    {
+        using CurrentPair = std::tuple_element_t<I, std::remove_cvref_t<TupleT>>;
+        if constexpr (std::is_same_v<TargetT, typename CurrentPair::type>)
+        {
+            return std::get<I>(std::forward<TupleT>(action_map)).action();
+        }
+        else
+        {
+            return execute_type_action<TargetT, TupleT, FallbackFun, I + 1>(
+                std::forward<TupleT>(action_map), std::forward<FallbackFun>(fallback));
+        }
+    }
+    else
+    {
+        return std::forward<FallbackFun>(fallback)();
+    }
+}
+
 //  Workspace struct implementation
 //  In-Memory Workspace for REPL session state
 struct Workspace
