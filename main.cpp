@@ -589,6 +589,56 @@ struct ImageSaver
     }
 };
 
+//  dispatch_image_operation template function implementation
+//  Generic helper to dynamically load and dispatch an image (from memory or disk) to a processor lambda
+template <typename ProcessorFun, typename ImageLoaderFun>
+requires (std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&> &&
+          std::invocable<ProcessorFun, std::invoke_result_t<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&>>)
+constexpr bool dispatch_image_operation(
+    const std::string_view input_arg,
+    const std::shared_ptr<Workspace>& workspace,
+    ImageLoaderFun&& image_loader,
+    ProcessorFun&& processor)
+{
+    if (input_arg.starts_with('$'))
+    {
+        const std::string_view var_name = input_arg.substr(1);
+
+        auto try_process = [&]<typename T>() -> bool
+        {
+            if (workspace->template retrieve<T>(var_name))
+            {
+                processor(image_loader.template operator()<T>(input_arg, workspace));
+                return true;
+            }
+            return false;
+        };
+
+        using checking_types = std::tuple<
+            TinyDIP::Image<TinyDIP::RGB>, 
+            TinyDIP::Image<double>, 
+            TinyDIP::Image<TinyDIP::RGB_DOUBLE>,
+            TinyDIP::Image<TinyDIP::HSV>,
+            TinyDIP::Image<TinyDIP::MultiChannel<double>>
+        >;
+
+        return match_any_type<checking_types>(try_process);
+    }
+    else
+    {
+        const std::filesystem::path input_path = std::string(input_arg);
+        if (input_path.extension() == ".dbmp")
+        {
+            processor(image_loader.template operator()<TinyDIP::Image<double>>(input_arg, workspace));
+        }
+        else
+        {
+            processor(image_loader.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace));
+        }
+        return true;
+    }
+}
+
 //  Custom Type-Erasure Wrapper (Concept-Model Idiom)
 //  This acts like std::any/std::function but enforces a highly optimized span boundary internally
 class CommandHandler
