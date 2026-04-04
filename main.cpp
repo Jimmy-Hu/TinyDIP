@@ -822,6 +822,52 @@ public:
 //  Workspace Memory Operation Handlers
 //  --------------------------------------------------------------------------
 
+//  MetaTransformHandler template struct implementation
+//  Generic Meta Handler strictly refactoring transform commands like bicubic_resize, dct2, idct2
+template <std::size_t MinArgs, typename SetupFun>
+struct MetaTransformHandler
+{
+    std::string_view usage_string_;
+    std::shared_ptr<Workspace> workspace_;
+    SetupFun setup_fun_;
+
+    template <
+        std::ranges::random_access_range ArgsT,
+        typename ImageLoaderFun = ImageLoader,
+        typename ImageSaverFun = ImageSaver
+    >
+    requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
+              std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&> &&
+              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&> &&
+              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<double>&&>)
+    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
+    {
+        if (std::ranges::size(args) < MinArgs)
+        {
+            os << "Usage: " << usage_string_ << "\n";
+            return;
+        }
+
+        const std::string_view input_arg = args[0];
+        const std::string_view output_arg = args[1];
+
+        // Parse trailing args, output initial message, and retrieve dedicated transformation process
+        auto core_processor = setup_fun_(args, os);
+
+        auto process_wrapper = [&]<typename ImageType>(ImageType&& input_img)
+        {
+            auto output_img = core_processor(std::forward<ImageType>(input_img));
+            image_saver_fun(output_arg, workspace_, std::move(output_img));
+            os << "Saved to " << output_arg << "\n";
+        };
+
+        if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_wrapper))
+        {
+            os << "Error: Memory variable not found or unsupported type.\n";
+        }
+    }
+};
+
 //  ReadHandler struct implementation
 struct ReadHandler
 {
