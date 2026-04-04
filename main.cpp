@@ -2024,98 +2024,40 @@ int main(int argc, char* argv[])
         CommandBundle{"load_workspace", "Load memory variables from a directory bundle.", IndependentSchema, LoadWorkspaceHandler{workspace}},
         CommandBundle{"max", "Calculate the maximum value of an image.", TransformerSchema, 
             make_meta_scalar_handler<1>(
-                "max [execution_policy] <input_img | $var> [output_var | $var]", 
+                "max <input_img | $var> [output_var | $var]", 
                 "max", "Max", 
                 workspace,
                 [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
                 {
                     if (!std::ranges::empty(policy_str))
                     {
-                        os << "Calculating max of " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                        os << "Warning: Execution policy '" << policy_str << "' is ignored for 'max'.\n";
                     }
-                    else
+                    os << "Calculating max of " << filtered_args[0] << "...\n";
+
+                    return []<typename ImageType>(ImageType&& img)
                     {
-                        os << "Calculating max of " << filtered_args[0] << "...\n";
-                    }
-
-                    return [policy_str, &os]<typename ImageType>(ImageType&& img)
-                    {
-                        auto exec_default = [&]()
-                        {
-                            return TinyDIP::max(std::forward<ImageType>(img));
-                        };
-
-                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
-                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
-                        {
-                            if constexpr (requires { TinyDIP::max(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img)); })
-                            {
-                                return TinyDIP::max(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img));
-                            }
-                            else
-                            {
-                                if (!std::ranges::empty(policy_str))
-                                {
-                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
-                                }
-                                return exec_default();
-                            }
-                        };
-
-                        if (policy_str == "par") return exec_policy(std::execution::par);
-                        else if (policy_str == "par_unseq") return exec_policy(std::execution::par_unseq);
-                        else if (policy_str == "unseq") return exec_policy(std::execution::unseq);
-                        else if (policy_str == "seq") return exec_policy(std::execution::seq);
-                        else return exec_default();
+                        return TinyDIP::max(std::forward<ImageType>(img));
                     };
                 }
             )
         },
         CommandBundle{"min", "Calculate the minimum value of an image.", TransformerSchema, 
             make_meta_scalar_handler<1>(
-                "min [execution_policy] <input_img | $var> [output_var | $var]", 
+                "min <input_img | $var> [output_var | $var]", 
                 "min", "Min", 
                 workspace,
                 [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
                 {
                     if (!std::ranges::empty(policy_str))
                     {
-                        os << "Calculating min of " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                        os << "Warning: Execution policy '" << policy_str << "' is ignored for 'min'.\n";
                     }
-                    else
+                    os << "Calculating min of " << filtered_args[0] << "...\n";
+
+                    return []<typename ImageType>(ImageType&& img)
                     {
-                        os << "Calculating min of " << filtered_args[0] << "...\n";
-                    }
-
-                    return [policy_str, &os]<typename ImageType>(ImageType&& img)
-                    {
-                        auto exec_default = [&]()
-                        {
-                            return TinyDIP::min(std::forward<ImageType>(img));
-                        };
-
-                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
-                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
-                        {
-                            if constexpr (requires { TinyDIP::min(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img)); })
-                            {
-                                return TinyDIP::min(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img));
-                            }
-                            else
-                            {
-                                if (!std::ranges::empty(policy_str))
-                                {
-                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
-                                }
-                                return exec_default();
-                            }
-                        };
-
-                        if (policy_str == "par") return exec_policy(std::execution::par);
-                        else if (policy_str == "par_unseq") return exec_policy(std::execution::par_unseq);
-                        else if (policy_str == "unseq") return exec_policy(std::execution::unseq);
-                        else if (policy_str == "seq") return exec_policy(std::execution::seq);
-                        else return exec_default();
+                        return TinyDIP::min(std::forward<ImageType>(img));
                     };
                 }
             )
