@@ -1847,7 +1847,9 @@ int main(int argc, char* argv[])
                             return TinyDIP::copyResizeBicubic(std::forward<ImageType>(img), width, height);
                         };
 
-                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
+                        using RetType = decltype(exec_default());
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> RetType
                             requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                         {
                             if constexpr (requires { TinyDIP::copyResizeBicubic(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), width, height); })
@@ -1895,7 +1897,9 @@ int main(int argc, char* argv[])
                             return TinyDIP::dct2(std::forward<ImageType>(img));
                         };
 
-                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
+                        using RetType = decltype(exec_default());
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> RetType
                             requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                         {
                             if constexpr (requires { TinyDIP::dct2(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img)); })
@@ -1943,7 +1947,9 @@ int main(int argc, char* argv[])
                             return TinyDIP::idct2(std::forward<ImageType>(img));
                         };
 
-                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
+                        using RetType = decltype(exec_default());
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> RetType
                             requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                         {
                             if constexpr (requires { TinyDIP::idct2(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img)); })
@@ -2001,7 +2007,9 @@ int main(int argc, char* argv[])
                             return TinyDIP::lanczos_resample(std::forward<ImageType>(img), width, height, static_cast<int>(a));
                         };
 
-                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
+                        using RetType = decltype(exec_default());
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> RetType
                             requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                         {
                             if constexpr (requires { TinyDIP::lanczos_resample(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), width, height, static_cast<int>(a)); })
@@ -2099,7 +2107,9 @@ int main(int argc, char* argv[])
                                 return TinyDIP::sum(std::forward<T>(actual_img));
                             };
 
-                            auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy)
+                            using RetType = decltype(exec_default());
+
+                            auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> RetType
                                 requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                             {
                                 if constexpr (requires { TinyDIP::sum(std::forward<ExecPolicy>(exec_policy), std::forward<T>(actual_img)); })
