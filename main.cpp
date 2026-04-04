@@ -1160,11 +1160,6 @@ struct SaveWorkspaceHandler
 
         for (const auto& [name, value] : workspace_->memory_store)
         {
-            using saveable_image_types = std::tuple<
-                TinyDIP::Image<TinyDIP::RGB>,
-                TinyDIP::Image<double>
-            >;
-
             auto try_save_image = [&]<typename T>() -> bool
             {
                 if (value.type() == typeid(T))
@@ -1172,28 +1167,25 @@ struct SaveWorkspaceHandler
                     const auto* img_ptr = std::any_cast<T>(&value);
                     const std::filesystem::path file_path = dir_path / (name);
                     
-                    auto action_map = std::make_tuple(
-                        make_type_action<TinyDIP::Image<TinyDIP::RGB>>(
-                            [&]() 
-                            { 
-                                TinyDIP::bmp_write(file_path.string().c_str(), *img_ptr); 
-                                os << "  Saved $" << name << " -> " << file_path.string() << ".bmp\n";
-                            }),
-                        make_type_action<TinyDIP::Image<double>>(
-                            [&]() 
-                            { 
-                                TinyDIP::double_image::write(file_path.string().c_str(), *img_ptr); 
-                                os << "  Saved $" << name << " -> " << file_path.string() << ".dbmp\n";
-                            })
-                    );
-
-                    auto fallback_action = []() {};
-
-                    execute_type_action<T>(action_map, fallback_action);
+                    if constexpr (std::is_same_v<T, TinyDIP::Image<TinyDIP::RGB>>)
+                    {
+                        TinyDIP::bmp_write(file_path.string().c_str(), *img_ptr); 
+                        os << "  Saved $" << name << " -> " << file_path.string() << ".bmp\n";
+                    }
+                    else if constexpr (std::is_same_v<T, TinyDIP::Image<double>>)
+                    {
+                        TinyDIP::double_image::write(file_path.string().c_str(), *img_ptr); 
+                        os << "  Saved $" << name << " -> " << file_path.string() << ".dbmp\n";
+                    }
                     return true;
                 }
                 return false;
             };
+
+            using saveable_image_types = std::tuple<
+                TinyDIP::Image<TinyDIP::RGB>,
+                TinyDIP::Image<double>
+            >;
 
             if (match_any_type<saveable_image_types>(try_save_image))
             {
