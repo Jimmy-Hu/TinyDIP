@@ -1192,52 +1192,6 @@ struct HelpHandler
     }
 };
 
-//  BicubicResizeHandler struct implementation
-//  Wrapper for the 'bicubic_resize' functionality
-//  Args: input_path output_path width height
-struct BicubicResizeHandler
-{
-    std::shared_ptr<Workspace> workspace_;
-
-    template <
-        std::ranges::random_access_range ArgsT,
-        typename ImageLoaderFun = ImageLoader,
-        typename ImageSaverFun = ImageSaver
-    >
-    requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
-              std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&> &&
-              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&> &&
-              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<double>&&>)
-    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
-    {
-        if (std::ranges::size(args) < 4)
-        {
-            os << "Usage: bicubic_resize <input_img | $var> <output_img | $var> <width> <height>\n";
-            return;
-        }
-
-        const std::string_view input_arg = args[0];
-        const std::string_view output_arg = args[1];
-        const std::size_t width = parse_arg<std::size_t>(args[2]);
-        const std::size_t height = parse_arg<std::size_t>(args[3]);
-
-        os << "Resizing " << input_arg << " to " << width << "x" << height << "...\n";
-
-        // Polymorphic lambda to cleanly execute the algorithm dynamically independent of image type
-        auto process_resize = [&]<typename ImageType>(ImageType&& input_img)
-        {
-            auto output_img = TinyDIP::copyResizeBicubic(std::forward<ImageType>(input_img), width, height);
-            image_saver_fun(output_arg, workspace_, std::move(output_img));
-            os << "Saved to " << output_arg << "\n";
-        };
-
-        if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_resize))
-        {
-            os << "Error: Memory variable not found or unsupported type.\n";
-        }
-    }
-};
-
 //  Dct2Handler struct implementation
 struct Dct2Handler
 {
