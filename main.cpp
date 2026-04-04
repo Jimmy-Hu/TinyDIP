@@ -1161,7 +1161,7 @@ struct BicubicResizeHandler
     {
         if (std::ranges::size(args) < 4)
         {
-            os << "Usage: bicubic_resize <input_bmp | $var> <output_bmp | $var> <width> <height>\n";
+            os << "Usage: bicubic_resize <input_img | $var> <output_img | $var> <width> <height>\n";
             return;
         }
 
@@ -1180,34 +1180,9 @@ struct BicubicResizeHandler
             os << "Saved to " << output_arg << "\n";
         };
 
-        if (input_arg.starts_with('$'))
+        if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_resize))
         {
-            const std::string_view var_name = input_arg.substr(1);
-            if (workspace_->retrieve<TinyDIP::Image<TinyDIP::RGB>>(var_name))
-            {
-                process_resize(image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_));
-            }
-            else if (workspace_->retrieve<TinyDIP::Image<double>>(var_name))
-            {
-                process_resize(image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_));
-            }
-            else
-            {
-                os << "Error: Memory variable not found or unsupported type.\n";
-                return;
-            }
-        }
-        else
-        {
-            const std::filesystem::path input_path = std::string(input_arg);
-            if (input_path.extension() == ".dbmp")
-            {
-                process_resize(image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_));
-            }
-            else
-            {
-                process_resize(image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_));
-            }
+            os << "Error: Memory variable not found or unsupported type.\n";
         }
     }
 };
