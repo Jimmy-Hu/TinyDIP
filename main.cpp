@@ -907,7 +907,10 @@ struct MetaScalarHandler
         if (std::ranges::size(filtered_args) < MinArgs)
         {
             os << "Usage: " << usage_string_ << "\n";
-            os << "       Optional Execution policies: seq, par, par_unseq, unseq\n";
+            if (usage_string_.find("[execution_policy]") != std::string_view::npos)
+            {
+                os << "       Optional Execution policies: seq, par, par_unseq, unseq\n";
+            }
             return;
         }
 
