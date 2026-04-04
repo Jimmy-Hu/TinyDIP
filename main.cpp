@@ -1475,7 +1475,7 @@ struct RandHandler
 
     template <
         std::ranges::random_access_range ArgsT,
-        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<double>&&> ImageSaverFun = ImageSaver
+        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<double>&&> ImageSaverFun = MetaImageIO::Saver
     >
     requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
     constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
