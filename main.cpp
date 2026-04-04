@@ -298,6 +298,13 @@ struct TypeActionPair
     ActionFun action;
 };
 
+//  make_type_action template function implementation
+template <typename TargetT, typename ActionFun>
+constexpr auto make_type_action(ActionFun&& action)
+{
+    return TypeActionPair<TargetT, std::remove_cvref_t<ActionFun>>{std::forward<ActionFun>(action)};
+}
+
 //  Workspace struct implementation
 //  In-Memory Workspace for REPL session state
 struct Workspace
