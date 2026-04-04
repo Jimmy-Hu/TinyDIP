@@ -474,40 +474,6 @@ struct Workspace
 //  Generic struct to deal with Workspace memory mapping and direct File I/O operations dynamically
 struct MetaImageIO
 {
-private:
-    //  Generic helper to dynamically validate supported types and execute type actions
-    template <typename ImageType, typename TupleT>
-    static constexpr decltype(auto) execute_file_io(TupleT&& action_map, const std::string_view operation_name)
-    {
-        // Using declval to perfectly deduce the true return type of the matched action mapping
-        using ReturnT = decltype(std::get<0>(std::declval<TupleT>()).action());
-
-        auto fallback_action = [operation_name]() -> ReturnT
-        {
-            using unsupported_types = std::tuple<
-                TinyDIP::Image<TinyDIP::RGB_DOUBLE>,
-                TinyDIP::Image<TinyDIP::HSV>,
-                TinyDIP::Image<TinyDIP::MultiChannel<double>>
-            >;
-
-            constexpr auto is_target_type = []<typename T>() 
-            { 
-                return std::is_same_v<std::decay_t<ImageType>, T>; 
-            };
-
-            if constexpr (match_any_type<unsupported_types>(is_target_type))
-            {
-                throw std::invalid_argument(std::string(operation_name) + " is not implemented for this complex/high-precision image type.");
-            }
-            else
-            {
-                throw std::invalid_argument(std::string(operation_name) + " is not explicitly implemented for this abstract image type.");
-            }
-        };
-
-        return execute_type_action<std::decay_t<ImageType>>(std::forward<TupleT>(action_map), fallback_action);
-    }
-
 public:
     struct Loader
     {
@@ -530,14 +496,26 @@ public:
                 throw std::invalid_argument(std::string("File not found: ") + input_path.string());
             }
 
-            // Construct a compile-time map linking concrete types directly to their loading lambdas
-            auto action_map = std::make_tuple(
-                make_type_action<TinyDIP::Image<TinyDIP::RGB>>([&]() { return TinyDIP::bmp_read(input_path.string().c_str(), true); }),
-                make_type_action<TinyDIP::Image<double>>([&]() { return TinyDIP::double_image::read(input_path.string().c_str(), true); })
-            );
-
-            // Recursively executes the matching action from the map tuple, entirely generated at compile-time
-            return execute_file_io<ImageType>(action_map, "Direct file reading");
+            if constexpr (std::is_same_v<ImageType, TinyDIP::Image<TinyDIP::RGB>>)
+            {
+                return TinyDIP::bmp_read(input_path.string().c_str(), true);
+            }
+            else if constexpr (std::is_same_v<ImageType, TinyDIP::Image<double>>)
+            {
+                return TinyDIP::double_image::read(input_path.string().c_str(), true);
+            }
+            else if constexpr (
+                std::is_same_v<ImageType, TinyDIP::Image<TinyDIP::RGB_DOUBLE>> ||
+                std::is_same_v<ImageType, TinyDIP::Image<TinyDIP::HSV>> ||
+                std::is_same_v<ImageType, TinyDIP::Image<TinyDIP::MultiChannel<double>>>
+            )
+            {
+                throw std::invalid_argument("Direct file reading is not implemented for this complex/high-precision image type.");
+            }
+            else
+            {
+                throw std::invalid_argument("Direct file reading is not explicitly implemented for this abstract image type.");
+            }
         }
     };
 
@@ -556,14 +534,26 @@ public:
                 const std::filesystem::path output_filepath = std::string(arg);
                 const std::filesystem::path path_without_extension = output_filepath.parent_path() / output_filepath.stem();
                 
-                // Construct a compile-time map linking concrete types directly to their saving lambdas
-                auto action_map = std::make_tuple(
-                    make_type_action<TinyDIP::Image<double>>([&]() { TinyDIP::double_image::write(path_without_extension.string().c_str(), std::forward<ImageType>(img)); }),
-                    make_type_action<TinyDIP::Image<TinyDIP::RGB>>([&]() { TinyDIP::bmp_write(path_without_extension.string().c_str(), std::forward<ImageType>(img)); })
-                );
-
-                // Recursively executes the matching action from the map tuple, entirely generated at compile-time
-                execute_file_io<std::decay_t<ImageType>>(action_map, "Direct file writing");
+                if constexpr (std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<double>>)
+                {
+                    TinyDIP::double_image::write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
+                }
+                else if constexpr (std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<TinyDIP::RGB>>)
+                {
+                    TinyDIP::bmp_write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
+                }
+                else if constexpr (
+                    std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<TinyDIP::RGB_DOUBLE>> ||
+                    std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<TinyDIP::HSV>> ||
+                    std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<TinyDIP::MultiChannel<double>>>
+                )
+                {
+                    throw std::invalid_argument("Direct file writing is not implemented for this complex/high-precision image type.");
+                }
+                else
+                {
+                    throw std::invalid_argument("Direct file writing is not explicitly implemented for this abstract image type.");
+                }
             }
         }
     };
