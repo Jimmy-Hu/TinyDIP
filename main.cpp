@@ -509,18 +509,34 @@ struct ImageLoader
             throw std::invalid_argument(std::string("File not found: ") + input_path.string());
         }
 
-        if constexpr (std::is_same_v<ImageType, TinyDIP::Image<TinyDIP::RGB>>)
+        // Construct a compile-time map linking concrete types directly to their loading lambdas
+        auto action_map = std::make_tuple(
+            make_type_action<TinyDIP::Image<TinyDIP::RGB>>([&]() { return TinyDIP::bmp_read(std::string(arg).c_str(), true); }),
+            make_type_action<TinyDIP::Image<double>>([&]() { return TinyDIP::double_image::read(std::string(arg).c_str(), true); })
+        );
+
+        auto fallback_action = [&]() -> ImageType
         {
-            return TinyDIP::bmp_read(std::string(arg).c_str(), true);
-        }
-        else if constexpr (std::is_same_v<ImageType, TinyDIP::Image<double>>)
-        {
-            return TinyDIP::double_image::read(std::string(arg).c_str(), true);
-        }
-        else
-        {
-            throw std::invalid_argument("Direct file reading is not explicitly implemented for this abstract image type.");
-        }
+            using unsupported_types = std::tuple<
+                TinyDIP::Image<TinyDIP::RGB_DOUBLE>,
+                TinyDIP::Image<TinyDIP::HSV>,
+                TinyDIP::Image<TinyDIP::MultiChannel<double>>
+            >;
+
+            constexpr auto is_target_type = []<typename T>() { return std::is_same_v<std::decay_t<ImageType>, T>; };
+
+            if constexpr (match_any_type<unsupported_types>(is_target_type))
+            {
+                throw std::invalid_argument("Direct file reading is not implemented for this complex/high-precision image type.");
+            }
+            else
+            {
+                throw std::invalid_argument("Direct file reading is not explicitly implemented for this abstract image type.");
+            }
+        };
+
+        // Recursively executes the matching action from the map tuple, entirely generated at compile-time
+        return execute_type_action<std::decay_t<ImageType>>(action_map, fallback_action);
     }
 };
 
