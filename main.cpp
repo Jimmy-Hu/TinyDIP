@@ -864,17 +864,17 @@ struct ReadHandler
 
         os << "Reading " << input_arg << " into memory as " << output_arg << "...\n";
         
-        const std::filesystem::path input_path = std::string(input_arg);
-        if (input_path.extension() == ".dbmp")
+        auto process_read = [&]<typename ImageType>(ImageType&& input_img)
         {
-            auto img = image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_);
-            image_saver_fun(output_arg, workspace_, std::move(img));
-        }
-        else
+            image_saver_fun(output_arg, workspace_, std::forward<ImageType>(input_img));
+        };
+
+        if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_read))
         {
-            auto img = image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_);
-            image_saver_fun(output_arg, workspace_, std::move(img));
+            os << "Error: Memory variable not found or unsupported type.\n";
+            return;
         }
+
         os << "Done.\n";
     }
 };
