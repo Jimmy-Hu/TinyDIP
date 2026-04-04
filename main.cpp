@@ -999,8 +999,8 @@ struct WriteHandler
 
     template <
         std::ranges::random_access_range ArgsT,
-        typename ImageLoaderFun = ImageLoader,
-        typename ImageSaverFun = ImageSaver
+        typename ImageLoaderFun = MetaImageIO::Loader,
+        typename ImageSaverFun = MetaImageIO::Saver
     >
     requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
               std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&> &&
