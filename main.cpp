@@ -289,6 +289,15 @@ constexpr bool match_any_type(FunT&& func)
     }(std::type_identity<TupleT>{});
 }
 
+//  TypeActionPair struct implementation
+//  A compile-time key-value pair associating a strictly defined Type with a specific Action (Callable)
+template <typename TargetT, typename ActionFun>
+struct TypeActionPair
+{
+    using type = TargetT;
+    ActionFun action;
+};
+
 //  Workspace struct implementation
 //  In-Memory Workspace for REPL session state
 struct Workspace
