@@ -486,6 +486,104 @@ struct Workspace
     }
 };
 
+//  MetaImageIO struct implementation
+//  Generic struct to deal with Workspace memory mapping and direct File I/O operations dynamically
+struct MetaImageIO
+{
+private:
+    //  Generic helper to dynamically validate supported types and execute type actions
+    template <typename ImageType, typename TupleT>
+    static constexpr decltype(auto) execute_file_io(TupleT&& action_map, const std::string_view operation_name)
+    {
+        // Using declval to perfectly deduce the true return type of the matched action mapping
+        using ReturnT = decltype(std::get<0>(std::declval<TupleT>()).action());
+
+        auto fallback_action = [operation_name]() -> ReturnT
+        {
+            using unsupported_types = std::tuple<
+                TinyDIP::Image<TinyDIP::RGB_DOUBLE>,
+                TinyDIP::Image<TinyDIP::HSV>,
+                TinyDIP::Image<TinyDIP::MultiChannel<double>>
+            >;
+
+            constexpr auto is_target_type = []<typename T>() 
+            { 
+                return std::is_same_v<std::decay_t<ImageType>, T>; 
+            };
+
+            if constexpr (match_any_type<unsupported_types>(is_target_type))
+            {
+                throw std::invalid_argument(std::string(operation_name) + " is not implemented for this complex/high-precision image type.");
+            }
+            else
+            {
+                throw std::invalid_argument(std::string(operation_name) + " is not explicitly implemented for this abstract image type.");
+            }
+        };
+
+        return execute_type_action<std::decay_t<ImageType>>(std::forward<TupleT>(action_map), fallback_action);
+    }
+
+public:
+    struct Loader
+    {
+        template <typename ImageType = TinyDIP::Image<TinyDIP::RGB>>
+        constexpr ImageType operator()(const std::string_view arg, const std::shared_ptr<Workspace>& ws) const
+        {
+            if (arg.starts_with('$'))
+            {
+                const std::string_view var_name = arg.substr(1);
+                if (const ImageType* img_ptr = ws->retrieve<ImageType>(var_name))
+                {
+                    return *img_ptr;
+                }
+                throw std::invalid_argument(std::string("Memory variable not found or type mismatch: ") + std::string(var_name));
+            }
+
+            const std::filesystem::path input_path = std::string(arg);
+            if (!std::filesystem::exists(input_path))
+            {
+                throw std::invalid_argument(std::string("File not found: ") + input_path.string());
+            }
+
+            // Construct a compile-time map linking concrete types directly to their loading lambdas
+            auto action_map = std::make_tuple(
+                make_type_action<TinyDIP::Image<TinyDIP::RGB>>([&]() { return TinyDIP::bmp_read(input_path.string().c_str(), true); }),
+                make_type_action<TinyDIP::Image<double>>([&]() { return TinyDIP::double_image::read(input_path.string().c_str(), true); })
+            );
+
+            // Recursively executes the matching action from the map tuple, entirely generated at compile-time
+            return execute_file_io<ImageType>(action_map, "Direct file reading");
+        }
+    };
+
+    struct Saver
+    {
+        template <typename ImageType>
+        constexpr void operator()(const std::string_view arg, const std::shared_ptr<Workspace>& ws, ImageType&& img) const
+        {
+            if (arg.starts_with('$'))
+            {
+                const std::string_view var_name = arg.substr(1);
+                ws->store(var_name, std::forward<ImageType>(img));
+            }
+            else
+            {
+                const std::filesystem::path output_filepath = std::string(arg);
+                const std::filesystem::path path_without_extension = output_filepath.parent_path() / output_filepath.stem();
+                
+                // Construct a compile-time map linking concrete types directly to their saving lambdas
+                auto action_map = std::make_tuple(
+                    make_type_action<TinyDIP::Image<double>>([&]() { TinyDIP::double_image::write(path_without_extension.string().c_str(), std::forward<ImageType>(img)); }),
+                    make_type_action<TinyDIP::Image<TinyDIP::RGB>>([&]() { TinyDIP::bmp_write(path_without_extension.string().c_str(), std::forward<ImageType>(img)); })
+                );
+
+                // Recursively executes the matching action from the map tuple, entirely generated at compile-time
+                execute_file_io<std::decay_t<ImageType>>(action_map, "Direct file writing");
+            }
+        }
+    };
+};
 
 //  dispatch_image_operation template function implementation
 //  Generic helper to dynamically load and dispatch an image (from memory or disk) to a processor lambda
