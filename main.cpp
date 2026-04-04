@@ -1008,23 +1008,67 @@ struct SaveWorkspaceHandler
 
         for (const auto& [name, value] : workspace_->memory_store)
         {
-            if (value.type() == typeid(TinyDIP::Image<TinyDIP::RGB>))
+            using saveable_image_types = std::tuple<
+                TinyDIP::Image<TinyDIP::RGB>,
+                TinyDIP::Image<double>
+            >;
+
+            auto try_save_image = [&]<typename T>() -> bool
             {
-                auto img = std::any_cast<TinyDIP::Image<TinyDIP::RGB>>(value);
-                const std::filesystem::path file_path = dir_path / (name);
-                TinyDIP::bmp_write(file_path.string().c_str(), img);
-                os << "  Saved $" << name << " -> " << file_path.string() << ".bmp\n";
-            }
-            else if (value.type() == typeid(TinyDIP::Image<double>))
+                if (value.type() == typeid(T))
+                {
+                    const auto* img_ptr = std::any_cast<T>(&value);
+                    const std::filesystem::path file_path = dir_path / (name);
+                    
+                    auto action_map = std::make_tuple(
+                        make_type_action<TinyDIP::Image<TinyDIP::RGB>>(
+                            [&]() 
+                            { 
+                                TinyDIP::bmp_write(file_path.string().c_str(), *img_ptr); 
+                                os << "  Saved $" << name << " -> " << file_path.string() << ".bmp\n";
+                            }),
+                        make_type_action<TinyDIP::Image<double>>(
+                            [&]() 
+                            { 
+                                TinyDIP::double_image::write(file_path.string().c_str(), *img_ptr); 
+                                os << "  Saved $" << name << " -> " << file_path.string() << ".dbmp\n";
+                            })
+                    );
+
+                    auto fallback_action = []() {};
+
+                    execute_type_action<T>(action_map, fallback_action);
+                    return true;
+                }
+                return false;
+            };
+
+            if (match_any_type<saveable_image_types>(try_save_image))
             {
-                auto img = std::any_cast<TinyDIP::Image<double>>(value);
-                const std::filesystem::path file_path = dir_path / (name);
-                TinyDIP::double_image::write(file_path.string().c_str(), img);
-                os << "  Saved $" << name << " -> " << file_path.string() << ".dbmp\n";
+                // Saved successfully
             }
             else
             {
-                os << "  Skipped $" << name << " (Unsupported serialization type)\n";
+                using unsupported_image_types = std::tuple<
+                    TinyDIP::Image<TinyDIP::RGB_DOUBLE>,
+                    TinyDIP::Image<TinyDIP::HSV>,
+                    TinyDIP::Image<TinyDIP::MultiChannel<double>>
+                >;
+
+                auto try_skip_image = [&]<typename T>() -> bool
+                {
+                    if (value.type() == typeid(T))
+                    {
+                        os << "  Skipped $" << name << " (Serialization not implemented for this complex image type)\n";
+                        return true;
+                    }
+                    return false;
+                };
+
+                if (!match_any_type<unsupported_image_types>(try_skip_image))
+                {
+                    os << "  Skipped $" << name << " (Unsupported serialization type)\n";
+                }
             }
         }
         os << "Workspace saved successfully.\n";
