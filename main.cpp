@@ -951,41 +951,62 @@ struct MetaScalarHandler
         // Polymorphic lambda to cleanly execute the algorithm dynamically independent of image type
         auto process_scalar = [&]<typename ImageType>(ImageType&& input_img)
         {
-            auto handle_result = [&](auto&& scalar_result)
+            std::any scalar_result_any = core_processor(std::forward<ImageType>(input_img));
+
+            using scalar_types = std::tuple<
+                bool, char, signed char, unsigned char,
+                short, unsigned short, int, unsigned int,
+                long, unsigned long, long long, unsigned long long,
+                float, double, long double, std::size_t,
+                TinyDIP::RGB, TinyDIP::RGB_DOUBLE, TinyDIP::HSV, TinyDIP::MultiChannel<double>
+            >;
+
+            bool handled = false;
+            auto handle_result = [&]<typename ScalarT>() -> bool
             {
-                if (!std::ranges::empty(output_arg))
+                if (scalar_result_any.type() == typeid(ScalarT))
                 {
-                    if (output_arg.starts_with('$'))
+                    auto& scalar_result = std::any_cast<ScalarT&>(scalar_result_any);
+                    if (!std::ranges::empty(output_arg))
                     {
-                        workspace_->store(output_arg.substr(1), scalar_result);
-                        os << "Saved " << op_name_ << " result to " << output_arg << "\n";
-                    }
-                    else
-                    {
-                        os << "Error: Output must be a memory variable starting with '$'.\n";
-                    }
-                }
-                else
-                {
-                    if constexpr (requires { os << scalar_result; })
-                    {
-                        if constexpr (sizeof(decltype(scalar_result)) == 1 && std::is_integral_v<std::decay_t<decltype(scalar_result)>>)
+                        if (output_arg.starts_with('$'))
                         {
-                            os << capitalized_op_name_ << " result: " << +scalar_result << "\n";
+                            workspace_->store(output_arg.substr(1), scalar_result);
+                            os << "Saved " << op_name_ << " result to " << output_arg << "\n";
                         }
                         else
                         {
-                            os << capitalized_op_name_ << " result: " << scalar_result << "\n";
+                            os << "Error: Output must be a memory variable starting with '$'.\n";
                         }
                     }
                     else
                     {
-                        os << capitalized_op_name_ << " result evaluated successfully (Non-printable complex type).\n";
+                        if constexpr (requires { os << scalar_result; })
+                        {
+                            if constexpr (sizeof(ScalarT) == 1 && std::is_integral_v<ScalarT>)
+                            {
+                                os << capitalized_op_name_ << " result: " << +scalar_result << "\n";
+                            }
+                            else
+                            {
+                                os << capitalized_op_name_ << " result: " << scalar_result << "\n";
+                            }
+                        }
+                        else
+                        {
+                            os << capitalized_op_name_ << " result evaluated successfully (Non-printable complex type).\n";
+                        }
                     }
+                    handled = true;
+                    return true;
                 }
+                return false;
             };
 
-            handle_result(core_processor(std::forward<ImageType>(input_img)));
+            if (!match_any_type<scalar_types>(handle_result))
+            {
+                os << "Error: Output type from processor is unknown or unsupported.\n";
+            }
         };
 
         if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_scalar))
