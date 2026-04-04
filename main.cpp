@@ -956,22 +956,17 @@ struct WriteHandler
 
         os << "Writing memory variable " << input_arg << " to file " << output_arg << "...\n";
 
-        // Dynamic type-erasure boundary resolution to safely write correct type
-        if (workspace_->retrieve<TinyDIP::Image<TinyDIP::RGB>>(input_arg.substr(1)))
+        auto process_write = [&]<typename ImageType>(ImageType&& input_img)
         {
-            auto img = image_loader_fun.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace_);
-            image_saver_fun(output_arg, workspace_, std::move(img));
-        }
-        else if (workspace_->retrieve<TinyDIP::Image<double>>(input_arg.substr(1)))
-        {
-            auto img = image_loader_fun.template operator()<TinyDIP::Image<double>>(input_arg, workspace_);
-            image_saver_fun(output_arg, workspace_, std::move(img));
-        }
-        else
+            image_saver_fun(output_arg, workspace_, std::forward<ImageType>(input_img));
+        };
+
+        if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_write))
         {
             os << "Error: Memory variable not found or unsupported type.\n";
             return;
         }
+
         os << "Done.\n";
     }
 };
