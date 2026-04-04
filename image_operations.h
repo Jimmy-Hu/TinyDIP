@@ -3101,7 +3101,7 @@ namespace TinyDIP
 
     //  idct2 template function implementation
     template<typename ElementT = double>
-    requires((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
+    requires((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>) || is_MultiChannel<ElementT>::value)
     constexpr static auto idct2(const Image<ElementT>& input)
     {
         return apply_each(input, [&](auto&& each_plane) { return idct2(each_plane); });
