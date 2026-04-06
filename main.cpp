@@ -392,7 +392,7 @@ struct Workspace
         }
 
         //  print_size lambda implementation
-        //  Helper lambda to print size information for image types
+        // Generic lambda to cleanly format and print image dimensions
         auto print_size = [&os](const std::ranges::random_access_range auto& size_range)
         {
             auto it = std::ranges::begin(size_range);
@@ -410,9 +410,10 @@ struct Workspace
 
         for (const auto& [name, value] : memory_store)
         {
-            // Note: value.type().name() will print the mangled compiler name, 
-            // but is helpful enough for debugging type information dynamically.
-            os << "  $" << std::left << std::setw(15) << name << " : [Type Hash: " << value.type().hash_code() << "]";
+            auto print_prefix = [&]<typename T>()
+            {
+                os << "  $" << std::left << std::setw(15) << name << " : [" << get_type_name<T>() << "]";
+            };
 
             using image_types = std::tuple<
                 TinyDIP::Image<TinyDIP::RGB>, 
@@ -427,6 +428,7 @@ struct Workspace
             {
                 if (value.type() == typeid(T))
                 {
+                    print_prefix.template operator()<T>();
                     os << ", size = ";
                     const auto* image_ptr = std::any_cast<T>(&value);
                     print_size(image_ptr->getSize());
@@ -446,6 +448,7 @@ struct Workspace
             {
                 if (value.type() == typeid(T))
                 {
+                    print_prefix.template operator()<T>();
                     os << ", scalar value = " << std::any_cast<T>(value);
                     return true;
                 }
@@ -474,6 +477,7 @@ struct Workspace
                 {
                     if (value.type() == typeid(T))
                     {
+                        print_prefix.template operator()<T>();
                         if constexpr (sizeof(T) == 1) // Safely print 8-bit integer types as numbers, not unprintable chars
                         {
                             os << ", scalar value = " << +std::any_cast<T>(value);
@@ -489,7 +493,8 @@ struct Workspace
 
                 if (!match_any_type<numeric_types>(try_print_numeric))
                 {
-                    os << " (Unsupported serialization type), type is " << value.type().name();
+                    os << "  $" << std::left << std::setw(15) << name 
+                       << " : [Type Hash: " << value.type().hash_code() << "] (Unsupported serialization type), type is " << value.type().name();
                 }
             }
             os << '\n';
