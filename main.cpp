@@ -290,35 +290,30 @@ constexpr bool match_any_type(FunT&& func)
 }
 
 //  get_type_name template function implementation
-//  Generic compile-time helper to map known types perfectly to human-readable string views
+//  Generic compile-time helper to automatically extract exact human-readable string views for any type.
+//  This utilizes compile-time SFINAE reflection over compiler signature macros.
 template <typename T>
 constexpr std::string_view get_type_name()
 {
-    if constexpr (std::is_same_v<T, TinyDIP::Image<TinyDIP::RGB>>) return "TinyDIP::Image<TinyDIP::RGB>";
-    else if constexpr (std::is_same_v<T, TinyDIP::Image<double>>) return "TinyDIP::Image<double>";
-    else if constexpr (std::is_same_v<T, TinyDIP::Image<TinyDIP::RGB_DOUBLE>>) return "TinyDIP::Image<TinyDIP::RGB_DOUBLE>";
-    else if constexpr (std::is_same_v<T, TinyDIP::Image<TinyDIP::HSV>>) return "TinyDIP::Image<TinyDIP::HSV>";
-    else if constexpr (std::is_same_v<T, TinyDIP::Image<TinyDIP::MultiChannel<double>>>) return "TinyDIP::Image<TinyDIP::MultiChannel<double>>";
-    else if constexpr (std::is_same_v<T, TinyDIP::RGB_DOUBLE>) return "TinyDIP::RGB_DOUBLE";
-    else if constexpr (std::is_same_v<T, TinyDIP::HSV>) return "TinyDIP::HSV";
-    else if constexpr (std::is_same_v<T, TinyDIP::MultiChannel<double>>) return "TinyDIP::MultiChannel<double>";
-    else if constexpr (std::is_same_v<T, bool>) return "bool";
-    else if constexpr (std::is_same_v<T, char>) return "char";
-    else if constexpr (std::is_same_v<T, signed char>) return "signed char";
-    else if constexpr (std::is_same_v<T, unsigned char>) return "unsigned char";
-    else if constexpr (std::is_same_v<T, short>) return "short";
-    else if constexpr (std::is_same_v<T, unsigned short>) return "unsigned short";
-    else if constexpr (std::is_same_v<T, int>) return "int";
-    else if constexpr (std::is_same_v<T, unsigned int>) return "unsigned int";
-    else if constexpr (std::is_same_v<T, long>) return "long";
-    else if constexpr (std::is_same_v<T, unsigned long>) return "unsigned long";
-    else if constexpr (std::is_same_v<T, long long>) return "long long";
-    else if constexpr (std::is_same_v<T, unsigned long long>) return "unsigned long long";
-    else if constexpr (std::is_same_v<T, float>) return "float";
-    else if constexpr (std::is_same_v<T, double>) return "double";
-    else if constexpr (std::is_same_v<T, long double>) return "long double";
-    else if constexpr (std::is_same_v<T, std::size_t>) return "std::size_t";
-    else return "Unknown Type";
+#if defined(__clang__)
+    constexpr std::string_view name = __PRETTY_FUNCTION__;
+    constexpr std::size_t start = name.find("T = ") + 4;
+    constexpr std::size_t end = name.find_last_of(']');
+    return name.substr(start, end - start);
+#elif defined(__GNUC__)
+    constexpr std::string_view name = __PRETTY_FUNCTION__;
+    constexpr std::size_t start = name.find("with T = ") + 9;
+    constexpr std::size_t semi_colon_pos = name.find(';', start);
+    constexpr std::size_t end = (semi_colon_pos != std::string_view::npos) ? semi_colon_pos : name.find_last_of(']');
+    return name.substr(start, end - start);
+#elif defined(_MSC_VER)
+    constexpr std::string_view name = __FUNCSIG__;
+    constexpr std::size_t start = name.find("get_type_name<") + 14;
+    constexpr std::size_t end = name.rfind(">(void)");
+    return name.substr(start, end - start);
+#else
+    return "Unknown Type";
+#endif
 }
 
 //  execute_type_action template function implementation
