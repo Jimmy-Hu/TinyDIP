@@ -910,7 +910,9 @@ struct MetaTransformHandler
                 TinyDIP::Image<double>, 
                 TinyDIP::Image<TinyDIP::RGB_DOUBLE>,
                 TinyDIP::Image<TinyDIP::HSV>,
-                TinyDIP::Image<TinyDIP::MultiChannel<double>>
+                TinyDIP::Image<TinyDIP::MultiChannel<double>>,
+                TinyDIP::Image<TinyDIP::MultiChannel<float>>,
+                TinyDIP::Image<TinyDIP::MultiChannel<std::uint8_t>>
             >;
 
             bool handled = false;
@@ -928,7 +930,8 @@ struct MetaTransformHandler
 
             if (!match_any_type<output_image_types>(try_save_output))
             {
-                os << "Error: Output type from processor is unknown or unsupported.\n";
+                os << "Error: Output type from processor is unknown or unsupported. Type Name: [" 
+                   << output_any.type().name() << "]\n";
             }
         };
 
