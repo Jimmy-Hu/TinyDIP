@@ -525,16 +525,6 @@ struct Workspace
                 os << "  $" << std::left << std::setw(15) << name << " : [" << get_type_name<T>() << "]";
             };
 
-            using image_types = std::tuple<
-                TinyDIP::Image<TinyDIP::RGB>, 
-                TinyDIP::Image<double>, 
-                TinyDIP::Image<TinyDIP::RGB_DOUBLE>,
-                TinyDIP::Image<TinyDIP::HSV>,
-                TinyDIP::Image<TinyDIP::MultiChannel<double>>,
-                TinyDIP::Image<TinyDIP::MultiChannel<float>>,
-                TinyDIP::Image<TinyDIP::MultiChannel<std::uint8_t>>
-            >;
-
             // Polymorphic lambda returning true if the image type matched
             auto try_print_image = [&]<typename T>() -> bool
             {
@@ -549,49 +539,47 @@ struct Workspace
                 return false;
             };
 
-            using complex_scalar_types = std::tuple<
-                TinyDIP::RGB_DOUBLE,
-                TinyDIP::HSV,
-                TinyDIP::MultiChannel<double>,
-                TinyDIP::MultiChannel<float>,
-                TinyDIP::MultiChannel<std::uint8_t>,
-                std::complex<float>,
-                std::complex<double>,
-                std::complex<long double>
-            >;
-
             // Polymorphic lambda returning true if the complex custom scalar type matched
             auto try_print_complex_scalar = [&]<typename T>() -> bool
             {
                 if (value.type() == typeid(T))
                 {
                     print_prefix.template operator()<T>();
-                    os << ", scalar value = " << std::any_cast<T>(value);
+                    if constexpr (is_vector_v<T> || is_deque_v<T> || is_list_v<T> || is_std_array_v<T>)
+                    {
+                        os << ", container value = {";
+                        bool first = true;
+                        const auto* container_ptr = std::any_cast<T>(&value);
+                        for (const auto& elem : *container_ptr)
+                        {
+                            if (!first)
+                            {
+                                os << ", ";
+                            }
+                            os << +elem;
+                            first = false;
+                        }
+                        os << "}";
+                    }
+                    else
+                    {
+                        os << ", scalar value = " << std::any_cast<T>(value);
+                    }
                     return true;
                 }
                 return false;
             };
 
-            if (match_any_type<image_types>(try_print_image))
+            if (match_any_type<master_image_types>(try_print_image))
             {
                 // Handled successfully by try_print_image short-circuit logic
             }
-            else if (match_any_type<complex_scalar_types>(try_print_complex_scalar))
+            else if (match_any_type<complex_scalar_types_for_printing>(try_print_complex_scalar))
             {
                 // Handled successfully by try_print_complex_scalar short-circuit logic
             }
             else
             {
-                using numeric_types = std::tuple<
-                    bool, char, signed char, unsigned char,
-                    short, unsigned short, int, unsigned int,
-                    long, unsigned long, long long, unsigned long long,
-                    std::int8_t, std::int16_t, std::int32_t, std::int64_t,
-                    std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t,
-                    float, double, long double, std::size_t, std::ptrdiff_t,
-                    TinyDIP::RGB
-                >;
-
                 // Polymorphic lambda returning true if the numeric type matched
                 auto try_print_numeric = [&]<typename T>() -> bool
                 {
@@ -611,7 +599,7 @@ struct Workspace
                     return false;
                 };
 
-                if (!match_any_type<numeric_types>(try_print_numeric))
+                if (!match_any_type<core_numeric_types>(try_print_numeric))
                 {
                     os << "  $" << std::left << std::setw(15) << name 
                        << " : [Type Hash: " << value.type().hash_code() << "] (Unsupported serialization type), type is " << value.type().name();
