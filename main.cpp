@@ -1013,8 +1013,13 @@ struct MetaScalarHandler
                 bool, char, signed char, unsigned char,
                 short, unsigned short, int, unsigned int,
                 long, unsigned long, long long, unsigned long long,
-                float, double, long double, std::size_t,
-                TinyDIP::RGB, TinyDIP::RGB_DOUBLE, TinyDIP::HSV, TinyDIP::MultiChannel<double>
+                std::int8_t, std::int16_t, std::int32_t, std::int64_t,
+                std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t,
+                float, double, long double, std::size_t, std::ptrdiff_t,
+                std::complex<float>, std::complex<double>, std::complex<long double>,
+                TinyDIP::RGB, TinyDIP::RGB_DOUBLE, TinyDIP::HSV, 
+                TinyDIP::MultiChannel<std::uint8_t>, TinyDIP::MultiChannel<int>, 
+                TinyDIP::MultiChannel<float>, TinyDIP::MultiChannel<double>
             >;
 
             bool handled = false;
@@ -1061,7 +1066,8 @@ struct MetaScalarHandler
 
             if (!match_any_type<scalar_types>(handle_result))
             {
-                os << "Error: Output type from processor is unknown or unsupported.\n";
+                os << "Error: Output type from processor is unknown or unsupported. Type Name: [" 
+                   << scalar_result_any.type().name() << "]\n";
             }
         };
 
