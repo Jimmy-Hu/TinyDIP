@@ -2326,9 +2326,9 @@ int main(int argc, char* argv[])
         CommandBundle{"rename", "Rename a memory variable in the workspace.", IndependentSchema, RenameHandler{workspace}},
         CommandBundle{"remove", "Remove memory variables from the workspace (or 'all' to clear).", IndependentSchema, RemoveHandler{workspace}},
         CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IndependentSchema, SaveWorkspaceHandler{workspace}},
-        CommandBundle{"sum", "Calculate the sum of all elements in an image.", TransformerSchema, 
+        CommandBundle{"sum", "Calculate the sum of all elements in an image or container.", TransformerSchema, 
             make_meta_scalar_handler<1>(
-                "sum [execution_policy] <input_img | $var> [output_var | $var]", 
+                "sum [execution_policy] <input_data | $var> [output_var | $var]", 
                 "sum", "Sum", 
                 workspace,
                 [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
@@ -2342,28 +2342,40 @@ int main(int argc, char* argv[])
                         os << "Calculating sum of " << filtered_args[0] << "...\n";
                     }
 
-                    return [policy_str, &os]<typename ImageType>(ImageType&& img) -> std::any
+                    return [policy_str, &os]<typename DataT>(DataT&& img) -> std::any
                     {
-                        // Helper to safely execute sum on the potentially casted image
-                        auto process_sum_impl = [&]<typename T>(T&& actual_img) -> std::any
+                        // Helper to safely execute sum on the potentially casted image or generic container
+                        auto process_sum_impl = [&]<typename T>(T&& actual_data) -> std::any
                         {
                             auto exec_default = [&]() -> std::any
                             {
-                                return TinyDIP::sum(std::forward<T>(actual_img));
+                                if constexpr (requires { TinyDIP::sum(std::forward<T>(actual_data)); })
+                                {
+                                    return TinyDIP::sum(std::forward<T>(actual_data));
+                                }
+                                else
+                                {
+                                    using ValT = std::ranges::range_value_t<T>;
+                                    return std::accumulate(std::ranges::begin(actual_data), std::ranges::end(actual_data), ValT{});
+                                }
                             };
 
                             auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
                                 requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                             {
-                                if constexpr (requires { TinyDIP::sum(std::forward<ExecPolicy>(exec_policy), std::forward<T>(actual_img)); })
+                                if constexpr (requires { TinyDIP::sum(std::forward<ExecPolicy>(exec_policy), std::forward<T>(actual_data)); })
                                 {
-                                    return TinyDIP::sum(std::forward<ExecPolicy>(exec_policy), std::forward<T>(actual_img));
+                                    return TinyDIP::sum(std::forward<ExecPolicy>(exec_policy), std::forward<T>(actual_data));
+                                }
+                                else if constexpr (requires { std::reduce(std::forward<ExecPolicy>(exec_policy), std::ranges::begin(actual_data), std::ranges::end(actual_data)); })
+                                {
+                                    return std::reduce(std::forward<ExecPolicy>(exec_policy), std::ranges::begin(actual_data), std::ranges::end(actual_data));
                                 }
                                 else
                                 {
                                     if (!std::ranges::empty(policy_str))
                                     {
-                                        os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                        os << "Warning: Execution policy requested but not supported for this data type/operation. Falling back to default.\n";
                                     }
                                     return exec_default();
                                 }
@@ -2376,28 +2388,13 @@ int main(int argc, char* argv[])
                             else return exec_default();
                         };
 
-                        if constexpr (std::same_as<std::remove_cvref_t<ImageType>, TinyDIP::Image<TinyDIP::RGB>>)
+                        if constexpr (std::same_as<std::remove_cvref_t<DataT>, TinyDIP::Image<TinyDIP::RGB>>)
                         {
-                            // Explicitly cast to RGB_DOUBLE prior to calling process_sum_impl to prevent internal summation overflow
-                            TinyDIP::Image<TinyDIP::RGB_DOUBLE> rgb_double_img(img.getWidth(), img.getHeight());
-                            
-                            for (std::size_t y = 0; y < img.getHeight(); ++y)
-                            {
-                                for (std::size_t x = 0; x < img.getWidth(); ++x)
-                                {
-                                    const auto& p = img.at(x, y);
-                                    rgb_double_img.at(x, y) = TinyDIP::RGB_DOUBLE{
-                                        static_cast<double>(p.channels[0]),
-                                        static_cast<double>(p.channels[1]),
-                                        static_cast<double>(p.channels[2])
-                                    };
-                                }
-                            }
-                            return process_sum_impl(std::move(rgb_double_img));
+                            return process_sum_impl(TinyDIP::im2double(std::forward<DataT>(img)));
                         }
                         else
                         {
-                            return process_sum_impl(std::forward<ImageType>(img));
+                            return process_sum_impl(std::forward<DataT>(img));
                         }
                     };
                 }
