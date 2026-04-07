@@ -279,19 +279,26 @@ auto myHighLightRegion_parameters(const std::size_t index = 0)
         >> collection;
 }
 
+// ------------------------------------------------------------------------------------
+//  Iterable Container Detection Traits
+// ------------------------------------------------------------------------------------
+
 //  is_vector template struct implementation
-template <typename T>
-struct is_vector : std::false_type
-{
-};
+template <typename T> struct is_vector : std::false_type {};
+template <typename T, typename A> struct is_vector<std::vector<T, A>> : std::true_type {};
+template <typename T> inline constexpr bool is_vector_v = is_vector<T>::value;
 
-template <typename T, typename A>
-struct is_vector<std::vector<T, A>> : std::true_type
-{
-};
+template <typename T> struct is_deque : std::false_type {};
+template <typename T, typename A> struct is_deque<std::deque<T, A>> : std::true_type {};
+template <typename T> inline constexpr bool is_deque_v = is_deque<T>::value;
 
-template <typename T>
-inline constexpr bool is_vector_v = is_vector<T>::value;
+template <typename T> struct is_list : std::false_type {};
+template <typename T, typename A> struct is_list<std::list<T, A>> : std::true_type {};
+template <typename T> inline constexpr bool is_list_v = is_list<T>::value;
+
+template <typename T> struct is_std_array : std::false_type {};
+template <typename T, std::size_t N> struct is_std_array<std::array<T, N>> : std::true_type {};
+template <typename T> inline constexpr bool is_std_array_v = is_std_array<T>::value;
 
 //  match_any_type template function implementation
 template <typename TupleT, class FunT>
