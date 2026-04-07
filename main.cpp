@@ -1158,7 +1158,7 @@ struct MetaScalarHandler
             }
         };
 
-        if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_scalar))
+        if (!dispatch_data_operation<master_data_types>(input_arg, workspace_, image_loader_fun, process_scalar))
         {
             os << "Error: Memory variable not found or unsupported type.\n";
         }
