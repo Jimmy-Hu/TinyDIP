@@ -1351,7 +1351,7 @@ struct WriteHandler
             image_saver_fun(output_arg, workspace_, std::forward<ImageType>(input_img));
         };
 
-        if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_write))
+        if (!dispatch_data_operation(input_arg, workspace_, image_loader_fun, process_write))
         {
             os << "Error: Memory variable not found or unsupported type.\n";
             return;
