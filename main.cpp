@@ -303,6 +303,68 @@ constexpr bool match_any_type(FunT&& func)
     }(std::type_identity<TupleT>{});
 }
 
+// ------------------------------------------------------------------------------------
+//  Advanced Metaprogramming Type Generation Registries
+// ------------------------------------------------------------------------------------
+
+// Core Fundamental Types
+using core_numeric_types = std::tuple<
+    bool, char, signed char, unsigned char,
+    short, unsigned short, int, unsigned int,
+    long, unsigned long, long long, unsigned long long,
+    std::int8_t, std::int16_t, std::int32_t, std::int64_t,
+    std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t,
+    float, double, long double, std::size_t, std::ptrdiff_t
+>;
+
+using core_floating_point_types = std::tuple<float, double, long double>;
+
+// Metaprogramming Mapping Tools
+template <template <typename...> class Wrapper, typename Tuple>
+struct tuple_map;
+
+template <template <typename...> class Wrapper, typename... Ts>
+struct tuple_map<Wrapper, std::tuple<Ts...>>
+{
+    using type = std::tuple<Wrapper<Ts>...>;
+};
+
+template <template <typename...> class Wrapper, typename Tuple>
+using tuple_map_t = typename tuple_map<Wrapper, Tuple>::type;
+
+template <typename... Tuples>
+using tuple_cat_t = decltype(std::tuple_cat(std::declval<Tuples>()...));
+
+// Exhaustive Derived Type Auto-Generation
+using all_multichannel_types = tuple_map_t<TinyDIP::MultiChannel, core_numeric_types>;
+using all_complex_types = tuple_map_t<std::complex, core_floating_point_types>;
+using all_vector_types = tuple_map_t<std::vector, core_numeric_types>;
+using all_custom_scalar_types = std::tuple<TinyDIP::RGB, TinyDIP::RGB_DOUBLE, TinyDIP::HSV>;
+
+// Master Scalar Tuple (Exhaustively includes ALL valid scalar output types)
+using master_scalar_types = tuple_cat_t<
+    core_numeric_types,
+    all_custom_scalar_types,
+    all_multichannel_types,
+    all_complex_types,
+    all_vector_types
+>;
+
+// Master Image Tuple (Exhaustively includes ALL valid image structures)
+using master_image_types = tuple_cat_t<
+    tuple_map_t<TinyDIP::Image, core_numeric_types>,
+    tuple_map_t<TinyDIP::Image, all_custom_scalar_types>,
+    tuple_map_t<TinyDIP::Image, all_multichannel_types>
+>;
+
+// Distinct tuple exclusively tailored for segregating complex formatting logic
+using complex_scalar_types_for_printing = tuple_cat_t<
+    all_custom_scalar_types,
+    all_multichannel_types,
+    all_complex_types,
+    all_vector_types
+>;
+
 //  get_type_name template function implementation
 //  Generic compile-time helper to automatically extract exact human-readable string views for any type.
 //  This utilizes compile-time SFINAE reflection over compiler signature macros.
