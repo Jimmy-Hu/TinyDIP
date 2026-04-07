@@ -715,12 +715,12 @@ public:
     };
 };
 
-//  dispatch_image_operation template function implementation
-//  Generic helper to dynamically load and dispatch an image (from memory or disk) to a processor lambda
-template <typename ProcessorFun, typename ImageLoaderFun>
+//  dispatch_data_operation template function implementation
+//  Generic helper to dynamically load and dispatch data (from memory or disk) to a processor lambda
+template <typename CheckingTypes = master_image_types, typename ProcessorFun, typename ImageLoaderFun>
 requires (std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&> &&
           std::invocable<ProcessorFun, std::invoke_result_t<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&>>)
-constexpr bool dispatch_image_operation(
+constexpr bool dispatch_data_operation(
     const std::string_view input_arg,
     const std::shared_ptr<Workspace>& workspace,
     ImageLoaderFun&& image_loader,
@@ -740,15 +740,7 @@ constexpr bool dispatch_image_operation(
             return false;
         };
 
-        using checking_types = std::tuple<
-            TinyDIP::Image<TinyDIP::RGB>, 
-            TinyDIP::Image<double>, 
-            TinyDIP::Image<TinyDIP::RGB_DOUBLE>,
-            TinyDIP::Image<TinyDIP::HSV>,
-            TinyDIP::Image<TinyDIP::MultiChannel<double>>
-        >;
-
-        return match_any_type<checking_types>(try_process);
+        return match_any_type<CheckingTypes>(try_process);
     }
     else
     {
