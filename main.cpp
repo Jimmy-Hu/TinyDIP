@@ -996,16 +996,6 @@ struct MetaTransformHandler
         {
             std::any output_any = core_processor(std::forward<ImageType>(input_img));
 
-            using output_image_types = std::tuple<
-                TinyDIP::Image<TinyDIP::RGB>, 
-                TinyDIP::Image<double>, 
-                TinyDIP::Image<TinyDIP::RGB_DOUBLE>,
-                TinyDIP::Image<TinyDIP::HSV>,
-                TinyDIP::Image<TinyDIP::MultiChannel<double>>,
-                TinyDIP::Image<TinyDIP::MultiChannel<float>>,
-                TinyDIP::Image<TinyDIP::MultiChannel<std::uint8_t>>
-            >;
-
             bool handled = false;
             auto try_save_output = [&]<typename OutT>() -> bool
             {
@@ -1019,7 +1009,7 @@ struct MetaTransformHandler
                 return false;
             };
 
-            if (!match_any_type<output_image_types>(try_save_output))
+            if (!match_any_type<master_image_types>(try_save_output))
             {
                 os << "Error: Output type from processor is unknown or unsupported. Type Name: [" 
                    << output_any.type().name() << "]\n";
