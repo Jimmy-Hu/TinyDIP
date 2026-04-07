@@ -279,6 +279,20 @@ auto myHighLightRegion_parameters(const std::size_t index = 0)
         >> collection;
 }
 
+//  is_vector template struct implementation
+template <typename T>
+struct is_vector : std::false_type
+{
+};
+
+template <typename T, typename A>
+struct is_vector<std::vector<T, A>> : std::true_type
+{
+};
+
+template <typename T>
+inline constexpr bool is_vector_v = is_vector<T>::value;
+
 //  match_any_type template function implementation
 template <typename TupleT, class FunT>
 constexpr bool match_any_type(FunT&& func)
