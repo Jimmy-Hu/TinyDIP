@@ -1093,19 +1093,6 @@ struct MetaScalarHandler
         {
             std::any scalar_result_any = core_processor(std::forward<ImageType>(input_img));
 
-            using scalar_types = std::tuple<
-                bool, char, signed char, unsigned char,
-                short, unsigned short, int, unsigned int,
-                long, unsigned long, long long, unsigned long long,
-                std::int8_t, std::int16_t, std::int32_t, std::int64_t,
-                std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t,
-                float, double, long double, std::size_t, std::ptrdiff_t,
-                std::complex<float>, std::complex<double>, std::complex<long double>,
-                TinyDIP::RGB, TinyDIP::RGB_DOUBLE, TinyDIP::HSV, 
-                TinyDIP::MultiChannel<std::uint8_t>, TinyDIP::MultiChannel<int>, 
-                TinyDIP::MultiChannel<float>, TinyDIP::MultiChannel<double>
-            >;
-
             bool handled = false;
             auto handle_result = [&]<typename ScalarT>() -> bool
             {
@@ -1137,6 +1124,21 @@ struct MetaScalarHandler
                                 os << capitalized_op_name_ << " result: " << scalar_result << "\n";
                             }
                         }
+                        else if constexpr (is_vector_v<ScalarT> || is_deque_v<ScalarT> || is_list_v<ScalarT> || is_std_array_v<ScalarT>)
+                        {
+                            os << capitalized_op_name_ << " result: {";
+                            bool first = true;
+                            for (const auto& elem : scalar_result)
+                            {
+                                if (!first)
+                                {
+                                    os << ", ";
+                                }
+                                os << +elem;
+                                first = false;
+                            }
+                            os << "}\n";
+                        }
                         else
                         {
                             os << capitalized_op_name_ << " result evaluated successfully (Non-printable complex type).\n";
@@ -1148,7 +1150,7 @@ struct MetaScalarHandler
                 return false;
             };
 
-            if (!match_any_type<scalar_types>(handle_result))
+            if (!match_any_type<master_scalar_types>(handle_result))
             {
                 os << "Error: Output type from processor is unknown or unsupported. Type Name: [" 
                    << scalar_result_any.type().name() << "]\n";
