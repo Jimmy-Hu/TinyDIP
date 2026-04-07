@@ -1017,7 +1017,7 @@ struct MetaTransformHandler
             }
         };
 
-        if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_wrapper))
+        if (!dispatch_data_operation(input_arg, workspace_, image_loader_fun, process_wrapper))
         {
             os << "Error: Memory variable not found or unsupported type.\n";
         }
