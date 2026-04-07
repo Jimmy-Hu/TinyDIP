@@ -1221,7 +1221,7 @@ struct ReadHandler
             image_saver_fun(output_arg, workspace_, std::forward<ImageType>(input_img));
         };
 
-        if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_read))
+        if (!dispatch_data_operation(input_arg, workspace_, image_loader_fun, process_read))
         {
             os << "Error: Memory variable not found or unsupported type.\n";
             return;
