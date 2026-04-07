@@ -346,8 +346,15 @@ using tuple_cat_t = decltype(std::tuple_cat(std::declval<Tuples>()...));
 template <typename T>
 using array_3_t = std::array<T, 3>;
 
+// Helper aliases to bridge TinyDIP's Non-Type Template Parameters (NTTP) for tuple mapping
+template <typename T>
+using multichannel_t = TinyDIP::MultiChannel<T>;
+
+template <typename T>
+using image_t = TinyDIP::Image<T>;
+
 // Exhaustive Derived Type Auto-Generation
-using all_multichannel_types = tuple_map_t<TinyDIP::MultiChannel, core_numeric_types>;
+using all_multichannel_types = tuple_map_t<multichannel_t, core_numeric_types>;
 using all_complex_types = tuple_map_t<std::complex, core_floating_point_types>;
 using all_vector_types = tuple_map_t<std::vector, core_numeric_types>;
 using all_deque_types = tuple_map_t<std::deque, core_numeric_types>;
@@ -369,9 +376,9 @@ using master_scalar_types = tuple_cat_t<
 
 // Master Image Tuple (Exhaustively includes ALL valid image structures)
 using master_image_types = tuple_cat_t<
-    tuple_map_t<TinyDIP::Image, core_numeric_types>,
-    tuple_map_t<TinyDIP::Image, all_custom_scalar_types>,
-    tuple_map_t<TinyDIP::Image, all_multichannel_types>
+    tuple_map_t<image_t, core_numeric_types>,
+    tuple_map_t<image_t, all_custom_scalar_types>,
+    tuple_map_t<image_t, all_multichannel_types>
 >;
 
 // Distinct tuple exclusively tailored for segregating complex formatting logic natively
