@@ -1555,7 +1555,7 @@ struct InfoHandler
             os << "  Height: " << img.getHeight() << "\n";
         };
 
-        if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_info))
+        if (!dispatch_data_operation(input_arg, workspace_, image_loader_fun, process_info))
         {
             os << "Error: Memory variable not found or unsupported type.\n";
         }
