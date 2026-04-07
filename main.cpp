@@ -335,19 +335,29 @@ using tuple_map_t = typename tuple_map<Wrapper, Tuple>::type;
 template <typename... Tuples>
 using tuple_cat_t = decltype(std::tuple_cat(std::declval<Tuples>()...));
 
+// Helper alias to bridge std::array's Non-Type Template Parameter (NTTP) for tuple mapping
+template <typename T>
+using array_3_t = std::array<T, 3>;
+
 // Exhaustive Derived Type Auto-Generation
 using all_multichannel_types = tuple_map_t<TinyDIP::MultiChannel, core_numeric_types>;
 using all_complex_types = tuple_map_t<std::complex, core_floating_point_types>;
 using all_vector_types = tuple_map_t<std::vector, core_numeric_types>;
+using all_deque_types = tuple_map_t<std::deque, core_numeric_types>;
+using all_list_types = tuple_map_t<std::list, core_numeric_types>;
+using all_array_3_types = tuple_map_t<array_3_t, core_numeric_types>;
 using all_custom_scalar_types = std::tuple<TinyDIP::RGB, TinyDIP::RGB_DOUBLE, TinyDIP::HSV>;
 
-// Master Scalar Tuple (Exhaustively includes ALL valid scalar output types)
+// Master Scalar Tuple (Exhaustively includes ALL valid scalar and container output types)
 using master_scalar_types = tuple_cat_t<
     core_numeric_types,
     all_custom_scalar_types,
     all_multichannel_types,
     all_complex_types,
-    all_vector_types
+    all_vector_types,
+    all_deque_types,
+    all_list_types,
+    all_array_3_types
 >;
 
 // Master Image Tuple (Exhaustively includes ALL valid image structures)
@@ -357,12 +367,15 @@ using master_image_types = tuple_cat_t<
     tuple_map_t<TinyDIP::Image, all_multichannel_types>
 >;
 
-// Distinct tuple exclusively tailored for segregating complex formatting logic
+// Distinct tuple exclusively tailored for segregating complex formatting logic natively
 using complex_scalar_types_for_printing = tuple_cat_t<
     all_custom_scalar_types,
     all_multichannel_types,
     all_complex_types,
-    all_vector_types
+    all_vector_types,
+    all_deque_types,
+    all_list_types,
+    all_array_3_types
 >;
 
 //  get_type_name template function implementation
