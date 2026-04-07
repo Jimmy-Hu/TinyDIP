@@ -376,6 +376,20 @@ struct Workspace
         return false;
     }
 
+    //  rename function implementation
+    bool rename(const std::string_view old_name, const std::string_view new_name)
+    {
+        const std::string old_key(old_name);
+        if (auto it = memory_store.find(old_key); it != std::ranges::end(memory_store))
+        {
+            //  Use std::move to natively transfer ownership of the type-erased object with zero-copy
+            memory_store[std::string(new_name)] = std::move(it->second);
+            memory_store.erase(it);
+            return true;
+        }
+        return false;
+    }
+
     //  Clear all elements in the workspace memory store
     void clear()
     {
