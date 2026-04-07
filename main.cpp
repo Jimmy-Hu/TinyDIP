@@ -381,6 +381,15 @@ using master_image_types = tuple_cat_t<
     tuple_map_t<image_t, all_multichannel_types>
 >;
 
+// Master Data Tuple (Exhaustively includes ALL valid image structures AND containers)
+using master_data_types = tuple_cat_t<
+    master_image_types,
+    all_vector_types,
+    all_deque_types,
+    all_list_types,
+    all_array_3_types
+>;
+
 // Distinct tuple exclusively tailored for segregating complex formatting logic natively
 using complex_scalar_types_for_printing = tuple_cat_t<
     all_custom_scalar_types,
