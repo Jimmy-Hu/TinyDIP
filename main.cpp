@@ -1592,49 +1592,55 @@ struct PrintHandler
             os << "Done.\n";
         };
 
-        if (!dispatch_image_operation(input_arg, workspace_, image_loader_fun, process_print))
+        if (!dispatch_data_operation(input_arg, workspace_, image_loader_fun, process_print))
         {
-            // If dispatch_image_operation returns false, it must be a $ variable holding a scalar or unsupported type
+            // If dispatch_data_operation returns false, it must be a $ variable holding a scalar or unsupported type
             const std::string_view var_name = input_arg.substr(1);
             
-            using complex_scalar_types = std::tuple<
-                TinyDIP::RGB_DOUBLE,
-                TinyDIP::HSV,
-                TinyDIP::MultiChannel<double>
-            >;
-
             // Polymorphic lambda returning true if the complex custom scalar type matched
             auto try_print_complex_scalar = [&]<typename T>() -> bool
             {
                 if (workspace_->retrieve<T>(var_name))
                 {
                     os << "Printing scalar value for " << input_arg << ":\n";
-                    os << *workspace_->retrieve<T>(var_name) << "\nDone.\n";
+                    if constexpr (is_vector_v<T> || is_deque_v<T> || is_list_v<T> || is_std_array_v<T>)
+                    {
+                        os << "container value = {";
+                        bool first = true;
+                        const auto* container_ptr = workspace_->retrieve<T>(var_name);
+                        for (const auto& elem : *container_ptr)
+                        {
+                            if (!first)
+                            {
+                                os << ", ";
+                            }
+                            os << +elem;
+                            first = false;
+                        }
+                        os << "}\nDone.\n";
+                    }
+                    else
+                    {
+                        os << *workspace_->retrieve<T>(var_name) << "\nDone.\n";
+                    }
                     return true;
                 }
                 return false;
             };
 
-            if (match_any_type<complex_scalar_types>(try_print_complex_scalar))
+            if (match_any_type<complex_scalar_types_for_printing>(try_print_complex_scalar))
             {
                 // Handled successfully by try_print_complex_scalar short-circuit logic
             }
             else
             {
-                using numeric_types = std::tuple<
-                    bool, char, signed char, unsigned char,
-                    short, unsigned short, int, unsigned int,
-                    long, unsigned long, long long, unsigned long long,
-                    float, double, long double, std::size_t
-                >;
-
                 // Polymorphic lambda returning true if the numeric type matched
                 auto try_print_numeric = [&]<typename T>() -> bool
                 {
                     if (workspace_->retrieve<T>(var_name))
                     {
                         os << "Printing scalar value for " << input_arg << ":\n";
-                        if constexpr (sizeof(T) == 1) // Safely print 8-bit integer types as numbers, not unprintable chars
+                        if constexpr (sizeof(T) == 1 && std::is_integral_v<T>) // Safely print 8-bit integer types as numbers, not unprintable chars
                         {
                             os << +(*workspace_->retrieve<T>(var_name)) << "\nDone.\n";
                         }
@@ -1647,7 +1653,7 @@ struct PrintHandler
                     return false;
                 };
 
-                if (!match_any_type<numeric_types>(try_print_numeric))
+                if (!match_any_type<core_numeric_types>(try_print_numeric))
                 {
                     os << "Error: Memory variable not found or unsupported type.\n";
                 }
