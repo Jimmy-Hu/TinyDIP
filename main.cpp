@@ -434,7 +434,9 @@ struct Workspace
                 TinyDIP::Image<double>, 
                 TinyDIP::Image<TinyDIP::RGB_DOUBLE>,
                 TinyDIP::Image<TinyDIP::HSV>,
-                TinyDIP::Image<TinyDIP::MultiChannel<double>>
+                TinyDIP::Image<TinyDIP::MultiChannel<double>>,
+                TinyDIP::Image<TinyDIP::MultiChannel<float>>,
+                TinyDIP::Image<TinyDIP::MultiChannel<std::uint8_t>>
             >;
 
             // Polymorphic lambda returning true if the image type matched
@@ -454,7 +456,12 @@ struct Workspace
             using complex_scalar_types = std::tuple<
                 TinyDIP::RGB_DOUBLE,
                 TinyDIP::HSV,
-                TinyDIP::MultiChannel<double>
+                TinyDIP::MultiChannel<double>,
+                TinyDIP::MultiChannel<float>,
+                TinyDIP::MultiChannel<std::uint8_t>,
+                std::complex<float>,
+                std::complex<double>,
+                std::complex<long double>
             >;
 
             // Polymorphic lambda returning true if the complex custom scalar type matched
@@ -483,7 +490,10 @@ struct Workspace
                     bool, char, signed char, unsigned char,
                     short, unsigned short, int, unsigned int,
                     long, unsigned long, long long, unsigned long long,
-                    float, double, long double, std::size_t
+                    std::int8_t, std::int16_t, std::int32_t, std::int64_t,
+                    std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t,
+                    float, double, long double, std::size_t, std::ptrdiff_t,
+                    TinyDIP::RGB
                 >;
 
                 // Polymorphic lambda returning true if the numeric type matched
@@ -492,7 +502,7 @@ struct Workspace
                     if (value.type() == typeid(T))
                     {
                         print_prefix.template operator()<T>();
-                        if constexpr (sizeof(T) == 1) // Safely print 8-bit integer types as numbers, not unprintable chars
+                        if constexpr (sizeof(T) == 1 && std::is_integral_v<T>) // Safely print 8-bit integer types as numbers, not unprintable chars
                         {
                             os << ", scalar value = " << +std::any_cast<T>(value);
                         }
