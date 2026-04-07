@@ -2266,9 +2266,9 @@ int main(int argc, char* argv[])
             )
         },
         CommandBundle{"load_workspace", "Load memory variables from a directory bundle.", IndependentSchema, LoadWorkspaceHandler{workspace}},
-        CommandBundle{"max", "Calculate the maximum value of an image.", TransformerSchema, 
+        CommandBundle{"max", "Calculate the maximum value of an image or container.", TransformerSchema, 
             make_meta_scalar_handler<1>(
-                "max <input_img | $var> [output_var | $var]", 
+                "max <input_data | $var> [output_var | $var]", 
                 "max", "Max", 
                 workspace,
                 [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
@@ -2279,16 +2279,23 @@ int main(int argc, char* argv[])
                     }
                     os << "Calculating max of " << filtered_args[0] << "...\n";
 
-                    return []<typename ImageType>(ImageType&& img) -> std::any
+                    return []<typename DataT>(DataT&& data) -> std::any
                     {
-                        return TinyDIP::max(std::forward<ImageType>(img));
+                        if constexpr (requires { TinyDIP::max(std::forward<DataT>(data)); })
+                        {
+                            return TinyDIP::max(std::forward<DataT>(data));
+                        }
+                        else
+                        {
+                            return std::ranges::max(std::forward<DataT>(data));
+                        }
                     };
                 }
             )
         },
-        CommandBundle{"min", "Calculate the minimum value of an image.", TransformerSchema, 
+        CommandBundle{"min", "Calculate the minimum value of an image or container.", TransformerSchema, 
             make_meta_scalar_handler<1>(
-                "min <input_img | $var> [output_var | $var]", 
+                "min <input_data | $var> [output_var | $var]", 
                 "min", "Min", 
                 workspace,
                 [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
@@ -2299,9 +2306,16 @@ int main(int argc, char* argv[])
                     }
                     os << "Calculating min of " << filtered_args[0] << "...\n";
 
-                    return []<typename ImageType>(ImageType&& img) -> std::any
+                    return []<typename DataT>(DataT&& data) -> std::any
                     {
-                        return TinyDIP::min(std::forward<ImageType>(img));
+                        if constexpr (requires { TinyDIP::min(std::forward<DataT>(data)); })
+                        {
+                            return TinyDIP::min(std::forward<DataT>(data));
+                        }
+                        else
+                        {
+                            return std::ranges::min(std::forward<DataT>(data));
+                        }
                     };
                 }
             )
