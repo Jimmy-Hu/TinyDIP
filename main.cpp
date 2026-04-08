@@ -342,9 +342,45 @@ using tuple_map_t = typename tuple_map<Wrapper, Tuple>::type;
 template <typename... Tuples>
 using tuple_cat_t = decltype(std::tuple_cat(std::declval<Tuples>()...));
 
-// Helper alias to bridge std::array's Non-Type Template Parameter (NTTP) for tuple mapping
-template <typename T>
-using array_3_t = std::array<T, 3>;
+// -----------------------------------------------------------------------------
+// Advanced NTTP Metaprogramming: Dynamic Array Size Generation
+// -----------------------------------------------------------------------------
+
+// Generate an index sequence representing [Min, Max]
+template <std::size_t Min, std::size_t Max, std::size_t... Is>
+constexpr auto make_range_sequence_impl(std::index_sequence<Is...>)
+{
+    return std::index_sequence<(Min + Is)...>{};
+}
+
+template <std::size_t Min, std::size_t Max>
+requires (Min <= Max)
+using make_range_sequence = decltype(make_range_sequence_impl<Min, Max>(std::make_index_sequence<Max - Min + 1>{}));
+
+// Map an entire Tuple of types to std::array<T, N> for a fixed size N
+template <typename Tuple, std::size_t N>
+struct make_array_tuple;
+
+template <typename... Ts, std::size_t N>
+struct make_array_tuple<std::tuple<Ts...>, N>
+{
+    using type = std::tuple<std::array<Ts, N>...>;
+};
+
+// Perform a cartesian product: Concatenate make_array_tuple for all Ns in the sequence
+template <typename Tuple, typename IndexSeq>
+struct generate_arrays_impl;
+
+template <typename Tuple, std::size_t... Ns>
+struct generate_arrays_impl<Tuple, std::index_sequence<Ns...>>
+{
+    // Expands to tuple_cat_t< std::tuple<std::array<Ts, 3>...>, std::tuple<std::array<Ts, 4>...>, ... >
+    using type = tuple_cat_t<typename make_array_tuple<Tuple, Ns>::type...>;
+};
+
+// User-friendly alias
+template <typename Tuple, std::size_t Min, std::size_t Max>
+using generate_arrays_t = typename generate_arrays_impl<Tuple, make_range_sequence<Min, Max>>::type;
 
 // Helper aliases to bridge TinyDIP's Non-Type Template Parameters (NTTP) for tuple mapping
 template <typename T>
