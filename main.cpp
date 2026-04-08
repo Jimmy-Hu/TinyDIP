@@ -706,7 +706,7 @@ public:
             }
             else
             {
-                throw std::invalid_argument("Direct file reading is not explicitly implemented for this abstract image type.");
+                throw std::invalid_argument("Direct file reading is not explicitly implemented for this abstract/complex image type.");
             }
         }
     };
@@ -744,7 +744,7 @@ public:
                 }
                 else
                 {
-                    throw std::invalid_argument("Direct file writing is not explicitly implemented for this abstract image type.");
+                    throw std::invalid_argument("Direct file writing is not explicitly implemented for this abstract/complex image type.");
                 }
             }
         }
