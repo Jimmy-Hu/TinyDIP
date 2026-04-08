@@ -1,5 +1,5 @@
 /* Developed by Jimmy Hu 
-    dct2Test2.cpp is an example for converting spatial domain image to DCT domain image
+    dct2Test2.cpp is an example for converting spatial domain image to block-based (8 x 8) DCT domain image
     each_image Function takes input_path of BMP file and output_path of DBMP (double BMP) file
 
 */
