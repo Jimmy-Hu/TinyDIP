@@ -395,7 +395,7 @@ using all_complex_types = tuple_map_t<std::complex, core_floating_point_types>;
 using all_vector_types = tuple_map_t<std::vector, core_numeric_types>;
 using all_deque_types = tuple_map_t<std::deque, core_numeric_types>;
 using all_list_types = tuple_map_t<std::list, core_numeric_types>;
-using all_array_3_types = tuple_map_t<array_3_t, core_numeric_types>;
+using all_array_types = generate_arrays_t<core_numeric_types, 3, 4>;
 using all_custom_scalar_types = std::tuple<TinyDIP::RGB, TinyDIP::RGB_DOUBLE, TinyDIP::HSV>;
 
 // Master Scalar Tuple (Exhaustively includes ALL valid scalar and container output types)
@@ -407,7 +407,7 @@ using master_scalar_types = tuple_cat_t<
     all_vector_types,
     all_deque_types,
     all_list_types,
-    all_array_3_types
+    all_array_types
 >;
 
 // Master Image Tuple (Exhaustively includes ALL valid image structures)
@@ -423,7 +423,7 @@ using master_data_types = tuple_cat_t<
     all_vector_types,
     all_deque_types,
     all_list_types,
-    all_array_3_types
+    all_array_types
 >;
 
 // Distinct tuple exclusively tailored for segregating complex formatting logic natively
@@ -434,7 +434,7 @@ using complex_scalar_types_for_printing = tuple_cat_t<
     all_vector_types,
     all_deque_types,
     all_list_types,
-    all_array_3_types
+    all_array_types
 >;
 
 //  get_type_name template function implementation
