@@ -62,9 +62,33 @@ int main(int argc, char* argv[])
             }
         }
     }
+    else if (argc == 5)
+    {
+        std::filesystem::path input_background_image_path = std::string(argv[1]);
+        if (!std::filesystem::exists(input_background_image_path))
+        {
+            throw std::runtime_error(TinyDIP::Formatter() << "File not found: " << input_background_image_path << '\n');
+        }
+        std::filesystem::path input_path = std::string(argv[2]);
+        std::filesystem::path output_path = std::string(argv[3]);
+        auto threshold = std::stod(std::string(argv[4]));
+        
+        std::string target_ext = ".bmp";
+        if (std::filesystem::is_directory(input_path) && std::filesystem::is_directory(output_path))
+        {
+            for (const auto & entry : std::filesystem::directory_iterator(input_path))
+            {
+                if (entry.is_regular_file() && entry.path().extension() == target_ext)
+                {
+                    std::cout << "Processing " << entry.path() << '\n';
+                    backgroundTest(input_background_image_path, entry.path(), std::string(output_path / entry.path().stem()), threshold);
+                }
+            }
+        }
+    }
     else
     {
-        std::cout << "Usage: " << argv[0] << " <input background image> <input image folder> <output image folder>\n";
+        std::cout << "Usage: " << argv[0] << " <input background image> <input image folder> <output image folder> [threshold]\n";
     }
     return EXIT_SUCCESS;
 }
