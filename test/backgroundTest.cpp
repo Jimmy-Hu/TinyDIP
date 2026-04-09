@@ -24,7 +24,8 @@ void backgroundTest(const std::filesystem::path& background_image_path, const st
         TinyDIP::Image<TinyDIP::RGB> output_image(1920, 720);
         output_image = TinyDIP::pixelwise_transform([&](const auto& background_image_pixel, const auto& foreground_image_pixel)
         {
-            if ((foreground_image_pixel.channels[0] == 0) && (foreground_image_pixel.channels[1] == 0) && (foreground_image_pixel.channels[2] == 0))
+            auto hsv_pixel = TinyDIP::rgb2hsv(foreground_image_pixel);
+            if (hsv_pixel.channels[2] < 10)
             {
                 return background_image_pixel;
             }
