@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
                 if (entry.is_regular_file() && entry.path().extension() == target_ext)
                 {
                     std::cout << "Processing " << entry.path() << '\n';
-                    backgroundTest(entry.path(), std::string(output_path / entry.path().stem()));
+                    backgroundTest(input_background_image_path, entry.path(), std::string(output_path / entry.path().stem()));
                 }
             }
         }
