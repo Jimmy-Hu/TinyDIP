@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-        std::cout << "Usage: " << argv[0] << " <input background image> <input image folder> <output image folder>\n"
+        std::cout << "Usage: " << argv[0] << " <input background image> <input image folder> <output image folder>\n";
     }
     return EXIT_SUCCESS;
 }
