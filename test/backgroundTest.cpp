@@ -14,7 +14,7 @@
 #include "../timer.h"
 
 //  backgroundTest function implementation
-void backgroundTest(const std::filesystem::path& background_image_path, const std::filesystem::path& file_path, std::string_view output_path)
+void backgroundTest(const std::filesystem::path& background_image_path, const std::filesystem::path& file_path, std::string_view output_path, const double threshold = 50)
 {
     auto background_image = TinyDIP::bmp_read(background_image_path.string().c_str(), true);
     auto background_image_1920x720 = TinyDIP::copyResizeBicubic(background_image, 1920, 720);
@@ -25,7 +25,7 @@ void backgroundTest(const std::filesystem::path& background_image_path, const st
         output_image = TinyDIP::pixelwise_transform([&](const auto& background_image_pixel, const auto& foreground_image_pixel)
         {
             auto hsv_pixel = TinyDIP::rgb2hsv(foreground_image_pixel);
-            if (hsv_pixel.channels[2] < 10)
+            if (hsv_pixel.channels[2] < threshold)
             {
                 return background_image_pixel;
             }
