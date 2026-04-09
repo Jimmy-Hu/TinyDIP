@@ -22,11 +22,11 @@ void backgroundTest(const std::filesystem::path& background_image_path, const st
     {
         auto image_input = TinyDIP::bmp_read(file_path.string().c_str(), true);
         TinyDIP::Image<TinyDIP::RGB> output_image(1920, 720);
-        output_image = TinyDIP::pixelwise_transform([&](auto&& background_image_pixel, auto&& foreground_image_pixel)
+        output_image = TinyDIP::pixelwise_transform([&](const auto& background_image_pixel, const auto& foreground_image_pixel)
         {
             if ((foreground_image_pixel.channels[0] == 0) && (foreground_image_pixel.channels[1] == 0) && (foreground_image_pixel.channels[2] == 0))
             {
-                foreground_image_pixel = background_image_pixel;
+                return background_image_pixel;
             }
             return foreground_image_pixel;
         }, background_image_1920x720, image_input);
