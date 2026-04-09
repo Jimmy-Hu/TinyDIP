@@ -28,6 +28,7 @@ void backgroundTest(const std::filesystem::path& background_image_path, const st
             {
                 foreground_image_pixel = background_image_pixel;
             }
+            return foreground_image_pixel;
         }, background_image_1920x720, image_input);
         TinyDIP::bmp_write(std::string(output_path).c_str(), output_image);
     }
