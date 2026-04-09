@@ -16,10 +16,14 @@
 //  paste2DTest function implementation
 void paste2DTest(const std::filesystem::path& file_path, std::string_view output_path)
 {
-    auto image_input = TinyDIP::bmp_read(file_path.string().c_str(), true);
-    TinyDIP::Image<TinyDIP::RGB> output_image(1920, 720);
-    output_image = TinyDIP::paste2D(output_image, image_input, 0, 0);
-    TinyDIP::bmp_write(std::string(output_path).c_str(), output_image);
+    if (!std::filesystem::exists(output_path))
+    {
+        auto image_input = TinyDIP::bmp_read(file_path.string().c_str(), true);
+        TinyDIP::Image<TinyDIP::RGB> output_image(1920, 720);
+        output_image = TinyDIP::paste2D(output_image, image_input, 0, 0);
+        TinyDIP::bmp_write(std::string(output_path).c_str(), output_image);
+    }
+    return;
 }
 
 int main(int argc, char* argv[])
