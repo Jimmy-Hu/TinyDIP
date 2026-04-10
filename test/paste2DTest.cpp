@@ -13,14 +13,17 @@
 #include "../cube_operations.h"
 #include "../timer.h"
 
-//  paste2DTest function implementation
-void paste2DTest(const std::filesystem::path& file_path, std::string_view output_path)
+//  paste2DTest template function implementation
+template<class ExecutionPolicy>
+requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+void paste2DTest(ExecutionPolicy&& execution_policy, const std::filesystem::path& file_path, std::string_view output_path)
 {
     if (!std::filesystem::exists(output_path))
     {
         auto image_input = TinyDIP::bmp_read(file_path.string().c_str(), true);
+        image_input = TinyDIP::copyResizeBicubic(image_input, 1280, 720);
         TinyDIP::Image<TinyDIP::RGB> output_image(1920, 720);
-        output_image = TinyDIP::paste2D(output_image, image_input, 0, 0);
+        output_image = TinyDIP::paste2D(std::forward<ExecutionPolicy>(execution_policy), output_image, image_input, 0, 0);
         TinyDIP::bmp_write(std::string(output_path).c_str(), output_image);
     }
     return;
