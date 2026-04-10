@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
                 if (entry.is_regular_file() && entry.path().extension() == target_ext)
                 {
                     std::cout << "Processing " << entry.path() << '\n';
-                    paste2DTest(entry.path(), std::string(output_path / entry.path().stem()));
+                    paste2DTest(std::execution::par, entry.path(), std::string(output_path / entry.path().stem()));
                 }
             }
         }
