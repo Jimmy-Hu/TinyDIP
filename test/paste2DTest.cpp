@@ -18,7 +18,7 @@ template<class ExecutionPolicy>
 requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
 void paste2DTest(ExecutionPolicy&& execution_policy, const std::filesystem::path& file_path, std::string_view output_path)
 {
-    if (!std::filesystem::exists(output_path))
+    if (!std::filesystem::exists(std::string(output_path) + std::string(".bmp")))
     {
         auto image_input = TinyDIP::bmp_read(file_path.string().c_str(), true);
         image_input = TinyDIP::copyResizeBicubic(image_input, 1280, 720);
