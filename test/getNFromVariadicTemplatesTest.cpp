@@ -3,10 +3,11 @@
 #include "../basic_functions.h"
 #include "../image.h"
 #include "../image_operations.h"
+#include "../timer.h"
 
 int main()
 {
-    auto start = std::chrono::system_clock::now();
+    TinyDIP::Timer timer1;
     static_assert(TinyDIP::get_from_variadic_template<1>(1, 2, 3, 4, 5) == 1);
     static_assert(TinyDIP::get_from_variadic_template<2>(1, 2, 3, 4, 5) == 2);
     static_assert(TinyDIP::get_from_variadic_template<3>(1, 2, 3, 4, 5) == 3);
@@ -24,7 +25,5 @@ int main()
     assert(TinyDIP::get_from_variadic_template<3>(A, B, C, D, E) == C);
     assert(TinyDIP::get_from_variadic_template<4>(A, B, C, D, E) == D);
     assert(TinyDIP::get_from_variadic_template<5>(A, B, C, D, E) == E);
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
     return EXIT_SUCCESS;
 }
