@@ -32,7 +32,8 @@ void imageElementwiseAddTest(const std::size_t N1 = 10)
 
 int main()
 {
+    TinyDIP::Timer timer1;
     imageElementwiseAddTest();
-    return 0;
+    return EXIT_SUCCESS;
 }
 
