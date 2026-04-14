@@ -3,13 +3,15 @@
 #include "../image.h"
 #include "../image_io.h"
 #include "../image_operations.h"
+#include "../timer.h"
 
 void increaseIntensityTest();
 
 int main()
 {
+    TinyDIP::Timer timer1;
     increaseIntensityTest();
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 void increaseIntensityTest()
