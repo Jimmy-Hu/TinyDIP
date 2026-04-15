@@ -1584,6 +1584,7 @@ struct InfoHandler
 
         // Polymorphic lambda to cleanly print dimensions dynamically independent of image type
         auto process_info = [&]<typename ImageType>(const ImageType& img)
+            requires (TinyDIP::is_Image<std::remove_cvref_t<ImageType>>::value)
         {
             os << "Image Info:\n";
             os << "  Source: " << input_arg << "\n";
