@@ -1623,6 +1623,7 @@ struct PrintHandler
 
         // Polymorphic lambda to cleanly print image content dynamically independent of image type
         auto process_print = [&]<typename ImageType>(const ImageType& img)
+            requires (TinyDIP::is_Image<std::remove_cvref_t<ImageType>>::value)
         {
             os << "Printing image content for " << input_arg << ":\n";
             img.print(",");
