@@ -1764,9 +1764,9 @@ namespace TinyDIP
         {
             return apply_multichannel(input, [&](auto&& _input) {return abs(_input); });
         }
-        else
+        else if constexpr (arithmetic<T>)
         {
-            return std::abs(input);
+            return generic_abs(input);
         }
     }
 
