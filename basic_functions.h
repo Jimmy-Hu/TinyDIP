@@ -54,6 +54,7 @@
 namespace TinyDIP
 {
     //  Image class forward declaration
+    template <typename ElementT>
     class Image;
 
     template<typename T>
