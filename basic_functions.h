@@ -53,6 +53,9 @@
 
 namespace TinyDIP
 {
+    //  Image class forward declaration
+    class Image;
+
     template<typename T>
     concept is_back_inserterable = requires(T x)
     {
