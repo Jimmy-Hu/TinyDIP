@@ -2171,17 +2171,19 @@ int main(int argc, char* argv[])
                                 {
                                     return TinyDIP::abs(std::forward<DataT>(data));
                                 }
+                                else if constexpr (std::ranges::input_range<DecayedDataT>)
+                                {
+                                    return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                        [&](auto&& element) 
+                                        { 
+                                            return generic_abs(std::forward<decltype(element)>(element));
+                                        },
+                                        std::forward<DataT>(data)
+                                    );
+                                }
                                 else
                                 {
-                                    DecayedDataT result = data;
-                                    for (auto& elem : result) 
-                                    {
-                                        if constexpr (requires { std::abs(elem); }) 
-                                        {
-                                            elem = std::abs(elem);
-                                        }
-                                    }
-                                    return result;
+                                    return generic_abs(std::forward<DataT>(data));
                                 }
                             };
 
@@ -2191,6 +2193,17 @@ int main(int argc, char* argv[])
                                 if constexpr (requires { TinyDIP::abs(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data)); })
                                 {
                                     return TinyDIP::abs(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data));
+                                }
+                                else if constexpr (std::ranges::input_range<DecayedDataT>)
+                                {
+                                    return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                        std::forward<ExecPolicy>(exec_policy),
+                                        [&](auto&& element) 
+                                        { 
+                                            return generic_abs(std::forward<decltype(element)>(element));
+                                        },
+                                        std::forward<DataT>(data)
+                                    );
                                 }
                                 else
                                 {
