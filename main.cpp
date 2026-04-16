@@ -978,7 +978,7 @@ public:
 
 //  MetaTransformHandler template struct implementation
 //  Generic Meta Handler strictly refactoring transform commands like abs, bicubic_resize, dct2, idct2, and lanczos_resample
-template <std::size_t MinArgs, typename CheckingTypes = master_image_types, typename SetupFun>
+template <std::size_t MinArgs, typename SetupFun, typename CheckingTypes = master_image_types>
 struct MetaTransformHandler
 {
     std::string_view usage_string_;
