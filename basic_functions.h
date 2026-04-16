@@ -1779,9 +1779,9 @@ namespace TinyDIP
         {
             return apply_multichannel(std::forward<ExecutionPolicy>(execution_policy), input, [&](auto&& _input) {return abs(std::forward<ExecutionPolicy>(execution_policy), _input); });
         }
-        else
+        else if constexpr (arithmetic<T>)
         {
-            return std::abs(input);
+            return generic_abs(input);
         }
     }
 
