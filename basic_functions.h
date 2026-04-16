@@ -1612,8 +1612,10 @@ namespace TinyDIP
         if constexpr (unwrap_level > 0)
         {
             for (const auto& element : input)
-                for (const auto& value : recursive_flatten_view<unwrap_level - 1>(element))
-                    co_yield value;
+            {
+                // Yielding a nested range directly via elements_of (C++23 optimization)
+                co_yield std::ranges::elements_of(recursive_flatten_view<unwrap_level - 1>(element));
+            }
         }
         else
         {
