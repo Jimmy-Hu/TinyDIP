@@ -3108,12 +3108,6 @@ namespace TinyDIP
     }
 
     //  abs template function implementation
-    template<arithmetic ElementT = double>
-    constexpr static auto abs(const ElementT& input)
-    {
-        return std::abs(input);
-    }
-
     template<class ElementT = double>
     constexpr static auto abs(const Image<ElementT>& input)
     {
