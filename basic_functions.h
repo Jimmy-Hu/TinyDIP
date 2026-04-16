@@ -1762,6 +1762,7 @@ namespace TinyDIP
 
     //  abs Template Function Implementation
     template<typename T>
+    requires(is_MultiChannel<T>::value || arithmetic<T>)
     [[nodiscard]] constexpr static auto abs(const T& input)
     {
         if constexpr (Multichannel<T>)
