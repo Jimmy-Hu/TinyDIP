@@ -1177,6 +1177,41 @@ namespace TinyDIP
         }
     }
 
+    //  recursive_transform template function for std::array (the version with unwrap_level, with execution policy)
+    template< std::size_t unwrap_level = 1,
+                class ExPo,
+                template<class, std::size_t> class Container,
+                typename T,
+                std::size_t N,
+                typename F>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>> and
+              std::ranges::input_range<Container<T, N>>)
+    constexpr auto recursive_transform(ExPo&& execution_policy, const F& f, const Container<T, N>& arg1)
+    {
+        if constexpr (unwrap_level > 0)
+        {
+            recursive_array_invoke_result_t<unwrap_level, F, Container, T, N> output{};
+            
+            std::mutex mutex;
+            std::transform(std::forward<ExPo>(execution_policy), std::ranges::cbegin(arg1), std::ranges::cend(arg1), std::ranges::begin(output),
+                [&](auto&& element)
+                {
+                    std::lock_guard lock(mutex);
+                    return recursive_transform<unwrap_level - 1>(execution_policy, f, element);
+                });
+            return output;
+        }
+        else if constexpr(std::regular_invocable<F, Container<T, N>>)
+        {
+            return std::invoke(f, arg1);
+        }
+        else
+        {
+            static_assert(!std::regular_invocable<F, Container<T, N>>, "The function passed to recursive_transform() cannot be invoked"
+                                                                       "with the element types at the given recursion level.");
+        }
+    }
+
     #ifdef USE_BOOST_ITERATOR
     #include <boost/iterator/zip_iterator.hpp>
 
