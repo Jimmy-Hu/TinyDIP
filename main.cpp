@@ -977,8 +977,8 @@ public:
 //  --------------------------------------------------------------------------
 
 //  MetaTransformHandler template struct implementation
-//  Generic Meta Handler strictly refactoring transform commands like bicubic_resize, dct2, idct2
-template <std::size_t MinArgs, typename SetupFun>
+//  Generic Meta Handler strictly refactoring transform commands like abs, bicubic_resize, dct2, idct2, and lanczos_resample
+template <std::size_t MinArgs, typename CheckingTypes = master_image_types, typename SetupFun>
 struct MetaTransformHandler
 {
     std::string_view usage_string_;
@@ -1029,9 +1029,22 @@ struct MetaTransformHandler
         // Parse trailing args, output initial message, and retrieve dedicated transformation process
         auto core_processor = setup_fun_(filtered_args, policy_str, os);
 
+        std::optional<std::any> final_result_opt;
+
         auto process_wrapper = [&]<typename ImageType>(ImageType&& input_img)
         {
-            std::any output_any = core_processor(std::forward<ImageType>(input_img));
+            final_result_opt = core_processor(std::forward<ImageType>(input_img));
+        };
+
+        if (!dispatch_data_operation<CheckingTypes>(input_arg, workspace_, image_loader_fun, process_wrapper))
+        {
+            os << "Error: Memory variable not found or unsupported type.\n";
+            return;
+        }
+
+        if (final_result_opt.has_value())
+        {
+            std::any output_any = std::move(*final_result_opt);
 
             bool handled = false;
             auto try_save_output = [&]<typename OutT>() -> bool
@@ -1046,16 +1059,11 @@ struct MetaTransformHandler
                 return false;
             };
 
-            if (!match_any_type<master_image_types>(try_save_output))
+            if (!match_any_type<CheckingTypes>(try_save_output))
             {
                 os << "Error: Output type from processor is unknown or unsupported. Type Name: [" 
                    << output_any.type().name() << "]\n";
             }
-        };
-
-        if (!dispatch_data_operation(input_arg, workspace_, image_loader_fun, process_wrapper))
-        {
-            os << "Error: Memory variable not found or unsupported type.\n";
         }
     }
 };
