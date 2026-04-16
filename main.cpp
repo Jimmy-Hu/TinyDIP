@@ -1072,7 +1072,7 @@ struct MetaTransformHandler
 template <std::size_t MinArgs, typename CheckingTypes = master_image_types, typename SetupFun>
 constexpr auto make_meta_transform_handler(std::string_view usage, std::shared_ptr<Workspace> ws, SetupFun&& setup)
 {
-    return MetaTransformHandler<MinArgs, CheckingTypes, std::remove_cvref_t<SetupFun>>{
+    return MetaTransformHandler<MinArgs, std::remove_cvref_t<SetupFun>, CheckingTypes>{
         usage, std::move(ws), std::forward<SetupFun>(setup)
     };
 }
