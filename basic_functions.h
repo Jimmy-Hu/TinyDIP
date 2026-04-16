@@ -1725,6 +1725,21 @@ namespace TinyDIP
         return append_aux(a, t, std::make_index_sequence<N>());
     }
 
+    //  generic_abs template function implementation
+    template <typename T>
+    constexpr auto generic_abs(T&& element)
+    {
+        using ElementT = std::remove_cvref_t<T>;
+        if constexpr (is_unsigned_data_v<ElementT>)
+        {
+            return static_cast<ElementT>(element);
+        }
+        else
+        {
+            return std::abs(std::forward<T>(element));
+        }
+    }
+
     //  abs Template Function Implementation
     template<typename T>
     [[nodiscard]] constexpr static auto abs(const T& input)

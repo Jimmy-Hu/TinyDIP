@@ -316,20 +316,6 @@ template <typename T, std::size_t N> struct is_unsigned_data<std::array<T, N>> :
 
 template <typename T> inline constexpr bool is_unsigned_data_v = is_unsigned_data<T>::value;
 
-//  generic_abs template function implementation
-template <typename T>
-constexpr auto generic_abs(T&& element)
-{
-    using ElementT = std::remove_cvref_t<T>;
-    if constexpr (is_unsigned_data_v<ElementT>)
-    {
-        return static_cast<ElementT>(element);
-    }
-    else
-    {
-        return std::abs(std::forward<T>(element));
-    }
-}
 
 //  match_any_type template function implementation
 template <typename TupleT, class FunT>
