@@ -1750,7 +1750,7 @@ namespace TinyDIP
     constexpr auto generic_abs(T&& element)
     {
         using ElementT = std::remove_cvref_t<T>;
-        if constexpr (is_unsigned_data_v<ElementT>)
+        if constexpr (is_unsigned_data_v<ElementT> || std::same_as<ElementT, bool>)
         {
             return static_cast<ElementT>(element);
         }
