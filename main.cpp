@@ -2106,6 +2106,67 @@ int main(int argc, char* argv[])
 
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
+        CommandBundle{"abs", "Calculate the absolute value of an image or container.", TransformerSchema, 
+            make_meta_transform_handler<2, master_data_types>(
+                "abs [execution_policy] <input_data | $var> <output_var | $var>", 
+                workspace,
+                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+                {
+                    if (!std::ranges::empty(policy_str))
+                    {
+                        os << "Calculating abs of " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                    }
+                    else
+                    {
+                        os << "Calculating abs of " << filtered_args[0] << "...\n";
+                    }
+
+                    return [policy_str, &os]<typename DataT>(DataT&& data) -> std::any
+                    {
+                        auto exec_default = [&]() -> std::any
+                        {
+                            if constexpr (requires { TinyDIP::abs(std::forward<DataT>(data)); })
+                            {
+                                return TinyDIP::abs(std::forward<DataT>(data));
+                            }
+                            else
+                            {
+                                std::remove_cvref_t<DataT> result = data;
+                                for (auto& elem : result) {
+                                    if constexpr (requires { std::abs(elem); }) {
+                                        elem = std::abs(elem);
+                                    }
+                                }
+                                return result;
+                            }
+                        };
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            if constexpr (requires { TinyDIP::abs(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data)); })
+                            {
+                                return TinyDIP::abs(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data));
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this data type/operation. Falling back to default.\n";
+                                }
+                                return exec_default();
+                            }
+                        };
+
+                        if (policy_str == "par") return exec_policy(std::execution::par);
+                        else if (policy_str == "par_unseq") return exec_policy(std::execution::par_unseq);
+                        else if (policy_str == "unseq") return exec_policy(std::execution::unseq);
+                        else if (policy_str == "seq") return exec_policy(std::execution::seq);
+                        else return exec_default();
+                    };
+                }
+            )
+        },
         CommandBundle{"bicubic_resize", "Resize an image using Bicubic interpolation.", TransformerSchema, 
             make_meta_transform_handler<4>(
                 "bicubic_resize [execution_policy] <input_img | $var> <output_img | $var> <width> <height>", 
@@ -2369,8 +2430,8 @@ int main(int argc, char* argv[])
         CommandBundle{"print", "Print the contents of a memory variable.", TerminatorSchema, PrintHandler{workspace}},
         CommandBundle{"rand", "Generate random multi-dimensional image with specified URBG.", GeneratorSchema, RandHandler{workspace}},
         CommandBundle{"read", "Read an image from disk into a memory variable.", GeneratorSchema, ReadHandler{workspace}},
-        CommandBundle{"rename", "Rename a memory variable in the workspace.", IndependentSchema, RenameHandler{workspace}},
         CommandBundle{"remove", "Remove memory variables from the workspace (or 'all' to clear).", IndependentSchema, RemoveHandler{workspace}},
+        CommandBundle{"rename", "Rename a memory variable in the workspace.", IndependentSchema, RenameHandler{workspace}},
         CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IndependentSchema, SaveWorkspaceHandler{workspace}},
         CommandBundle{"sum", "Calculate the sum of all elements in an image or container.", TransformerSchema, 
             make_meta_scalar_handler<1>(
@@ -2436,6 +2497,7 @@ int main(int argc, char* argv[])
 
                         if constexpr (std::same_as<std::remove_cvref_t<DataT>, TinyDIP::Image<TinyDIP::RGB>>)
                         {
+                            // Explicitly cast to RGB_DOUBLE prior to calling process_sum_impl to prevent internal summation overflow
                             return process_sum_impl(TinyDIP::im2double(std::forward<DataT>(img)));
                         }
                         else
