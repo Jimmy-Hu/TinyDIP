@@ -1777,7 +1777,8 @@ namespace TinyDIP
 
     //  abs Template Function Implementation (the version with execution policy)
     template<class ExecutionPolicy, typename T>
-    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    requires ((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) and
+              (is_MultiChannel<T>::value || arithmetic<T>))
     [[nodiscard]] constexpr static auto abs(ExecutionPolicy&& execution_policy, const T& input)
     {
         if constexpr (Multichannel<T>)
