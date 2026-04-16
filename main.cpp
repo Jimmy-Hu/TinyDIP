@@ -300,23 +300,6 @@ template <typename T> struct is_std_array : std::false_type {};
 template <typename T, std::size_t N> struct is_std_array<std::array<T, N>> : std::true_type {};
 template <typename T> inline constexpr bool is_std_array_v = is_std_array<T>::value;
 
-// ------------------------------------------------------------------------------------
-//  Unsigned Type Detection Traits
-// ------------------------------------------------------------------------------------
-
-template <typename T> struct is_unsigned_data : std::false_type {};
-template <typename T> requires std::is_unsigned_v<T> struct is_unsigned_data<T> : std::true_type {};
-template <> struct is_unsigned_data<TinyDIP::RGB> : std::true_type {};
-template <typename T> struct is_unsigned_data<TinyDIP::Image<T>> : is_unsigned_data<T> {};
-template <typename T> struct is_unsigned_data<TinyDIP::MultiChannel<T>> : is_unsigned_data<T> {};
-template <typename T, typename A> struct is_unsigned_data<std::vector<T, A>> : is_unsigned_data<T> {};
-template <typename T, typename A> struct is_unsigned_data<std::deque<T, A>> : is_unsigned_data<T> {};
-template <typename T, typename A> struct is_unsigned_data<std::list<T, A>> : is_unsigned_data<T> {};
-template <typename T, std::size_t N> struct is_unsigned_data<std::array<T, N>> : is_unsigned_data<T> {};
-
-template <typename T> inline constexpr bool is_unsigned_data_v = is_unsigned_data<T>::value;
-
-
 //  match_any_type template function implementation
 template <typename TupleT, class FunT>
 constexpr bool match_any_type(FunT&& func)
