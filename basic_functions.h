@@ -1151,14 +1151,14 @@ namespace TinyDIP
     template<std::size_t unwrap_level = 1, class ExPo, class T, class F>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>> &&
               unwrap_level <= recursive_depth<T>())
-    constexpr auto recursive_transform(ExPo execution_policy, const F& f, const T& input)
+    constexpr auto recursive_transform(ExPo&& execution_policy, const F& f, const T& input)
     {
         if constexpr (unwrap_level > 0)
         {
             recursive_invoke_result_t<unwrap_level, F, T> output{};
             output.resize(input.size());
             std::mutex mutex;
-            std::transform(execution_policy, std::ranges::cbegin(input), std::ranges::cend(input), std::ranges::begin(output),
+            std::transform(std::forward<ExPo>(execution_policy), std::ranges::cbegin(input), std::ranges::cend(input), std::ranges::begin(output),
                 [&](auto&& element)
                 {
                     std::lock_guard lock(mutex);
