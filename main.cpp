@@ -889,6 +889,12 @@ struct IOSchema
     int out_idx = -1;
 };
 
+//  Define human-readable pipeline schema routing constants globally
+constexpr auto GeneratorSchema = IOSchema{ -1, 1 };
+constexpr auto TerminatorSchema = IOSchema{ 0, -1 };
+constexpr auto TransformerSchema = IOSchema{ 0, 1 };
+constexpr auto IndependentSchema = IOSchema{ -1, -1 };
+
 //  CommandRegistry class implementation
 class CommandRegistry
 {
@@ -2144,13 +2150,7 @@ int main(int argc, char* argv[])
 {
     // Configure the shared state memory workspace
     auto workspace = std::make_shared<Workspace>();
-
-    // Define human-readable pipeline schema routing constants
-    constexpr auto GeneratorSchema   = IOSchema{-1, 1};
-    constexpr auto TerminatorSchema  = IOSchema{0, -1};
-    constexpr auto TransformerSchema = IOSchema{0, 1};
-    constexpr auto IndependentSchema = IOSchema{-1, -1};
-
+    
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
         CommandBundle{"abs", "Calculate the absolute value of an image or container.", TransformerSchema, 
