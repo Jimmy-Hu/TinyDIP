@@ -2127,6 +2127,18 @@ constexpr std::any dispatch_policy_string(
     }
 }
 
+//  AbsOp struct implementation
+struct AbsOp
+{
+    template <typename... Args>
+    requires requires { TinyDIP::abs(std::declval<Args>()...); }
+    static constexpr auto exec(Args&&... args) { return TinyDIP::abs(std::forward<Args>(args)...); }
+
+    template <typename T>
+    requires (!requires { TinyDIP::abs(std::declval<T>()); } && requires { TinyDIP::generic_abs(std::declval<T>()); })
+    static constexpr auto exec(T&& arg) { return TinyDIP::generic_abs(std::forward<T>(arg)); }
+};
+
 //  Main Entry Point
 int main(int argc, char* argv[])
 {
