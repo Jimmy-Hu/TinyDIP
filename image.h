@@ -149,7 +149,8 @@ namespace TinyDIP
 
         //  Image constructor
         template<std::ranges::input_range Range, std::ranges::input_range Sizes>
-        requires(std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>)
+        requires(std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>) or
+                (std::same_as<std::ranges::range_value_t<Sizes>, int>)
         Image(const Range& input, const Sizes& sizes)
         {
             if (input.empty())
@@ -157,7 +158,7 @@ namespace TinyDIP
                 throw std::runtime_error("Input vector is empty!");
             }
             size.resize(sizes.size());
-            std::transform(std::ranges::cbegin(sizes), std::ranges::cend(sizes), std::ranges::begin(size), [&](auto&& element) { return element; });
+            std::transform(std::ranges::cbegin(sizes), std::ranges::cend(sizes), std::ranges::begin(size), [&](auto&& element) { return static_cast<std::size_t>(element); });
             image_data = std::vector(std::ranges::cbegin(input), std::ranges::cend(input));
             auto count = std::reduce(std::ranges::cbegin(sizes), std::ranges::cend(sizes), 1, std::multiplies());
             if (image_data.size() != count) {
