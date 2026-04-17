@@ -2487,7 +2487,7 @@ namespace TinyDIP
             // Normalize the pixel value
             if (total_weight != 0.0)
             {
-                output_image.at(x_new, y_new) = pixel_value / total_weight;
+                output_image.at(x_new, y_new) = static_cast<ElementT>(pixel_value / total_weight);
             }
         });
 
