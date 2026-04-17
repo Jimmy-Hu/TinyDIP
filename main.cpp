@@ -2530,20 +2530,23 @@ int main(int argc, char* argv[])
                     {
                         using DecayedDataT = std::remove_cvref_t<DataT>;
 
-                        if constexpr (TinyDIP::is_bool_data_v<DecayedDataT>)
+                        auto exec_default = [&]() -> std::any
                         {
-                            throw std::invalid_argument("Input data type (bool) does not support hsv2rgb conversion.");
-                            return {};
-                        }
-                        else
-                        {
-                            auto exec_default = [&]() -> std::any
+                            if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
                             {
                                 if constexpr (requires { TinyDIP::hsv2rgb(std::forward<DataT>(data)); })
                                 {
                                     return TinyDIP::hsv2rgb(std::forward<DataT>(data));
                                 }
-                                else if constexpr (std::ranges::input_range<DecayedDataT> && requires { TinyDIP::hsv2rgb(*std::ranges::begin(data)); })
+                                else
+                                {
+                                    throw std::invalid_argument("Input image type does not support hsv2rgb conversion.");
+                                    return {};
+                                }
+                            }
+                            else if constexpr (std::ranges::input_range<DecayedDataT>)
+                            {
+                                if constexpr (requires { TinyDIP::hsv2rgb(*std::ranges::begin(data)); })
                                 {
                                     return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
                                         [](auto&& element)
@@ -2555,19 +2558,38 @@ int main(int argc, char* argv[])
                                 }
                                 else
                                 {
-                                    throw std::invalid_argument("Input data type does not support hsv2rgb conversion.");
+                                    throw std::invalid_argument("Input container type does not support hsv2rgb conversion.");
                                     return {};
                                 }
-                            };
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Input data type does not support hsv2rgb conversion.");
+                                return {};
+                            }
+                        };
 
-                            auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy && exec_policy) -> std::any
-                                requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy && exec_policy) -> std::any
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
                             {
                                 if constexpr (requires { TinyDIP::hsv2rgb(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data)); })
                                 {
                                     return TinyDIP::hsv2rgb(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data));
                                 }
-                                else if constexpr (std::ranges::input_range<DecayedDataT> && requires { TinyDIP::hsv2rgb(*std::ranges::begin(data)); })
+                                else
+                                {
+                                    if (!std::ranges::empty(policy_str))
+                                    {
+                                        os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                    }
+                                    return exec_default();
+                                }
+                            }
+                            else if constexpr (std::ranges::input_range<DecayedDataT>)
+                            {
+                                if constexpr (requires { TinyDIP::hsv2rgb(*std::ranges::begin(data)); })
                                 {
                                     return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
                                         std::forward<ExecPolicy>(exec_policy),
@@ -2586,28 +2608,36 @@ int main(int argc, char* argv[])
                                     }
                                     return exec_default();
                                 }
-                            };
-
-                            if (policy_str == "par")
-                            {
-                                return exec_policy(std::execution::par);
-                            }
-                            else if (policy_str == "par_unseq")
-                            {
-                                return exec_policy(std::execution::par_unseq);
-                            }
-                            else if (policy_str == "unseq")
-                            {
-                                return exec_policy(std::execution::unseq);
-                        }
-                            else if (policy_str == "seq")
-                            {
-                                return exec_policy(std::execution::seq);
                             }
                             else
                             {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this data type/operation. Falling back to default.\n";
+                                }
                                 return exec_default();
                             }
+                        };
+
+                        if (policy_str == "par")
+                        {
+                            return exec_policy(std::execution::par);
+                        }
+                        else if (policy_str == "par_unseq")
+                        {
+                            return exec_policy(std::execution::par_unseq);
+                        }
+                        else if (policy_str == "unseq")
+                        {
+                            return exec_policy(std::execution::unseq);
+                        }
+                        else if (policy_str == "seq")
+                        {
+                            return exec_policy(std::execution::seq);
+                        }
+                        else
+                        {
+                            return exec_default();
                         }
                     };
                 }
