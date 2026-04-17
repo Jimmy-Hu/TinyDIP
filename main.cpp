@@ -2530,76 +2530,84 @@ int main(int argc, char* argv[])
                     {
                         using DecayedDataT = std::remove_cvref_t<DataT>;
 
-                        auto exec_default = [&]() -> std::any
+                        if constexpr (TinyDIP::is_bool_data_v<DecayedDataT>)
                         {
-                            if constexpr (requires { TinyDIP::hsv2rgb(std::forward<DataT>(data)); })
-                            {
-                                return TinyDIP::hsv2rgb(std::forward<DataT>(data));
-                            }
-                            else if constexpr (std::ranges::input_range<DecayedDataT> && requires { TinyDIP::hsv2rgb(*std::ranges::begin(data)); })
-                            {
-                                return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
-                                    [](auto&& element)
-                                    {
-                                        return TinyDIP::hsv2rgb(std::forward<decltype(element)>(element));
-                                    },
-                                    std::forward<DataT>(data)
-                                );
-                            }
-                            else
-                            {
-                                throw std::invalid_argument("Input data type does not support hsv2rgb conversion.");
-                                return {};
-                            }
-                        };
-
-                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
-                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
-                        {
-                            if constexpr (requires { TinyDIP::hsv2rgb(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data)); })
-                            {
-                                return TinyDIP::hsv2rgb(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data));
-                            }
-                            else if constexpr (std::ranges::input_range<DecayedDataT> && requires { TinyDIP::hsv2rgb(*std::ranges::begin(data)); })
-                            {
-                                return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
-                                    std::forward<ExecPolicy>(exec_policy),
-                                    [](auto&& element)
-                                    {
-                                        return TinyDIP::hsv2rgb(std::forward<decltype(element)>(element));
-                                    },
-                                    std::forward<DataT>(data)
-                                );
-                            }
-                            else
-                            {
-                                if (!std::ranges::empty(policy_str))
-                                {
-                                    os << "Warning: Execution policy requested but not supported for this data type/operation. Falling back to default.\n";
-                                }
-                                return exec_default();
-                            }
-                        };
-
-                        if (policy_str == "par")
-                        {
-                            return exec_policy(std::execution::par);
-                        }
-                        else if (policy_str == "par_unseq")
-                        {
-                            return exec_policy(std::execution::par_unseq);
-                        }
-                        else if (policy_str == "unseq")
-                        {
-                            return exec_policy(std::execution::unseq);
-                        }
-                        else if (policy_str == "seq")
-                        {
-                            return exec_policy(std::execution::seq);
+                            throw std::invalid_argument("Input data type (bool) does not support hsv2rgb conversion.");
+                            return {};
                         }
                         else
                         {
-                            return exec_default();
+                            auto exec_default = [&]() -> std::any
+                            {
+                                if constexpr (requires { TinyDIP::hsv2rgb(std::forward<DataT>(data)); })
+                                {
+                                    return TinyDIP::hsv2rgb(std::forward<DataT>(data));
+                                }
+                                else if constexpr (std::ranges::input_range<DecayedDataT> && requires { TinyDIP::hsv2rgb(*std::ranges::begin(data)); })
+                                {
+                                    return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                        [](auto&& element)
+                                        {
+                                            return TinyDIP::hsv2rgb(std::forward<decltype(element)>(element));
+                                        },
+                                        std::forward<DataT>(data)
+                                    );
+                                }
+                                else
+                                {
+                                    throw std::invalid_argument("Input data type does not support hsv2rgb conversion.");
+                                    return {};
+                                }
+                            };
+
+                            auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy && exec_policy) -> std::any
+                                requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                            {
+                                if constexpr (requires { TinyDIP::hsv2rgb(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data)); })
+                                {
+                                    return TinyDIP::hsv2rgb(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data));
+                                }
+                                else if constexpr (std::ranges::input_range<DecayedDataT> && requires { TinyDIP::hsv2rgb(*std::ranges::begin(data)); })
+                                {
+                                    return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                        std::forward<ExecPolicy>(exec_policy),
+                                        [](auto&& element)
+                                        {
+                                            return TinyDIP::hsv2rgb(std::forward<decltype(element)>(element));
+                                        },
+                                        std::forward<DataT>(data)
+                                    );
+                                }
+                                else
+                                {
+                                    if (!std::ranges::empty(policy_str))
+                                    {
+                                        os << "Warning: Execution policy requested but not supported for this data type/operation. Falling back to default.\n";
+                                    }
+                                    return exec_default();
+                                }
+                            };
+
+                            if (policy_str == "par")
+                            {
+                                return exec_policy(std::execution::par);
+                            }
+                            else if (policy_str == "par_unseq")
+                            {
+                                return exec_policy(std::execution::par_unseq);
+                            }
+                            else if (policy_str == "unseq")
+                            {
+                                return exec_policy(std::execution::unseq);
+                        }
+                            else if (policy_str == "seq")
+                            {
+                                return exec_policy(std::execution::seq);
+                            }
+                            else
+                            {
+                                return exec_default();
+                            }
                         }
                     };
                 }
