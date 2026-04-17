@@ -2677,6 +2677,100 @@ int main(int argc, char* argv[])
         CommandBundle{"read", "Read an image from disk into a memory variable.", GeneratorSchema, ReadHandler{workspace}},
         CommandBundle{"remove", "Remove memory variables from the workspace (or 'all' to clear).", IndependentSchema, RemoveHandler{workspace}},
         CommandBundle{"rename", "Rename a memory variable in the workspace.", IndependentSchema, RenameHandler{workspace}},
+        CommandBundle{"rgb2hsv", "Convert an RGB image or container to HSV color space.", TransformerSchema,
+            make_meta_transform_handler<2, master_data_types>(
+                "rgb2hsv [execution_policy] <input_data | $var> <output_var | $var>",
+                workspace,
+                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+                {
+                    if (!std::ranges::empty(policy_str))
+                    {
+                        os << "Converting " << filtered_args[0] << " to HSV (Policy: " << policy_str << ")...\n";
+                    }
+                    else
+                    {
+                        os << "Converting " << filtered_args[0] << " to HSV...\n";
+                    }
+
+                    return[policy_str, &os]<typename DataT>(DataT && data) -> std::any
+                    {
+                        using DecayedDataT = std::remove_cvref_t<DataT>;
+
+                        auto exec_default = [&]() -> std::any
+                        {
+                            if constexpr (requires { TinyDIP::rgb2hsv(std::forward<DataT>(data)); })
+                            {
+                                return TinyDIP::rgb2hsv(std::forward<DataT>(data));
+                            }
+                            else if constexpr (std::ranges::input_range<DecayedDataT> && requires { TinyDIP::rgb2hsv(*std::ranges::begin(data)); })
+                            {
+                                return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                    [](auto&& element)
+                                    {
+                                        return TinyDIP::rgb2hsv(std::forward<decltype(element)>(element));
+                                    },
+                                    std::forward<DataT>(data)
+                                );
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Input data type does not support rgb2hsv conversion.");
+                                return {};
+                            }
+                        };
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy && exec_policy) -> std::any
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            if constexpr (requires { TinyDIP::rgb2hsv(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data)); })
+                            {
+                                return TinyDIP::rgb2hsv(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data));
+                            }
+                            else if constexpr (std::ranges::input_range<DecayedDataT> && requires { TinyDIP::rgb2hsv(*std::ranges::begin(data)); })
+                            {
+                                return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                    std::forward<ExecPolicy>(exec_policy),
+                                    [](auto&& element)
+                                    {
+                                        return TinyDIP::rgb2hsv(std::forward<decltype(element)>(element));
+                                    },
+                                    std::forward<DataT>(data)
+                                );
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this data type/operation. Falling back to default.\n";
+                                }
+                                return exec_default();
+                            }
+                        };
+
+                        if (policy_str == "par")
+                        {
+                            return exec_policy(std::execution::par);
+                        }
+                        else if (policy_str == "par_unseq")
+                        {
+                            return exec_policy(std::execution::par_unseq);
+                        }
+                        else if (policy_str == "unseq")
+                        {
+                            return exec_policy(std::execution::unseq);
+                        }
+                        else if (policy_str == "seq")
+                        {
+                            return exec_policy(std::execution::seq);
+                        }
+                        else
+                        {
+                            return exec_default();
+                        }
+                    };
+                }
+            )
+        },
         CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IndependentSchema, SaveWorkspaceHandler{workspace}},
         CommandBundle{"sum", "Calculate the sum of all elements in an image or container.", TransformerSchema, 
             make_meta_scalar_handler<1>(
