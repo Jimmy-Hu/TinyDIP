@@ -2216,6 +2216,60 @@ constexpr auto make_unary_transform_bundle(
     };
 }
 
+//  make_scalar_reduction_bundle template function implementation
+//  Generic Factory Builder for Scalar Reductions
+template <typename CoreOp>
+constexpr auto make_scalar_reduction_bundle(
+    const std::string_view name, 
+    const std::string_view desc, 
+    const std::string_view cap_name, 
+    std::shared_ptr<Workspace> ws)
+{
+    return CommandBundle{name, desc, TransformerSchema,
+        make_meta_scalar_handler<1>(
+            std::string(name) + " [execution_policy] <input_data | $var> [output_var | $var]",
+            name, cap_name, ws,
+            [name](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+            {
+                os << "Calculating " << name << " of " << filtered_args[0] << (!std::ranges::empty(policy_str) ? std::string(" (Policy: ") + std::string(policy_str) + ")" : "") << "...\n";
+
+                return [policy_str, name, &os]<typename DataT>(DataT&& raw_data) -> std::any
+                {
+                    // Helper to address conversion requirements before CoreOp dynamically
+                    auto execute_inner = [&]<typename TargetT>(TargetT&& data) -> std::any
+                    {
+                        auto exec_default = [&]() -> std::any { return CoreOp::exec(std::forward<TargetT>(data)); };
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            if constexpr (requires { CoreOp::exec(std::forward<ExecPolicy>(exec_policy), std::forward<TargetT>(data)); })
+                            {
+                                return CoreOp::exec(std::forward<ExecPolicy>(exec_policy), std::forward<TargetT>(data));
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str)) os << "Warning: Execution policy requested but not supported. Falling back to default.\n";
+                                return exec_default();
+                            }
+                        };
+                        return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                    };
+
+                    if constexpr (std::same_as<std::remove_cvref_t<DataT>, TinyDIP::Image<TinyDIP::RGB>> && std::same_as<CoreOp, SumOp>)
+                    {
+                        return execute_inner(TinyDIP::im2double(std::forward<DataT>(raw_data)));
+                    }
+                    else
+                    {
+                        return execute_inner(std::forward<DataT>(raw_data));
+                    }
+                };
+            }
+        )
+    };
+}
+
 //  Main Entry Point
 int main(int argc, char* argv[])
 {
