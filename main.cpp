@@ -2145,6 +2145,77 @@ struct AbsOp
     static constexpr auto exec(T&& arg) { return TinyDIP::generic_abs(std::forward<T>(arg)); }
 };
 
+//  make_unary_transform_bundle template function implementation
+//  Generic Factory Builder for Unary Transformations
+template <typename CoreOp>
+constexpr auto make_unary_transform_bundle(
+    const std::string_view name, 
+    const std::string_view description, 
+    std::shared_ptr<Workspace> workspace)
+{
+    return CommandBundle{name, description, TransformerSchema, 
+        make_meta_transform_handler<2, master_data_types>(
+            std::string(name) + " [execution_policy] <input_img | $var> <output_img | $var>", 
+            workspace,
+            [name](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+            {
+                os << "Executing " << name << " on " << filtered_args[0] << (!std::ranges::empty(policy_str) ? std::string(" (Policy: ") + std::string(policy_str) + ")" : "") << "...\n";
+
+                return [policy_str, name, &os]<typename DataT>(DataT&& data) -> std::any
+                {
+                    using DecayedDataT = std::remove_cvref_t<DataT>;
+
+                    auto exec_default = [&]() -> std::any
+                    {
+                        if constexpr (requires { CoreOp::exec(std::forward<DataT>(data)); })
+                        {
+                            return CoreOp::exec(std::forward<DataT>(data));
+                        }
+                        else if constexpr (std::ranges::input_range<DecayedDataT>)
+                        {
+                            return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                [](auto&& element) { return CoreOp::exec(std::forward<decltype(element)>(element)); },
+                                std::forward<DataT>(data)
+                            );
+                        }
+                        else
+                        {
+                            throw std::invalid_argument(std::string("Input type does not support ") + std::string(name));
+                        }
+                    };
+                    
+                    auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                        requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                    {
+                        if constexpr (requires { CoreOp::exec(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data)); })
+                        {
+                            return CoreOp::exec(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data));
+                        }
+                        else if constexpr (std::ranges::input_range<DecayedDataT>)
+                        {
+                            return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                std::forward<ExecPolicy>(exec_policy),
+                                [](auto&& element) { return CoreOp::exec(std::forward<decltype(element)>(element)); },
+                                std::forward<DataT>(data)
+                            );
+                        }
+                        else
+                        {
+                            if (!std::ranges::empty(policy_str))
+                            {
+                                os << "Warning: Execution policy requested but not supported for " << name << ". Falling back to default.\n";
+                            }
+                            return exec_default();
+                        }
+                    };
+
+                    return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                };
+            }
+        )
+    };
+}
+
 //  Main Entry Point
 int main(int argc, char* argv[])
 {
