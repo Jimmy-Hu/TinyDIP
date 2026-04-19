@@ -2234,7 +2234,7 @@ constexpr auto make_scalar_reduction_bundle(
         {
             os << "Calculating " << name << " of " << filtered_args[0] << (!std::ranges::empty(policy_str) ? std::string(" (Policy: ") + std::string(policy_str) + ")" : "") << "...\n";
 
-            return[policy_str, name, &os]<typename DataT>(DataT && raw_data) -> std::any
+            return [policy_str, name, &os]<typename DataT>(DataT && raw_data) -> std::any
             {
                 // Helper to address conversion requirements before CoreOp dynamically
                 auto execute_inner = [&]<typename TargetT>(TargetT && data) -> std::any
