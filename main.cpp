@@ -2141,7 +2141,9 @@ struct AbsOp
     static constexpr auto exec(Args&&... args) { return TinyDIP::abs(std::forward<Args>(args)...); }
 
     template <typename T>
-    requires (!requires { TinyDIP::abs(std::declval<T>()); } && requires { TinyDIP::generic_abs(std::declval<T>()); })
+    requires (!requires { TinyDIP::abs(std::declval<T>()); } && 
+              !std::ranges::input_range<std::remove_cvref_t<T>> && 
+              requires { TinyDIP::generic_abs(std::declval<T>()); })
     static constexpr auto exec(T&& arg) { return TinyDIP::generic_abs(std::forward<T>(arg)); }
 };
 
