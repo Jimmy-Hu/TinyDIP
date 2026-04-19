@@ -2147,6 +2147,26 @@ struct AbsOp
     static constexpr auto exec(T&& arg) { return TinyDIP::generic_abs(std::forward<T>(arg)); }
 };
 
+//  SumOp struct implementation
+struct SumOp
+{
+    template <typename... Args> requires requires { TinyDIP::sum(std::declval<Args>()...); }
+    static constexpr auto exec(Args&&... args) { return TinyDIP::sum(std::forward<Args>(args)...); }
+
+    template <typename T> requires (!requires { TinyDIP::sum(std::declval<T>()); } && std::ranges::input_range<std::remove_cvref_t<T>>)
+    static constexpr auto exec(T&& data)
+    {
+        using ValT = std::ranges::range_value_t<T>;
+        return std::accumulate(std::ranges::begin(data), std::ranges::end(data), ValT{});
+    }
+
+    template <typename ExecPolicy, typename T> requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+    static constexpr auto exec(ExecPolicy&& policy, T&& data) requires (!requires { TinyDIP::sum(std::declval<ExecPolicy>(), std::declval<T>()); } && std::ranges::input_range<std::remove_cvref_t<T>>)
+    {
+        return std::reduce(std::forward<ExecPolicy>(policy), std::ranges::begin(data), std::ranges::end(data));
+    }
+};
+
 //  make_unary_transform_bundle template function implementation
 //  Generic Factory Builder for Unary Transformations
 template <typename CoreOp>
