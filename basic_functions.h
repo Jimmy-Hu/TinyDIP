@@ -1105,7 +1105,8 @@ namespace TinyDIP
 
     //  recursive_transform template function for the multiple parameters cases (the version with unwrap_level)
     template<std::size_t unwrap_level = 1, std::copy_constructible F, class Arg1, class... Args>
-    requires(unwrap_level <= recursive_depth<Arg1>())
+    requires(unwrap_level <= recursive_depth<Arg1>() &&
+             requires { typename recursive_variadic_invoke_result_t<unwrap_level, F, Arg1, Args...>; })
     constexpr auto recursive_transform(const F& f, const Arg1& arg1, const Args&... args)
     {
         if constexpr (unwrap_level > 0)
