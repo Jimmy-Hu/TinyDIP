@@ -2156,14 +2156,72 @@ struct SumOp
     template <typename T> requires (!requires { TinyDIP::sum(std::declval<T>()); } && std::ranges::input_range<std::remove_cvref_t<T>>)
     static constexpr auto exec(T&& data)
     {
-        using ValT = std::ranges::range_value_t<T>;
-        return std::accumulate(std::ranges::begin(data), std::ranges::end(data), ValT{});
+        using DecayedT = std::remove_cvref_t<T>;
+        if constexpr (TinyDIP::recursive_depth<DecayedT>() > 1)
+        {
+            using ValT = decltype(exec(*std::ranges::begin(data)));
+            ValT total_sum{};
+            
+            struct SumAccumulator
+            {
+                ValT& sum_ref;
+                constexpr auto operator()(const auto& element) const
+                {
+                    sum_ref += element;
+                    return element;
+                }
+            };
+            
+            TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedT>()>(
+                SumAccumulator{total_sum},
+                std::forward<T>(data)
+            );
+            
+            return total_sum;
+        }
+        else
+        {
+            using ValT = std::ranges::range_value_t<T>;
+            return std::accumulate(std::ranges::begin(data), std::ranges::end(data), ValT{});
+        }
     }
 
     template <typename ExecPolicy, typename T> requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
     static constexpr auto exec(ExecPolicy&& policy, T&& data) requires (!requires { TinyDIP::sum(std::declval<ExecPolicy>(), std::declval<T>()); } && std::ranges::input_range<std::remove_cvref_t<T>>)
     {
-        return std::reduce(std::forward<ExecPolicy>(policy), std::ranges::begin(data), std::ranges::end(data));
+        using DecayedT = std::remove_cvref_t<T>;
+        if constexpr (TinyDIP::recursive_depth<DecayedT>() > 1)
+        {
+            using ValT = decltype(exec(std::forward<ExecPolicy>(policy), *std::ranges::begin(data)));
+            ValT total_sum{};
+            std::mutex mtx;
+            
+            struct ParallelSumAccumulator
+            {
+                ValT& sum_ref;
+                std::mutex& mtx_ref;
+                
+                auto operator()(const auto& element) const
+                {
+                    std::lock_guard<std::mutex> lock(mtx_ref);
+                    sum_ref += element;
+                    return element;
+                }
+            };
+            
+            TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedT>()>(
+                std::forward<ExecPolicy>(policy),
+                ParallelSumAccumulator{total_sum, mtx},
+                std::forward<T>(data)
+            );
+            
+            return total_sum;
+        }
+        else
+        {
+            using ValT = std::ranges::range_value_t<T>;
+            return std::reduce(std::forward<ExecPolicy>(policy), std::ranges::begin(data), std::ranges::end(data), ValT{});
+        }
     }
 };
 
