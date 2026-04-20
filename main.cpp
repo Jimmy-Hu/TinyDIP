@@ -2396,54 +2396,7 @@ int main(int argc, char* argv[])
                 }
             )
         },
-        CommandBundle{"dct2", "Calculate Discrete Cosine Transformation for an image.", TransformerSchema, 
-            make_meta_transform_handler<2>(
-                "dct2 [execution_policy] <input_img | $var> <output_img | $var>", 
-                workspace,
-                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
-                {
-                    if (!std::ranges::empty(policy_str))
-                    {
-                        os << "Calculating DCT-2 for " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
-                    }
-                    else
-                    {
-                        os << "Calculating DCT-2 for " << filtered_args[0] << "...\n";
-                    }
-
-                    return [policy_str, &os]<typename ImageType>(ImageType&& img) -> std::any
-                    {
-                        auto exec_default = [&]() -> std::any
-                        {
-                            return TinyDIP::dct2(std::forward<ImageType>(img));
-                        };
-
-                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
-                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
-                        {
-                            if constexpr (requires { TinyDIP::dct2(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img)); })
-                            {
-                                return TinyDIP::dct2(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img));
-                            }
-                            else
-                            {
-                                if (!std::ranges::empty(policy_str))
-                                {
-                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
-                                }
-                                return exec_default();
-                            }
-                        };
-
-                        if (policy_str == "par") return exec_policy(std::execution::par);
-                        else if (policy_str == "par_unseq") return exec_policy(std::execution::par_unseq);
-                        else if (policy_str == "unseq") return exec_policy(std::execution::unseq);
-                        else if (policy_str == "seq") return exec_policy(std::execution::seq);
-                        else return exec_default();
-                    };
-                }
-            )
-        },
+        make_unary_transform_bundle<Dct2Op>("dct2", "Calculate Discrete Cosine Transformation for an image.", workspace),
         CommandBundle{"getBplane", "Extract the Blue plane (channel 2) from a multi-channel image.", TransformerSchema, 
             make_meta_transform_handler<2>(
                 "getBplane [execution_policy] <input_img | $var> <output_img | $var>", 
