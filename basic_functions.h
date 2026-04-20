@@ -209,6 +209,7 @@ namespace TinyDIP
     struct recursive_invoke_result { };
 
     template<typename T, typename F>
+    requires(std::invocable<F, T>)
     struct recursive_invoke_result<0, F, T> { using type = std::invoke_result_t<F, T>; };
 
     template<std::size_t unwrap_level, std::copy_constructible F, template<typename...> typename Container, typename... Ts>
