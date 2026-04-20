@@ -2371,53 +2371,27 @@ int main(int argc, char* argv[])
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
         make_unary_transform_bundle<AbsOp>("abs", "Calculate the absolute value of an image or container.", workspace),
-        CommandBundle{"bicubic_resize", "Resize an image using Bicubic interpolation.", TransformerSchema, 
+        CommandBundle{"bicubic_resize", "Resize an image using Bicubic interpolation.", TransformerSchema,
             make_meta_transform_handler<4>(
-                "bicubic_resize [execution_policy] <input_img | $var> <output_img | $var> <width> <height>", 
+                "bicubic_resize [execution_policy] <input_img | $var> <output_img | $var> <width> <height>",
                 workspace,
                 [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
                 {
                     const std::size_t width = parse_arg<std::size_t>(filtered_args[2]);
                     const std::size_t height = parse_arg<std::size_t>(filtered_args[3]);
-                    
-                    if (!std::ranges::empty(policy_str))
-                    {
-                        os << "Resizing " << filtered_args[0] << " to " << width << "x" << height << " (Policy: " << policy_str << ")...\n";
-                    }
-                    else
-                    {
-                        os << "Resizing " << filtered_args[0] << " to " << width << "x" << height << "...\n";
-                    }
+                    os << "Resizing " << filtered_args[0] << " to " << width << "x" << height << "...\n";
 
-                    return [width, height, policy_str, &os]<typename ImageType>(ImageType&& img) -> std::any
+                    return [width, height, policy_str, &os]<typename ImageType>(ImageType && img) -> std::any
                     {
-                        auto exec_default = [&]() -> std::any
-                        {
-                            return TinyDIP::copyResizeBicubic(std::forward<ImageType>(img), width, height);
-                        };
-
-                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
-                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        auto exec_default = [&]() -> std::any { return TinyDIP::copyResizeBicubic(std::forward<ImageType>(img), width, height); };
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy && exec_policy) -> std::any requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                         {
                             if constexpr (requires { TinyDIP::copyResizeBicubic(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), width, height); })
-                            {
                                 return TinyDIP::copyResizeBicubic(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), width, height);
-                            }
                             else
-                            {
-                                if (!std::ranges::empty(policy_str))
-                                {
-                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
-                                }
                                 return exec_default();
-                            }
                         };
-
-                        if (policy_str == "par") return exec_policy(std::execution::par);
-                        else if (policy_str == "par_unseq") return exec_policy(std::execution::par_unseq);
-                        else if (policy_str == "unseq") return exec_policy(std::execution::unseq);
-                        else if (policy_str == "seq") return exec_policy(std::execution::seq);
-                        else return exec_default();
+                        return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
                     };
                 }
             )
@@ -2899,24 +2873,11 @@ int main(int argc, char* argv[])
                             requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                         {
                             if constexpr (requires { TinyDIP::lanczos_resample(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), width, height, static_cast<int>(a)); })
-                            {
                                 return TinyDIP::lanczos_resample(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), width, height, static_cast<int>(a));
-                            }
                             else
-                            {
-                                if (!std::ranges::empty(policy_str))
-                                {
-                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
-                                }
                                 return exec_default();
-                            }
                         };
-
-                        if (policy_str == "par") return exec_policy(std::execution::par);
-                        else if (policy_str == "par_unseq") return exec_policy(std::execution::par_unseq);
-                        else if (policy_str == "unseq") return exec_policy(std::execution::unseq);
-                        else if (policy_str == "seq") return exec_policy(std::execution::seq);
-                        else return exec_default();
+                        return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
                     };
                 }
             )
