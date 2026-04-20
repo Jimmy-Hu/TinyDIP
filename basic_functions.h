@@ -227,6 +227,13 @@ namespace TinyDIP
     template<std::size_t, typename, typename, typename...>
     struct recursive_variadic_invoke_result { };
 
+    template<typename F, typename T1, typename... Ts>
+    requires(std::invocable<F, T1, Ts...>)
+    struct recursive_variadic_invoke_result<0, F, T1, Ts...>
+    {
+        using type = std::invoke_result_t<F, T1, Ts...>;
+    };
+
     template<std::copy_constructible F, class...Ts1, template<class...>class Container1, typename... Ts>
     requires std::invocable<F, std::ranges::range_value_t<Container1<Ts1...>>, std::ranges::range_value_t<Ts>...>
     struct recursive_variadic_invoke_result<1, F, Container1<Ts1...>, Ts...>
