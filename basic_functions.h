@@ -266,6 +266,7 @@ namespace TinyDIP
                 typename T,
                 std::size_t N,
                 typename... Ts>
+    requires std::invocable<F, std::ranges::range_value_t<Container<T, N>>, std::ranges::range_value_t<Ts>...>
     struct recursive_array_invoke_result<1, F, Container<T, N>, Ts...>
     {
         using type = Container<
