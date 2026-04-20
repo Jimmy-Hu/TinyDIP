@@ -2252,41 +2252,47 @@ constexpr auto make_unary_transform_bundle(
         {
             os << "Executing " << name << " on " << filtered_args[0] << (!std::ranges::empty(policy_str) ? std::string(" (Policy: ") + std::string(policy_str) + ")" : "") << "...\n";
 
-            return[policy_str, name, &os]<typename DataT>(DataT && data) -> std::any
+            return [policy_str, name, &os]<typename DataT>(DataT&& data) -> std::any
             {
                 using DecayedDataT = std::remove_cvref_t<DataT>;
 
-                auto exec_default = [&]() -> std::any
-                    {
-                        if constexpr (requires { CoreOp::exec(std::forward<DataT>(data)); })
-                        {
-                            return CoreOp::exec(std::forward<DataT>(data));
-                        }
-                        else if constexpr (std::ranges::input_range<DecayedDataT>)
-                        {
-                            return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
-                                [](auto&& element) { return CoreOp::exec(std::forward<decltype(element)>(element)); },
-                                std::forward<DataT>(data)
-                            );
-                        }
-                        else
-                        {
-                            throw std::invalid_argument(std::string("Input type does not support ") + std::string(name));
-                        }
-                    };
+                // Create a generic, tightly constrained lambda for robust SFINAE-friendly execution
+                auto transform_lambda = [](auto&& element) requires requires { CoreOp::exec(std::forward<decltype(element)>(element)); }
+                {
+                    return CoreOp::exec(std::forward<decltype(element)>(element));
+                };
 
-                auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy && exec_policy) -> std::any
+                auto exec_default = [&]() -> std::any
+                {
+                    if constexpr (requires { CoreOp::exec(std::forward<DataT>(data)); })
+                    {
+                        return CoreOp::exec(std::forward<DataT>(data));
+                    }
+                    else if constexpr (std::ranges::input_range<DecayedDataT> && requires { TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(transform_lambda, std::forward<DataT>(data)); })
+                    {
+                        return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                            transform_lambda,
+                            std::forward<DataT>(data)
+                        );
+                    }
+                    else
+                    {
+                        throw std::invalid_argument(std::string("Input type does not support ") + std::string(name));
+                    }
+                };
+
+                auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
                     requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                 {
                     if constexpr (requires { CoreOp::exec(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data)); })
                     {
                         return CoreOp::exec(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data));
                     }
-                    else if constexpr (std::ranges::input_range<DecayedDataT>)
+                    else if constexpr (std::ranges::input_range<DecayedDataT> && requires { TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(std::forward<ExecPolicy>(exec_policy), transform_lambda, std::forward<DataT>(data)); })
                     {
                         return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
                             std::forward<ExecPolicy>(exec_policy),
-                            [](auto&& element) { return CoreOp::exec(std::forward<decltype(element)>(element)); },
+                            transform_lambda,
                             std::forward<DataT>(data)
                         );
                     }
