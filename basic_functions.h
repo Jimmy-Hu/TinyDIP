@@ -1139,7 +1139,8 @@ namespace TinyDIP
                 std::size_t N,
                 typename F,
                 class... Args>
-    requires (std::ranges::input_range<Container<T, N>>)
+    requires (std::ranges::input_range<Container<T, N>> &&
+              requires { typename recursive_array_invoke_result_t<unwrap_level, F, Container, T, N, Args...>; })
     constexpr auto recursive_transform(const F& f, const Container<T, N>& arg1, const Args&... args)
     {
         if constexpr (unwrap_level > 0)
