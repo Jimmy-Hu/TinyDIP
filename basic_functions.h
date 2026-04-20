@@ -1206,7 +1206,8 @@ namespace TinyDIP
                 std::size_t N,
                 typename F>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>> and
-              std::ranges::input_range<Container<T, N>>)
+              std::ranges::input_range<Container<T, N>> and
+              requires { typename recursive_array_invoke_result_t<unwrap_level, F, Container, T, N>; })
     constexpr auto recursive_transform(ExPo&& execution_policy, const F& f, const Container<T, N>& arg1)
     {
         if constexpr (unwrap_level > 0)
