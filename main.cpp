@@ -2543,26 +2543,7 @@ int main(int argc, char* argv[])
                             }
                         };
 
-                        if (policy_str == "par")
-                        {
-                            return exec_policy(std::execution::par);
-                        }
-                        else if (policy_str == "par_unseq")
-                        {
-                            return exec_policy(std::execution::par_unseq);
-                        }
-                        else if (policy_str == "unseq")
-                        {
-                            return exec_policy(std::execution::unseq);
-                        }
-                        else if (policy_str == "seq")
-                        {
-                            return exec_policy(std::execution::seq);
-                        }
-                        else
-                        {
-                            return exec_default();
-                        }
+                        return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
                     };
                 }
             )
