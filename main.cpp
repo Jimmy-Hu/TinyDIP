@@ -2147,13 +2147,6 @@ struct AbsOp
     static constexpr auto exec(T&& arg) { return TinyDIP::generic_abs(std::forward<T>(arg)); }
 };
 
-//  Dct2Op struct implementation
-struct Dct2Op
-{
-    template <typename... Args> requires requires { TinyDIP::dct2(std::forward<Args>()...); }
-    static constexpr auto exec(Args&&... args) { return TinyDIP::dct2(std::forward<Args>(args)...); }
-};
-
 //  SumOp struct implementation
 struct SumOp
 {
