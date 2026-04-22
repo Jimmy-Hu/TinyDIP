@@ -1090,7 +1090,7 @@ constexpr auto make_meta_transform_handler(std::string_view usage, std::shared_p
 
 //  MetaScalarHandler template struct implementation
 //  Generic Meta Handler strictly refactoring scalar reduction commands like max, min, and sum
-template <std::size_t MinArgs, typename SetupFun>
+template <std::size_t MinArgs, typename SetupFun, typename CheckingTypes = master_data_types>
 struct MetaScalarHandler
 {
     std::string_view usage_string_;
@@ -1144,10 +1144,23 @@ struct MetaScalarHandler
 
         auto core_processor = setup_fun_(filtered_args, policy_str, os);
 
-        // Polymorphic lambda to cleanly execute the algorithm dynamically independent of image type
-        auto process_scalar = [&]<typename ImageType>(ImageType&& input_img)
+        std::optional<std::any> final_result_opt;
+
+        // Polymorphic lambda to cleanly execute the algorithm dynamically independent of data type
+        auto process_scalar = [&]<typename DataT>(DataT&& input_data)
         {
-            std::any scalar_result_any = core_processor(std::forward<ImageType>(input_img));
+            final_result_opt = core_processor(std::forward<DataT>(input_data));
+        };
+
+        if (!dispatch_data_operation<CheckingTypes>(input_arg, workspace_, image_loader_fun, process_scalar))
+        {
+            os << "Error: Memory variable not found or unsupported type.\n";
+            return;
+        }
+
+        if (final_result_opt.has_value())
+        {
+            std::any scalar_result_any = std::move(*final_result_opt);
 
             bool handled = false;
             auto handle_result = [&]<typename ScalarT>() -> bool
@@ -1169,18 +1182,7 @@ struct MetaScalarHandler
                     }
                     else
                     {
-                        if constexpr (requires { os << scalar_result; })
-                        {
-                            if constexpr (sizeof(ScalarT) == 1 && std::is_integral_v<ScalarT>)
-                            {
-                                os << capitalized_op_name_ << " result: " << +scalar_result << "\n";
-                            }
-                            else
-                            {
-                                os << capitalized_op_name_ << " result: " << scalar_result << "\n";
-                            }
-                        }
-                        else if constexpr (is_vector_v<ScalarT> || is_deque_v<ScalarT> || is_list_v<ScalarT> || is_std_array_v<ScalarT>)
+                        if constexpr (is_vector_v<ScalarT> || is_deque_v<ScalarT> || is_list_v<ScalarT> || is_std_array_v<ScalarT>)
                         {
                             os << capitalized_op_name_ << " result: {";
                             bool first = true;
@@ -1194,6 +1196,17 @@ struct MetaScalarHandler
                                 first = false;
                             }
                             os << "}\n";
+                        }
+                        else if constexpr (requires { os << scalar_result; })
+                        {
+                            if constexpr (sizeof(ScalarT) == 1 && std::is_integral_v<ScalarT>)
+                            {
+                                os << capitalized_op_name_ << " result: " << +scalar_result << "\n";
+                            }
+                            else
+                            {
+                                os << capitalized_op_name_ << " result: " << scalar_result << "\n";
+                            }
                         }
                         else
                         {
@@ -1211,11 +1224,6 @@ struct MetaScalarHandler
                 os << "Error: Output type from processor is unknown or unsupported. Type Name: [" 
                    << scalar_result_any.type().name() << "]\n";
             }
-        };
-
-        if (!dispatch_data_operation<master_data_types>(input_arg, workspace_, image_loader_fun, process_scalar))
-        {
-            os << "Error: Memory variable not found or unsupported type.\n";
         }
     }
 };
