@@ -2239,6 +2239,7 @@ namespace TinyDIP
         return resized_image;
     }
 
+    //  cubic_interpolate template function implementation
     template<class InputT1, class InputT2>
     constexpr static auto cubic_interpolate(const InputT1 v0, const InputT1 v1, const InputT1 v2, const InputT1 v3, const InputT2 frac)
     {
@@ -2246,7 +2247,24 @@ namespace TinyDIP
         auto B = (v0-v1)-A;
         auto C = v2-v0;
         auto D = v1;
-        return D + frac * (C + frac * (B + frac * A));
+
+        using DecayedT1 = std::remove_cvref_t<InputT1>;
+
+        if constexpr (is_complex_data_v<DecayedT1>)
+        {
+            using ScalarT = typename DecayedT1::value_type;
+            const auto f = static_cast<ScalarT>(frac);
+            return D + f * (C + f * (B + f * A));
+        }
+        else if constexpr (std::is_arithmetic_v<DecayedT1>)
+        {
+            const auto f = static_cast<DecayedT1>(frac);
+            return D + f * (C + f * (B + f * A));
+        }
+        else
+        {
+            return D + frac * (C + frac * (B + frac * A));
+        }
     }
 
     template<class InputT = float, class ElementT>
