@@ -164,6 +164,17 @@ namespace TinyDIP
 
     template <typename T> inline constexpr bool is_bool_data_v = is_bool_data<T>::value;
 
+    template <typename T> struct is_complex_data : std::false_type {};
+    template <typename T> struct is_complex_data<std::complex<T>> : std::true_type {};
+    template <typename T> struct is_complex_data<TinyDIP::Image<T>> : is_complex_data<T> {};
+    template <typename T> struct is_complex_data<TinyDIP::MultiChannel<T>> : is_complex_data<T> {};
+    template <typename T, typename A> struct is_complex_data<std::vector<T, A>> : is_complex_data<T> {};
+    template <typename T, typename A> struct is_complex_data<std::deque<T, A>> : is_complex_data<T> {};
+    template <typename T, typename A> struct is_complex_data<std::list<T, A>> : is_complex_data<T> {};
+    template <typename T, std::size_t N> struct is_complex_data<std::array<T, N>> : is_complex_data<T> {};
+
+    template <typename T> inline constexpr bool is_complex_data_v = is_complex_data<T>::value;
+
     template <typename, typename>
     struct check_tuple_element_type {};
 
