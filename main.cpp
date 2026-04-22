@@ -2978,13 +2978,36 @@ int main(int argc, char* argv[])
 
                     return []<typename DataT>(DataT&& data) -> std::any
                     {
-                        if constexpr (requires { TinyDIP::max(std::forward<DataT>(data)); })
+                        using DecayedDataT = std::remove_cvref_t<DataT>;
+                        
+                        if constexpr (TinyDIP::is_complex_data_v<DecayedDataT>)
                         {
-                            return TinyDIP::max(std::forward<DataT>(data));
+                            throw std::invalid_argument("Input data type (complex) does not support max (elements are not comparable).");
+                            return std::any{};
+                        }
+                        else if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
+                        {
+                            if constexpr (requires { TinyDIP::max(std::forward<DataT>(data)); })
+                            {
+                                return TinyDIP::max(std::forward<DataT>(data));
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Input image type does not support max.");
+                                return std::any{};
+                            }
                         }
                         else
                         {
-                            return std::ranges::max(std::forward<DataT>(data));
+                            if constexpr (requires { std::ranges::max(std::forward<DataT>(data)); })
+                            {
+                                return std::ranges::max(std::forward<DataT>(data));
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Input container type does not support max (elements are not comparable).");
+                                return std::any{};
+                            }
                         }
                     };
                 }
@@ -3005,13 +3028,36 @@ int main(int argc, char* argv[])
 
                     return []<typename DataT>(DataT&& data) -> std::any
                     {
-                        if constexpr (requires { TinyDIP::min(std::forward<DataT>(data)); })
+                        using DecayedDataT = std::remove_cvref_t<DataT>;
+                        
+                        if constexpr (TinyDIP::is_complex_data_v<DecayedDataT>)
                         {
-                            return TinyDIP::min(std::forward<DataT>(data));
+                            throw std::invalid_argument("Input data type (complex) does not support min (elements are not comparable).");
+                            return std::any{};
+                        }
+                        else if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
+                        {
+                            if constexpr (requires { TinyDIP::min(std::forward<DataT>(data)); })
+                            {
+                                return TinyDIP::min(std::forward<DataT>(data));
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Input image type does not support min.");
+                                return std::any{};
+                            }
                         }
                         else
                         {
-                            return std::ranges::min(std::forward<DataT>(data));
+                            if constexpr (requires { std::ranges::min(std::forward<DataT>(data)); })
+                            {
+                                return std::ranges::min(std::forward<DataT>(data));
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Input container type does not support min (elements are not comparable).");
+                                return std::any{};
+                            }
                         }
                     };
                 }
@@ -3060,7 +3106,7 @@ int main(int argc, char* argv[])
                             else
                             {
                                 throw std::invalid_argument("Input data type does not support rgb2hsv conversion.");
-                                return {};
+                                return std::any{};
                             }
                         };
 
