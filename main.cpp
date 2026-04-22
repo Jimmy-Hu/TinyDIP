@@ -392,6 +392,7 @@ using image_t = TinyDIP::Image<T>;
 // Exhaustive Derived Type Auto-Generation
 using all_multichannel_types = tuple_map_t<multichannel_t, core_numeric_types>;
 using all_complex_types = tuple_map_t<std::complex, core_floating_point_types>;
+using all_complex_multichannel_types = tuple_map_t<multichannel_t, all_complex_types>;
 using all_vector_types = tuple_map_t<std::vector, core_numeric_types>;
 using all_deque_types = tuple_map_t<std::deque, core_numeric_types>;
 using all_list_types = tuple_map_t<std::list, core_numeric_types>;
@@ -404,6 +405,7 @@ using master_scalar_types = tuple_cat_t<
     all_custom_scalar_types,
     all_multichannel_types,
     all_complex_types,
+    all_complex_multichannel_types,
     all_vector_types,
     all_deque_types,
     all_list_types,
@@ -414,7 +416,9 @@ using master_scalar_types = tuple_cat_t<
 using master_image_types = tuple_cat_t<
     tuple_map_t<image_t, core_numeric_types>,
     tuple_map_t<image_t, all_custom_scalar_types>,
-    tuple_map_t<image_t, all_multichannel_types>
+    tuple_map_t<image_t, all_multichannel_types>,
+    tuple_map_t<image_t, all_complex_types>,
+    tuple_map_t<image_t, all_complex_multichannel_types>
 >;
 
 // Master Data Tuple (Exhaustively includes ALL valid image structures AND containers)
@@ -431,6 +435,7 @@ using complex_scalar_types_for_printing = tuple_cat_t<
     all_custom_scalar_types,
     all_multichannel_types,
     all_complex_types,
+    all_complex_multichannel_types,
     all_vector_types,
     all_deque_types,
     all_list_types,
