@@ -2792,6 +2792,118 @@ int main(int argc, char* argv[])
                 }
             )
         },
+        CommandBundle{"im2uint8", "Convert an image or container to 8-bit unsigned integers.", TransformerSchema,
+            make_meta_transform_handler<2, master_data_types>(
+                "im2uint8 [execution_policy] <input_data | $var> <output_var | $var>",
+                workspace,
+                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+                {
+                    if (!std::ranges::empty(policy_str))
+                    {
+                        os << "Converting " << filtered_args[0] << " to uint8 (Policy: " << policy_str << ")...\n";
+                    }
+                    else
+                    {
+                        os << "Converting " << filtered_args[0] << " to uint8...\n";
+                    }
+
+                    return[policy_str, &os]<typename DataT>(DataT && data) -> std::any
+                    {
+                        using DecayedDataT = std::remove_cvref_t<DataT>;
+
+                        auto exec_default = [&]() -> std::any
+                        {
+                            if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
+                            {
+                                if constexpr (requires { TinyDIP::im2uint8(std::forward<DataT>(data)); })
+                                {
+                                    return TinyDIP::im2uint8(std::forward<DataT>(data));
+                                }
+                                else
+                                {
+                                    throw std::invalid_argument("Input image type does not support im2uint8 conversion.");
+                                    return {};
+                                }
+                            }
+                            else if constexpr (std::ranges::input_range<DecayedDataT>)
+                            {
+                                if constexpr (requires { TinyDIP::im2uint8(*std::ranges::begin(data)); })
+                                {
+                                    return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                        [](auto&& element)
+                                        {
+                                            return TinyDIP::im2uint8(std::forward<decltype(element)>(element));
+                                        },
+                                        std::forward<DataT>(data)
+                                    );
+                                }
+                                else
+                                {
+                                    throw std::invalid_argument("Input container type does not support im2uint8 conversion.");
+                                    return {};
+                                }
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Input data type does not support im2uint8 conversion.");
+                                return {};
+                            }
+                        };
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy && exec_policy) -> std::any
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
+                            {
+                                if constexpr (requires { TinyDIP::im2uint8(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data)); })
+                                {
+                                    return TinyDIP::im2uint8(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data));
+                                }
+                                else
+                                {
+                                    if (!std::ranges::empty(policy_str))
+                                    {
+                                        os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                    }
+                                    return exec_default();
+                                }
+                            }
+                            else if constexpr (std::ranges::input_range<DecayedDataT>)
+                            {
+                                if constexpr (requires { TinyDIP::im2uint8(*std::ranges::begin(data)); })
+                                {
+                                    return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                        std::forward<ExecPolicy>(exec_policy),
+                                        [](auto&& element)
+                                        {
+                                            return TinyDIP::im2uint8(std::forward<decltype(element)>(element));
+                                        },
+                                        std::forward<DataT>(data)
+                                    );
+                                }
+                                else
+                                {
+                                    if (!std::ranges::empty(policy_str))
+                                    {
+                                        os << "Warning: Execution policy requested but not supported for this data type/operation. Falling back to default.\n";
+                                    }
+                                    return exec_default();
+                                }
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this data type/operation. Falling back to default.\n";
+                                }
+                                return exec_default();
+                            }
+                        };
+                        return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                    };
+                }
+            )
+        },
         CommandBundle{"info", "Display basic information about an image.", TerminatorSchema, InfoHandler{workspace}},
         CommandBundle{"lanczos_resample", "Resize an image using Lanczos resampling.", TransformerSchema, 
             make_meta_transform_handler<4>(
