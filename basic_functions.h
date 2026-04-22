@@ -156,6 +156,7 @@ namespace TinyDIP
     template <> struct is_bool_data<bool> : std::true_type {};
     template <typename T> struct is_bool_data<TinyDIP::Image<T>> : is_bool_data<T> {};
     template <typename T> struct is_bool_data<TinyDIP::MultiChannel<T>> : is_bool_data<T> {};
+    template <typename T> struct is_bool_data<std::complex<T>> : is_bool_data<T> {};
     template <typename T, typename A> struct is_bool_data<std::vector<T, A>> : is_bool_data<T> {};
     template <typename T, typename A> struct is_bool_data<std::deque<T, A>> : is_bool_data<T> {};
     template <typename T, typename A> struct is_bool_data<std::list<T, A>> : is_bool_data<T> {};
