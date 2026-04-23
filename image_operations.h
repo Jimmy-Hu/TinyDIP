@@ -2370,7 +2370,7 @@ namespace TinyDIP
     // new_width: The target width of the resampled image
     // new_height: The target height of the resampled image
     // a: The Lanczos kernel size parameter (default is 3 for high quality)
-    template<complex_or_floating_point ElementT>
+    template<arithmetic ElementT>
     constexpr Image<ElementT> lanczos_resample(
         const Image<ElementT>& input_image,
         const std::size_t new_width,
@@ -2383,8 +2383,10 @@ namespace TinyDIP
             throw std::runtime_error("Lanczos resampling is implemented for 2D images only.");
         }
 
-        // 1. Dynamically deduce the underlying scalar precision to safely interface with complex numbers
-        using ScalarT = get_scalar_type_t<ElementT>;
+        // 1. Dynamically deduce the underlying scalar precision to safely interface with integers and complex numbers
+        using RawScalarT = get_scalar_type_t<ElementT>;
+        using ScalarT = std::conditional_t<std::is_floating_point_v<RawScalarT>, RawScalarT, double>;
+        using ComputeT = std::conditional_t<is_complex_data_v<ElementT>, std::complex<ScalarT>, ScalarT>;
 
         const std::size_t old_width = input_image.getWidth();
         const std::size_t old_height = input_image.getHeight();
@@ -2403,7 +2405,7 @@ namespace TinyDIP
                 const ScalarT x_old = (static_cast<ScalarT>(x_new) + static_cast<ScalarT>(0.5)) * x_ratio - static_cast<ScalarT>(0.5);
                 const ScalarT y_old = (static_cast<ScalarT>(y_new) + static_cast<ScalarT>(0.5)) * y_ratio - static_cast<ScalarT>(0.5);
 
-                ElementT pixel_value{}; // Initialize with zero
+                ComputeT pixel_value{}; // Initialize with zero dynamically typed for robust precision
                 ScalarT total_weight = static_cast<ScalarT>(0.0);
 
                 // Determine the range of pixels in the old image that contribute to the new pixel
@@ -2429,7 +2431,7 @@ namespace TinyDIP
                         if (weight != static_cast<ScalarT>(0.0))
                         {
                             // Safely applying weight multiplier strictly maintaining scalar alignment
-                            pixel_value += input_image.at(clamped_i, clamped_j) * weight;
+                            pixel_value += static_cast<ComputeT>(input_image.at(clamped_i, clamped_j)) * weight;
                             total_weight += weight;
                         }
                     }
@@ -2438,7 +2440,24 @@ namespace TinyDIP
                 // Normalize the pixel value
                 if (total_weight != static_cast<ScalarT>(0.0))
                 {
-                    output_image.at(x_new, y_new) = static_cast<ElementT>(pixel_value / total_weight);
+                    const ComputeT normalized_val = pixel_value / total_weight;
+                
+                    if constexpr (is_complex_data_v<ElementT>)
+                    {
+                        output_image.at(x_new, y_new) = static_cast<ElementT>(normalized_val);
+                    }
+                    else if constexpr (std::same_as<std::remove_cvref_t<ElementT>, bool>)
+                    {
+                        output_image.at(x_new, y_new) = normalized_val >= static_cast<ComputeT>(0.5);
+                    }
+                    else
+                    {
+                        output_image.at(x_new, y_new) = static_cast<ElementT>(std::clamp(
+                            normalized_val,
+                            static_cast<ComputeT>(std::numeric_limits<ElementT>::lowest()),
+                            static_cast<ComputeT>(std::numeric_limits<ElementT>::max())
+                        ));
+                    }
                 }
             }
         }
