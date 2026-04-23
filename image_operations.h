@@ -2453,76 +2453,82 @@ namespace TinyDIP
     // new_width: The target width of the resampled image
     // new_height: The target height of the resampled image
     // a: The Lanczos kernel size parameter (default is 3 for high quality)
-    template<class ExecutionPolicy, image_element_standard_floating_point_type ElementT>
+    template<class ExecutionPolicy, complex_or_floating_point ElementT>
     requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
-    auto lanczos_resample(ExecutionPolicy&& policy, const Image<ElementT>& input_image, const std::size_t new_width, const std::size_t new_height, const int a = 3) {
+    auto lanczos_resample(ExecutionPolicy&& policy, const Image<ElementT>& input_image, const std::size_t new_width, const std::size_t new_height, const int a = 3)
+    {
         if (input_image.getDimensionality() != 2)
         {
             throw std::runtime_error("Lanczos resampling is implemented for 2D images only.");
         }
+
+        // 1. Dynamically deduce the underlying scalar precision to safely interface with complex numbers
+        using ScalarT = get_scalar_type_t<ElementT>;
 
         const std::size_t old_width = input_image.getWidth();
         const std::size_t old_height = input_image.getHeight();
 
         Image<ElementT> output_image(new_width, new_height);
 
-        const double x_ratio = static_cast<double>(old_width) / new_width;
-        const double y_ratio = static_cast<double>(old_height) / new_height;
+        const ScalarT x_ratio = static_cast<ScalarT>(old_width) / static_cast<ScalarT>(new_width);
+        const ScalarT y_ratio = static_cast<ScalarT>(old_height) / static_cast<ScalarT>(new_height);
 
         // Create a view of indices from 0 to (total pixels - 1)
         auto indices = std::views::iota(std::size_t{0}, new_width * new_height);
 
-        // Process each pixel in the new image using the provided C++17 execution policy
+        // Process each pixel in the new image using the provided C++ execution policy
         std::for_each(
             std::forward<ExecutionPolicy>(policy),
             std::ranges::begin(indices),
             std::ranges::end(indices),
             [&](const std::size_t idx)
             {
-            const std::size_t y_new = idx / new_width;
-            const std::size_t x_new = idx % new_width;
-        
-            // Map the new pixel coordinates back to the old image coordinates
-            const double x_old = (x_new + 0.5) * x_ratio - 0.5;
-            const double y_old = (y_new + 0.5) * y_ratio - 0.5;
+                const std::size_t y_new = idx / new_width;
+                const std::size_t x_new = idx % new_width;
+    
+                // Map the new pixel coordinates back to the old image coordinates
+                const ScalarT x_old = (static_cast<ScalarT>(x_new) + static_cast<ScalarT>(0.5)) * x_ratio - static_cast<ScalarT>(0.5);
+                const ScalarT y_old = (static_cast<ScalarT>(y_new) + static_cast<ScalarT>(0.5)) * y_ratio - static_cast<ScalarT>(0.5);
 
-            ElementT pixel_value{}; // Initialize with zero
-            double total_weight = 0.0;
+                ElementT pixel_value{}; // Initialize with zero
+                ScalarT total_weight = static_cast<ScalarT>(0.0);
 
-            // Determine the range of pixels in the old image that contribute to the new pixel
-            const int x_min = static_cast<int>(std::floor(x_old)) - a + 1;
-            const int x_max = static_cast<int>(std::floor(x_old)) + a;
-            const int y_min = static_cast<int>(std::floor(y_old)) - a + 1;
-            const int y_max = static_cast<int>(std::floor(y_old)) + a;
+                // Determine the range of pixels in the old image that contribute to the new pixel
+                const int x_min = static_cast<int>(std::floor(x_old)) - a + 1;
+                const int x_max = static_cast<int>(std::floor(x_old)) + a;
+                const int y_min = static_cast<int>(std::floor(y_old)) - a + 1;
+                const int y_max = static_cast<int>(std::floor(y_old)) + a;
 
-            // Iterate over the contributing pixels
-            for (int j = y_min; j <= y_max; ++j)
-            {
-                for (int i = x_min; i <= x_max; ++i)
+                // Iterate over the contributing pixels
+                for (int j = y_min; j <= y_max; ++j)
                 {
-                    // Clamp coordinates to be within the bounds of the old image
-                    const int clamped_i = std::clamp(i, 0, static_cast<int>(old_width) - 1);
-                    const int clamped_j = std::clamp(j, 0, static_cast<int>(old_height) - 1);
-
-                    // Calculate the weight using the Lanczos kernel
-                    const double weight_x = lanczos_kernel(x_old - i, a);
-                    const double weight_y = lanczos_kernel(y_old - j, a);
-                    const double weight = weight_x * weight_y;
-
-                    if (weight != 0.0)
+                    for (int i = x_min; i <= x_max; ++i)
                     {
-                        pixel_value += input_image.at(clamped_i, clamped_j) * weight;
-                        total_weight += weight;
+                        // Clamp coordinates to be within the bounds of the old image
+                        const int clamped_i = std::clamp(i, 0, static_cast<int>(old_width) - 1);
+                        const int clamped_j = std::clamp(j, 0, static_cast<int>(old_height) - 1);
+
+                        // Calculate the weight using the Lanczos kernel
+                        const ScalarT weight_x = lanczos_kernel(x_old - static_cast<ScalarT>(i), a);
+                        const ScalarT weight_y = lanczos_kernel(y_old - static_cast<ScalarT>(j), a);
+                        const ScalarT weight = weight_x * weight_y;
+
+                        if (weight != static_cast<ScalarT>(0.0))
+                        {
+                            // Safely applying weight multiplier strictly maintaining scalar alignment
+                            pixel_value += input_image.at(clamped_i, clamped_j) * weight;
+                            total_weight += weight;
+                        }
                     }
                 }
+    
+                // Normalize the pixel value
+                if (total_weight != static_cast<ScalarT>(0.0))
+                {
+                    output_image.at(x_new, y_new) = static_cast<ElementT>(pixel_value / total_weight);
+                }
             }
-        
-            // Normalize the pixel value
-            if (total_weight != 0.0)
-            {
-                output_image.at(x_new, y_new) = static_cast<ElementT>(pixel_value / total_weight);
-            }
-        });
+        );
 
         return output_image;
     }
