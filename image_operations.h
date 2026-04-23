@@ -2370,7 +2370,7 @@ namespace TinyDIP
     // new_width: The target width of the resampled image
     // new_height: The target height of the resampled image
     // a: The Lanczos kernel size parameter (default is 3 for high quality)
-    template<typename ElementT>
+    template<complex_or_floating_point ElementT>
     constexpr Image<ElementT> lanczos_resample(
         const Image<ElementT>& input_image,
         const std::size_t new_width,
@@ -2383,13 +2383,16 @@ namespace TinyDIP
             throw std::runtime_error("Lanczos resampling is implemented for 2D images only.");
         }
 
+        // 1. Dynamically deduce the underlying scalar precision to safely interface with complex numbers
+        using ScalarT = get_scalar_type_t<ElementT>;
+
         const std::size_t old_width = input_image.getWidth();
         const std::size_t old_height = input_image.getHeight();
 
         Image<ElementT> output_image(new_width, new_height);
 
-        const double x_ratio = static_cast<double>(old_width) / new_width;
-        const double y_ratio = static_cast<double>(old_height) / new_height;
+        const ScalarT x_ratio = static_cast<ScalarT>(old_width) / static_cast<ScalarT>(new_width);
+        const ScalarT y_ratio = static_cast<ScalarT>(old_height) / static_cast<ScalarT>(new_height);
 
         // Process each pixel in the new image
         for (std::size_t y_new = 0; y_new < new_height; ++y_new)
@@ -2397,17 +2400,17 @@ namespace TinyDIP
             for (std::size_t x_new = 0; x_new < new_width; ++x_new)
             {
                 // Map the new pixel coordinates back to the old image coordinates
-                double x_old = (x_new + 0.5) * x_ratio - 0.5;
-                double y_old = (y_new + 0.5) * y_ratio - 0.5;
+                const ScalarT x_old = (static_cast<ScalarT>(x_new) + static_cast<ScalarT>(0.5)) * x_ratio - static_cast<ScalarT>(0.5);
+                const ScalarT y_old = (static_cast<ScalarT>(y_new) + static_cast<ScalarT>(0.5)) * y_ratio - static_cast<ScalarT>(0.5);
 
                 ElementT pixel_value{}; // Initialize with zero
-                double total_weight = 0.0;
+                ScalarT total_weight = static_cast<ScalarT>(0.0);
 
                 // Determine the range of pixels in the old image that contribute to the new pixel
-                int x_min = static_cast<int>(std::floor(x_old)) - a + 1;
-                int x_max = static_cast<int>(std::floor(x_old)) + a;
-                int y_min = static_cast<int>(std::floor(y_old)) - a + 1;
-                int y_max = static_cast<int>(std::floor(y_old)) + a;
+                const int x_min = static_cast<int>(std::floor(x_old)) - a + 1;
+                const int x_max = static_cast<int>(std::floor(x_old)) + a;
+                const int y_min = static_cast<int>(std::floor(y_old)) - a + 1;
+                const int y_max = static_cast<int>(std::floor(y_old)) + a;
 
                 // Iterate over the contributing pixels
                 for (int j = y_min; j <= y_max; ++j)
@@ -2415,16 +2418,17 @@ namespace TinyDIP
                     for (int i = x_min; i <= x_max; ++i)
                     {
                         // Clamp coordinates to be within the bounds of the old image
-                        int clamped_i = std::clamp(i, 0, static_cast<int>(old_width) - 1);
-                        int clamped_j = std::clamp(j, 0, static_cast<int>(old_height) - 1);
+                        const int clamped_i = std::clamp(i, 0, static_cast<int>(old_width) - 1);
+                        const int clamped_j = std::clamp(j, 0, static_cast<int>(old_height) - 1);
 
                         // Calculate the weight using the Lanczos kernel
-                        double weight_x = lanczos_kernel(x_old - i, a);
-                        double weight_y = lanczos_kernel(y_old - j, a);
-                        double weight = weight_x * weight_y;
+                        const ScalarT weight_x = lanczos_kernel(x_old - static_cast<ScalarT>(i), a);
+                        const ScalarT weight_y = lanczos_kernel(y_old - static_cast<ScalarT>(j), a);
+                        const ScalarT weight = weight_x * weight_y;
 
-                        if (weight != 0.0)
+                        if (weight != static_cast<ScalarT>(0.0))
                         {
+                            // Safely applying weight multiplier strictly maintaining scalar alignment
                             pixel_value += input_image.at(clamped_i, clamped_j) * weight;
                             total_weight += weight;
                         }
@@ -2432,9 +2436,9 @@ namespace TinyDIP
                 }
 
                 // Normalize the pixel value
-                if (total_weight != 0.0)
+                if (total_weight != static_cast<ScalarT>(0.0))
                 {
-                    output_image.at(x_new, y_new) = pixel_value / total_weight;
+                    output_image.at(x_new, y_new) = static_cast<ElementT>(pixel_value / total_weight);
                 }
             }
         }
