@@ -3113,9 +3113,13 @@ namespace TinyDIP
     }
 
     //  idct3_one_plane template function implementation
-    template<std::floating_point ElementT = double, std::floating_point OutputT = ElementT>
+    template<complex_or_floating_point ElementT = double, complex_or_floating_point OutputT = ElementT>
     Image<OutputT> idct3_one_plane(const std::vector<Image<ElementT>>& input, const std::size_t plane_index)
     {
+        using ScalarT = get_scalar_type_t<ElementT>;
+        constexpr ScalarT PI = std::numbers::pi_v<ScalarT>;
+        constexpr ScalarT SQRT2 = std::numbers::sqrt2_v<ScalarT>;
+
         auto N1 = static_cast<OutputT>(input[0].getWidth());
         auto N2 = static_cast<OutputT>(input[0].getHeight());
         auto N3 = input.size();
@@ -3135,12 +3139,12 @@ namespace TinyDIP
                     {
                         for (std::size_t inner_x = 0; inner_x < plane.getWidth(); ++inner_x)
                         {
-                            auto l1 = (std::numbers::pi_v<OutputT> / (2 * N1) * (2 * x + 1) * static_cast<OutputT>(inner_x));
-                            auto l2 = (std::numbers::pi_v<OutputT> / (2 * N2) * (2 * y + 1) * static_cast<OutputT>(inner_y));
-                            auto l3 = (std::numbers::pi_v<OutputT> / (2 * static_cast<OutputT>(N3)) * (2 * static_cast<OutputT>(plane_index) + 1) * static_cast<OutputT>(inner_z));
-                            OutputT alpha1 = (inner_x == 0) ? (std::numbers::sqrt2_v<OutputT> / 2) : (OutputT{1.0});
-                            OutputT alpha2 = (inner_y == 0) ? (std::numbers::sqrt2_v<OutputT> / 2) : (OutputT{1.0});
-                            OutputT alpha3 = (inner_z == 0) ? (std::numbers::sqrt2_v<OutputT> / 2) : (OutputT{1.0});
+                            auto l1 = (PI / (static_cast<OutputT>(2) * N1) * (static_cast<OutputT>(2) * static_cast<OutputT>(x) + static_cast<OutputT>(1)) * static_cast<OutputT>(inner_x));
+                            auto l2 = (PI / (static_cast<OutputT>(2) * N2) * (static_cast<OutputT>(2) * static_cast<OutputT>(y) + static_cast<OutputT>(1)) * static_cast<OutputT>(inner_y));
+                            auto l3 = (PI / (static_cast<OutputT>(2) * static_cast<OutputT>(N3)) * (static_cast<OutputT>(2) * static_cast<OutputT>(plane_index) + static_cast<OutputT>(1)) * static_cast<OutputT>(inner_z));
+                            OutputT alpha1 = (inner_x == 0) ? (SQRT2 / static_cast<OutputT>(2)) : (OutputT{1.0});
+                            OutputT alpha2 = (inner_y == 0) ? (SQRT2 / static_cast<OutputT>(2)) : (OutputT{1.0});
+                            OutputT alpha3 = (inner_z == 0) ? (SQRT2 / static_cast<OutputT>(2)) : (OutputT{1.0});
                             sum += alpha1 * alpha2 * alpha3 * static_cast<OutputT>(plane.at(inner_x, inner_y)) *
                                 std::cos(l1) * std::cos(l2) * std::cos(l3);
                         }
