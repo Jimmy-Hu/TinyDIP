@@ -2543,9 +2543,15 @@ namespace TinyDIP
     {
         return apply_each(input_image, [&](auto&& each_plane)
         {
+            // Intercept inner component and deduce targeted interpolation precision
+            // Utilizing decltype on .at(0,0) mathematically guarantees we extract the exact pixel type
+            // bypassing any missing value_type typedefs inside custom structures like GrayScale!
+            using PlaneT = std::remove_cvref_t<decltype(each_plane.at(0, 0))>;
+            using ComputeT = std::conditional_t<is_complex_data_v<PlaneT>, std::complex<double>, double>;
+
             return lanczos_resample(
                 std::forward<ExecutionPolicy>(policy),
-                each_plane.template cast<double>(),
+                each_plane.template cast<ComputeT>(), // Safely elevates precision correctly for generic inputs
                 new_width,
                 new_height,
                 a);
