@@ -175,6 +175,12 @@ namespace TinyDIP
 
     template <typename T> inline constexpr bool is_complex_data_v = is_complex_data<T>::value;
 
+    //  complex_or_floating_point concept implementation
+    template <typename T>
+    concept complex_or_floating_point =
+        std::floating_point<T> ||
+        (is_complex_data_v<T> && std::floating_point<typename T::value_type>);
+
     template <typename, typename>
     struct check_tuple_element_type {};
 
