@@ -3156,7 +3156,8 @@ namespace TinyDIP
         return output;
     }
 
-    template<std::floating_point ElementT = double, std::floating_point OutputT = ElementT>
+    //  idct3 template function implementation
+    template<complex_or_floating_point ElementT = double, complex_or_floating_point OutputT = ElementT>
     std::vector<Image<OutputT>> idct3(const std::vector<Image<ElementT>>& input)
     {
         std::vector<Image<OutputT>> output;
