@@ -181,6 +181,25 @@ namespace TinyDIP
         std::floating_point<T> ||
         (is_complex_data_v<T> && std::floating_point<typename T::value_type>);
 
+    // ------------------------------------------------------------------------------------
+    //  Scalar Extraction Trait (Unwraps std::complex to fetch underlying precision)
+    // ------------------------------------------------------------------------------------
+
+    template <typename T>
+    struct get_scalar_type
+    {
+        using type = std::remove_cvref_t<T>;
+    };
+
+    template <typename T>
+    struct get_scalar_type<std::complex<T>>
+    {
+        using type = T;
+    };
+
+    template <typename T>
+    using get_scalar_type_t = typename get_scalar_type<T>::type;
+
     template <typename, typename>
     struct check_tuple_element_type {};
 
