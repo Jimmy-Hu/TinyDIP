@@ -2355,10 +2355,10 @@ namespace TinyDIP
         {
             return T(1.0);
         }
-        if (std::abs(x) < a)
+        if (std::abs(x) < static_cast<T>(a))
         {
             // For maximum precision, use long double for intermediate calculations
-            const long double pi_x = std::numbers::pi_v<long double> * x;
+            const long double pi_x = std::numbers::pi_v<long double> * static_cast<long double>(x);
             return static_cast<T>((a * std::sin(pi_x) * std::sin(pi_x / a)) / (pi_x * pi_x));
         }
         return T(0.0);
