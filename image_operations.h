@@ -3190,7 +3190,8 @@ namespace TinyDIP
     template<arithmetic ElementT = double, arithmetic OutputT = ElementT>
     constexpr static auto idct2(Image<ElementT> input)
     {
-        std::vector v{ input.template cast<double>() };
+        using ComputeT = std::conditional_t<is_complex_data_v<ElementT>, std::complex<double>, double>;
+        std::vector v{ input.template cast<ComputeT>() };
         return idct3_one_plane(v, 0);
     }
 
