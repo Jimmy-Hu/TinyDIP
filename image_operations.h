@@ -2267,6 +2267,7 @@ namespace TinyDIP
         }
     }
 
+    //  bicubicPolate template function implementation
     template<class InputT = float, class ElementT>
     constexpr static auto bicubicPolate(const ElementT* const ndata, const InputT fracx, const InputT fracy)
     {
@@ -2275,10 +2276,20 @@ namespace TinyDIP
         auto x3 = cubic_interpolate( ndata[8], ndata[9], ndata[10], ndata[11], fracx );
         auto x4 = cubic_interpolate( ndata[12], ndata[13], ndata[14], ndata[15], fracx );
 
-        return std::clamp(
-                    static_cast<InputT>(cubic_interpolate(x1, x2, x3, x4, fracy)),
-                    static_cast<InputT>(std::numeric_limits<ElementT>::min()),
-                    static_cast<InputT>(std::numeric_limits<ElementT>::max()));
+        auto interpolated_val = cubic_interpolate(x1, x2, x3, x4, fracy);
+
+        if constexpr (is_complex_data_v<ElementT>)
+        {
+            return static_cast<ElementT>(interpolated_val);
+        }
+        else
+        {
+            return static_cast<ElementT>(std::clamp(
+                static_cast<InputT>(interpolated_val),
+                static_cast<InputT>(std::numeric_limits<ElementT>::lowest()),
+                static_cast<InputT>(std::numeric_limits<ElementT>::max())
+            ));
+        }
     }
 
     //  copyResizeBicubic template function implementation
