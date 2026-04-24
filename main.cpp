@@ -2446,6 +2446,7 @@ int main(int argc, char* argv[])
                 }
             )
         },
+        CommandBundle{"constructRGB", "Merge separate R, G, and B planes into an RGB image.", IndependentSchema, ConstructRGBHandler{workspace}},
         CommandBundle{"dct2", "Calculate Discrete Cosine Transformation for an image.", TransformerSchema,
             make_meta_transform_handler<2>(
                 "dct2 [execution_policy] <input_img | $var> <output_img | $var>", 
