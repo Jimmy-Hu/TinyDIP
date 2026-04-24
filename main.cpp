@@ -1570,6 +1570,181 @@ struct LoadWorkspaceHandler
     }
 };
 
+//  ConstructRGBHandler struct implementation
+struct ConstructRGBHandler
+{
+    std::shared_ptr<Workspace> workspace_;
+
+    template <
+        std::ranges::random_access_range ArgsT,
+        typename ImageLoaderFun = MetaImageIO::Loader,
+        typename ImageSaverFun = MetaImageIO::Saver
+    >
+    requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
+              std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&> &&
+              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&>)
+    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
+    {
+        std::string_view policy_str = "";
+        std::vector<std::string_view> filtered_args;
+        filtered_args.reserve(std::ranges::size(args));
+
+        for (const auto& arg : args)
+        {
+            const std::string_view sv_arg = arg;
+            if (sv_arg == "seq" || sv_arg == "par" || sv_arg == "par_unseq" || sv_arg == "unseq")
+            {
+                policy_str = sv_arg;
+            }
+            else
+            {
+                filtered_args.emplace_back(sv_arg);
+            }
+        }
+
+        if (std::ranges::size(filtered_args) < 4)
+        {
+            os << "Usage: constructRGB [execution_policy] <R_img | $var> <G_img | $var> <B_img | $var> <output_img | $var>\n";
+            os << "       Optional Execution policies: seq, par, par_unseq, unseq\n";
+            return;
+        }
+
+        const std::string_view r_arg = filtered_args[0];
+        const std::string_view g_arg = filtered_args[1];
+        const std::string_view b_arg = filtered_args[2];
+        const std::string_view output_arg = filtered_args[3];
+
+        if (!std::ranges::empty(policy_str))
+        {
+            os << "Constructing RGB image from " << r_arg << ", " << g_arg << ", " << b_arg << " (Policy: " << policy_str << ")...\n";
+        }
+        else
+        {
+            os << "Constructing RGB image from " << r_arg << ", " << g_arg << ", " << b_arg << "...\n";
+        }
+
+        // Deep Nested SFINAE Pipeline: Dynamically unwrap and dispatch all three input planes
+        auto process_r = [&]<typename ImgR>(ImgR&& img_r)
+        {
+            auto process_g = [&]<typename ImgG>(ImgG&& img_g)
+            {
+                auto process_b = [&]<typename ImgB>(ImgB&& img_b)
+                {
+                    using DecayedR = std::remove_cvref_t<ImgR>;
+                    using DecayedG = std::remove_cvref_t<ImgG>;
+                    using DecayedB = std::remove_cvref_t<ImgB>;
+
+                    if constexpr (TinyDIP::is_Image<DecayedR>::value && TinyDIP::is_Image<DecayedG>::value && TinyDIP::is_Image<DecayedB>::value)
+                    {
+                        // Utilize our robust decltype pattern to extract precision independent of structural value_type definitions
+                        using ValR = std::remove_cvref_t<decltype(img_r.at(0, 0))>;
+                        using ValG = std::remove_cvref_t<decltype(img_g.at(0, 0))>;
+                        using ValB = std::remove_cvref_t<decltype(img_b.at(0, 0))>;
+
+                        if constexpr (TinyDIP::is_complex_data_v<ValR> || TinyDIP::is_complex_data_v<ValG> || TinyDIP::is_complex_data_v<ValB>)
+                        {
+                            throw std::invalid_argument("Cannot construct a standard RGB image directly from complex frequency planes.");
+                        }
+                        else
+                        {
+                            const std::size_t width = img_r.getWidth();
+                            const std::size_t height = img_r.getHeight();
+
+                            if (width != img_g.getWidth() || height != img_g.getHeight() ||
+                                width != img_b.getWidth() || height != img_b.getHeight())
+                            {
+                                throw std::invalid_argument("Dimension mismatch among R, G, B plane images.");
+                            }
+
+                            TinyDIP::Image<TinyDIP::RGB> output_image(width, height);
+
+                            auto safe_cast = [](auto val) -> std::uint8_t
+                            {
+                                using V = std::remove_cvref_t<decltype(val)>;
+                                if constexpr (std::is_floating_point_v<V>)
+                                {
+                                    return static_cast<std::uint8_t>(std::clamp<V>(val, static_cast<V>(0), static_cast<V>(255)));
+                                }
+                                else if constexpr (std::convertible_to<V, std::uint8_t>)
+                                {
+                                    return static_cast<std::uint8_t>(val);
+                                }
+                                else
+                                {
+                                    throw std::invalid_argument("Input plane element type is not convertible to std::uint8_t.");
+                                    return std::uint8_t{};
+                                }
+                            };
+
+                            auto exec_default = [&]() -> std::any
+                            {
+                                for (std::size_t y = 0; y < height; ++y)
+                                {
+                                    for (std::size_t x = 0; x < width; ++x)
+                                    {
+                                        TinyDIP::RGB pixel{};
+                                        pixel.channels[0] = safe_cast(img_r.at(x, y));
+                                        pixel.channels[1] = safe_cast(img_g.at(x, y));
+                                        pixel.channels[2] = safe_cast(img_b.at(x, y));
+                                        output_image.at(x, y) = pixel;
+                                    }
+                                }
+                                return output_image;
+                            };
+
+                            auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                                requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                            {
+                                auto indices = std::views::iota(std::size_t{0}, width * height);
+                                std::for_each(
+                                    std::forward<ExecPolicy>(exec_policy),
+                                    std::ranges::begin(indices),
+                                    std::ranges::end(indices),
+                                    [&](const std::size_t idx)
+                                    {
+                                        const std::size_t y = idx / width;
+                                        const std::size_t x = idx % width;
+
+                                        TinyDIP::RGB pixel{};
+                                        pixel.channels[0] = safe_cast(img_r.at(x, y));
+                                        pixel.channels[1] = safe_cast(img_g.at(x, y));
+                                        pixel.channels[2] = safe_cast(img_b.at(x, y));
+                                        output_image.at(x, y) = pixel;
+                                    }
+                                );
+                                return output_image;
+                            };
+
+                            std::any final_result = dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                            image_saver_fun(output_arg, workspace_, std::move(std::any_cast<TinyDIP::Image<TinyDIP::RGB>&>(final_result)));
+                            os << "Saved to " << output_arg << "\n";
+                        }
+                    }
+                    else
+                    {
+                        throw std::invalid_argument("Inputs must be valid TinyDIP::Image types.");
+                    }
+                };
+
+                if (!dispatch_data_operation<master_image_types>(b_arg, workspace_, image_loader_fun, process_b))
+                {
+                    os << "Error: Memory variable for B plane not found or unsupported type.\n";
+                }
+            };
+
+            if (!dispatch_data_operation<master_image_types>(g_arg, workspace_, image_loader_fun, process_g))
+            {
+                os << "Error: Memory variable for G plane not found or unsupported type.\n";
+            }
+        };
+
+        if (!dispatch_data_operation<master_image_types>(r_arg, workspace_, image_loader_fun, process_r))
+        {
+            os << "Error: Memory variable for R plane not found or unsupported type.\n";
+        }
+    }
+};
+
 //  HelpHandler struct implementation
 //  Wrapper for the 'help' functionality inside the REPL
 struct HelpHandler
