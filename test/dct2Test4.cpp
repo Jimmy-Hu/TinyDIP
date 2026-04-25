@@ -15,6 +15,7 @@
 #include "../image.h"
 #include "../image_io.h"
 #include "../image_operations.h"
+#include "../timer.h"
 
 //  get_block_output template function implementation
 template<class ExPo, class ElementT>
@@ -333,7 +334,7 @@ constexpr auto load_dictionary(
 
 int main(int argc, char* argv[])
 {
-    auto start = std::chrono::system_clock::now();
+    TinyDIP::Timer timer1;
     std::cout << "argc = " << std::to_string(argc) << '\n';
     if(argc == 2)
     {
@@ -367,18 +368,6 @@ int main(int argc, char* argv[])
         TinyDIP::bmp_write(output_path.c_str(), output_img);
         
 
-    }
-    
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-    if (elapsed_seconds.count() != 1)
-    {
-        std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << " seconds.\n";
-    }
-    else
-    {
-        std::cout << "Computation finished at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << " second.\n";
     }
     
     return EXIT_SUCCESS;
