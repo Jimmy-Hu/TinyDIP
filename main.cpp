@@ -3042,10 +3042,18 @@ int main(int argc, char* argv[])
                             }
                             else if constexpr (TinyDIP::is_complex_data_v<ValT>)
                             {
-                                using S = TinyDIP::get_scalar_type_t<ValT>;
-                                return static_cast<ValT>(element * static_cast<S>(scalar_val));
+                                using S = TinyDIP::get_deep_scalar_t<ValT>;
+                                if constexpr (requires { element * static_cast<S>(scalar_val); })
+                                {
+                                    return static_cast<ValT>(element * static_cast<S>(scalar_val));
+                                }
+                                else
+                                {
+                                    throw std::invalid_argument("Input element type does not support scalar multiplication.");
+                                    return ValT{};
+                                }
                             }
-                            else if constexpr (requires { std::forward<decltype(element)>(element)* scalar_val; })
+                            else if constexpr (requires { std::forward<decltype(element)>(element) * scalar_val; })
                             {
                                 // Provide support for natively overloaded structures like RGB
                                 return std::forward<decltype(element)>(element) * scalar_val;
@@ -3061,13 +3069,13 @@ int main(int argc, char* argv[])
                         {
                             if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
                             {
-                                // Short-circuit evaluation: Place !is_bool_data_v on the left side of && to prevent
-                                // SFINAE hard errors when instantiating unsupported native functions with boolean channels!
-                                if constexpr (!TinyDIP::is_bool_data_v<DecayedDataT> && requires { TinyDIP::multiplies(std::forward<DataT>(data), scalar_val); })
+                                // Short-circuit evaluation: Place !is_bool_data_v and !is_complex_data_v on the left side of && to prevent
+                                // SFINAE hard errors when instantiating unsupported native functions with boolean or complex channels!
+                                if constexpr (!TinyDIP::is_bool_data_v<DecayedDataT> && !TinyDIP::is_complex_data_v<DecayedDataT> && requires { TinyDIP::multiplies(std::forward<DataT>(data), scalar_val); })
                                 {
                                     return TinyDIP::multiplies(std::forward<DataT>(data), scalar_val);
                                 }
-                                else if constexpr (!TinyDIP::is_bool_data_v<DecayedDataT> && requires { std::forward<DataT>(data) * scalar_val; })
+                                else if constexpr (!TinyDIP::is_bool_data_v<DecayedDataT> && !TinyDIP::is_complex_data_v<DecayedDataT> && requires { std::forward<DataT>(data) * scalar_val; })
                                 {
                                     return std::forward<DataT>(data) * scalar_val;
                                 }
@@ -3105,7 +3113,7 @@ int main(int argc, char* argv[])
                         {
                             if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
                             {
-                                if constexpr (!TinyDIP::is_bool_data_v<DecayedDataT> && requires { TinyDIP::multiplies(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), scalar_val); })
+                                if constexpr (!TinyDIP::is_bool_data_v<DecayedDataT> && !TinyDIP::is_complex_data_v<DecayedDataT> && requires { TinyDIP::multiplies(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), scalar_val); })
                                 {
                                     return TinyDIP::multiplies(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), scalar_val);
                                 }
