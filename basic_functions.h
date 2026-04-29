@@ -139,7 +139,7 @@ namespace TinyDIP
     template <typename T> requires std::is_unsigned_v<T> struct is_unsigned_data<T> : std::true_type {};
     template <> struct is_unsigned_data<TinyDIP::RGB> : std::true_type {};
     template <typename T> struct is_unsigned_data<TinyDIP::Image<T>> : is_unsigned_data<T> {};
-    template <typename T> struct is_unsigned_data<TinyDIP::MultiChannel<T>> : is_unsigned_data<T> {};
+    template <typename T, std::size_t N> struct is_unsigned_data<TinyDIP::MultiChannel<T, N>> : is_unsigned_data<T> {};
     template <typename T> struct is_unsigned_data<std::complex<T>> : is_unsigned_data<T> {};
     template <typename T, typename A> struct is_unsigned_data<std::vector<T, A>> : is_unsigned_data<T> {};
     template <typename T, typename A> struct is_unsigned_data<std::deque<T, A>> : is_unsigned_data<T> {};
