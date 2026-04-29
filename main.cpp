@@ -3191,12 +3191,7 @@ int main(int argc, char* argv[])
                                     return exec_default();
                                 }
                             };
-
-                            if (policy_str == "par") return exec_policy(std::execution::par);
-                            else if (policy_str == "par_unseq") return exec_policy(std::execution::par_unseq);
-                            else if (policy_str == "unseq") return exec_policy(std::execution::unseq);
-                            else if (policy_str == "seq") return exec_policy(std::execution::seq);
-                            else return exec_default();
+                            return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
                         };
 
                         if constexpr (std::same_as<std::remove_cvref_t<DataT>, TinyDIP::Image<TinyDIP::RGB>>)
