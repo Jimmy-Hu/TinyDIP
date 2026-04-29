@@ -2936,7 +2936,7 @@ namespace TinyDIP
     //  multiplies Template Function Implementation
     template<class InputT, class TimesT>
     requires((std::floating_point<TimesT> || std::integral<TimesT> || is_complex<TimesT>::value) &&
-             ((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>)))
+             ((std::same_as<InputT, RGB>) || (std::same_as<InputT, RGB_DOUBLE>) || (std::same_as<InputT, HSV>) || (is_MultiChannel<InputT>::value)))
     constexpr static auto multiplies(const Image<InputT>& input1, const TimesT times)
     {
         return apply_each(input1, [&](auto&& each_plane)
