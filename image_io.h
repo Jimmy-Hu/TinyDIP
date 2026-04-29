@@ -151,6 +151,38 @@ namespace TinyDIP
                 file << row_strings[y] << '\n';
             }
         }
+
+        //  ParseCSVRow struct implementation
+        template <typename ElementT = double>
+        struct ParseCSVRow
+        {
+            const std::vector<std::string>& row_strings;
+            TinyDIP::Image<ElementT>& image;
+            const std::size_t width;
+
+            void operator()(const std::size_t y) const
+            {
+                std::istringstream iss(row_strings[y]);
+                std::string cell;
+                std::size_t x = 0;
+                
+                while (std::getline(iss, cell, ',') && x < width)
+                {
+                    if constexpr (std::same_as<ElementT, double>)
+                    {
+                        image.at_without_boundary_check(x, y) = std::stod(cell);
+                    }
+                    else
+                    {
+                        std::istringstream cell_stream(cell);
+                        ElementT val{};
+                        cell_stream >> val;
+                        image.at_without_boundary_check(x, y) = val;
+                    }
+                    ++x;
+                }
+            }
+        };
     }
 
     namespace pnm
