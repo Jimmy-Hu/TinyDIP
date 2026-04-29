@@ -175,6 +175,17 @@ namespace TinyDIP
 
     template <typename T> inline constexpr bool is_complex_data_v = is_complex_data<T>::value;
 
+    template <typename T> struct get_deep_scalar { using type = std::remove_cvref_t<T>; };
+    template <typename T> struct get_deep_scalar<std::complex<T>> { using type = typename get_deep_scalar<T>::type; };
+    template <typename T> struct get_deep_scalar<TinyDIP::Image<T>> { using type = typename get_deep_scalar<T>::type; };
+    template <typename T, std::size_t N> struct get_deep_scalar<TinyDIP::MultiChannel<T, N>> { using type = typename get_deep_scalar<T>::type; };
+    template <typename T, typename A> struct get_deep_scalar<std::vector<T, A>> { using type = typename get_deep_scalar<T>::type; };
+    template <typename T, typename A> struct get_deep_scalar<std::deque<T, A>> { using type = typename get_deep_scalar<T>::type; };
+    template <typename T, typename A> struct get_deep_scalar<std::list<T, A>> { using type = typename get_deep_scalar<T>::type; };
+    template <typename T, std::size_t N> struct get_deep_scalar<std::array<T, N>> { using type = typename get_deep_scalar<T>::type; };
+
+    template <typename T> using get_deep_scalar_t = typename get_deep_scalar<T>::type;
+
     //  complex_or_floating_point concept implementation
     template <typename T>
     concept complex_or_floating_point =
