@@ -2920,17 +2920,64 @@ namespace TinyDIP
     //  multiplies Template Function Implementation
     template<class InputT, class TimesT>
     requires((std::floating_point<TimesT> || std::integral<TimesT> || is_complex<TimesT>::value) &&
-             ((!std::same_as<InputT, RGB>) && (!std::same_as<InputT, RGB_DOUBLE>) && (!std::same_as<InputT, HSV>)))
+             ((!std::same_as<InputT, RGB>) && (!std::same_as<InputT, RGB_DOUBLE>) && (!std::same_as<InputT, HSV>) && (!is_MultiChannel<InputT>::value)))
     constexpr static auto multiplies(const Image<InputT>& input1, const TimesT times)
     {
-        std::vector<TimesT> data;
-        data.resize(input1.count());
-        auto image = Image<TimesT>(data, input1.getSize());
-        image.setAllValue(times);
-        return pixelwise_multiplies(
-            input1,
-            image
-        );
+        using DecayedT1 = std::remove_cvref_t<TimesT>;
+        if constexpr (is_complex<TimesT>::value)
+        {
+            using ScalarInput = get_deep_scalar_t<InputT>;
+            using ScalarTimes = get_deep_scalar_t<TimesT>;
+            using ComputeScalar = std::common_type_t<ScalarInput, ScalarTimes>;
+            using TargetTimesT = std::complex<ComputeScalar>;
+
+            std::vector<TargetTimesT> data;
+            data.resize(input1.count());
+            auto image = Image<TargetTimesT>(data, input1.getSize());
+            image.setAllValue(static_cast<TargetTimesT>(times));
+
+            if constexpr (is_complex<InputT>::value)
+            {
+                return pixelwise_multiplies(
+                    input1.template cast<std::complex<ComputeScalar>>(),
+                    image
+                );
+            }
+            else
+            {
+                return pixelwise_multiplies(
+                    input1.template cast<ComputeScalar>(),
+                    image
+                );
+            }
+        }
+        else if constexpr (is_complex<InputT>::value)
+        {
+            using ScalarInput = get_deep_scalar_t<InputT>;
+            using ScalarTimes = get_deep_scalar_t<TimesT>;
+            using ComputeScalar = std::common_type_t<ScalarInput, ScalarTimes>;
+
+            std::vector<ComputeScalar> data;
+            data.resize(input1.count());
+            auto image = Image<ComputeScalar>(data, input1.getSize());
+            image.setAllValue(static_cast<ComputeScalar>(times));
+
+            return pixelwise_multiplies(
+                input1.template cast<std::complex<ComputeScalar>>(),
+                image
+            );
+        }
+        else
+        {
+            std::vector<TimesT> data;
+            data.resize(input1.count());
+            auto image = Image<TimesT>(data, input1.getSize());
+            image.setAllValue(times);
+            return pixelwise_multiplies(
+                input1,
+                image
+            );
+        }
     }
 
     //  multiplies Template Function Implementation
