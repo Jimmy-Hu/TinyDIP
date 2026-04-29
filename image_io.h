@@ -183,6 +183,60 @@ namespace TinyDIP
                 }
             }
         };
+
+        // -------------------------------------------------------------------------
+        // read_from_csv template function implementation (Execution Policy Overload)
+        // -------------------------------------------------------------------------
+        template <class ExecutionPolicy, class ElementT = double>
+        requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
+                  TinyDIP::is_streamable<ElementT>)
+        TinyDIP::Image<ElementT> read_from_csv(ExecutionPolicy&& policy, const char* const filename)
+        {
+            std::ifstream file(filename);
+            if (!file.is_open())
+            {
+                throw std::runtime_error("Could not open file for reading!\n");
+            }
+
+            std::vector<std::string> lines;
+            std::string line;
+            
+            // Read lines sequentially as file I/O is inherently linear
+            while (std::getline(file, line))
+            {
+                if (!line.empty())
+                {
+                    lines.emplace_back(line);
+                }
+            }
+
+            if (lines.empty())
+            {
+                return TinyDIP::Image<ElementT>();
+            }
+
+            const std::size_t height = lines.size();
+            std::size_t width = 0;
+            
+            // Deduce image width from the first row
+            std::istringstream first_line_stream(lines[0]);
+            std::string token;
+            while (std::getline(first_line_stream, token, ','))
+            {
+                ++width;
+            }
+
+            TinyDIP::Image<ElementT> output(width, height);
+            std::vector<std::size_t> indices(height);
+            std::ranges::iota(indices, 0);
+
+            ParseCSVRow<ElementT> parser{ lines, output, width };
+
+            // Process row strings into double values in parallel
+            std::for_each(std::forward<ExecutionPolicy>(policy), std::ranges::begin(indices), std::ranges::end(indices), parser);
+
+            return output;
+        }
     }
 
     namespace pnm
