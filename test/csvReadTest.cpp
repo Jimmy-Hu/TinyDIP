@@ -55,8 +55,8 @@ int main(int argc, char* argv[])
         std::filesystem::path source_filename = std::string(argv[1]);
         std::cout << "Read image: " << source_filename.string() << '\n';
         auto img_omp = TinyDIP::double_image::read_from_csv(source_filename.string().c_str());
-        img_omp = TinyDIP::pixelwise_multiplies(TinyDIP::normalize(img_omp), 255.0);
-        TinyDIP::bmp_write(std::string(source_filename.path().stem()), TinyDIP::constructRGB(
+        img_omp = TinyDIP::multiplies(TinyDIP::normalize(img_omp), 255.0);
+        TinyDIP::bmp_write(source_filename.stem().string(), TinyDIP::constructRGB(
             TinyDIP::im2uint8(img_omp),
             TinyDIP::im2uint8(img_omp),
             TinyDIP::im2uint8(img_omp)
