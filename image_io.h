@@ -237,6 +237,57 @@ namespace TinyDIP
 
             return output;
         }
+
+        // -------------------------------------------------------------------------
+        // read_from_csv template function implementation (OpenMP Fallback)
+        // -------------------------------------------------------------------------
+        template <class ElementT = double>
+        requires TinyDIP::is_streamable<ElementT>
+        TinyDIP::Image<ElementT> read_from_csv(const char* const filename)
+        {
+            std::ifstream file(filename);
+            if (!file.is_open())
+            {
+                throw std::runtime_error("Could not open file for reading!\n");
+            }
+
+            std::vector<std::string> lines;
+            std::string line;
+            
+            while (std::getline(file, line))
+            {
+                if (!line.empty())
+                {
+                    lines.emplace_back(line);
+                }
+            }
+
+            if (lines.empty())
+            {
+                return TinyDIP::Image<ElementT>();
+            }
+
+            const std::size_t height = lines.size();
+            std::size_t width = 0;
+            
+            std::istringstream first_line_stream(lines[0]);
+            std::string token;
+            while (std::getline(first_line_stream, token, ','))
+            {
+                ++width;
+            }
+
+            TinyDIP::Image<ElementT> output(width, height);
+            ParseCSVRow<ElementT> parser{ lines, output, width };
+
+            #pragma omp parallel for
+            for (std::ptrdiff_t y = 0; y < static_cast<std::ptrdiff_t>(height); ++y)
+            {
+                parser(static_cast<std::size_t>(y));
+            }
+
+            return output;
+        }
     }
 
     namespace pnm
