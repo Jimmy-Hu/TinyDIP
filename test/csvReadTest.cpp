@@ -52,14 +52,15 @@ int main(int argc, char* argv[])
     }
     else if(argc == 2)
     {
-        std::string source_filename(argv[1]);
-        std::cout << "Testing OpenMP Fallback Read:\n";
-        auto img_omp = TinyDIP::double_image::read_from_csv(source_filename.c_str());
-        img_omp.print(", ", std::cout);
-        
-        std::cout << "\nTesting Execution Policy Read (std::execution::par):\n";
-        auto img_par = TinyDIP::double_image::read_from_csv(std::execution::par, source_filename.c_str());
-        img_par.print(", ", std::cout);
+        std::filesystem::path source_filename = std::string(argv[1]);
+        std::cout << "Read image: " << source_filename.string() << '\n';
+        auto img_omp = TinyDIP::double_image::read_from_csv(source_filename.string().c_str());
+        img_omp = TinyDIP::pixelwise_multiplies(TinyDIP::normalize(img_omp), 255.0);
+        TinyDIP::bmp_write(std::string(source_filename.path().stem()), TinyDIP::constructRGB(
+            TinyDIP::im2uint8(img_omp),
+            TinyDIP::im2uint8(img_omp),
+            TinyDIP::im2uint8(img_omp)
+        ));
     }
     else if(argc == 3)
     {
