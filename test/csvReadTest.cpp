@@ -56,6 +56,7 @@ int main(int argc, char* argv[])
         std::cout << "Read image: " << source_filename.string() << '\n';
         auto img_omp = TinyDIP::double_image::read_from_csv(source_filename.string().c_str());
         img_omp = TinyDIP::multiplies(TinyDIP::normalize(img_omp), 255.0);
+        img_omp = TinyDIP::lanczos_resample(img_omp, 1080, 1920);
         TinyDIP::bmp_write(source_filename.stem().string(), TinyDIP::constructRGB(
             TinyDIP::im2uint8(img_omp),
             TinyDIP::im2uint8(img_omp),
@@ -64,8 +65,17 @@ int main(int argc, char* argv[])
     }
     else if(argc == 3)
     {
-        std::string source_filename(argv[1]);
-        std::string destination_filename(argv[2]);
+        std::filesystem::path source_filename = std::string(argv[1]);
+        std::filesystem::path destination_filename = std::string(argv[2]);
+        std::cout << "Read image: " << source_filename.string() << '\n';
+        auto img_omp = TinyDIP::double_image::read_from_csv(source_filename.string().c_str());
+        img_omp = TinyDIP::multiplies(TinyDIP::normalize(img_omp), 255.0);
+        img_omp = TinyDIP::lanczos_resample(img_omp, 1080, 1920);
+        TinyDIP::bmp_write(destination_filename.stem().string(), TinyDIP::constructRGB(
+            TinyDIP::im2uint8(img_omp),
+            TinyDIP::im2uint8(img_omp),
+            TinyDIP::im2uint8(img_omp)
+        ));
     }
 
     return EXIT_SUCCESS;
