@@ -993,6 +993,7 @@ void test_simple_int()
 
 int main()
 {
+    TinyDIP::Timer timer1;
     std::cout << "Starting tests for TinyDIP::recursive_transform (Pure C++ STL)...\n\n";
 
     // Since 'check_all_return_types' was instantiated globally, if the program compiles, 
