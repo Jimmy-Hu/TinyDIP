@@ -10,6 +10,7 @@ void recursiveSizeTest();
 
 int main()
 {
+    TinyDIP::Timer timer;
     recursiveSizeTest();
     return EXIT_SUCCESS;
 }
