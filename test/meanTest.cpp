@@ -35,13 +35,14 @@ void mean_test(const std::size_t sizex, const std::size_t sizey, ElementT initia
     auto test_image = TinyDIP::Image<T>(sizex, sizey);
     assert(TinyDIP::sum(test_image) == 0);
     test_image.setAllValue(initial_value);
-    auto sum_result = std::reduce(std::ranges::cbegin(test_image.getImageData()), std::ranges::cend(test_image.getImageData()), 0, std::plus());
-    sum_result /= test_image.count();
+    auto sum_result = std::reduce(std::ranges::cbegin(test_image.getImageData()), std::ranges::cend(test_image.getImageData()), ElementT{}, std::plus());
+    sum_result /= static_cast<double>(test_image.count());
     if(TinyDIP::mean(test_image) != sum_result)
     {
-        M_Assert(false, "Error occurred while calculating summation");
+        M_Assert(false, "The calculation results are not equal!");
     }
-    std::cout << TinyDIP::mean(test_image) << '\n';
+    std::cout << "sum_result = " << sum_result << '\n';
+    std::cout << "TinyDIP::mean(test_image) = " << TinyDIP::mean(test_image) << '\n';
     /*
     //  test with parallel execution policy
     if(TinyDIP::mean(std::execution::par, test_image) != sum_result)
