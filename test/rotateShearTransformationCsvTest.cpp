@@ -36,10 +36,21 @@ int main(int argc, char* argv[])
         for (std::size_t rotate_degree = 1; rotate_degree < 359; ++rotate_degree)
         {
             auto rotated_image = TinyDIP::rotate_detail_shear_transformation_degree(source_image, static_cast<long double>(rotate_degree));
-            TinyDIP::double_image::write_to_csv(
-                (source_filename.stem().string() + std::string("_") + std::to_string(rotate_degree) + std::string(".csv")).c_str(),
-                rotated_image
-            );
+            auto output_filename_csv = source_filename.stem().string() + std::string("_") + std::to_string(rotate_degree) + std::string(".csv");
+            if (!std::filesystem::exists(output_filename_csv))
+            {
+                TinyDIP::double_image::write_to_csv(
+                    output_filename_csv.c_str(),
+                    rotated_image
+                );
+            }
+            rotated_image = TinyDIP::multiplies(TinyDIP::normalize(rotated_image), 255.0);
+            auto output_filename_bmp = source_filename.stem().string() + std::string("_") + std::to_string(rotate_degree);
+            TinyDIP::bmp_write(output_filename_bmp, TinyDIP::constructRGB(
+                TinyDIP::im2uint8(rotated_image),
+                TinyDIP::im2uint8(rotated_image),
+                TinyDIP::im2uint8(rotated_image)
+            ));
         }
         
     }
