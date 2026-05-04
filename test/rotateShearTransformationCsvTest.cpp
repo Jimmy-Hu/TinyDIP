@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
         {
             auto rotated_image = TinyDIP::rotate_detail_shear_transformation_degree(source_image, static_cast<long double>(rotate_degree));
             TinyDIP::double_image::write_to_csv(
-                source_filename.stem().string() + std::string("_") + std::to_string(rotate_degree) + std::string(".csv"),
+                (source_filename.stem().string() + std::string("_") + std::to_string(rotate_degree) + std::string(".csv")).c_str(),
                 rotated_image
             );
         }
