@@ -486,6 +486,27 @@ namespace TinyDIP
         );
     }
 
+    //  add_border_2d template function implementation
+    template<class ExecutionPolicy, class ElementT>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr static auto add_border_2d(ExecutionPolicy&& execution_policy, const Image<ElementT>& input, const std::size_t width, const ElementT& default_element)
+    {
+        if (input_image.getDimensionality() != 2)
+        {
+            throw std::runtime_error("add_border_2d is implemented for 2D images only.");
+        }
+        Image<ElementT> output_image(input.getWidth() + 2 * width, input.getHeight() + 2 * width);
+        output_image.setAllValue(std::forward<ExecutionPolicy>(execution_policy), default_element);
+        return TinyDIP::paste2d(
+            std::forward<ExecutionPolicy>(execution_policy),
+            output_image,
+            input,
+            width,
+            width,
+            default_element
+        );
+    }
+
     /*
     //  conv2 template function implementation
     template<typename ElementT1, typename ElementT2>
