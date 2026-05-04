@@ -497,7 +497,7 @@ namespace TinyDIP
         }
         Image<ElementT> output_image(input.getWidth() + 2 * width, input.getHeight() + 2 * width);
         output_image.setAllValue(std::forward<ExecutionPolicy>(execution_policy), default_element);
-        return TinyDIP::paste2d(
+        return TinyDIP::paste2D(
             std::forward<ExecutionPolicy>(execution_policy),
             output_image,
             input,
