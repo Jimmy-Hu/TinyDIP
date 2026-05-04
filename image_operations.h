@@ -491,7 +491,7 @@ namespace TinyDIP
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
     constexpr static auto add_border_2d(ExecutionPolicy&& execution_policy, const Image<ElementT>& input, const std::size_t width, const ElementT& default_element)
     {
-        if (input_image.getDimensionality() != 2)
+        if (input.getDimensionality() != 2)
         {
             throw std::runtime_error("add_border_2d is implemented for 2D images only.");
         }
