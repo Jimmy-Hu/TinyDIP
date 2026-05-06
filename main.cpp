@@ -3348,6 +3348,60 @@ int main(int argc, char* argv[])
                 }
             )
         },
+        CommandBundle{"rotate", "Rotate an image using shear transformations.", TransformerSchema, 
+            make_meta_transform_handler<3>(
+                "rotate [execution_policy] <input_img | $var> <output_img | $var> <angle>", 
+                workspace,
+                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+                {
+                    const double angle = parse_arg<double>(filtered_args[2]);
+
+                    if (!std::ranges::empty(policy_str))
+                    {
+                        os << "Rotating " << filtered_args[0] << " by " << angle << " (Policy: " << policy_str << ")...\n";
+                    }
+                    else
+                    {
+                        os << "Rotating " << filtered_args[0] << " by " << angle << "...\n";
+                    }
+
+                    return [angle, policy_str, &os]<typename ImageType>(ImageType&& img) -> std::any
+                    {
+                        auto exec_default = [&]() -> std::any
+                        {
+                            if constexpr (requires { TinyDIP::rotate_detail_shear_transformation(std::forward<ImageType>(img), angle); })
+                            {
+                                return TinyDIP::rotate_detail_shear_transformation(std::forward<ImageType>(img), angle);
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Input image type does not support rotate_detail_shear_transformation.");
+                                return std::any{};
+                            }
+                        };
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            if constexpr (requires { TinyDIP::rotate_detail_shear_transformation(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), angle); })
+                            {
+                                return TinyDIP::rotate_detail_shear_transformation(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), angle);
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                }
+                                return exec_default();
+                            }
+                        };
+
+                        return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                    };
+                }
+            )
+        },
         CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IndependentSchema, SaveWorkspaceHandler{workspace}},
         CommandBundle{"sum", "Calculate the sum of all elements in an image or container.", TransformerSchema, 
             make_meta_scalar_handler<1>(
