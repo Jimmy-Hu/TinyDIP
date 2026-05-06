@@ -48,12 +48,21 @@ int main(int argc, char* argv[])
                     rotated_image
                 );
             }
-            rotated_image = TinyDIP::multiplies(TinyDIP::normalize(rotated_image), 255.0);
+            auto normalized_image = TinyDIP::normalize(rotated_image);
+            const auto gamma = 1.0 / 2.2;
+            auto output_image = TinyDIP::pixelwise_transform(
+                [&](const auto& input_pixel)
+                {
+                    return std::pow(input_pixel, gamma);
+                },
+                normalized_image
+            );
+            output_image = TinyDIP::multiplies(output_image, 255.0);
             auto output_filename_bmp = source_filename.stem().string() + std::string("_") + std::to_string(rotate_degree);
             TinyDIP::bmp_write(output_filename_bmp, TinyDIP::constructRGB(
-                TinyDIP::im2uint8(rotated_image),
-                TinyDIP::im2uint8(rotated_image),
-                TinyDIP::im2uint8(rotated_image)
+                TinyDIP::im2uint8(output_image),
+                TinyDIP::im2uint8(output_image),
+                TinyDIP::im2uint8(output_image)
             ));
         }
         
