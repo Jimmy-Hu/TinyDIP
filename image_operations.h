@@ -4213,8 +4213,9 @@ namespace TinyDIP
         return 0.0;
     }
 
+    //  default_bicubic_interpolator template struct implementation
     // Define a struct to act as default interpolator
-    template<class ElementT, arithmetic FloatingType>
+    template<class ElementT, arithmetic FloatingType = double>
     struct default_bicubic_interpolator
     {
         // The call operator contains the interpolation logic
@@ -4223,7 +4224,7 @@ namespace TinyDIP
             if constexpr (std::same_as<ElementT, RGB>)
             {
                 ElementT result;
-                for (size_t i = 0; i < 3; ++i)
+                for (std::size_t i = 0; i < 3; ++i)
                 {
                     result.channels[i] = default_bicubic_interpolator<GrayScale, FloatingType>{}(getPlane(image, i), x, y);
                 }
@@ -4232,7 +4233,7 @@ namespace TinyDIP
             else if constexpr ((std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>))
             {
                 ElementT result;
-                for (size_t i = 0; i < 3; ++i)
+                for (std::size_t i = 0; i < 3; ++i)
                 {
                     result.channels[i] = default_bicubic_interpolator<double, FloatingType>{}(getPlane(image, i), x, y);
                 }
@@ -4240,8 +4241,8 @@ namespace TinyDIP
             }
             else
             {
-                auto width = static_cast<FloatingType>(image.getWidth());
-                auto height = static_cast<FloatingType>(image.getHeight());
+                const auto width = static_cast<FloatingType>(image.getWidth());
+                const auto height = static_cast<FloatingType>(image.getHeight());
 
                 // For bicubic, we need to be further from the boundary
                 if (x < 1 || x >= width - 2 || y < 1 || y >= height - 2)
@@ -4250,39 +4251,49 @@ namespace TinyDIP
                     return bilinear_interpolate(image, x, y);
                 }
 
-                auto x_floor = static_cast<std::size_t>(x);
-                auto y_floor = static_cast<std::size_t>(y);
+                const auto x_floor = static_cast<std::size_t>(x);
+                const auto y_floor = static_cast<std::size_t>(y);
 
-                FloatingType total_value{};
+                // Dynamically deduce the accumulator type to properly handle std::complex<...>
+                using AccumulatorType = std::conditional_t<
+                    is_complex<ElementT>::value,
+                    std::complex<FloatingType>,
+                    FloatingType
+                >;
+
+                AccumulatorType total_value{};
 
                 // Iterate over the 4x4 neighborhood
                 for (std::size_t j = 0; j <= 3; ++j)
                 {
-                    auto v = y_floor - 1 + j;
-                    FloatingType row_value{};
+                    const auto v = y_floor - 1 + j;
+                    AccumulatorType row_value{};
+                    
                     for (std::size_t i = 0; i <= 3; ++i)
                     {
-                        auto u = x_floor - 1 + i;
-                        // Weighted sum for the row
-                        row_value += static_cast<FloatingType>(image.at(u, v)) * cubic_kernel(x - u);
+                        const auto u = x_floor - 1 + i;
+                        // Weighted sum for the row (safely cast using AccumulatorType)
+                        row_value += static_cast<AccumulatorType>(image.at(u, v)) * static_cast<AccumulatorType>(cubic_kernel(x - u));
                     }
+                    
                     // Weighted sum for the columns using the row results
-                    total_value += row_value * cubic_kernel(y - v);
+                    total_value += row_value * static_cast<AccumulatorType>(cubic_kernel(y - v));
                 }
 
                 // Clamp the result to the valid range of the element type to prevent overshoot issues
                 if constexpr (std::is_integral_v<ElementT>)
                 {
-                    if (total_value > std::numeric_limits<ElementT>::max())
+                    if (total_value > static_cast<AccumulatorType>(std::numeric_limits<ElementT>::max()))
                     {
                         return std::numeric_limits<ElementT>::max();
                     }
-                    if (total_value < std::numeric_limits<ElementT>::min())
+                    if (total_value < static_cast<AccumulatorType>(std::numeric_limits<ElementT>::min()))
                     {
                         return std::numeric_limits<ElementT>::min();
                     }
                 }
 
+                // Safely convert back to ElementT (imaginary component preserved if complex)
                 return static_cast<ElementT>(total_value);
             }
         }
