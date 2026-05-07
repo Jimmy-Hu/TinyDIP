@@ -56,6 +56,11 @@ int main(int argc, char* argv[])
         std::cout << "Read image: " << source_filename.string() << '\n';
         auto img_omp = TinyDIP::double_image::read_from_csv(source_filename.string().c_str());
         auto normalized_image = TinyDIP::normalize(img_omp);
+        TinyDIP::double_image::write_to_csv(
+            std::execution::par,
+            source_filename.stem().string() + std::string("_output.csv"),
+            TinyDIP::lanczos_resample(std::execution::par, normalized_image, 1080, 1920)
+        );
         const auto gamma = 1.0 / 2.2;
         auto output_image = TinyDIP::pixelwise_transform(
             [&](const auto& input_pixel)
