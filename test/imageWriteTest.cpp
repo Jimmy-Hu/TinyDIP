@@ -20,11 +20,12 @@
 #include "../cube_operations.h"
 #include "../timer.h" 
 
+//  imageWriteTest function implementation
 void imageWriteTest(const std::size_t width = 32, const std::size_t height = 18)
 {
     TinyDIP::Image<TinyDIP::GrayScale> test_image(width, height);
     test_image.at(10, 10) = 255;
-    test_image = TinyDIP::lanczos_resample(std::execution::par, test_image, 1920, 1080);
+    test_image = TinyDIP::resize_nearest_neighbor(test_image, 1920, 1080);
     TinyDIP::bmp_write(
         "test_image",
         TinyDIP::constructRGB(
