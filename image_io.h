@@ -152,6 +152,16 @@ namespace TinyDIP
             }
         }
 
+        //  write_to_csv template function implementation
+        template <class ExecutionPolicy, class ElementT = double>
+        requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
+                  TinyDIP::is_streamable<ElementT>)
+        void write_to_csv(ExecutionPolicy&& policy, const std::string& filename, const Image<ElementT>& input, const int precision = -1)
+        {
+            write_to_csv(std::forward<ExecutionPolicy>(policy), filename.c_str(), input, precision);
+            return;
+        }
+
         //  ParseCSVRow struct implementation
         template <typename ElementT = double>
         struct ParseCSVRow
