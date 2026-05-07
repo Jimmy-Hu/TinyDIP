@@ -4136,7 +4136,7 @@ namespace TinyDIP
     }
 
     //  bilinear_interpolate template function implementation
-    template<arithmetic ElementT, arithmetic FloatingType>
+    template <class ElementT, arithmetic FloatingType = double>
     constexpr ElementT bilinear_interpolate(const Image<ElementT>& image, const FloatingType x, const FloatingType y)
     {
         const auto width = static_cast<FloatingType>(image.getWidth());
@@ -4155,8 +4155,14 @@ namespace TinyDIP
         auto y2 = y1 + 1;
 
         // Ensure the second set of coordinates are within bounds
-        if (x2 >= image.getWidth()) x2 = x1;
-        if (y2 >= image.getHeight()) y2 = y1;
+        if (x2 >= image.getWidth())
+        {
+            x2 = x1;
+        }
+        if (y2 >= image.getHeight())
+        {
+            y2 = y1;
+        }
 
         // Get the values of the four corner pixels
         const ElementT& q11 = image.at(x1, y1);
@@ -4165,15 +4171,37 @@ namespace TinyDIP
         const ElementT& q22 = image.at(x2, y2);
 
         // Calculate fractional parts (weights)
-        FloatingType dx = x - x1;
-        FloatingType dy = y - y1;
+        const FloatingType dx = x - static_cast<FloatingType>(x1);
+        const FloatingType dy = y - static_cast<FloatingType>(y1);
+
+        // Dynamically deduce the accumulator type to properly handle std::complex<...>
+        using AccumulatorType = std::conditional_t<
+            is_complex<ElementT>::value,
+            std::complex<FloatingType>,
+            FloatingType
+        >;
 
         // Interpolate in the x-direction
-        auto r1 = q11 * (1.0 - dx) + q21 * dx;
-        auto r2 = q12 * (1.0 - dx) + q22 * dx;
+        const auto r1 = static_cast<AccumulatorType>(q11) * static_cast<AccumulatorType>(1.0 - dx) + static_cast<AccumulatorType>(q21) * static_cast<AccumulatorType>(dx);
+        const auto r2 = static_cast<AccumulatorType>(q12) * static_cast<AccumulatorType>(1.0 - dx) + static_cast<AccumulatorType>(q22) * static_cast<AccumulatorType>(dx);
 
         // Interpolate in the y-direction and cast back to the element type
-        return static_cast<ElementT>(r1 * (1.0 - dy) + r2 * dy);
+        const AccumulatorType total_value = r1 * static_cast<AccumulatorType>(1.0 - dy) + r2 * static_cast<AccumulatorType>(dy);
+
+        // Clamp the result to the valid range of the element type to prevent overshoot issues
+        if constexpr (std::is_integral_v<ElementT>)
+        {
+            if (total_value > static_cast<AccumulatorType>(std::numeric_limits<ElementT>::max()))
+            {
+                return std::numeric_limits<ElementT>::max();
+            }
+            if (total_value < static_cast<AccumulatorType>(std::numeric_limits<ElementT>::min()))
+            {
+                return std::numeric_limits<ElementT>::min();
+            }
+        }
+
+        return static_cast<ElementT>(total_value);
     }
 
     //  bilinear_interpolate template function implementation
