@@ -3270,7 +3270,7 @@ int main(int argc, char* argv[])
         CommandBundle{"print", "Print the contents of a memory variable.", TerminatorSchema, PrintHandler{workspace}},
         CommandBundle{"rand", "Generate random multi-dimensional image with specified URBG.", GeneratorSchema, RandHandler{workspace}},
         CommandBundle{"read", "Read an image from disk into a memory variable.", GeneratorSchema, ReadHandler{workspace}},
-        CommandBundle{"remove", "Remove memory variables from the workspace (or 'all' to clear).", IndependentSchema, RemoveHandler{workspace}},
+        CommandBundle{"remove", "Remove memory variables from the workspace (or 'all' to clear).", IndependentSchema, handlers::remove},
         CommandBundle{"rename", "Rename a memory variable in the workspace.", IndependentSchema, RenameHandler{workspace}},
         CommandBundle{"rgb2hsv", "Convert an RGB image or container to HSV color space.", TransformerSchema,
             make_meta_transform_handler<2, master_data_types>(
