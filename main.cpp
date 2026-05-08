@@ -1652,7 +1652,6 @@ struct ConstructRGBHandler
                         else
                         {
                             throw std::invalid_argument("Input image does not support constructRGB.");
-                            return std::any{};
                         }
                     };
 
@@ -1666,7 +1665,6 @@ struct ConstructRGBHandler
                         else
                         {
                             throw std::invalid_argument("Input image does not support constructRGB.");
-                            return std::any{};
                         }
                     };
 
