@@ -1334,14 +1334,12 @@ struct RenameHandler
     }
 };
 
-//  RemoveHandler struct implementation
-struct RemoveHandler
+namespace handlers
 {
-    std::shared_ptr<Workspace> workspace_;
-
-    template <std::ranges::random_access_range ArgsT>
-    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
-    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout) const
+    void remove(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout)
     {
         if (std::ranges::empty(args))
         {
@@ -1351,7 +1349,7 @@ struct RemoveHandler
 
         if (std::ranges::size(args) == 1 && std::string_view(args[0]) == "all")
         {
-            workspace_->clear();
+            workspace.clear();
             os << "Removed all memory variables. Workspace is now empty.\n";
             return;
         }
@@ -1366,7 +1364,7 @@ struct RemoveHandler
             }
 
             const std::string_view var_name = var_arg.substr(1);
-            if (workspace_->remove(var_name))
+            if (workspace.remove(var_name))
             {
                 os << "Removed memory variable $" << var_name << ".\n";
             }
@@ -1376,7 +1374,7 @@ struct RemoveHandler
             }
         }
     }
-};
+}
 
 //  WriteHandler struct implementation
 struct WriteHandler
