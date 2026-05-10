@@ -10,18 +10,27 @@
 #include "../image_operations.h"
 #include "../timer.h"
 
+//  otsuThresholdTest Template Function Implementation
 template<class ExPo, class ElementT>
 requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
 constexpr static auto otsuThresholdTest(
-    ExPo execution_policy,
+    ExPo&& execution_policy,
     const TinyDIP::Image<ElementT>& input,
     std::ostream& os = std::cout
 )
 {
-    auto hsv_image = TinyDIP::rgb2hsv(execution_policy, input);
+    auto hsv_image = TinyDIP::rgb2hsv(std::forward<ExPo>(execution_policy), input);
     TinyDIP::Timer timer1;
     auto unit8_image = TinyDIP::im2uint8(TinyDIP::getVplane(hsv_image));
-    return TinyDIP::apply_threshold_openmp(unit8_image, static_cast<TinyDIP::GrayScale>(TinyDIP::otsu_threshold(execution_policy, unit8_image)));
+    return TinyDIP::apply_threshold_openmp(
+        unit8_image,
+        static_cast<TinyDIP::GrayScale>(
+            TinyDIP::otsu_threshold(
+                std::forward<ExPo>(execution_policy),
+                unit8_image
+            )
+        )
+    );
 }
 
 int main(int argc, char* argv[])
