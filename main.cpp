@@ -2021,7 +2021,7 @@ constexpr CommandRegistry command_registration(CommandBundle<Funs>&&... bundles)
 
 //  run_interactive_mode function implementation
 //  Interactive REPL loop implementation with dynamic Pipeline '|' argument injection
-void run_interactive_mode(const CommandRegistry& registry, std::ostream& os = std::cout)
+void run_interactive_mode(Workspace& workspace, const CommandRegistry& registry, std::ostream& os = std::cout)
 {
     os << "TinyDIP Interactive Interpreter\n";
     os << "Type 'help' to list commands, or 'exit' / 'quit' to terminate.\n";
@@ -2134,7 +2134,7 @@ void run_interactive_mode(const CommandRegistry& registry, std::ostream& os = st
                 args_sv.emplace_back(arg);
             }
 
-            registry.execute(command_name, args_sv, os);
+            registry.execute(workspace, command_name, args_sv, os);
 
             prev_pipe_var = next_pipe_var;
         }
