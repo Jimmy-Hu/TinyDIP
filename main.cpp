@@ -1212,44 +1212,6 @@ struct ReadHandler
     }
 };
 
-//  RenameHandler struct implementation
-struct RenameHandler
-{
-    std::shared_ptr<Workspace> workspace_;
-
-    template <std::ranges::random_access_range ArgsT>
-    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
-    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout) const
-    {
-        if (std::ranges::size(args) < 2)
-        {
-            os << "Usage: rename <$old_var> <$new_var>\n";
-            return;
-        }
-
-        const std::string_view old_arg = args[0];
-        const std::string_view new_arg = args[1];
-
-        if (!old_arg.starts_with('$') || !new_arg.starts_with('$'))
-        {
-            os << "Error: Both arguments must be memory variables starting with '$'.\n";
-            return;
-        }
-
-        const std::string_view old_name = old_arg.substr(1);
-        const std::string_view new_name = new_arg.substr(1);
-
-        if (workspace_->rename(old_name, new_name))
-        {
-            os << "Renamed variable $" << old_name << " to $" << new_name << ".\n";
-        }
-        else
-        {
-            os << "Error: Memory variable $" << old_name << " not found.\n";
-        }
-    }
-};
-
 namespace handlers
 {
     void remove(
@@ -1288,6 +1250,41 @@ namespace handlers
             {
                 os << "Warning: Memory variable $" << var_name << " not found.\n";
             }
+        }
+    }
+
+	//  rename function implementation
+    void rename(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout
+    )
+    {
+        if (std::ranges::size(args) < 2)
+        {
+            os << "Usage: rename <$old_var> <$new_var>\n";
+            return;
+        }
+
+        const std::string_view old_arg = args[0];
+        const std::string_view new_arg = args[1];
+
+        if (!old_arg.starts_with('$') || !new_arg.starts_with('$'))
+        {
+            os << "Error: Both arguments must be memory variables starting with '$'.\n";
+            return;
+        }
+
+        const std::string_view old_name = old_arg.substr(1);
+        const std::string_view new_name = new_arg.substr(1);
+
+        if (workspace.rename(old_name, new_name))
+        {
+            os << "Renamed variable $" << old_name << " to $" << new_name << ".\n";
+        }
+        else
+        {
+            os << "Error: Memory variable $" << old_name << " not found.\n";
         }
     }
 }
