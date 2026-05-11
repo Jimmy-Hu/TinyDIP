@@ -1988,7 +1988,7 @@ CommandBundle(const char*, const char*, IOSchema, FunT) -> CommandBundle<FunT>;
 //  command_registration template function implementation
 //  command_registration utilizes C++20 constrained variadic templates and C++17 Fold Expressions
 //  to automatically iterate and register an arbitrary number of handlers gracefully.
-template <std::invocable<std::span<const std::string_view>, std::ostream&>... Funs>
+template <std::invocable<Workspace&, std::span<const std::string_view>, std::ostream&>... Funs>
 constexpr CommandRegistry command_registration(CommandBundle<Funs>&&... bundles)
 {
     CommandRegistry registry;
@@ -1998,15 +1998,16 @@ constexpr CommandRegistry command_registration(CommandBundle<Funs>&&... bundles)
 
     //  Internal / Anonymous Handlers can still be registered statically here
     registry.register_command("test", "Run internal integration tests.", 
-        [](std::span<const std::string_view> args, std::ostream& os)
+        [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
         {
-            run_legacy_tests(args, os);
+            run_legacy_tests(workspace, args, os);
         }
     );
 
     registry.register_command("batch_add_zeros", "Add leading zeros to filenames in a directory.",
-        [](std::span<const std::string_view> args, std::ostream& os)
+        [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
         {
+            (void)workspace;
             if (std::ranges::size(args) < 2)
             {
                 os << "Usage: batch_add_zeros <input_dir> <output_dir>\n";
