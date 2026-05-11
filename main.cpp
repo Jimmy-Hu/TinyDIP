@@ -1155,18 +1155,18 @@ constexpr auto make_meta_scalar_handler(std::string_view usage, std::string_view
     };
 }
 
-//  ReadHandler struct implementation
-struct ReadHandler
+namespace handlers
 {
-    std::shared_ptr<Workspace> workspace_;
-
     template <
-        std::ranges::random_access_range ArgsT, 
-        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&> ImageLoaderFun = MetaImageIO::Loader,
-        std::invocable<const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&> ImageSaverFun = MetaImageIO::Saver
+        std::invocable<const std::string_view, Workspace&> ImageLoaderFun = MetaImageIO::Loader,
+        std::invocable<const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> ImageSaverFun = MetaImageIO::Saver
     >
-    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
-    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
+    void read(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout,
+        ImageLoaderFun&& image_loader_fun = ImageLoaderFun{},
+        ImageSaverFun&& image_saver_fun = ImageSaverFun{})
     {
         if (std::ranges::empty(args))
         {
@@ -1199,21 +1199,18 @@ struct ReadHandler
         
         auto process_read = [&]<typename ImageType>(ImageType&& input_img)
         {
-            image_saver_fun(output_arg, workspace_, std::forward<ImageType>(input_img));
+            image_saver_fun(output_arg, workspace, std::forward<ImageType>(input_img));
         };
 
-        if (!dispatch_data_operation(input_arg, workspace_, image_loader_fun, process_read))
+        if (!dispatch_data_operation<master_image_types>(input_arg, workspace, image_loader_fun, process_read))
         {
             os << "Error: Memory variable not found or unsupported type.\n";
             return;
         }
 
         os << "Done.\n";
-    }
-};
+	}
 
-namespace handlers
-{
     void remove(
         Workspace& workspace,
         std::span<const std::string_view> args,
