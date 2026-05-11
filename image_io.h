@@ -472,7 +472,7 @@ namespace TinyDIP
             ProcessPPMData processor{ raw_data, magic, shift_bit, width, height, image };
 
             // Dispatches to execution policy with constraints verified
-            transform_pixel_processing_omp(std::forward<ExecutionPolicy>(policy), indices, processor);
+            transform_pixel_processing(std::forward<ExecutionPolicy>(policy), indices, processor);
 
             return image;
         }
