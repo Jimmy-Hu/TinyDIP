@@ -677,12 +677,12 @@ public:
     struct Loader
     {
         template <typename ImageType = TinyDIP::Image<TinyDIP::RGB>>
-        constexpr ImageType operator()(const std::string_view arg, const std::shared_ptr<Workspace>& ws) const
+        constexpr ImageType operator()(const std::string_view arg, Workspace& ws) const
         {
             if (arg.starts_with('$'))
             {
                 const std::string_view var_name = arg.substr(1);
-                if (const ImageType* img_ptr = ws->retrieve<ImageType>(var_name))
+                if (const ImageType* img_ptr = ws.retrieve<ImageType>(var_name))
                 {
                     return *img_ptr;
                 }
@@ -713,7 +713,7 @@ public:
             }
             else
             {
-                throw std::invalid_argument("Direct file reading is not explicitly implemented for this abstract/complex image type.");
+                throw std::invalid_argument("Direct file reading is not explicitly implemented for this abstract/complex data type.");
             }
         }
     };
@@ -721,12 +721,12 @@ public:
     struct Saver
     {
         template <typename ImageType>
-        constexpr void operator()(const std::string_view arg, const std::shared_ptr<Workspace>& ws, ImageType&& img) const
+        constexpr void operator()(const std::string_view arg, Workspace& ws, ImageType&& img) const
         {
             if (arg.starts_with('$'))
             {
                 const std::string_view var_name = arg.substr(1);
-                ws->store(var_name, std::forward<ImageType>(img));
+                ws.store(var_name, std::forward<ImageType>(img));
             }
             else
             {
@@ -751,7 +751,7 @@ public:
                 }
                 else
                 {
-                    throw std::invalid_argument("Direct file writing is not explicitly implemented for this abstract/complex image type.");
+                    throw std::invalid_argument("Direct file writing is not explicitly implemented for this abstract/complex data type.");
                 }
             }
         }
