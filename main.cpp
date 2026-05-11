@@ -1914,9 +1914,11 @@ struct RandHandler
 
 //  run_legacy_tests function implementation
 //  Legacy test function wrapper
-template <std::ranges::random_access_range ArgsT>
-requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
-void run_legacy_tests(const ArgsT& args, std::ostream& os = std::cout)
+void run_legacy_tests(
+    Workspace& workspace,
+    std::span<const std::string_view> args,
+    std::ostream& os = std::cout
+)
 {
     os << "Running legacy integration tests...\n";
     
