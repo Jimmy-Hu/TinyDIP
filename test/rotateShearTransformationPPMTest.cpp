@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
         auto source_image = TinyDIP::pnm::read(std::execution::seq, source_filename);
         auto rotated_image = TinyDIP::rotate_detail_shear_transformation_degree(source_image, static_cast<long double>(90));
         rotated_image = TinyDIP::lanczos_resample(rotated_image, 1080, 1920);
-        auto output_filename_ppm = source_filename.stem().string() + std::string("_") + std::to_string(rotate_degree) + std::string(".ppm");
+        auto output_filename_ppm = source_filename.stem().string() + std::string("_") + std::to_string("90") + std::string(".ppm");
         if (!std::filesystem::exists(output_filename_ppm))
         {
             TinyDIP::pnm::write(
