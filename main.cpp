@@ -865,28 +865,13 @@ public:
         os << "Tip: Chain commands with '|' pipelines. (e.g. read file.bmp | bicubic_resize 512 512 | $out)\n";
     }
 
-    template <std::ranges::random_access_range ArgsT>
-    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
-    void execute(Workspace& workspace, const std::string& command_name, const ArgsT& args, std::ostream& os = std::cout) const
+    void execute(Workspace& workspace, const std::string& command_name, std::span<const std::string_view> args, std::ostream& os = std::cout) const
     {
         if (auto it = commands.find(command_name); it != std::ranges::end(commands))
         {
             try
             {
-                if constexpr (std::ranges::contiguous_range<ArgsT> && std::same_as<std::ranges::range_value_t<ArgsT>, std::string_view>)
-                {
-                    it->second.handler(workspace, std::span<const std::string_view>{std::ranges::data(args), std::ranges::size(args)}, os);
-                }
-                else
-                {
-                    std::vector<std::string_view> contiguous_args;
-                    contiguous_args.reserve(std::ranges::size(args));
-                    for (const auto& arg : args)
-                    {
-                        contiguous_args.emplace_back(arg);
-                    }
-                    it->second.handler(workspace, std::span<const std::string_view>{std::ranges::data(contiguous_args), std::ranges::size(contiguous_args)}, os);
-                }
+                it->second.handler(workspace, args, os);
             }
             catch (const std::exception& e)
             {
