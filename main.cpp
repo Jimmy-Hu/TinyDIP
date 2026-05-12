@@ -2252,7 +2252,13 @@ int main(int argc, char* argv[])
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
         CommandBundle{"remove", "Remove memory variables from the workspace (or 'all' to clear).", IndependentSchema, handlers::remove },
-        CommandBundle{"rename", "Rename a memory variable in the workspace.", IndependentSchema, handlers::rename }
+        CommandBundle{"rename", "Rename a memory variable in the workspace.", IndependentSchema, handlers::rename },
+        CommandBundle{"write", "Write a memory variable out to a disk file.", TerminatorSchema, 
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::write(workspace, args, os);
+            }
+        }
     );
 
     // Register the help command dynamically to ensure it has access to the final mapped registry
