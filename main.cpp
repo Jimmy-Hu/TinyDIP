@@ -1147,11 +1147,11 @@ struct MetaScalarHandler
 };
 
 //  make_meta_scalar_handler template function implementation
-template <std::size_t MinArgs, typename SetupFun>
-constexpr auto make_meta_scalar_handler(std::string_view usage, std::string_view op_name, std::string_view capitalized_op_name, std::shared_ptr<Workspace> ws, SetupFun&& setup)
+template <std::size_t MinArgs, typename CheckingTypes = master_data_types, typename SetupFun>
+constexpr auto make_meta_scalar_handler(std::string_view usage, std::string_view op_name, std::string_view capitalized_op_name, SetupFun&& setup)
 {
-    return MetaScalarHandler<MinArgs, std::remove_cvref_t<SetupFun>>{
-        usage, op_name, capitalized_op_name, std::move(ws), std::forward<SetupFun>(setup)
+    return MetaScalarHandler<MinArgs, std::remove_cvref_t<SetupFun>, CheckingTypes>{
+        usage, op_name, capitalized_op_name, std::forward<SetupFun>(setup)
     };
 }
 
