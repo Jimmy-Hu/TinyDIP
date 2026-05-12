@@ -1014,7 +1014,6 @@ struct MetaScalarHandler
     std::string_view usage_string_;
     std::string_view op_name_;
     std::string_view capitalized_op_name_;
-    std::shared_ptr<Workspace> workspace_;
     SetupFun setup_fun_;
 
     template <
@@ -1022,8 +1021,8 @@ struct MetaScalarHandler
         typename ImageLoaderFun = MetaImageIO::Loader
     >
     requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
-              std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&>)
-    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}) const
+              std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
+    constexpr void operator()(Workspace& workspace, const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}) const
     {
         std::string_view policy_str = "";
         std::vector<std::string_view> filtered_args;
@@ -1070,7 +1069,7 @@ struct MetaScalarHandler
             final_result_opt = core_processor(std::forward<DataT>(input_data));
         };
 
-        if (!dispatch_data_operation<CheckingTypes>(input_arg, workspace_, image_loader_fun, process_scalar))
+        if (!dispatch_data_operation<CheckingTypes>(input_arg, workspace, image_loader_fun, process_scalar))
         {
             os << "Error: Memory variable not found or unsupported type.\n";
             return;
@@ -1090,7 +1089,7 @@ struct MetaScalarHandler
                     {
                         if (output_arg.starts_with('$'))
                         {
-                            workspace_->store(output_arg.substr(1), scalar_result);
+                            workspace.store(output_arg.substr(1), scalar_result);
                             os << "Saved " << op_name_ << " result to " << output_arg << "\n";
                         }
                         else
