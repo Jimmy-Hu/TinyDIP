@@ -1263,6 +1263,52 @@ namespace handlers
             os << "Error: Memory variable $" << old_name << " not found.\n";
         }
     }
+
+	//  write template function implementation
+    template <
+        typename ImageLoaderFun = MetaImageIO::Loader,
+        typename ImageSaverFun = MetaImageIO::Saver
+    >
+    requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&> &&
+              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> &&
+              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<double>&&>)
+    constexpr void write(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout,
+        ImageLoaderFun&& image_loader_fun = ImageLoaderFun{},
+        ImageSaverFun&& image_saver_fun = ImageSaverFun{})
+    {
+        if (std::ranges::size(args) < 2)
+        {
+            os << "Usage: write <$var> <output_file>\n";
+            return;
+        }
+
+        const std::string_view input_arg = args[0];
+        const std::string_view output_arg = args[1];
+
+        if (!input_arg.starts_with('$'))
+        {
+            os << "Error: Input must be a memory variable starting with '$'.\n";
+            return;
+        }
+
+        os << "Writing memory variable " << input_arg << " to file " << output_arg << "...\n";
+
+        auto process_write = [&]<typename ImageType>(ImageType&& input_img)
+        {
+            image_saver_fun(output_arg, workspace, std::forward<ImageType>(input_img));
+        };
+
+        if (!dispatch_data_operation<master_image_types>(input_arg, workspace, image_loader_fun, process_write))
+        {
+            os << "Error: Memory variable not found or unsupported type.\n";
+            return;
+        }
+
+        os << "Done.\n";
+    }
 }
 
 //  VarsHandler struct implementation
