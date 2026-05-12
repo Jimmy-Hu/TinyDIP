@@ -761,11 +761,11 @@ public:
 //  dispatch_data_operation template function implementation
 //  Generic helper to dynamically load and dispatch data (from memory or disk) to a processor lambda
 template <typename CheckingTypes = master_image_types, typename ProcessorFun, typename ImageLoaderFun>
-requires (std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&> &&
-          std::invocable<ProcessorFun, std::invoke_result_t<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&>>)
+requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&> &&
+          std::invocable<ProcessorFun, std::invoke_result_t<ImageLoaderFun, const std::string_view, Workspace&>>)
 constexpr bool dispatch_data_operation(
     const std::string_view input_arg,
-    const std::shared_ptr<Workspace>& workspace,
+    Workspace& workspace,
     ImageLoaderFun&& image_loader,
     ProcessorFun&& processor)
 {
@@ -775,7 +775,7 @@ constexpr bool dispatch_data_operation(
 
         auto try_process = [&]<typename T>() -> bool
         {
-            if (workspace->template retrieve<T>(var_name))
+            if (workspace.template retrieve<T>(var_name))
             {
                 processor(image_loader.template operator()<T>(input_arg, workspace));
                 return true;
