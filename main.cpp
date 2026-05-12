@@ -999,12 +999,10 @@ struct MetaScalarHandler
     SetupFun setup_fun_;
 
     template <
-        std::ranges::random_access_range ArgsT,
         typename ImageLoaderFun = MetaImageIO::Loader
     >
-    requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
-              std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
-    constexpr void operator()(Workspace& workspace, const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}) const
+    requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
+    constexpr void operator()(Workspace& workspace, std::span<const std::string_view> args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}) const
     {
         std::string_view policy_str = "";
         std::vector<std::string_view> filtered_args;
