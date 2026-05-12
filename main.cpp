@@ -1311,21 +1311,6 @@ namespace handlers
     }
 }
 
-//  VarsHandler struct implementation
-struct VarsHandler
-{
-    std::shared_ptr<Workspace> workspace_;
-
-    template <std::ranges::random_access_range ArgsT>
-    requires std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view>
-    void operator()(const ArgsT& args, std::ostream& os = std::cout) const
-    {
-        (void)args;
-        os << "Current Workspace Variables:\n";
-        workspace_->list_variables(os);
-    }
-};
-
 //  SaveWorkspaceHandler struct implementation
 struct SaveWorkspaceHandler
 {
