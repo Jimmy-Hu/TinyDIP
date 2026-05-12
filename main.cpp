@@ -1264,6 +1264,17 @@ namespace handlers
         }
     }
 
+	//  vars function implementation
+    void vars(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout)
+    {
+        (void)args;
+        os << "Current Workspace Variables:\n";
+        workspace.list_variables(os);
+    }
+
 	//  write template function implementation
     template <
         typename ImageLoaderFun = MetaImageIO::Loader,
