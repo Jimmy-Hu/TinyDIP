@@ -911,19 +911,16 @@ template <std::size_t MinArgs, typename SetupFun, typename CheckingTypes = maste
 struct MetaTransformHandler
 {
     std::string_view usage_string_;
-    std::shared_ptr<Workspace> workspace_;
     SetupFun setup_fun_;
 
     template <
-        std::ranges::random_access_range ArgsT,
         typename ImageLoaderFun = MetaImageIO::Loader,
         typename ImageSaverFun = MetaImageIO::Saver
     >
-    requires (std::convertible_to<std::ranges::range_value_t<ArgsT>, std::string_view> &&
-              std::invocable<ImageLoaderFun, const std::string_view, const std::shared_ptr<Workspace>&> &&
-              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<TinyDIP::RGB>&&> &&
-              std::invocable<ImageSaverFun, const std::string_view, const std::shared_ptr<Workspace>&, TinyDIP::Image<double>&&>)
-    constexpr void operator()(const ArgsT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
+    requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&> &&
+              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> &&
+              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<double>&&>)
+    constexpr void operator()(Workspace& workspace, std::span<const std::string_view> args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
     {
         std::string_view policy_str = "";
         std::vector<std::string_view> filtered_args;
@@ -965,7 +962,7 @@ struct MetaTransformHandler
             final_result_opt = core_processor(std::forward<ImageType>(input_img));
         };
 
-        if (!dispatch_data_operation<CheckingTypes>(input_arg, workspace_, image_loader_fun, process_wrapper))
+        if (!dispatch_data_operation<CheckingTypes>(input_arg, workspace, image_loader_fun, process_wrapper))
         {
             os << "Error: Memory variable not found or unsupported type.\n";
             return;
@@ -980,7 +977,7 @@ struct MetaTransformHandler
             {
                 if (output_any.type() == typeid(OutT))
                 {
-                    image_saver_fun(output_arg, workspace_, std::move(std::any_cast<OutT&>(output_any)));
+                    image_saver_fun(output_arg, workspace, std::move(std::any_cast<OutT&>(output_any)));
                     os << "Saved to " << output_arg << "\n";
                     handled = true;
                     return true;
