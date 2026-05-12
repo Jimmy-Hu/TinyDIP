@@ -2253,6 +2253,7 @@ int main(int argc, char* argv[])
     CommandRegistry registry = command_registration(
         CommandBundle{"remove", "Remove memory variables from the workspace (or 'all' to clear).", IndependentSchema, handlers::remove },
         CommandBundle{"rename", "Rename a memory variable in the workspace.", IndependentSchema, handlers::rename },
+        CommandBundle{"vars", "List all currently allocated memory variables.", IndependentSchema, handlers::vars },
         CommandBundle{"write", "Write a memory variable out to a disk file.", TerminatorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
