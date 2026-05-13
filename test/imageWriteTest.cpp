@@ -25,6 +25,12 @@ void imageWriteTest(const std::size_t width = 32, const std::size_t height = 18)
 {
     TinyDIP::Image<TinyDIP::GrayScale> test_image(width, height);
     test_image.at(10, 10) = 255;
+    if (true)
+    {
+        test_image.at(8, 10) = 255;
+        test_image.at(9, 10) = 255;
+        test_image.at(11, 10) = 255;
+    }
     test_image = TinyDIP::resize_nearest_neighbor(test_image, 1920, 1080);
     TinyDIP::bmp_write(
         "test_image",
