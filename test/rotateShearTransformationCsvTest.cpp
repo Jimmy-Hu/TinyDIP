@@ -33,11 +33,11 @@ int main(int argc, char* argv[])
         std::filesystem::path source_filename = std::string(argv[1]);
         std::cout << "Read image: " << source_filename.string() << '\n';
         auto source_image = TinyDIP::double_image::read_from_csv(source_filename.string().c_str());
-        if (true)                   //  add white boundary
+        if (false)                   //  add white boundary
         {
             source_image = TinyDIP::add_border_2d(std::execution::par, source_image, 3, TinyDIP::max(source_image));
         }  
-        for (std::size_t rotate_degree = 1; rotate_degree < 359; ++rotate_degree)
+        for (std::size_t rotate_degree = 90; rotate_degree < 91; ++rotate_degree)
         {
             auto rotated_image = TinyDIP::rotate_detail_shear_transformation_degree(source_image, static_cast<long double>(rotate_degree));
             auto output_filename_csv = source_filename.stem().string() + std::string("_") + std::to_string(rotate_degree) + std::string(".csv");
