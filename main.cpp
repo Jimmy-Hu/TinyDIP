@@ -2170,6 +2170,12 @@ int main(int argc, char* argv[])
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
+        CommandBundle{"read", "Read an image from disk into a memory variable.", GeneratorSchema,
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::read(workspace, args, os);
+            }
+        },
         CommandBundle{"remove", "Remove memory variables from the workspace (or 'all' to clear).", IndependentSchema, handlers::remove },
         CommandBundle{"rename", "Rename a memory variable in the workspace.", IndependentSchema, handlers::rename },
         CommandBundle{"vars", "List all currently allocated memory variables.", IndependentSchema, handlers::vars },
