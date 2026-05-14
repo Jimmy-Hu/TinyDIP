@@ -20,6 +20,12 @@
 #include "../cube_operations.h"
 #include "../timer.h" 
 
+//  is_execution_policy concept implementation
+//  Concept ensuring the parameter is a valid execution policy
+template<typename ExecutionPolicy>
+concept is_execution_policy = std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>;
+
+
 int main(int argc, char* argv[])
 {
     TinyDIP::Timer timer1;
