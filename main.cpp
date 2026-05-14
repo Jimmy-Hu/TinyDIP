@@ -1264,6 +1264,77 @@ namespace handlers
         }
     }
 
+    //  save_workspace function implementation
+    constexpr void save_workspace(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout)
+    {
+        if (std::ranges::size(args) < 1)
+        {
+            os << "Usage: save_workspace <directory_bundle_path>\n";
+            return;
+        }
+
+        const std::filesystem::path dir_path = std::string(args[0]);
+        std::filesystem::create_directories(dir_path);
+
+        os << "Saving workspace bundle to " << dir_path.string() << "...\n";
+
+        for (const auto& [name, value] : workspace.memory_store)
+        {
+            auto try_save_image = [&]<typename T>() -> bool
+            {
+                if (value.type() == typeid(T))
+                {
+                    const auto* img_ptr = std::any_cast<T>(&value);
+                    const std::filesystem::path file_path = dir_path / (name);
+                    
+                    if constexpr (std::is_same_v<T, TinyDIP::Image<TinyDIP::RGB>>)
+                    {
+                        TinyDIP::bmp_write(file_path.string().c_str(), *img_ptr); 
+                        os << "  Saved $" << name << " -> " << file_path.string() << ".bmp\n";
+                    }
+                    else if constexpr (std::is_same_v<T, TinyDIP::Image<double>>)
+                    {
+                        TinyDIP::double_image::write(file_path.string().c_str(), *img_ptr); 
+                        os << "  Saved $" << name << " -> " << file_path.string() << ".dbmp\n";
+                    }
+                    return true;
+                }
+                return false;
+            };
+
+            using saveable_image_types = std::tuple<
+                TinyDIP::Image<TinyDIP::RGB>,
+                TinyDIP::Image<double>
+            >;
+
+            if (match_any_type<saveable_image_types>(try_save_image))
+            {
+                // Saved successfully
+            }
+            else
+            {
+                auto try_skip_image = [&]<typename T>() -> bool
+                {
+                    if (value.type() == typeid(T))
+                    {
+                        os << "  Skipped $" << name << " (Serialization not implemented for this image type)\n";
+                        return true;
+                    }
+                    return false;
+                };
+
+                if (!match_any_type<master_image_types>(try_skip_image))
+                {
+                    os << "  Skipped $" << name << " (Unsupported serialization type)\n";
+                }
+            }
+        }
+        os << "Workspace saved successfully.\n";
+    }
+
 	//  vars function implementation
     void vars(
         Workspace& workspace,
@@ -2170,6 +2241,98 @@ int main(int argc, char* argv[])
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
+        CommandBundle{"abs", "Calculate the absolute value of an image or container.", TransformerSchema, 
+            make_meta_transform_handler<2, master_data_types>(
+                "abs [execution_policy] <input_data | $var> <output_var | $var>", 
+                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+                {
+                    if (!std::ranges::empty(policy_str))
+                    {
+                        os << "Calculating abs of " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                    }
+                    else
+                    {
+                        os << "Calculating abs of " << filtered_args[0] << "...\n";
+                    }
+
+                    return [policy_str, &os]<typename DataT>(DataT&& data) -> std::any
+                    {
+                        using DecayedDataT = std::remove_cvref_t<DataT>;
+
+                        auto exec_default = [&]() -> std::any
+                        {
+                            if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
+                            {
+                                if constexpr (requires { TinyDIP::abs(std::forward<DataT>(data)); })
+                                {
+                                    return TinyDIP::abs(std::forward<DataT>(data));
+                                }
+                                else
+                                {
+                                    throw std::invalid_argument("Input image type does not support abs operation.");
+                                    return std::any{};
+                                }
+                            }
+                            else if constexpr (std::ranges::input_range<DecayedDataT>)
+                            {
+                                return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                    [](auto&& element) 
+                                    { 
+                                        return TinyDIP::generic_abs(std::forward<decltype(element)>(element));
+                                    },
+                                    std::forward<DataT>(data)
+                                );
+                            }
+                            else
+                            {
+                                return TinyDIP::generic_abs(std::forward<DataT>(data));
+                            }
+                        };
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
+                            {
+                                if constexpr (requires { TinyDIP::abs(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data)); })
+                                {
+                                    return TinyDIP::abs(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data));
+                                }
+                                else
+                                {
+                                    if (!std::ranges::empty(policy_str))
+                                    {
+                                        os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                    }
+                                    return exec_default();
+                                }
+                            }
+                            else if constexpr (std::ranges::input_range<DecayedDataT>)
+                            {
+                                return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                    std::forward<ExecPolicy>(exec_policy),
+                                    [](auto&& element) 
+                                    { 
+                                        return TinyDIP::generic_abs(std::forward<decltype(element)>(element));
+                                    },
+                                    std::forward<DataT>(data)
+                                );
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this data type/operation. Falling back to default.\n";
+                                }
+                                return exec_default();
+                            }
+                        };
+
+                        return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                    };
+                }
+            )
+        },
         CommandBundle{"read", "Read an image from disk into a memory variable.", GeneratorSchema,
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
