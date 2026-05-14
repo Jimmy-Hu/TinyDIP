@@ -2142,20 +2142,6 @@ constexpr std::any dispatch_policy_string(
     }
 }
 
-//  AbsOp struct implementation
-struct AbsOp
-{
-    template <typename... Args>
-    requires requires { TinyDIP::abs(std::declval<Args>()...); }
-    static constexpr auto exec(Args&&... args) { return TinyDIP::abs(std::forward<Args>(args)...); }
-
-    template <typename T>
-    requires (!requires { TinyDIP::abs(std::declval<T>()); } && 
-              !std::ranges::input_range<std::remove_cvref_t<T>> && 
-              requires { TinyDIP::generic_abs(std::declval<T>()); })
-    static constexpr auto exec(T&& arg) { return TinyDIP::generic_abs(std::forward<T>(arg)); }
-};
-
 //  make_unary_transform_bundle template function implementation
 //  Generic Factory Builder for Unary Transformations
 template <typename CoreOp>
