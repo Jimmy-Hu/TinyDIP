@@ -71,6 +71,17 @@ void process_single_image(ExecutionPolicy&& execution_policy, const std::filesys
     }
 }
 
+//  ProcessImageLambda struct definition
+//  Acts as a default lambda object with an operator() for std::for_each
+struct ProcessImageLambda
+{
+    void operator()(const std::filesystem::path& file_path) const
+    {
+        // Internal processing logic falls back to sequential execution for singular file components 
+        // to prevent nested data-races, while the outer batch loop will be parallelized.
+        process_single_image(std::execution::seq, file_path);
+    }
+};
 
 int main(int argc, char* argv[])
 {
