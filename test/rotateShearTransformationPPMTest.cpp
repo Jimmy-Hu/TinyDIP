@@ -25,6 +25,52 @@
 template<typename ExecutionPolicy>
 concept is_execution_policy = std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>;
 
+//  process_single_image template function implementation
+//  Reads, rotates, scales, and writes a single .ppm image.
+template<class ExecutionPolicy>
+requires is_execution_policy<ExecutionPolicy>
+void process_single_image(ExecutionPolicy&& execution_policy, const std::filesystem::path& source_filename)
+{
+    if (source_filename.extension() != ".ppm")
+    {
+        std::cout << "Skipping non-ppm file: " << source_filename.string() << '\n';
+        return;
+    }
+
+    try
+    {
+        std::cout << "Processing image: " << source_filename.string() << '\n';
+        
+        // Pass the execution policy into the TinyDIP reading function properly
+        auto source_image = TinyDIP::pnm::read(std::forward<ExecutionPolicy>(execution_policy), source_filename);
+        
+        // Shear transformation and scaling
+        auto rotated_image = TinyDIP::rotate_detail_shear_transformation_degree(source_image, static_cast<long double>(90));
+        rotated_image = TinyDIP::lanczos_resample(rotated_image, 1080, 1920);
+        
+        // Place the output file in the same directory as the source
+        const std::filesystem::path output_filename_ppm = source_filename.parent_path() / 
+            (source_filename.stem().string() + std::string("_") + std::to_string(90) + std::string(".ppm"));
+        
+        if (!std::filesystem::exists(output_filename_ppm))
+        {
+            TinyDIP::pnm::write(
+                rotated_image,
+                output_filename_ppm.string().c_str()
+            );
+            std::cout << "Successfully saved: " << output_filename_ppm.string() << '\n';
+        }
+        else
+        {
+            std::cout << "Output file already exists, skipping write: " << output_filename_ppm.string() << '\n';
+        }
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Exception encountered during processing of " << source_filename.string() << ": " << e.what() << '\n';
+    }
+}
+
 
 int main(int argc, char* argv[])
 {
