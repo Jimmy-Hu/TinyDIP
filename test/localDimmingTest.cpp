@@ -231,7 +231,16 @@ static auto localDimmingTest(
     const std::string_view local_dimming_mode = "adaptive_blending"
 )
 {
-    auto input_img = TinyDIP::bmp_read(input_path.string().c_str(), true);
+    Image<RGB> input_img(0, 0);
+    if (input_path.extension() == ".bmp")
+    {
+        input_img = TinyDIP::bmp_read(input_path.string().c_str(), true);
+    }
+    else
+    {
+        input_img = TinyDIP::pnm::read(std::forward<ExecutionPolicy>(policy), source_filename);
+    }
+    
     const std::array<int, 8> histogram_weight = {0, 8, 16, 24, 32, 40, 48, 56};
     auto real_size_PWM_image = get_real_size_PWM_image(
         std::forward<ExecutionPolicy>(policy),
