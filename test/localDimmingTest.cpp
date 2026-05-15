@@ -85,11 +85,7 @@ static auto gray2gamma(
     return TinyDIP::pixelwise_transform(std::forward<ExecutionPolicy>(policy), [&](auto&& each_pixel)
             {
                 auto pixel_value = each_pixel.channels[0];
-                auto bin_index = belongs_bin_index(gamma_range1, pixel_value);
-                auto final_pixel_value = std::clamp(
-                    gamma_range2[bin_index] + (((gamma_range2[bin_index + 1] - gamma_range2[bin_index]) * (pixel_value - gamma_range1[bin_index])) >> (static_cast<int>(std::log2(gamma_range1[bin_index + 1] - gamma_range1[bin_index])))),
-                    0, static_cast<int>(std::pow(2, 12) - 1)
-                );
+                auto final_pixel_value = gray2gamma_single_pixel(pixel_value, gamma_range1, gamma_range2);
                 //final_pixel_value = final_pixel_value >> 4;         //  12 bits to 8 bits
                 TinyDIP::RGB_DOUBLE new_pixel{ static_cast<double>(final_pixel_value), static_cast<double>(final_pixel_value), static_cast<double>(final_pixel_value) };
                 return new_pixel;
