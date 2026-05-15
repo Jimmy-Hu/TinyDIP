@@ -238,7 +238,7 @@ static auto localDimmingTest(
     }
     else
     {
-        input_img = TinyDIP::pnm::read(std::forward<ExecutionPolicy>(policy), source_filename);
+        input_img = TinyDIP::pnm::read(std::forward<ExecutionPolicy>(policy), input_path.string().c_str());
     }
     
     const std::array<int, 8> histogram_weight = {0, 8, 16, 24, 32, 40, 48, 56};
