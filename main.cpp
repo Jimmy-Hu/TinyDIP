@@ -2316,6 +2316,7 @@ int main(int argc, char* argv[])
                 }
             )
         },
+        CommandBundle{"print", "Print the contents of a memory variable.", TerminatorSchema, handlers::print},
         CommandBundle{"read", "Read an image from disk into a memory variable.", GeneratorSchema,
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
