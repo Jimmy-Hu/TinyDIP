@@ -1136,6 +1136,103 @@ constexpr auto make_meta_scalar_handler(std::string_view usage, std::string_view
 
 namespace handlers
 {
+    //  print template function implementation
+    template <
+        typename ImageLoaderFun = MetaImageIO::Loader
+    >
+    requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
+    constexpr void print(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout,
+        ImageLoaderFun&& image_loader_fun = ImageLoaderFun{})
+    {
+        if (std::ranges::empty(args))
+        {
+            os << "Usage: print <input_bmp | $var>\n";
+            return;
+        }
+
+        const std::string_view input_arg = args[0];
+
+        // Polymorphic lambda to cleanly print image content dynamically independent of image type
+        auto process_print = [&]<typename ImageType>(const ImageType& img)
+            requires (TinyDIP::is_Image<std::remove_cvref_t<ImageType>>::value)
+        {
+            os << "Printing image content for " << input_arg << ":\n";
+            img.print(",");
+            os << "Done.\n";
+        };
+
+        if (!dispatch_data_operation<master_image_types>(input_arg, workspace, image_loader_fun, process_print))
+        {
+            // If dispatch_data_operation returns false, it must be a $ variable holding a scalar or unsupported type
+            const std::string_view var_name = input_arg.substr(1);
+            
+            // Polymorphic lambda returning true if the complex custom scalar type matched
+            auto try_print_complex_scalar = [&]<typename T>() -> bool
+            {
+                if (workspace.retrieve<T>(var_name))
+                {
+                    os << "Printing scalar value for " << input_arg << ":\n";
+                    if constexpr (is_vector_v<T> || is_deque_v<T> || is_list_v<T> || is_std_array_v<T>)
+                    {
+                        os << "container value = {";
+                        bool first = true;
+                        const auto* container_ptr = workspace.retrieve<T>(var_name);
+                        for (const auto& elem : *container_ptr)
+                        {
+                            if (!first)
+                            {
+                                os << ", ";
+                            }
+                            os << +elem;
+                            first = false;
+                        }
+                        os << "}\nDone.\n";
+                    }
+                    else
+                    {
+                        os << *workspace.retrieve<T>(var_name) << "\nDone.\n";
+                    }
+                    return true;
+                }
+                return false;
+            };
+
+            if (match_any_type<complex_scalar_types_for_printing>(try_print_complex_scalar))
+            {
+                // Handled successfully by try_print_complex_scalar short-circuit logic
+            }
+            else
+            {
+                // Polymorphic lambda returning true if the numeric type matched
+                auto try_print_numeric = [&]<typename T>() -> bool
+                {
+                    if (workspace.retrieve<T>(var_name))
+                    {
+                        os << "Printing scalar value for " << input_arg << ":\n";
+                        if constexpr (sizeof(T) == 1 && std::is_integral_v<T>) // Safely print 8-bit integer types as numbers, not unprintable chars
+                        {
+                            os << +(*workspace.retrieve<T>(var_name)) << "\nDone.\n";
+                        }
+                        else
+                        {
+                            os << *workspace.retrieve<T>(var_name) << "\nDone.\n";
+                        }
+                        return true;
+                    }
+                    return false;
+                };
+
+                if (!match_any_type<core_numeric_types>(try_print_numeric))
+                {
+                    os << "Error: Memory variable not found or unsupported type.\n";
+                }
+            }
+        }
+    }
+
     template <
         std::invocable<const std::string_view, Workspace&> ImageLoaderFun = MetaImageIO::Loader,
         std::invocable<const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> ImageSaverFun = MetaImageIO::Saver
