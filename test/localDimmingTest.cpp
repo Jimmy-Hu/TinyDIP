@@ -245,12 +245,12 @@ static auto localDimmingTest(
     auto real_size_PWM_image = get_real_size_PWM_image(
         std::forward<ExecutionPolicy>(policy),
         input_img,
-        22,
-        8,
-        static_cast<std::size_t>(41),
-        static_cast<std::size_t>(45),
-        17,
-        20,
+        18,
+        32,
+        static_cast<std::size_t>(0),
+        static_cast<std::size_t>(0),
+        146,
+        0,
         true,       //  adaptive adjustment histogram weight
         true,
         output_scale_x,
