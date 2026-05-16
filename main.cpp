@@ -697,19 +697,25 @@ public:
 
             if constexpr (std::is_same_v<ImageType, TinyDIP::Image<TinyDIP::RGB>>)
             {
+                if (input_path.extension() == ".ppm")
+                {
+                    return TinyDIP::pnm::read(input_path);
+                }
+                
                 return TinyDIP::bmp_read(input_path.string().c_str(), true);
             }
             else if constexpr (std::is_same_v<ImageType, TinyDIP::Image<double>>)
             {
+                if (input_path.extension() == ".csv")
+                {
+                    return TinyDIP::double_image::read_from_csv(input_path.string().c_str());
+                }
+                
                 return TinyDIP::double_image::read(input_path.string().c_str(), true);
             }
-            else if constexpr (
-                std::is_same_v<ImageType, TinyDIP::Image<TinyDIP::RGB_DOUBLE>> ||
-                std::is_same_v<ImageType, TinyDIP::Image<TinyDIP::HSV>> ||
-                std::is_same_v<ImageType, TinyDIP::Image<TinyDIP::MultiChannel<double>>>
-            )
+            else if constexpr (std::is_same_v<ImageType, TinyDIP::Image<TinyDIP::HSV>>)
             {
-                throw std::invalid_argument("Direct file reading is not implemented for this complex/high-precision image type.");
+                return TinyDIP::hsv_read(input_path.string().c_str(), true);
             }
             else
             {
@@ -735,19 +741,29 @@ public:
                 
                 if constexpr (std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<double>>)
                 {
-                    TinyDIP::double_image::write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
+                    if (output_filepath.extension() == ".csv")
+                    {
+                        TinyDIP::double_image::write_to_csv(output_filepath.string().c_str(), std::forward<ImageType>(img));
+                    }
+                    else
+                    {
+                        TinyDIP::double_image::write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
+                    }
                 }
                 else if constexpr (std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<TinyDIP::RGB>>)
                 {
-                    TinyDIP::bmp_write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
+                    if (output_filepath.extension() == ".ppm")
+                    {
+                        TinyDIP::pnm::write(std::forward<ImageType>(img), output_filepath);
+                    }
+                    else
+                    {
+                        TinyDIP::bmp_write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
+                    }
                 }
-                else if constexpr (
-                    std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<TinyDIP::RGB_DOUBLE>> ||
-                    std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<TinyDIP::HSV>> ||
-                    std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<TinyDIP::MultiChannel<double>>>
-                )
+                else if constexpr (std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<TinyDIP::HSV>>)
                 {
-                    throw std::invalid_argument("Direct file writing is not implemented for this complex/high-precision image type.");
+                    TinyDIP::hsv_write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
                 }
                 else
                 {
