@@ -1286,6 +1286,126 @@ namespace handlers
         }
     }
 
+    //  grid_generator template function implementation
+    template <
+        std::invocable<const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> ImageSaverFun = MetaImageIO::Saver
+    >
+    constexpr void grid_generator(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout,
+        ImageSaverFun&& image_saver_fun = ImageSaverFun{})
+    {
+        std::string_view policy_str = "";
+        std::vector<std::string_view> filtered_args;
+        filtered_args.reserve(std::ranges::size(args));
+
+        for (const auto& arg : args)
+        {
+            if (arg == "seq" || arg == "par" || arg == "par_unseq" || arg == "unseq")
+            {
+                policy_str = arg;
+            }
+            else
+            {
+                filtered_args.emplace_back(arg);
+            }
+        }
+
+        if (std::ranges::size(filtered_args) < 3)
+        {
+            os << "Usage: grid [execution_policy] <output_bmp | $var> <width> <height> [grid_size=10]\n";
+            os << "       Optional Execution policies: seq, par, par_unseq, unseq\n";
+            return;
+        }
+
+        const std::string_view output_arg = filtered_args[0];
+        const std::size_t width = parse_arg<std::size_t>(filtered_args[1]);
+        const std::size_t height = parse_arg<std::size_t>(filtered_args[2]);
+        std::size_t grid_size = 10;
+        
+        if (std::ranges::size(filtered_args) > 3)
+        {
+            grid_size = parse_arg<std::size_t>(filtered_args[3]);
+        }
+
+        if (!std::ranges::empty(policy_str))
+        {
+            os << "Generating grid image (" << width << "x" << height << ") with cell size " << grid_size << " (Policy: " << policy_str << ")...\n";
+        }
+        else
+        {
+            os << "Generating grid image (" << width << "x" << height << ") with cell size " << grid_size << "...\n";
+        }
+
+        auto exec_default = [&]() -> std::any
+        {
+            TinyDIP::Image<TinyDIP::RGB> output_img(width, height);
+            for (std::size_t y = 0; y < height; ++y)
+            {
+                for (std::size_t x = 0; x < width; ++x)
+                {
+                    TinyDIP::RGB pixel{};
+                    if (x % grid_size == 0 || y % grid_size == 0)
+                    {
+                        // Grid line (Black)
+                        pixel.channels[0] = 0;
+                        pixel.channels[1] = 0;
+                        pixel.channels[2] = 0;
+                    }
+                    else
+                    {
+                        // Background (White)
+                        pixel.channels[0] = 255;
+                        pixel.channels[1] = 255;
+                        pixel.channels[2] = 255;
+                    }
+                    output_img.at(x, y) = pixel;
+                }
+            }
+            return output_img;
+        };
+
+        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+        {
+            TinyDIP::Image<TinyDIP::RGB> output_img(width, height);
+            auto indices = std::views::iota(std::size_t{0}, width * height);
+            std::for_each(
+                std::forward<ExecPolicy>(exec_policy),
+                std::ranges::begin(indices),
+                std::ranges::end(indices),
+                [&](const std::size_t idx)
+                {
+                    const std::size_t y = idx / width;
+                    const std::size_t x = idx % width;
+
+                    TinyDIP::RGB pixel{};
+                    if (x % grid_size == 0 || y % grid_size == 0)
+                    {
+                        // Grid line (Black)
+                        pixel.channels[0] = 0;
+                        pixel.channels[1] = 0;
+                        pixel.channels[2] = 0;
+                    }
+                    else
+                    {
+                        // Background (White)
+                        pixel.channels[0] = 255;
+                        pixel.channels[1] = 255;
+                        pixel.channels[2] = 255;
+                    }
+                    output_img.at(x, y) = pixel;
+                }
+            );
+            return output_img;
+        };
+
+        std::any final_result = dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+        image_saver_fun(output_arg, workspace, std::move(std::any_cast<TinyDIP::Image<TinyDIP::RGB>&>(final_result)));
+        os << "Saved to " << output_arg << "\n";
+    }
+
     //  load_workspace function implementation
     constexpr void load_workspace(
         Workspace& workspace,
