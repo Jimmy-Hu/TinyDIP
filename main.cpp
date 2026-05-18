@@ -1213,59 +1213,73 @@ namespace handlers
             {
                 auto process_b = [&]<typename ImgB>(ImgB&& img_b)
                 {
-                    const std::size_t width = img_r.getWidth();
-                    const std::size_t height = img_r.getHeight();
-
-                    if (width != img_g.getWidth() || height != img_g.getHeight() ||
-                        width != img_b.getWidth() || height != img_b.getHeight())
+                    if constexpr (
+                        (!std::same_as<std::remove_cvref_t<ImgR>, TinyDIP::Image<std::uint8_t>> &&
+                         !std::same_as<std::remove_cvref_t<ImgR>, TinyDIP::Image<unsigned char>>) ||
+						(!std::same_as<std::remove_cvref_t<ImgG>, TinyDIP::Image<std::uint8_t>> &&
+						 !std::same_as<std::remove_cvref_t<ImgG>, TinyDIP::Image<unsigned char>>) ||
+						(!std::same_as<std::remove_cvref_t<ImgB>, TinyDIP::Image<std::uint8_t>>&&
+                         !std::same_as<std::remove_cvref_t<ImgB>, TinyDIP::Image<unsigned char>>)
+                        )
                     {
-                        throw std::invalid_argument("Dimension mismatch among R, G, B plane images.");
+                        throw std::invalid_argument("R plane image must be 8-bit unsigned integer type.");
                     }
-
-                    TinyDIP::Image<TinyDIP::RGB> output_image(width, height);
-
-                    auto exec_default = [&]() -> std::any
+                    else
                     {
-                        for (std::size_t y = 0; y < height; ++y)
+                        const std::size_t width = img_r.getWidth();
+                        const std::size_t height = img_r.getHeight();
+
+                        if (width != img_g.getWidth() || height != img_g.getHeight() ||
+                            width != img_b.getWidth() || height != img_b.getHeight())
                         {
-                            for (std::size_t x = 0; x < width; ++x)
-                            {
-                                TinyDIP::RGB pixel{};
-                                pixel.channels[0] = static_cast<std::uint8_t>(img_r.at(x, y));
-                                pixel.channels[1] = static_cast<std::uint8_t>(img_g.at(x, y));
-                                pixel.channels[2] = static_cast<std::uint8_t>(img_b.at(x, y));
-                                output_image.at(x, y) = pixel;
-                            }
+                            throw std::invalid_argument("Dimension mismatch among R, G, B plane images.");
                         }
-                        return output_image;
-                    };
 
-                    auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
-                        requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
-                    {
-                        auto indices = std::views::iota(std::size_t{0}, width * height);
-                        std::for_each(
-                            std::forward<ExecPolicy>(exec_policy),
-                            std::ranges::begin(indices),
-                            std::ranges::end(indices),
-                            [&](const std::size_t idx)
+                        TinyDIP::Image<TinyDIP::RGB> output_image(width, height);
+
+                        auto exec_default = [&]() -> std::any
                             {
-                                const std::size_t y = idx / width;
-                                const std::size_t x = idx % width;
+                                for (std::size_t y = 0; y < height; ++y)
+                                {
+                                    for (std::size_t x = 0; x < width; ++x)
+                                    {
+                                        TinyDIP::RGB pixel{};
+                                        pixel.channels[0] = static_cast<std::uint8_t>(img_r.at(x, y));
+                                        pixel.channels[1] = static_cast<std::uint8_t>(img_g.at(x, y));
+                                        pixel.channels[2] = static_cast<std::uint8_t>(img_b.at(x, y));
+                                        output_image.at(x, y) = pixel;
+                                    }
+                                }
+                                return output_image;
+                            };
 
-                                TinyDIP::RGB pixel{};
-                                pixel.channels[0] = static_cast<std::uint8_t>(img_r.at(x, y));
-                                pixel.channels[1] = static_cast<std::uint8_t>(img_g.at(x, y));
-                                pixel.channels[2] = static_cast<std::uint8_t>(img_b.at(x, y));
-                                output_image.at(x, y) = pixel;
-                            }
-                        );
-                        return output_image;
-                    };
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy && exec_policy) -> std::any
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            auto indices = std::views::iota(std::size_t{ 0 }, width * height);
+                            std::for_each(
+                                std::forward<ExecPolicy>(exec_policy),
+                                std::ranges::begin(indices),
+                                std::ranges::end(indices),
+                                [&](const std::size_t idx)
+                                {
+                                    const std::size_t y = idx / width;
+                                    const std::size_t x = idx % width;
 
-                    std::any final_result = dispatch_policy_string(policy_str, exec_policy, exec_default, os);
-                    image_saver_fun(output_arg, workspace, std::move(std::any_cast<TinyDIP::Image<TinyDIP::RGB>&>(final_result)));
-                    os << "Saved to " << output_arg << "\n";
+                                    TinyDIP::RGB pixel{};
+                                    pixel.channels[0] = static_cast<std::uint8_t>(img_r.at(x, y));
+                                    pixel.channels[1] = static_cast<std::uint8_t>(img_g.at(x, y));
+                                    pixel.channels[2] = static_cast<std::uint8_t>(img_b.at(x, y));
+                                    output_image.at(x, y) = pixel;
+                                }
+                            );
+                            return output_image;
+                        };
+
+                        std::any final_result = dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                        image_saver_fun(output_arg, workspace, std::move(std::any_cast<TinyDIP::Image<TinyDIP::RGB>&>(final_result)));
+                        os << "Saved to " << output_arg << "\n";
+                    }
                 };
 
                 if (!dispatch_data_operation<AllowedTypes>(b_arg, workspace, image_loader_fun, process_b))
