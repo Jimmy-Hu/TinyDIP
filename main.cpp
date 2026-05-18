@@ -2361,6 +2361,12 @@ int main(int argc, char* argv[])
                 }
             )
         },
+        CommandBundle{"constructRGB", "Merge separate R, G, and B planes into an RGB image.", IndependentSchema, 
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::construct_rgb(workspace, args, os);
+            }
+        },
         CommandBundle{"print", "Print the contents of a memory variable.", TerminatorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
