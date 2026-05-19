@@ -1455,6 +1455,18 @@ namespace handlers
         os << "Saved to " << output_arg << "\n";
     }
 
+    //  help function implementation
+    constexpr void help(
+        const CommandRegistry& registry,
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout)
+    {
+        (void)workspace;
+        (void)args;
+        registry.list_commands(os);
+    }
+
     //  load_workspace function implementation
     constexpr void load_workspace(
         Workspace& workspace,
