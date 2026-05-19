@@ -106,11 +106,11 @@ int main(int argc, char* argv[])
         // Detect if input is a directory to execute batch processing
         if (std::filesystem::is_directory(input_path))
         {
-            std::cout << "Directory detected. Scanning for .ppm files...\n";
+            std::cout << "Directory detected. Scanning for .ppm / .bmp files...\n";
             
             for (const auto& entry : std::filesystem::directory_iterator(input_path))
             {
-                if (entry.is_regular_file() && entry.path().extension() == ".ppm")
+                if (entry.is_regular_file() && ((entry.path().extension() == ".ppm") || (entry.path().extension() == ".bmp")))
                 {
                     files_to_process.emplace_back(entry.path());
                 }
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
 
         if (files_to_process.empty())
         {
-            std::cout << "No .ppm files found to process. Exiting.\n";
+            std::cout << "No .ppm / .bmp files found to process. Exiting.\n";
             return EXIT_SUCCESS;
         }
 
