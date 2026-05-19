@@ -61,7 +61,7 @@ void process_single_image(ExecutionPolicy&& execution_policy, const std::filesys
         auto output_image = TinyDIP::lanczos_resample(source_image, 720, 1380);
         
         // Place the output file in the same directory as the source
-        std::filesystem::path output_filename_bmp = source_filename.parent_path() / (source_filename.stem().string());
+        std::filesystem::path output_filename_bmp = source_filename.parent_path() / (source_filename.stem().string() + std::string("_lanczos_resample"));
         
         if (!std::filesystem::exists(output_filename_bmp.replace_extension(".bmp")))
         {
