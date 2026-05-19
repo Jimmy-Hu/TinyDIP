@@ -26,7 +26,6 @@ template<typename ExecutionPolicy>
 concept is_execution_policy = std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>;
 
 //  process_single_image template function implementation
-//  Reads, rotates, scales, and writes a single .ppm image.
 template<class ExecutionPolicy>
 requires is_execution_policy<ExecutionPolicy>
 void process_single_image(ExecutionPolicy&& execution_policy, const std::filesystem::path& source_filename)
@@ -48,7 +47,7 @@ void process_single_image(ExecutionPolicy&& execution_policy, const std::filesys
         const std::filesystem::path output_filename_bmp = source_filename.parent_path() / 
             (source_filename.stem().string());
         
-        if (!std::filesystem::exists(output_filename_ppm))
+        if (!std::filesystem::exists(output_filename_bmp))
         {
             TinyDIP::bmp_write(source_image,
             );
