@@ -50,8 +50,8 @@ void process_single_image(ExecutionPolicy&& execution_policy, const std::filesys
         if (!std::filesystem::exists(output_filename_bmp))
         {
             TinyDIP::bmp_write(
-                source_image,
-                output_filename_bmp.string().c_str()
+                output_filename_bmp.string().c_str(),
+                source_image
             );
             std::cout << "Successfully saved: " << output_filename_bmp.string() << '\n';
         }
