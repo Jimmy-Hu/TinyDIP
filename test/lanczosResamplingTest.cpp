@@ -57,8 +57,8 @@ void process_single_image(ExecutionPolicy&& execution_policy, const std::filesys
         {
             source_image = TinyDIP::bmp_read(source_filename.string().c_str(), true);
         }
-        
-        auto output_image = TinyDIP::lanczos_resample(source_image, 720, 1380);
+        TinyDIP::Image<TinyDIP::RGB> output_image(720, 1920);
+        output_image = TinyDIP::paste(output_image, TinyDIP::lanczos_resample(source_image, 720, 1380), 0, 0);
         
         // Place the output file in the same directory as the source
         std::filesystem::path output_filename_bmp = source_filename.parent_path() / (source_filename.stem().string() + std::string("_lanczos_resample"));
