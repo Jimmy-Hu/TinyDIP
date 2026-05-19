@@ -53,11 +53,11 @@ void process_single_image(ExecutionPolicy&& execution_policy, const std::filesys
                 source_image,
                 output_filename_bmp.string().c_str()
             );
-            std::cout << "Successfully saved: " << output_filename_ppm.string() << '\n';
+            std::cout << "Successfully saved: " << output_filename_bmp.string() << '\n';
         }
         else
         {
-            std::cout << "Output file already exists, skipping write: " << output_filename_ppm.string() << '\n';
+            std::cout << "Output file already exists, skipping write: " << output_filename_bmp.string() << '\n';
         }
     }
     catch (const std::exception& e)
