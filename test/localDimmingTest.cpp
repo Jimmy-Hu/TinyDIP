@@ -132,9 +132,8 @@ static auto get_real_size_PWM_image(
 )
 {
     auto RGB_max_result = RGB_max(input_img);
-    std::vector<int> gamma_node = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256};
-    std::vector<int> gamma_vale = {0, 2, 9, 23, 43, 69, 104, 146, 195, 253, 320, 394, 477, 569, 670, 780, 899, 1026, 1165, 1312, 1468, 1635, 1810, 1997, 2193, 2399, 2615, 2842, 3079, 3326, 3584, 3851, 4130};
-    auto gray2gamma_12bits = gray2gamma(std::forward<ExecutionPolicy>(policy), RGB_max_result, gamma_node, gamma_vale);
+    auto gamma_table = gamma_table_generator();
+    auto gray2gamma_12bits = gray2gamma(std::forward<ExecutionPolicy>(policy), RGB_max_result, gamma_table.first, gamma_table.second);
     auto split_overlap_output = TinyDIP::split_overlap(
         std::forward<ExecutionPolicy>(policy),
         gray2gamma_12bits,
