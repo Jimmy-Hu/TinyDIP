@@ -55,19 +55,19 @@ void process_single_image(ExecutionPolicy&& execution_policy, const std::filesys
         }
         else
         {
-            source_image = TinyDIP::bmp_read(source_filename);
+            source_image = TinyDIP::bmp_read(source_filename.string().c_str(), true);
         }
         
         auto output_image = TinyDIP::lanczos_resample(source_image, 720, 1380);
         
         // Place the output file in the same directory as the source
-        const std::filesystem::path output_filename_bmp = source_filename.parent_path() / (source_filename.stem().string());
+        std::filesystem::path output_filename_bmp = source_filename.parent_path() / (source_filename.stem().string());
         
-        if (!std::filesystem::exists(output_filename_bmp.replace_extension(.bmp)))
+        if (!std::filesystem::exists(output_filename_bmp.replace_extension(".bmp")))
         {
-            TinyDIP::pnm::write(
-                output_image,
-                output_filename_bmp.string().c_str()
+            TinyDIP::bmp_write(
+                output_filename_bmp.string().c_str(),
+                output_image
             );
             std::cout << "Successfully saved: " << output_filename_bmp.string() << '\n';
         }
