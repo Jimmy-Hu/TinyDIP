@@ -66,6 +66,15 @@ void process_single_image(ExecutionPolicy&& execution_policy, const std::filesys
     }
 }
 
+//  ProcessImageLambda struct definition
+struct ProcessImageLambda
+{
+    void operator()(const std::filesystem::path& file_path) const
+    {
+        process_single_image(std::execution::seq, file_path);
+    }
+};
+
 int main(int argc, char* argv[])
 {
     TinyDIP::Timer timer1;
