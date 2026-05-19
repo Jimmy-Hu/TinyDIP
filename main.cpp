@@ -2528,7 +2528,12 @@ int main(int argc, char* argv[])
     );
 
     // Register the help command dynamically to ensure it has access to the final mapped registry
-    //registry.register_command("help", "List all available commands.", IndependentSchema, HelpHandler{registry});
+    registry.register_command("help", "List all available commands.", IndependentSchema,
+        [&registry](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+        {
+            handlers::help(registry, workspace, args, os);
+        }
+    );
 
     if (argc < 2)
     {
