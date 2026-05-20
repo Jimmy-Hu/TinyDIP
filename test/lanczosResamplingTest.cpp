@@ -37,7 +37,14 @@ concept is_execution_policy = std::is_execution_policy_v<std::remove_cvref_t<Exe
 //  process_single_image template function implementation
 template<class ExecutionPolicy>
 requires is_execution_policy<ExecutionPolicy>
-void process_single_image(ExecutionPolicy&& execution_policy, const std::filesystem::path& source_filename)
+void process_single_image(
+    ExecutionPolicy&& execution_policy,
+    const std::filesystem::path& source_filename,
+    const std::size_t startx = 0,
+    const std::size_t endx = 719,
+    const std::size_t starty = 0,
+    const std::size_t endy = 1919
+)
 {
     if (!(source_filename.extension() == ".ppm" || source_filename.extension() == ".bmp"))
     {
@@ -61,7 +68,7 @@ void process_single_image(ExecutionPolicy&& execution_policy, const std::filesys
         output_image = TinyDIP::paste2D(
             output_image,
             TinyDIP::lanczos_resample(
-                TinyDIP::subimage2(source_image, 0, 719, 0, 1919),
+                TinyDIP::subimage2(source_image, startx, endx, starty, endy),
                 720,
                 1380
             ),
