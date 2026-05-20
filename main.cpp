@@ -2485,6 +2485,12 @@ int main(int argc, char* argv[])
                 handlers::print(workspace, args, os);
             }
         },
+        CommandBundle{"rand", "Generate random multi-dimensional image with specified URBG.", GeneratorSchema, 
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::rand_generator(workspace, args, os);
+            }
+        },
         CommandBundle{"read", "Read an image from disk into a memory variable.", GeneratorSchema,
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
