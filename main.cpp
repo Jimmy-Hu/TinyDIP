@@ -1467,6 +1467,41 @@ namespace handlers
         registry.list_commands(os);
     }
 
+    //  info template function implementation
+    template <
+        typename ImageLoaderFun = MetaImageIO::Loader
+    >
+    requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
+    constexpr void info(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout,
+        ImageLoaderFun&& image_loader_fun = ImageLoaderFun{})
+    {
+        if (std::ranges::empty(args))
+        {
+            os << "Usage: info <input_bmp | $var>\n";
+            return;
+        }
+
+        const std::string_view input_arg = args[0];
+
+        // Polymorphic lambda to cleanly print dimensions dynamically independent of image type
+        auto process_info = [&]<typename ImageType>(const ImageType& img)
+            requires (TinyDIP::is_Image<std::remove_cvref_t<ImageType>>::value)
+        {
+            os << "Image Info:\n";
+            os << "  Source: " << input_arg << "\n";
+            os << "  Width:  " << img.getWidth() << "\n";
+            os << "  Height: " << img.getHeight() << "\n";
+        };
+
+        if (!dispatch_data_operation<master_image_types>(input_arg, workspace, image_loader_fun, process_info))
+        {
+            os << "Error: Memory variable not found or unsupported type.\n";
+        }
+    }
+
     //  load_workspace function implementation
     constexpr void load_workspace(
         Workspace& workspace,
