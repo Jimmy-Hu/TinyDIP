@@ -23,23 +23,23 @@
 //  imageWriteTest function implementation
 void imageWriteTest(const std::size_t width = 32, const std::size_t height = 18)
 {
-    TinyDIP::Image<TinyDIP::GrayScale> test_image(width, height);
-    test_image.at(10, 10) = 255;
-    if (true)
+    for (std::size_t y = 0; y < height; ++y)
     {
-        test_image.at(8, 10) = 255;
-        test_image.at(9, 10) = 255;
-        test_image.at(11, 10) = 255;
+        TinyDIP::Image<TinyDIP::GrayScale> test_image(width, height);
+        for (std::size_t x = 0; x < width; ++x)
+        {
+            test_image.at(x, y) = 255;
+        }
+        test_image = TinyDIP::resize_nearest_neighbor(test_image, 1920, 1080);
+        TinyDIP::bmp_write(
+            std::string("test_image_") + std::to_string(y),
+            TinyDIP::constructRGB(
+                test_image,
+                test_image,
+                test_image
+            )
+        );
     }
-    test_image = TinyDIP::resize_nearest_neighbor(test_image, 1920, 1080);
-    TinyDIP::bmp_write(
-        "test_image",
-        TinyDIP::constructRGB(
-            test_image,
-            test_image,
-            test_image
-        )
-    );
     return;
 }
 
