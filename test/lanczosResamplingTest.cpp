@@ -161,5 +161,52 @@ int main(int argc, char* argv[])
             ProcessImageLambda{}
         );
     }
+    else if (argc == 6)
+    {
+        const std::filesystem::path input_path = std::string(argv[1]);
+        const std::size_t startx = static_cast<std::size_t>(std::stoull(argv[2]));
+        const std::size_t endx = static_cast<std::size_t>(std::stoull(argv[3]));
+        const std::size_t starty = static_cast<std::size_t>(std::stoull(argv[4]));
+        const std::size_t endy = static_cast<std::size_t>(std::stoull(argv[5]));
+        std::vector<std::filesystem::path> files_to_process;
+
+        // Detect if input is a directory to execute batch processing
+        if (std::filesystem::is_directory(input_path))
+        {
+            std::cout << "Directory detected. Scanning for .ppm / .bmp files...\n";
+            
+            for (const auto& entry : std::filesystem::directory_iterator(input_path))
+            {
+                if (entry.is_regular_file() && ((entry.path().extension() == ".ppm") || (entry.path().extension() == ".bmp")))
+                {
+                    files_to_process.emplace_back(entry.path());
+                }
+            }
+        }
+        // Detect if input is a single file
+        else if (std::filesystem::is_regular_file(input_path))
+        {
+            std::cout << "Single file detected.\n";
+            files_to_process.emplace_back(input_path);
+        }
+        else
+        {
+            std::cerr << "Error: Invalid input path provided: " << input_path.string() << '\n';
+            return EXIT_FAILURE;
+        }
+
+        if (files_to_process.empty())
+        {
+            std::cout << "No .ppm / .bmp files found to process. Exiting.\n";
+            return EXIT_SUCCESS;
+        }
+
+        std::cout << "Total images queued for processing: " << files_to_process.size() << '\n';
+        #pragma omp parallel for
+        for (std::size_t i = 0; i < files_to_process.size(); ++i)
+        {
+            process_single_image(std::execution::seq, files_to_process[i], startx, endx, starty, endy);
+        }
+    }
     return EXIT_SUCCESS;
 }
