@@ -59,7 +59,7 @@ void process_single_image(ExecutionPolicy&& execution_policy, const std::filesys
         }
         TinyDIP::Image<TinyDIP::RGB> output_image(720, 1920);
         output_image = TinyDIP::paste2D(
-            output_image
+            output_image,
             TinyDIP::lanczos_resample(
                 TinyDIP::subimage2(source_image, 0, 720, 0, 1920),
                 720,
