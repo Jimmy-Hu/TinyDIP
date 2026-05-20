@@ -943,7 +943,13 @@ public:
 
 //  MetaTransformHandler template struct implementation
 //  Generic Meta Handler strictly refactoring transform commands like abs, bicubic_resize, dct2, idct2, and lanczos_resample
-template <std::size_t MinArgs, typename SetupFun, typename CheckingTypes = master_image_types>
+template <
+    std::size_t MinArgs,
+    typename SetupFun,
+    typename ArgsContainer = std::vector<std::string_view>,
+    typename CheckingTypes = master_image_types
+>
+requires(std::invocable<SetupFun, const ArgsContainer&, const std::string_view, std::ostream&>)
 struct MetaTransformHandler
 {
     std::string_view usage_string_;
@@ -959,7 +965,7 @@ struct MetaTransformHandler
     constexpr void operator()(Workspace& workspace, std::span<const std::string_view> args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
     {
         std::string_view policy_str = "";
-        std::vector<std::string_view> filtered_args;
+        ArgsContainer filtered_args;
         filtered_args.reserve(std::ranges::size(args));
 
         for (const auto& arg : args)
