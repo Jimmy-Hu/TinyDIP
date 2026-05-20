@@ -31,6 +31,11 @@ void imageWriteTest(const std::size_t width = 32, const std::size_t height = 18)
             test_image.at(x, y) = 255;
         }
         test_image = TinyDIP::resize_nearest_neighbor(test_image, 1920, 1080);
+        test_image = TinyDIP::resize_nearest_neighbor(
+            TinyDIP::rotate_detail_shear_transformation_degree(test_image, static_cast<long double>(90)),
+            1080,
+            1920
+        );
         TinyDIP::bmp_write(
             std::string("test_image_") + std::to_string(y),
             TinyDIP::constructRGB(
