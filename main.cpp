@@ -2498,6 +2498,12 @@ int main(int argc, char* argv[])
                 handlers::grid_generator(workspace, args, os);
             }
         },
+        CommandBundle{"info", "Display basic information about an image.", TerminatorSchema, 
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::info(workspace, args, os);
+            }
+        },
         CommandBundle{"print", "Print the contents of a memory variable.", TerminatorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
