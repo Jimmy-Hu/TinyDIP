@@ -1187,6 +1187,107 @@ constexpr auto make_meta_scalar_handler(std::string_view usage, std::string_view
 
 namespace handlers
 {
+    //  abs function implementation
+    constexpr auto abs(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout
+    )
+    {
+        auto transform_handler = make_meta_transform_handler<2, master_data_types>(
+            "abs [execution_policy] <input_data | $var> <output_var | $var>",
+            [](std::span<const std::string_view> filtered_args, const std::string_view policy_str, std::ostream& os)
+            {
+                if (!std::ranges::empty(policy_str))
+                {
+                    os << "Calculating abs of " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                }
+                else
+                {
+                    os << "Calculating abs of " << filtered_args[0] << "...\n";
+                }
+
+                return [policy_str, &os]<typename DataT>(DataT&& data) -> std::any
+                {
+                    using DecayedDataT = std::remove_cvref_t<DataT>;
+
+                    auto exec_default = [&]() -> std::any
+                    {
+                        if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
+                        {
+                            if constexpr (requires { TinyDIP::abs(std::forward<DataT>(data)); })
+                            {
+                                return TinyDIP::abs(std::forward<DataT>(data));
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Input image type does not support abs operation.");
+                                return std::any{};
+                            }
+                        }
+                        else if constexpr (std::ranges::input_range<DecayedDataT>)
+                        {
+                            return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                [](auto&& element) 
+                                { 
+                                    return TinyDIP::generic_abs(std::forward<decltype(element)>(element));
+                                },
+                                std::forward<DataT>(data)
+                            );
+                        }
+                        else
+                        {
+                            return TinyDIP::generic_abs(std::forward<DataT>(data));
+                        }
+                    };
+
+                    auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                        requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                    {
+                        if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
+                        {
+                            if constexpr (requires { TinyDIP::abs(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data)); })
+                            {
+                                return TinyDIP::abs(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data));
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                }
+                                return exec_default();
+                            }
+                        }
+                        else if constexpr (std::ranges::input_range<DecayedDataT>)
+                        {
+                            return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                std::forward<ExecPolicy>(exec_policy),
+                                [](auto&& element) 
+                                { 
+                                    return TinyDIP::generic_abs(std::forward<decltype(element)>(element));
+                                },
+                                std::forward<DataT>(data)
+                            );
+                        }
+                        else
+                        {
+                            if (!std::ranges::empty(policy_str))
+                            {
+                                os << "Warning: Execution policy requested but not supported for this data type/operation. Falling back to default.\n";
+                            }
+                            return exec_default();
+                        }
+                    };
+
+                    return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                };
+            }
+        );
+
+        transform_handler(workspace, args, os);
+    }
+
     //  construct_rgb template function implementation
     template <
         typename ImageLoaderFun = MetaImageIO::Loader,
