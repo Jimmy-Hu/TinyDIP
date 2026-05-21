@@ -50,8 +50,11 @@ static auto concatTest2(
         throw std::runtime_error("Size mismatched!");
     }
     
-
-
+    auto center_location = static_cast<std::size_t>(static_cast<double>(input_image1.getSize(0)) / 2.0);
+    auto left_side_image = TinyDIP::subimage2(input_image1, 0, center_location - 1, 0, input_image1.getSize(1) - 1);
+    auto right_side_image = TinyDIP::subimage2(input_image2, center_location, input_image2.getSize(0) - 1, 0, input_image2.getSize(1) - 1);
+    auto output_image = TinyDIP::concat_horizontal(left_side_image, right_side_image);
+    TinyDIP::bmp_write(output_path.string().c_str(), output_image);
     return;
 }
 
