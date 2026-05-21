@@ -1568,6 +1568,67 @@ namespace handlers
         return "";
     }
 
+    //  getPlane function implementation
+    constexpr void getPlane(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout,
+        const std::size_t channel_index = 0
+    )
+    {
+        auto transform_handler = make_meta_transform_handler<2>(
+                getPlane_channel_description(channel_index), 
+                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+                {
+                    if (!std::ranges::empty(policy_str))
+                    {
+                        os << "Extracting channel " << std::to_string(channel_index) << " of " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                    }
+                    else
+                    {
+                        os << "Extracting channel " << std::to_string(channel_index) << " of " << filtered_args[0] << "...\n";
+                    }
+
+                    return [policy_str, &os]<typename ImageType>(ImageType&& img) -> std::any
+                    {
+                        auto exec_default = [&]() -> std::any
+                        {
+                            if constexpr (requires { TinyDIP::getPlane(std::forward<ImageType>(img), channel_index); })
+                            {
+                                return TinyDIP::getPlane(std::forward<ImageType>(img), channel_index);
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Input image does not support multi-channel plane extraction.");
+                                return std::any{};
+                            }
+                        };
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            if constexpr (requires { TinyDIP::getPlane(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), channel_index); })
+                            {
+                                return TinyDIP::getPlane(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), channel_index);
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                }
+                                return exec_default();
+                            }
+                        };
+
+                        return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                    };
+                }
+            );
+
+        transform_handler(workspace, args, os);
+    }
+
     //  grid_generator template function implementation
     template <
         std::invocable<const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> ImageSaverFun = MetaImageIO::Saver
