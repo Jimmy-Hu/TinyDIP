@@ -2596,6 +2596,9 @@ int main(int argc, char* argv[])
                 handlers::construct_rgb(workspace, args, os);
             }
         },
+        CommandBundle{"dct2", "Calculate Discrete Cosine Transformation for an image.", TransformerSchema, 
+            handlers::dct2
+        },
         CommandBundle{"grid", "Generate a grid image.", GeneratorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
