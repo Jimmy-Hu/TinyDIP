@@ -139,11 +139,14 @@ static auto gamma_table_generator(
 template<
     class ExecutionPolicy,
     class ElementT,
-    std::ranges::random_access_range HistogramWeightRange>
+    std::ranges::random_access_range HistogramWeightRange,
+    TinyDIP::arithmetic FloatingType = double
+>
 requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
 static auto get_real_size_PWM_image(
     ExecutionPolicy&& policy,
     const TinyDIP::Image<ElementT>& input_img,
+    const FloatingType gamma = 1.0,
     const std::size_t light_bead_width = 22,
     const std::size_t light_bead_height = 8,
     const std::size_t x_extension_pixel_count = 41,
@@ -160,7 +163,7 @@ static auto get_real_size_PWM_image(
 )
 {
     auto RGB_max_result = RGB_max(input_img);
-    auto gamma_table = gamma_table_generator();
+    auto gamma_table = gamma_table_generator<FloatingType>(gamma);
     auto gray2gamma_12bits = gray2gamma(std::forward<ExecutionPolicy>(policy), RGB_max_result, gamma_table.first, gamma_table.second);
     auto split_overlap_output = TinyDIP::split_overlap(
         std::forward<ExecutionPolicy>(policy),
