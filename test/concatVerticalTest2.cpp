@@ -53,7 +53,7 @@ static auto concatVerticalTest2(
     auto center_location = static_cast<std::size_t>(static_cast<double>(input_image1.getSize(1)) / 2.0);
     auto top_side_image = TinyDIP::subimage2(input_image1, 0, input_image1.getSize(0) - 1, 0, center_location - 1);
     auto bottom_side_image = TinyDIP::subimage2(input_image2, 0, input_image2.getSize(0) - 1, center_location, input_image2.getSize(1) - 1);
-    auto output_image = TinyDIP::concat_vertical(top_side_image, bottom_side_image);
+    auto output_image = TinyDIP::concat_vertical(bottom_side_image, top_side_image);
     TinyDIP::bmp_write(output_path.string().c_str(), output_image);
     return;
 }
