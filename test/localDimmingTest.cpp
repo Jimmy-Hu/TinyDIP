@@ -99,12 +99,37 @@ constexpr static auto clamp12bit(const ElementT input)
     return std::clamp(input, static_cast<ElementT>(0), static_cast<ElementT>(std::pow(2, 12) - 1));
 }
 
-//  gamma_table_generator Function Implementation
-static auto gamma_table_generator()
+//  gamma_table_generator Template Function Implementation
+template<TinyDIP::arithmetic FloatingType = double>
+static auto gamma_table_generator(
+    const FloatingType gamma = 2.2,
+    const int input_maximum = 255,
+    const int output_bits = 12
+)
 {
-    std::vector<int> gamma_node = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256};
-    std::vector<int> gamma_vale = {0, 2, 9, 23, 43, 69, 104, 146, 195, 253, 320, 394, 477, 569, 670, 780, 899, 1026, 1165, 1312, 1468, 1635, 1810, 1997, 2193, 2399, 2615, 2842, 3079, 3326, 3584, 3851, 4130};
-    return std::make_pair(gamma_node, gamma_vale);
+    if (gamma == 2.2)
+    {
+        std::vector<int> gamma_node = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256};
+        std::vector<int> gamma_value = {0, 2, 9, 23, 43, 69, 104, 146, 195, 253, 320, 394, 477, 569, 670, 780, 899, 1026, 1165, 1312, 1468, 1635, 1810, 1997, 2193, 2399, 2615, 2842, 3079, 3326, 3584, 3851, 4130};
+        return std::make_pair(gamma_node, gamma_value);
+    }
+    else if (gamma == 1.0)
+    {
+
+    }
+    else
+    {
+        std::vector<int> gamma_node = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256};
+        std::vector<int> gamma_value;
+        for (std::size_t i = 0; i < std::ranges::size(gamma_node); ++i)
+        {
+            gamma_value = std::round(
+                std::pow(static_cast<FloatingType>(gamma_node[i]) / static_cast<FloatingType>(input_maximum), gamma) * 
+                (std::pow(static_cast<FloatingType>(2.0), static_cast<FloatingType>(output_bits)) - 1)
+            );
+        }
+        return std::make_pair(gamma_node, gamma_value);
+    }
 }
 
 //  get_real_size_PWM_image Template Function Implementation
