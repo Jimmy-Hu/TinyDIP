@@ -1550,6 +1550,24 @@ namespace handlers
         transform_handler(workspace, args, os);
     }
 
+    //  getPlane_channel_description function implementation
+    constexpr auto getPlane_channel_description(const std::size_t channel_index)
+    {
+        if (channel_index == 0)
+        {
+            "getRplane [execution_policy] <input_img | $var> <output_img | $var>";
+        }
+        else if (channel_index == 1)
+        {
+            return "getGplane [execution_policy] <input_img | $var> <output_img | $var>";
+        }
+        else if (channel_index == 2)
+        {
+            return "getBplane [execution_policy] <input_img | $var> <output_img | $var>";
+        }
+        return "";
+    }
+
     //  grid_generator template function implementation
     template <
         std::invocable<const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> ImageSaverFun = MetaImageIO::Saver
