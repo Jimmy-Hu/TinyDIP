@@ -1498,6 +1498,58 @@ namespace handlers
         }
     }
 
+    //  dct2 function implementation
+    constexpr void dct2(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout
+    )
+    {
+        auto transform_handler = make_meta_transform_handler<2>(
+            "dct2 [execution_policy] <input_img | $var> <output_img | $var>",
+            [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+            {
+                if (!std::ranges::empty(policy_str))
+                {
+                    os << "Calculating DCT-2 for " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                }
+                else
+                {
+                    os << "Calculating DCT-2 for " << filtered_args[0] << "...\n";
+                }
+
+                return [policy_str, &os]<typename ImageType>(ImageType && img) -> std::any
+                {
+                    auto exec_default = [&]() -> std::any
+                        {
+                            return TinyDIP::dct2(std::forward<ImageType>(img));
+                        };
+
+                    auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy && exec_policy) -> std::any
+                        requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                    {
+                        if constexpr (requires { TinyDIP::dct2(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img)); })
+                        {
+                            return TinyDIP::dct2(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img));
+                        }
+                        else
+                        {
+                            if (!std::ranges::empty(policy_str))
+                            {
+                                os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                            }
+                            return exec_default();
+                        }
+                    };
+
+                    return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                };
+            }
+        );
+
+        transform_handler(workspace, args, os);
+    }
+
     //  grid_generator template function implementation
     template <
         std::invocable<const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> ImageSaverFun = MetaImageIO::Saver
