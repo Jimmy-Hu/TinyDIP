@@ -15,12 +15,12 @@
 #include "../cube_operations.h"
 #include "../timer.h"
 
-//  concatTest2 Template Function Implementation
+//  concatHorizontalTest2 Template Function Implementation
 template<
     class ExecutionPolicy
 >
 requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
-static auto concatTest2(
+static auto concatHorizontalTest2(
     ExecutionPolicy&& policy,
     const std::filesystem::path& input_path1,
     const std::filesystem::path& input_path2,
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
             std::cerr << "File not found: " << input_path2 << '\n';
             return EXIT_SUCCESS;
         }
-        concatTest2(std::execution::par_unseq, input_path1, input_path2);
+        concatHorizontalTest2(std::execution::par_unseq, input_path1, input_path2);
     }
 }
 
