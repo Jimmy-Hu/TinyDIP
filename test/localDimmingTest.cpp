@@ -121,9 +121,10 @@ static auto gamma_table_generator(
     {
         std::vector<int> gamma_node = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256};
         std::vector<int> gamma_value;
+        gamma_value.resize(std::ranges::size(gamma_node));
         for (std::size_t i = 0; i < std::ranges::size(gamma_node); ++i)
         {
-            gamma_value = std::round(
+            gamma_value[i] = std::round(
                 std::pow(static_cast<FloatingType>(gamma_node[i]) / static_cast<FloatingType>(input_maximum), gamma) * 
                 (std::pow(static_cast<FloatingType>(2.0), static_cast<FloatingType>(output_bits)) - 1)
             );
