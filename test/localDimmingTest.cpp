@@ -303,7 +303,7 @@ static auto localDimmingTest(
     auto real_size_PWM_image = get_real_size_PWM_image(
         std::forward<ExecutionPolicy>(policy),
         input_img,
-        gamma
+        gamma,
         18,
         32,
         static_cast<std::size_t>(0),
