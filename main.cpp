@@ -1578,7 +1578,7 @@ namespace handlers
     {
         auto transform_handler = make_meta_transform_handler<2>(
                 getPlane_channel_description(channel_index), 
-                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+                [&](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
                 {
                     if (!std::ranges::empty(policy_str))
                     {
@@ -1589,7 +1589,7 @@ namespace handlers
                         os << "Extracting channel " << std::to_string(channel_index) << " of " << filtered_args[0] << "...\n";
                     }
 
-                    return [policy_str, &os]<typename ImageType>(ImageType&& img) -> std::any
+                    return [policy_str, &os, channel_index]<typename ImageType>(ImageType&& img) -> std::any
                     {
                         auto exec_default = [&]() -> std::any
                         {
