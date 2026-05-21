@@ -274,12 +274,16 @@ static auto get_real_size_PWM_image(
 }
 
 //  localDimmingTest Template Function Implementation
-template<class ExecutionPolicy>
+template<
+    class ExecutionPolicy,
+    TinyDIP::arithmetic FloatingType = double
+>
 requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
 static auto localDimmingTest(
     ExecutionPolicy&& policy,
     const std::filesystem::path& input_path,
     const std::string_view output_path,
+    const FloatingType gamma,
     const int output_scale_x,
     const int output_scale_y,
     const std::string_view local_dimming_mode = "adaptive_blending"
@@ -299,6 +303,7 @@ static auto localDimmingTest(
     auto real_size_PWM_image = get_real_size_PWM_image(
         std::forward<ExecutionPolicy>(policy),
         input_img,
+        gamma
         18,
         32,
         static_cast<std::size_t>(0),
