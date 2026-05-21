@@ -2678,6 +2678,12 @@ int main(int argc, char* argv[])
         CommandBundle{"dct2", "Calculate Discrete Cosine Transformation for an image.", TransformerSchema, 
             handlers::dct2
         },
+        CommandBundle{"getBplane", "Extract the Blue plane (channel 2) from a multi-channel image.", TransformerSchema,
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::getPlane(workspace, args, os, 2);
+            }
+        },
         CommandBundle{"grid", "Generate a grid image.", GeneratorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
