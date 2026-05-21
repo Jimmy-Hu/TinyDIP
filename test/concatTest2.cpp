@@ -24,7 +24,7 @@ static auto concatHorizontalTest2(
     ExecutionPolicy&& policy,
     const std::filesystem::path& input_path1,
     const std::filesystem::path& input_path2,
-    const std::filesystem::path& output_path = "concatTest2Output"
+    const std::filesystem::path& output_path = "concatHorizontalTest2Output"
 )
 {
     TinyDIP::Image<TinyDIP::RGB> input_image1(0, 0);
