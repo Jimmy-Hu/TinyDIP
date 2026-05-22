@@ -1785,7 +1785,7 @@ namespace handlers
                     {
                         using DecayedDataT = std::remove_cvref_t<DataT>;
 
-                        if constexpr (is_bool_data_v<DecayedDataT>)
+                        if constexpr (TinyDIP::is_bool_data_v<DecayedDataT>)
                         {
                             throw std::invalid_argument("Input data type (bool) does not support hsv2rgb conversion.");
                             return std::any{};
