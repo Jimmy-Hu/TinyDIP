@@ -2684,6 +2684,12 @@ int main(int argc, char* argv[])
                 handlers::getPlane(workspace, args, os, 2);
             }
         },
+        CommandBundle{"getGplane", "Extract the Green plane (channel 1) from a multi-channel image.", TransformerSchema,
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::getPlane(workspace, args, os, 1);
+            }
+        },
         CommandBundle{"grid", "Generate a grid image.", GeneratorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
