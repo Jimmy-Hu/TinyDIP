@@ -2831,6 +2831,9 @@ int main(int argc, char* argv[])
                 handlers::grid_generator(workspace, args, os);
             }
         },
+        CommandBundle{"hsv2rgb", "Convert an HSV image or container to RGB color space.", TransformerSchema,
+            handlers::hsv2rgb
+        },
         CommandBundle{"info", "Display basic information about an image.", TerminatorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
