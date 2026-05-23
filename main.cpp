@@ -1307,14 +1307,12 @@ namespace handlers
                 const std::size_t width = parse_arg<std::size_t>(filtered_args[2]);
                 const std::size_t height = parse_arg<std::size_t>(filtered_args[3]);
 
+                os << "Resizing " << filtered_args[0] << " to " << width << "x" << height;
                 if (!std::ranges::empty(policy_str))
                 {
-                    os << "Resizing " << filtered_args[0] << " to " << width << "x" << height << " (Policy: " << policy_str << ")...\n";
+                    os << " (Policy: " << policy_str << ")";
                 }
-                else
-                {
-                    os << "Resizing " << filtered_args[0] << " to " << width << "x" << height << "...\n";
-                }
+                os << "...\n";
 
                 return [width, height, policy_str, &os]<typename ImageType>(ImageType && img) -> std::any
                 {
