@@ -1414,7 +1414,7 @@ namespace handlers
                          !std::same_as<std::remove_cvref_t<ImgB>, TinyDIP::Image<unsigned char>>)
                         )
                     {
-                        throw std::invalid_argument("R plane image must be 8-bit unsigned integer type.");
+                        throw std::invalid_argument("R / G / B plane image must be 8-bit unsigned integer type.");
                     }
                     else
                     {
