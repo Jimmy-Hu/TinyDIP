@@ -2612,12 +2612,12 @@ namespace handlers
                     {
                         using DecayedDataT = std::remove_cvref_t<DataT>;
 
-                        if constexpr (is_bool_data_v<DecayedDataT>)
+                        if constexpr (TinyDIP::is_bool_data_v<DecayedDataT>)
                         {
                             throw std::invalid_argument("Input data type (bool) does not support to_complex conversion.");
                             return std::any{};
                         }
-                        else if constexpr (is_complex_data_v<DecayedDataT>)
+                        else if constexpr (TinyDIP::is_complex_data_v<DecayedDataT>)
                         {
                             // The complex value of an already complex type is simply the exact same value!
                             // Returning the forwarded data natively bypasses the C++ standard library's 
