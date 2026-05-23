@@ -1389,14 +1389,12 @@ namespace handlers
         const std::string_view b_arg = filtered_args[2];
         const std::string_view output_arg = filtered_args[3];
 
+        os << "Constructing RGB image from " << r_arg << ", " << g_arg << ", " << b_arg;
         if (!std::ranges::empty(policy_str))
         {
-            os << "Constructing RGB image from " << r_arg << ", " << g_arg << ", " << b_arg << " (Policy: " << policy_str << ")...\n";
+            os << " (Policy: " << policy_str << ")";
         }
-        else
-        {
-            os << "Constructing RGB image from " << r_arg << ", " << g_arg << ", " << b_arg << "...\n";
-        }
+        os << "...\n";
 
         // Restrict allowed types to strictly 8-bit unsigned integers to mathematically prevent template combinatorial explosions
         using AllowedTypes = std::tuple<TinyDIP::Image<std::uint8_t>, TinyDIP::Image<unsigned char>>;
