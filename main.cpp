@@ -1762,14 +1762,12 @@ namespace handlers
                 "hsv2rgb [execution_policy] <input_data | $var> <output_var | $var>", 
                 [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
                 {
+                    os << "Converting " << filtered_args[0] << " to RGB";
                     if (!std::ranges::empty(policy_str))
                     {
-                        os << "Converting " << filtered_args[0] << " to RGB (Policy: " << policy_str << ")...\n";
+                        os << " (Policy: " << policy_str << ")";
                     }
-                    else
-                    {
-                        os << "Converting " << filtered_args[0] << " to RGB...\n";
-                    }
+                    os << "...\n";
 
                     return [policy_str, &os]<typename DataT>(DataT&& data) -> std::any
                     {
