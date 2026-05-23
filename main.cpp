@@ -3010,6 +3010,9 @@ int main(int argc, char* argv[])
         CommandBundle{"idct2", "Calculate Inverse Discrete Cosine Transformation for an image.", TransformerSchema,
             handlers::idct2 
         },
+        CommandBundle{"im2double", "Convert an image or container to double precision floating-point.", TransformerSchema,
+            handlers::im2double
+        },
         CommandBundle{"info", "Display basic information about an image.", TerminatorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
