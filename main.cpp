@@ -1205,14 +1205,12 @@ namespace handlers
             "abs [execution_policy] <input_data | $var> <output_var | $var>",
             [](std::span<const std::string_view> filtered_args, const std::string_view policy_str, std::ostream& os)
             {
+                os << "Calculating abs of " << filtered_args[0];
                 if (!std::ranges::empty(policy_str))
                 {
-                    os << "Calculating abs of " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                    os << " (Policy: " << policy_str << ")";
                 }
-                else
-                {
-                    os << "Calculating abs of " << filtered_args[0] << "...\n";
-                }
+                os << "...\n";
 
                 return [policy_str, &os]<typename DataT>(DataT&& data) -> std::any
                 {
