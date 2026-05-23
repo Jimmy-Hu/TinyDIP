@@ -1572,14 +1572,12 @@ namespace handlers
                 getPlane_channel_description(channel_index), 
                 [&](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
                 {
+                    os << "Extracting channel " << std::to_string(channel_index) << " of " << filtered_args[0];
                     if (!std::ranges::empty(policy_str))
                     {
-                        os << "Extracting channel " << std::to_string(channel_index) << " of " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                        os << " (Policy: " << policy_str << ")";
                     }
-                    else
-                    {
-                        os << "Extracting channel " << std::to_string(channel_index) << " of " << filtered_args[0] << "...\n";
-                    }
+                    os << "...\n";
 
                     return [policy_str, &os, channel_index]<typename ImageType>(ImageType&& img) -> std::any
                     {
