@@ -1889,14 +1889,12 @@ namespace handlers
                 "idct2 [execution_policy] <input_img | $var> <output_img | $var>", 
                 [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
                 {
+                    os << "Calculating Inverse DCT-2 for " << filtered_args[0];
                     if (!std::ranges::empty(policy_str))
                     {
-                        os << "Calculating Inverse DCT-2 for " << filtered_args[0] << " (Policy: " << policy_str << ")...\n";
+                        os << " (Policy: " << policy_str << ")";
                     }
-                    else
-                    {
-                        os << "Calculating Inverse DCT-2 for " << filtered_args[0] << "...\n";
-                    }
+                    os << "...\n";
 
                     return [policy_str, &os]<typename ImageType>(ImageType&& img) -> std::any
                     {
