@@ -1939,14 +1939,12 @@ namespace handlers
                 "im2double [execution_policy] <input_data | $var> <output_var | $var>", 
                 [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
                 {
+                    os << "Converting " << filtered_args[0] << " to double";
                     if (!std::ranges::empty(policy_str))
                     {
-                        os << "Converting " << filtered_args[0] << " to double (Policy: " << policy_str << ")...\n";
+                        os << " (Policy: " << policy_str << ")";
                     }
-                    else
-                    {
-                        os << "Converting " << filtered_args[0] << " to double...\n";
-                    }
+                    os << "...\n";
 
                     return [policy_str, &os]<typename DataT>(DataT&& data) -> std::any
                     {
