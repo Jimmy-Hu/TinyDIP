@@ -3317,6 +3317,9 @@ int main(int argc, char* argv[])
                 handlers::info(workspace, args, os);
             }
         },
+        CommandBundle{"lanczos_resample", "Resize an image using Lanczos resampling.", TransformerSchema,
+            handlers::lanczos_resample
+        },
         CommandBundle{"print", "Print the contents of a memory variable.", TerminatorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
