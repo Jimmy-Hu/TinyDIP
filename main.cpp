@@ -1048,7 +1048,13 @@ constexpr auto make_meta_transform_handler(std::string_view usage, SetupFun&& se
 
 //  MetaScalarHandler template struct implementation
 //  Generic Meta Handler strictly refactoring scalar reduction commands like max, min, and sum
-template <std::size_t MinArgs, typename SetupFun, typename CheckingTypes = master_data_types>
+template <
+    std::size_t MinArgs,
+    typename SetupFun,
+    typename ArgsContainer = std::vector<std::string_view>,
+    typename CheckingTypes = master_data_types
+>
+requires(std::invocable<SetupFun, const ArgsContainer&, const std::string_view, std::ostream&>)
 struct MetaScalarHandler
 {
     std::string_view usage_string_;
@@ -1063,7 +1069,7 @@ struct MetaScalarHandler
     constexpr void operator()(Workspace& workspace, std::span<const std::string_view> args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}) const
     {
         std::string_view policy_str = "";
-        std::vector<std::string_view> filtered_args;
+        ArgsContainer filtered_args;
         filtered_args.reserve(std::ranges::size(args));
 
         for (const auto& arg : args)
