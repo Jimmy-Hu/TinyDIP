@@ -2383,6 +2383,64 @@ namespace handlers
         transform_handler(workspace, args, os);
     }
 
+    //  min function implementation
+    constexpr void min(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout
+    )
+    {
+        auto transform_handler = make_meta_scalar_handler<1>(
+            "min <input_data | $var> [output_var | $var]", 
+            "min", "Min", 
+            [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+            {
+                if (!std::ranges::empty(policy_str))
+                {
+                    os << "Warning: Execution policy '" << policy_str << "' is ignored for 'min'.\n";
+                }
+                os << "Calculating min of " << filtered_args[0] << "...\n";
+
+                return []<typename DataT>(DataT&& data) -> std::any
+                {
+                    using DecayedDataT = std::remove_cvref_t<DataT>;
+                    
+                    if constexpr (is_complex_data_v<DecayedDataT>)
+                    {
+                        throw std::invalid_argument("Input data type (complex) does not support min (elements are not comparable).");
+                        return std::any{};
+                    }
+                    else if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
+                    {
+                        if constexpr (requires { TinyDIP::min(std::forward<DataT>(data)); })
+                        {
+                            return TinyDIP::min(std::forward<DataT>(data));
+                        }
+                        else
+                        {
+                            throw std::invalid_argument("Input image type does not support min.");
+                            return std::any{};
+                        }
+                    }
+                    else
+                    {
+                        if constexpr (requires { std::ranges::min(std::forward<DataT>(data)); })
+                        {
+                            return std::ranges::min(std::forward<DataT>(data));
+                        }
+                        else
+                        {
+                            throw std::invalid_argument("Input container type does not support min (elements are not comparable).");
+                            return std::any{};
+                        }
+                    }
+                };
+            }
+        );
+
+        transform_handler(workspace, args, os);
+    }
+
     //  print template function implementation
     template <
         typename ImageLoaderFun = MetaImageIO::Loader
