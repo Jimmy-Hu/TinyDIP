@@ -2405,7 +2405,7 @@ namespace handlers
                 {
                     using DecayedDataT = std::remove_cvref_t<DataT>;
                     
-                    if constexpr (is_complex_data_v<DecayedDataT>)
+                    if constexpr (TinyDIP::is_complex_data_v<DecayedDataT>)
                     {
                         throw std::invalid_argument("Input data type (complex) does not support min (elements are not comparable).");
                         return std::any{};
