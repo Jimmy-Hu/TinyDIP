@@ -3445,6 +3445,9 @@ int main(int argc, char* argv[])
         CommandBundle{"max", "Calculate the maximum value of an image or container.", TransformerSchema,
             handlers::max
         },
+        CommandBundle{"min", "Calculate the minimum value of an image or container.", TransformerSchema,
+            handlers::min
+        },
         CommandBundle{"print", "Print the contents of a memory variable.", TerminatorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
