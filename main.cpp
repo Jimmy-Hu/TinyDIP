@@ -3603,6 +3603,9 @@ int main(int argc, char* argv[])
         CommandBundle{"min", "Calculate the minimum value of an image or container.", TransformerSchema,
             handlers::min
         },
+        CommandBundle{ "multiply", "Multiply an image or container by a scalar.", TransformerSchema,
+            handlers::multiply
+        },
         CommandBundle{"print", "Print the contents of a memory variable.", TerminatorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
