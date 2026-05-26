@@ -3685,6 +3685,9 @@ int main(int argc, char* argv[])
         },
         CommandBundle{"remove", "Remove memory variables from the workspace (or 'all' to clear).", IndependentSchema, handlers::remove },
         CommandBundle{"rename", "Rename a memory variable in the workspace.", IndependentSchema, handlers::rename },
+        CommandBundle{"rotate", "Rotate an image using shear transformations.", TransformerSchema,
+            handlers::rotate
+        },
         CommandBundle{"to_complex", "Convert an image or container to a complex number format.", TransformerSchema,
             handlers::to_complex
         },
