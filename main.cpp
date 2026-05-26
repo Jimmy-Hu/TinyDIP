@@ -2441,6 +2441,161 @@ namespace handlers
         transform_handler(workspace, args, os);
     }
 
+	//  multiply function implementation
+    constexpr void multiply(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout)
+    {
+        auto transform_handler = make_meta_transform_handler<3, master_data_types>(
+            "multiply [execution_policy] <input_data | $var> <output_var | $var> <scalar>", 
+            [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+            {
+                const double scalar_val = parse_arg<double>(filtered_args[2]);
+
+                os << "Multiplying " << filtered_args[0] << " by " << scalar_val;
+                if (!std::ranges::empty(policy_str))
+                {
+                    os << " (Policy: " << policy_str << ")";
+                }
+                os << "...\n";
+
+                return [scalar_val, policy_str, &os]<typename DataT>(DataT&& data) -> std::any
+                {
+                    using DecayedDataT = std::remove_cvref_t<DataT>;
+
+                    auto mult_op = [scalar_val](auto&& element)
+                    {
+                        using ValT = std::remove_cvref_t<decltype(element)>;
+                        if constexpr (std::is_integral_v<ValT>)
+                        {
+                            return static_cast<ValT>(std::clamp(
+                                static_cast<double>(element) * scalar_val,
+                                static_cast<double>(std::numeric_limits<ValT>::lowest()),
+                                static_cast<double>(std::numeric_limits<ValT>::max())
+                            ));
+                        }
+                        else if constexpr (std::is_floating_point_v<ValT>)
+                        {
+                            return static_cast<ValT>(element * static_cast<ValT>(scalar_val));
+                        }
+                        else if constexpr (TinyDIP::is_complex_data_v<ValT>)
+                        {
+                            using S = TinyDIP::get_deep_scalar_t<ValT>;
+                            if constexpr (requires { element * static_cast<S>(scalar_val); })
+                            {
+                                return static_cast<ValT>(element * static_cast<S>(scalar_val));
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Input element type does not support scalar multiplication.");
+                                return ValT{};
+                            }
+                        }
+                        else if constexpr (requires { std::forward<decltype(element)>(element) * scalar_val; })
+                        {
+                            // Provide support for natively overloaded structures like RGB
+                            return std::forward<decltype(element)>(element) * scalar_val;
+                        }
+                        else
+                        {
+                            throw std::invalid_argument("Input element type does not support scalar multiplication.");
+                            return ValT{};
+                        }
+                    };
+
+                    auto exec_default = [&]() -> std::any
+                    {
+                        if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
+                        {
+                            // Short-circuit evaluation: Place !is_bool_data_v and !is_complex_data_v on the left side of && to prevent
+                            // SFINAE hard errors when instantiating unsupported native functions with boolean or complex channels!
+                            if constexpr (!TinyDIP::is_bool_data_v<DecayedDataT> && !TinyDIP::is_complex_data_v<DecayedDataT> && requires { TinyDIP::multiplies(std::forward<DataT>(data), scalar_val); })
+                            {
+                                return TinyDIP::multiplies(std::forward<DataT>(data), scalar_val);
+                            }
+                            else if constexpr (!TinyDIP::is_bool_data_v<DecayedDataT> && !TinyDIP::is_complex_data_v<DecayedDataT> && requires { std::forward<DataT>(data) * scalar_val; })
+                            {
+                                return std::forward<DataT>(data) * scalar_val;
+                            }
+                            else if constexpr (requires { TinyDIP::pixelwise_transform(mult_op, std::forward<DataT>(data)); })
+                            {
+                                return TinyDIP::pixelwise_transform(mult_op, std::forward<DataT>(data));
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Input image type does not support scalar multiplication.");
+                                return std::any{};
+                            }
+                        }
+                        else if constexpr (std::ranges::input_range<DecayedDataT> &&
+                            requires { TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(mult_op, std::forward<DataT>(data)); })
+                        {
+                            return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                mult_op,
+                                std::forward<DataT>(data)
+                            );
+                        }
+                        else if constexpr (std::is_invocable_v<decltype(mult_op), DataT>)
+                        {
+                            return mult_op(std::forward<DataT>(data));
+                        }
+                        else
+                        {
+                            throw std::invalid_argument("Input data type does not support scalar multiplication.");
+                            return std::any{};
+                        }
+                    };
+
+                    auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                        requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                    {
+                        if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
+                        {
+                            if constexpr (!TinyDIP::is_bool_data_v<DecayedDataT> && !TinyDIP::is_complex_data_v<DecayedDataT> && requires { TinyDIP::multiplies(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), scalar_val); })
+                            {
+                                return TinyDIP::multiplies(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), scalar_val);
+                            }
+                            else if constexpr (requires { TinyDIP::pixelwise_transform(std::forward<ExecPolicy>(exec_policy), mult_op, std::forward<DataT>(data)); })
+                            {
+                                return TinyDIP::pixelwise_transform(std::forward<ExecPolicy>(exec_policy), mult_op, std::forward<DataT>(data));
+                            }
+                            else
+                            {
+                                if (!std::ranges::empty(policy_str))
+                                {
+                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                }
+                                return exec_default();
+                            }
+                        }
+                        else if constexpr (std::ranges::input_range<DecayedDataT> &&
+                            requires { TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(std::forward<ExecPolicy>(exec_policy), mult_op, std::forward<DataT>(data)); })
+                        {
+                            return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
+                                std::forward<ExecPolicy>(exec_policy),
+                                mult_op,
+                                std::forward<DataT>(data)
+                            );
+                        }
+                        else
+                        {
+                            if (!std::ranges::empty(policy_str))
+                            {
+                                os << "Warning: Execution policy requested but not supported for this data type/operation. Falling back to default.\n";
+                            }
+                            return exec_default();
+                        }
+                    };
+
+                    return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                };
+            }
+        );
+
+        transform_handler(workspace, args, os);
+    }
+
     //  print template function implementation
     template <
         typename ImageLoaderFun = MetaImageIO::Loader
