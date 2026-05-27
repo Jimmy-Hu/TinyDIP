@@ -3688,6 +3688,9 @@ int main(int argc, char* argv[])
         CommandBundle{"rotate", "Rotate an image using shear transformations.", TransformerSchema,
             handlers::rotate
         },
+        CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IndependentSchema,
+            handlers::save_workspace
+        },
         CommandBundle{"to_complex", "Convert an image or container to a complex number format.", TransformerSchema,
             handlers::to_complex
         },
