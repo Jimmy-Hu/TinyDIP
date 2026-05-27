@@ -3788,6 +3788,9 @@ int main(int argc, char* argv[])
         CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IndependentSchema,
             handlers::save_workspace
         },
+        CommandBundle{"sum", "Calculate the sum of all elements in an image or container.", TransformerSchema,
+            handlers::sum
+        },
         CommandBundle{"to_complex", "Convert an image or container to a complex number format.", TransformerSchema,
             handlers::to_complex
         },
