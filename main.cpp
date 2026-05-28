@@ -3151,6 +3151,89 @@ namespace handlers
         os << "Workspace saved successfully.\n";
     }
 
+    //  subimage function implementation
+    constexpr void subimage(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout)
+    {
+        auto transform_handler = make_meta_transform_handler<6>(
+            "subimage [execution_policy] <input_img | $var> <output_img | $var> <x_offset> <y_offset> <width> <height>", 
+            [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+            {
+                const std::size_t x_offset = parse_arg<std::size_t>(filtered_args[2]);
+                const std::size_t y_offset = parse_arg<std::size_t>(filtered_args[3]);
+                const std::size_t sub_width = parse_arg<std::size_t>(filtered_args[4]);
+                const std::size_t sub_height = parse_arg<std::size_t>(filtered_args[5]);
+
+                os << "Extracting subimage from " << filtered_args[0] << " at (" << x_offset << ", " << y_offset 
+                   << ") with size " << sub_width << "x" << sub_height;
+                if (!std::ranges::empty(policy_str))
+                {
+                    os << " (Policy: " << policy_str << ")";
+                }
+                os << "...\n";
+
+                return [x_offset, y_offset, sub_width, sub_height, policy_str, &os]<typename ImageType>(ImageType&& img) -> std::any
+                {
+                    using DecayedT = std::remove_cvref_t<ImageType>;
+
+                    // Mathematically guarantee the type is a 2D matrix/image
+                    if constexpr (requires { img.getWidth(); img.getHeight(); img.at(0, 0); })
+                    {
+                        if (x_offset + sub_width > img.getWidth() || y_offset + sub_height > img.getHeight())
+                        {
+                            throw std::out_of_range("Subimage bounds exceed original image dimensions.");
+                            return std::any{};
+                        }
+
+                        auto exec_default = [&]() -> std::any
+                        {
+                            DecayedT out_img(sub_width, sub_height);
+                            for (std::size_t y = 0; y < sub_height; ++y)
+                            {
+                                for (std::size_t x = 0; x < sub_width; ++x)
+                                {
+                                    out_img.at(x, y) = img.at(x + x_offset, y + y_offset);
+                                }
+                            }
+                            return out_img;
+                        };
+
+                        auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                            requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                        {
+                            DecayedT out_img(sub_width, sub_height);
+                            auto indices = std::views::iota(std::size_t{0}, sub_width * sub_height);
+                            
+                            std::for_each(
+                                std::forward<ExecPolicy>(exec_policy),
+                                std::ranges::begin(indices),
+                                std::ranges::end(indices),
+                                [&](const std::size_t idx)
+                                {
+                                    const std::size_t y = idx / sub_width;
+                                    const std::size_t x = idx % sub_width;
+                                    out_img.at(x, y) = img.at(x + x_offset, y + y_offset);
+                                }
+                            );
+                            return out_img;
+                        };
+
+                        return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                    }
+                    else
+                    {
+                        throw std::invalid_argument("Input type does not support subimage extraction.");
+                        return std::any{};
+                    }
+                };
+            }
+        );
+
+        transform_handler(workspace, args, os);
+    }
+
     //  sum function implementation
     constexpr void sum(
         Workspace& workspace,
