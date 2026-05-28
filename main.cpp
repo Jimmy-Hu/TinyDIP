@@ -3890,6 +3890,12 @@ int main(int argc, char* argv[])
             {
                 handlers::write(workspace, args, os);
             }
+        },
+        CommandBundle{"zeros", "Generate an image filled with zeros.", GeneratorSchema, 
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::zeros(workspace, args, os);
+            }
         }
     );
 
