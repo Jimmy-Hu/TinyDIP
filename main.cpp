@@ -3846,6 +3846,12 @@ int main(int argc, char* argv[])
         CommandBundle{ "multiply", "Multiply an image or container by a scalar.", TransformerSchema,
             handlers::multiply
         },
+        CommandBundle{"ones", "Generate an image filled with ones.", GeneratorSchema, 
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::ones(workspace, args, os);
+            }
+        },
         CommandBundle{"print", "Print the contents of a memory variable.", TerminatorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
