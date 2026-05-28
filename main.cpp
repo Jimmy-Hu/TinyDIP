@@ -3961,6 +3961,9 @@ int main(int argc, char* argv[])
         CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IndependentSchema,
             handlers::save_workspace
         },
+        CommandBundle{"subimage", "Extract a sub-region from an image.", TransformerSchema,
+            handlers::subimage
+        },
         CommandBundle{"sum", "Calculate the sum of all elements in an image or container.", TransformerSchema,
             handlers::sum
         },
