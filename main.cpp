@@ -3439,6 +3439,21 @@ namespace handlers
 
         os << "Done.\n";
     }
+
+    //  zeros template function implementation
+    template <
+        std::invocable<const std::string_view, Workspace&, TinyDIP::Image<double>&&> ImageSaverFun = MetaImageIO::Saver
+    >
+    constexpr void zeros(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout,
+        ImageSaverFun&& image_saver_fun = ImageSaverFun{})
+    {
+        create_image_with_initial_value(
+            workspace, args, 0.0, "zeros", os, std::forward<ImageSaverFun>(image_saver_fun)
+        );
+    }
 }
 
 //  run_legacy_tests function implementation
