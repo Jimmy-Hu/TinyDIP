@@ -6167,7 +6167,8 @@ namespace TinyDIP
             // Safely deduce the exact returned multi-channel image type directly
             auto deduce_type_lambda = [&](auto&& each_plane) 
             {
-                return difference_of_gaussian(each_plane, initial_sigma, initial_sigma);
+                // Force floating-point precision on the plane before DoG evaluation
+                return TinyDIP::difference_of_gaussian(TinyDIP::im2double(each_plane), initial_sigma, initial_sigma);
             };
             using MultiChannelDiffT = decltype(apply_each(input, deduce_type_lambda));
 
@@ -6184,10 +6185,11 @@ namespace TinyDIP
             #pragma omp parallel for
             for (int i = 0; i < static_cast<int>(number_of_scale_levels) - 1; ++i)
             {
-                octaves[i] = apply_each(input, [&](auto&& each_plane)
+                // Safely capture 'i' by value and the rest by reference to prevent race conditions
+                octaves[i] = apply_each(input, [&, i](auto&& each_plane)
                 {
-                    return difference_of_gaussian(
-                        each_plane,
+                    return TinyDIP::difference_of_gaussian(
+                        TinyDIP::im2double(each_plane),
                         initial_sigma * std::pow(k, static_cast<double>(i)),
                         initial_sigma * std::pow(k, static_cast<double>(i + 1))
                     );
