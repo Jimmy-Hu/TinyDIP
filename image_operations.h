@@ -6131,7 +6131,10 @@ namespace TinyDIP
 
         //  generate_octave template function implementation
         template<typename ElementT, typename SigmaT = double>
-        requires(std::floating_point<SigmaT> || std::integral<SigmaT>)
+        requires((std::floating_point<SigmaT> || std::integral<SigmaT>) and
+                 (!is_bool_data_v<ElementT>) and
+                 (!is_complex_data_v<ElementT>)
+        )
         static auto generate_octave(
             const Image<ElementT>& input,
             std::size_t number_of_scale_levels = 5,
