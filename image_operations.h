@@ -6167,8 +6167,16 @@ namespace TinyDIP
             // Safely deduce the exact returned multi-channel image type directly
             auto deduce_type_lambda = [&](auto&& each_plane) 
             {
-                // Force floating-point precision on the plane before DoG evaluation
-                return TinyDIP::difference_of_gaussian(TinyDIP::im2double(each_plane), initial_sigma, initial_sigma);
+                using ScalarT = get_deep_scalar_t<std::remove_cvref_t<decltype(each_plane)>>;
+                if constexpr (std::same_as<ScalarT, double>)
+                {
+                    return TinyDIP::difference_of_gaussian(each_plane, initial_sigma, initial_sigma);
+                }
+                else
+                {
+                    // Force floating-point precision on the plane before DoG evaluation
+                    return TinyDIP::difference_of_gaussian(TinyDIP::im2double(each_plane), initial_sigma, initial_sigma);
+                }
             };
             using MultiChannelDiffT = decltype(apply_each(input, deduce_type_lambda));
 
@@ -6188,11 +6196,26 @@ namespace TinyDIP
                 // Safely capture 'i' by value and the rest by reference to prevent race conditions
                 octaves[i] = apply_each(input, [&, i](auto&& each_plane)
                 {
-                    return TinyDIP::difference_of_gaussian(
-                        TinyDIP::im2double(each_plane),
-                        initial_sigma * std::pow(k, static_cast<double>(i)),
-                        initial_sigma * std::pow(k, static_cast<double>(i + 1))
-                    );
+                    using ScalarT = get_deep_scalar_t<std::remove_cvref_t<decltype(each_plane)>>;
+                    const double sig1 = initial_sigma * std::pow(k, static_cast<double>(i));
+                    const double sig2 = initial_sigma * std::pow(k, static_cast<double>(i + 1));
+                
+                    if constexpr (std::same_as<ScalarT, double>)
+                    {
+                        return TinyDIP::difference_of_gaussian(
+                            each_plane,
+                            sig1,
+                            sig2
+                        );
+                    }
+                    else
+                    {
+                        return TinyDIP::difference_of_gaussian(
+                            TinyDIP::im2double(each_plane),
+                            sig1,
+                            sig2
+                        );
+                    }
                 });
             }
 
