@@ -4013,6 +4013,12 @@ int main(int argc, char* argv[])
         CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IndependentSchema,
             handlers::save_workspace
         },
+        CommandBundle{"sift_generate_octave", "Generate a SIFT octave (Difference of Gaussian images).", TransformerSchema, 
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::sift_generate_octave(workspace, args, os);
+            }
+        },
         CommandBundle{"subimage", "Extract a sub-region from an image.", TransformerSchema,
             handlers::subimage
         },
