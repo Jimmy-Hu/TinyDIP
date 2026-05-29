@@ -6170,12 +6170,12 @@ namespace TinyDIP
                 using ScalarT = get_deep_scalar_t<std::remove_cvref_t<decltype(each_plane)>>;
                 if constexpr (std::same_as<ScalarT, double>)
                 {
-                    return TinyDIP::difference_of_gaussian(each_plane, initial_sigma, initial_sigma);
+                    return TinyDIP::difference_of_gaussian(std::forward<decltype(each_plane)>(each_plane), initial_sigma, initial_sigma);
                 }
-                else
+                else if constexpr (requires { TinyDIP::im2double(std::forward<decltype(each_plane)>(each_plane)); })
                 {
                     // Force floating-point precision on the plane before DoG evaluation
-                    return TinyDIP::difference_of_gaussian(TinyDIP::im2double(each_plane), initial_sigma, initial_sigma);
+                    return TinyDIP::difference_of_gaussian(TinyDIP::im2double(std::forward<decltype(each_plane)>(each_plane)), initial_sigma, initial_sigma);
                 }
             };
             using MultiChannelDiffT = decltype(apply_each(input, deduce_type_lambda));
