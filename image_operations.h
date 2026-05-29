@@ -6138,7 +6138,12 @@ namespace TinyDIP
             SigmaT initial_sigma = 1.6,
             double k = std::numbers::sqrt2_v<double>)
         {
-            std::vector<Image<ElementT>> difference_of_gaussian_images;
+            using DiffImageT = decltype(difference_of_gaussian(input, initial_sigma, initial_sigma));
+            std::vector<DiffImageT> difference_of_gaussian_images;
+            if (number_of_scale_levels < 2)
+            {
+                return difference_of_gaussian_images;
+            }
             difference_of_gaussian_images.resize(number_of_scale_levels - 1);
             #pragma omp parallel for
             for (int index = 0; index < number_of_scale_levels - 1; ++index)
