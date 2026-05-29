@@ -3297,13 +3297,9 @@ namespace handlers
             return;
         }
 
-        const std::size_t octaves = (std::ranges::size(args) > 2) ? parse_arg<std::size_t>(args[2]) : 4;
-        const std::size_t levels = (std::ranges::size(args) > 3) ? parse_arg<std::size_t>(args[3]) : 5;
-        const double sigma = (std::ranges::size(args) > 4) ? parse_arg<double>(args[4]) : 1.6;
-        const double k = (std::ranges::size(args) > 5) ? parse_arg<double>(args[5]) : std::numbers::sqrt2_v<double>;
-        const double contrast = (std::ranges::size(args) > 6) ? parse_arg<double>(args[6]) : 8.0;
-        const double edge = (std::ranges::size(args) > 7) ? parse_arg<double>(args[7]) : 12.1;
-        const std::string_view resample_str = (std::ranges::size(args) > 8) ? args[8] : "bicubic";
+        const std::size_t levels = (std::ranges::size(args) > 2) ? parse_arg<std::size_t>(args[2]) : 5;
+        const double initial_sigma = (std::ranges::size(args) > 3) ? parse_arg<double>(args[3]) : 1.6;
+        const double k = (std::ranges::size(args) > 4) ? parse_arg<double>(args[4]) : std::numbers::sqrt2_v<double>;
 
         os << "Generating SIFT octave from " << input_arg << " with " << levels << " levels...\n";
 
