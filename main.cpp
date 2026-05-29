@@ -3151,6 +3151,58 @@ namespace handlers
         os << "Workspace saved successfully.\n";
     }
 
+    //  sift_generate_octave template function implementation
+    template <
+        typename ImageLoaderFun = MetaImageIO::Loader
+    >
+    requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
+    constexpr void sift_generate_octave(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout,
+        ImageLoaderFun&& image_loader_fun = ImageLoaderFun{})
+    {
+        if (std::ranges::size(args) < 2)
+        {
+            os << "Usage: sift_generate_octave <input_img | $var> <output_var | $var> [levels=5] [initial_sigma=1.6] [k=1.414]\n";
+            return;
+        }
+
+        const std::string_view input_arg = args[0];
+        const std::string_view output_arg = args[1];
+
+        if (!output_arg.starts_with('$'))
+        {
+            os << "Error: Output must be a memory variable starting with '$'.\n";
+            return;
+        }
+
+        const std::size_t levels = (std::ranges::size(args) > 2) ? parse_arg<std::size_t>(args[2]) : 5;
+        const double initial_sigma = (std::ranges::size(args) > 3) ? parse_arg<double>(args[3]) : 1.6;
+        const double k = (std::ranges::size(args) > 4) ? parse_arg<double>(args[4]) : std::numbers::sqrt2_v<double>;
+
+        os << "Generating SIFT octave from " << input_arg << " with " << levels << " levels...\n";
+
+        auto process_octave = [&]<typename ImageType>(ImageType&& input_img)
+        {
+            if constexpr (requires { TinyDIP::generate_octave(std::forward<ImageType>(input_img), levels, initial_sigma, k); })
+            {
+                auto result = TinyDIP::generate_octave(std::forward<ImageType>(input_img), levels, initial_sigma, k);
+                workspace.store(output_arg.substr(1), std::move(result));
+                os << "Saved SIFT octave to " << output_arg << ".\n";
+            }
+            else
+            {
+                os << "Error: Input image type does not support generate_octave.\n";
+            }
+        };
+
+        if (!dispatch_data_operation<master_image_types>(input_arg, workspace, image_loader_fun, process_octave))
+        {
+            os << "Error: Memory variable not found or unsupported type.\n";
+        }
+    }
+
     //  subimage function implementation
     constexpr void subimage(
         Workspace& workspace,
