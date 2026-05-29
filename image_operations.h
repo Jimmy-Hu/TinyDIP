@@ -6510,7 +6510,7 @@ namespace TinyDIP
             }
             return feature_vector;
         }
-    }
+    }                                   //  namespace SIFT_impl
 
     // A type alias for clarity
     using SiftDescriptor = std::vector<double>;
