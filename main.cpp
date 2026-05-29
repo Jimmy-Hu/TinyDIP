@@ -3185,9 +3185,9 @@ namespace handlers
 
         auto process_octave = [&]<typename ImageType>(ImageType&& input_img)
         {
-            if constexpr (requires { TinyDIP::generate_octave(std::forward<ImageType>(input_img), levels, initial_sigma, k); })
+            if constexpr (requires { TinyDIP::SIFT_impl::generate_octave(std::forward<ImageType>(input_img), levels, initial_sigma, k); })
             {
-                auto result = TinyDIP::generate_octave(std::forward<ImageType>(input_img), levels, initial_sigma, k);
+                auto result = TinyDIP::SIFT_impl::generate_octave(std::forward<ImageType>(input_img), levels, initial_sigma, k);
                 workspace.store(output_arg.substr(1), std::move(result));
                 os << "Saved SIFT octave to " << output_arg << ".\n";
             }
