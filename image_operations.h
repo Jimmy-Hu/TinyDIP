@@ -6159,7 +6159,9 @@ namespace TinyDIP
         //  generate_octave template function implementation (Multi-Channel Overload)
         template<typename ElementT, typename SigmaT = double>
         requires((std::floating_point<SigmaT> || std::integral<SigmaT>) and
-                 ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>) || (is_MultiChannel<ElementT>::value))
+                 ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>) || (is_MultiChannel<ElementT>::value)) and
+                 (!is_bool_data_v<ElementT>) and
+                 (!is_complex_data_v<ElementT>)
         )
         static auto generate_octave(
             const Image<ElementT>& input,
@@ -6179,6 +6181,11 @@ namespace TinyDIP
                 {
                     // Force floating-point precision on the plane before DoG evaluation
                     return TinyDIP::difference_of_gaussian(TinyDIP::im2double(std::forward<decltype(each_plane)>(each_plane)), initial_sigma, initial_sigma);
+                }
+                else
+                {
+                    // Compile-time firewall preventing cryptic void deduction errors on unsupported raw types
+                    static_assert(!std::same_as<ScalarT, ScalarT>, "The underlying channel type of the multi-channel image is not supported by difference_of_gaussian or im2double.");
                 }
             };
             using MultiChannelDiffT = decltype(apply_each(input, deduce_type_lambda));
@@ -6206,18 +6213,22 @@ namespace TinyDIP
                     if constexpr (std::same_as<ScalarT, double>)
                     {
                         return TinyDIP::difference_of_gaussian(
-                            each_plane,
+                            std::forward<decltype(each_plane)>(each_plane),
+                            sig1,
+                            sig2
+                        );
+                    }
+                    else if constexpr (requires { TinyDIP::im2double(std::forward<decltype(each_plane)>(each_plane)); })
+                    {
+                        return TinyDIP::difference_of_gaussian(
+                            TinyDIP::im2double(std::forward<decltype(each_plane)>(each_plane)),
                             sig1,
                             sig2
                         );
                     }
                     else
                     {
-                        return TinyDIP::difference_of_gaussian(
-                            TinyDIP::im2double(each_plane),
-                            sig1,
-                            sig2
-                        );
+                        static_assert(!std::same_as<ScalarT, ScalarT>, "The underlying channel type of the multi-channel image is not supported by difference_of_gaussian or im2double.");
                     }
                 });
             }
