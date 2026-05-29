@@ -6153,6 +6153,50 @@ namespace TinyDIP
             return difference_of_gaussian_images;
         }
 
+        //  generate_octave template function implementation (Multi-Channel Overload)
+        template<typename ElementT, typename SigmaT = double>
+        requires((std::floating_point<SigmaT> || std::integral<SigmaT>) and
+                 ((std::same_as<ElementT, RGB>) || (std::same_as<ElementT, RGB_DOUBLE>) || (std::same_as<ElementT, HSV>) || (is_MultiChannel<ElementT>::value))
+        )
+        static auto generate_octave(
+            const Image<ElementT>& input,
+            const std::size_t number_of_scale_levels = 5,
+            const SigmaT initial_sigma = 1.6,
+            const double k = std::numbers::sqrt2_v<double>)
+        {
+            // Safely deduce the exact returned multi-channel image type directly
+            auto deduce_type_lambda = [&](auto&& each_plane) 
+            {
+                return difference_of_gaussian(each_plane, initial_sigma, initial_sigma);
+            };
+            using MultiChannelDiffT = decltype(apply_each(input, deduce_type_lambda));
+
+            std::vector<MultiChannelDiffT> octaves;
+
+            if (number_of_scale_levels < 2)
+            {
+                return octaves;
+            }
+
+            // Resize the vector directly for thread-safe assignment in OpenMP
+            octaves.resize(number_of_scale_levels - 1);
+
+            #pragma omp parallel for
+            for (int i = 0; i < static_cast<int>(number_of_scale_levels) - 1; ++i)
+            {
+                octaves[i] = apply_each(input, [&](auto&& each_plane)
+                {
+                    return difference_of_gaussian(
+                        each_plane,
+                        initial_sigma * std::pow(k, static_cast<double>(i)),
+                        initial_sigma * std::pow(k, static_cast<double>(i + 1))
+                    );
+                });
+            }
+
+            return octaves;
+        }
+
         //  get_potential_keypoint template function implementation
         template<
             typename ExecutionPolicy,
