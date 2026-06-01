@@ -1737,7 +1737,6 @@ namespace handlers
         auto process_sift = [&]<typename ImageType>(ImageType&& input_img)
         {
             using DecayedImageType = std::remove_cvref_t<ImageType>;
-            using ElementT = TinyDIP::get_deep_scalar_t<DecayedImageType>;
 
             if constexpr (TinyDIP::is_bool_data_v<DecayedImageType> || TinyDIP::is_complex_data_v<DecayedImageType>)
             {
@@ -1746,56 +1745,82 @@ namespace handlers
             }
             else
             {
-                // Create a default polymorphic lambda acting as the ResamplingFunc bridge
-                auto resample_fn = [resample_str](const auto& img, const std::size_t w, const std::size_t h) 
+                // Helper to cleanly execute SIFT after mathematical elevation to double precision
+                auto process_sift_impl = [&]<typename T>(T&& double_img)
                 {
-                    if (resample_str == "lanczos") 
-                    {
-                        return TinyDIP::lanczos_resample(img, w, h);
-                    } 
-                    else if (resample_str == "bicubic") 
-                    {
-                        return TinyDIP::copyResizeBicubic(img, w, h);
-                    }
-                    else
-                    {
-                        throw std::invalid_argument("Unknown resampling method. Use 'lanczos' or 'bicubic'.");
-                    }
-                };
+                    using ImplDecayedT = std::remove_cvref_t<T>;
+                    // Fetch the exact elevated element type (e.g., double or RGB_DOUBLE)
+                    using ImplElementT = std::remove_cvref_t<decltype(double_img.at(0, 0))>;
 
-                auto exec_default = [&]() -> std::any
-                {
-                    if constexpr (requires { TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<ImageType>(input_img), octaves, levels, sigma, k, static_cast<ElementT>(contrast), static_cast<ElementT>(edge), resample_fn); })
+                    // Create a default polymorphic lambda acting as the ResamplingFunc bridge
+                    auto resample_fn = [resample_str](const auto& img, const std::size_t w, const std::size_t h) 
                     {
-                        return TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<ImageType>(input_img), octaves, levels, sigma, k, static_cast<ElementT>(contrast), static_cast<ElementT>(edge), resample_fn);
-                    }
-                    else
-                    {
-                        throw std::invalid_argument(std::string("Input image type [") + std::string(get_type_name<DecayedImageType>()) + "] does not support SIFT keypoint extraction.");
-                        return std::any{};
-                    }
-                };
-
-                auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
-                    requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
-                {
-                    if constexpr (requires { TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(input_img), octaves, levels, sigma, k, static_cast<ElementT>(contrast), static_cast<ElementT>(edge), resample_fn); })
-                    {
-                        return TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(input_img), octaves, levels, sigma, k, static_cast<ElementT>(contrast), static_cast<ElementT>(edge), resample_fn);
-                    }
-                    else
-                    {
-                        if (!std::ranges::empty(policy_str))
+                        if (resample_str == "lanczos") 
                         {
-                            os << "Warning: Execution policy requested but not supported. Falling back to default.\n";
+                            return TinyDIP::lanczos_resample(img, w, h);
+                        } 
+                        else if (resample_str == "bicubic") 
+                        {
+                            return TinyDIP::copyResizeBicubic(img, w, h);
                         }
-                        return exec_default();
-                    }
+                        else
+                        {
+                            throw std::invalid_argument("Unknown resampling method. Use 'lanczos' or 'bicubic'.");
+                        }
+                    };
+
+                    auto exec_default = [&]() -> std::any
+                    {
+                        if constexpr (requires { TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<T>(double_img), octaves, levels, sigma, k, static_cast<ImplElementT>(contrast), static_cast<ImplElementT>(edge), resample_fn); })
+                        {
+                            return TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<T>(double_img), octaves, levels, sigma, k, static_cast<ImplElementT>(contrast), static_cast<ImplElementT>(edge), resample_fn);
+                        }
+                        else
+                        {
+                            throw std::invalid_argument(std::string("Input image type [") + std::string(get_type_name<ImplDecayedT>()) + "] does not support SIFT keypoint extraction.");
+                            return std::any{};
+                        }
+                    };
+
+                    auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                        requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                    {
+                        if constexpr (requires { TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<ExecPolicy>(exec_policy), std::forward<T>(double_img), octaves, levels, sigma, k, static_cast<ImplElementT>(contrast), static_cast<ImplElementT>(edge), resample_fn); })
+                        {
+                            return TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<ExecPolicy>(exec_policy), std::forward<T>(double_img), octaves, levels, sigma, k, static_cast<ImplElementT>(contrast), static_cast<ImplElementT>(edge), resample_fn);
+                        }
+                        else
+                        {
+                            if (!std::ranges::empty(policy_str))
+                            {
+                                os << "Warning: Execution policy requested but not supported. Falling back to default.\n";
+                            }
+                            return exec_default();
+                        }
+                    };
+
+                    return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
                 };
 
-                std::any result = dispatch_policy_string(policy_str, exec_policy, exec_default, os);
-                workspace.store(output_arg.substr(1), std::move(result));
-                os << "Saved keypoints to " << output_arg << ".\n";
+                using RawScalarT = TinyDIP::get_deep_scalar_t<DecayedImageType>;
+
+                // Elevate the input image strictly to double precision before executing the mathematical pipeline
+                if constexpr (std::same_as<RawScalarT, double>)
+                {
+                    std::any result = process_sift_impl(std::forward<ImageType>(input_img));
+                    workspace.store(output_arg.substr(1), std::move(result));
+                    os << "Saved keypoints to " << output_arg << ".\n";
+                }
+                else if constexpr (requires { TinyDIP::im2double(std::forward<ImageType>(input_img)); })
+                {
+                    std::any result = process_sift_impl(TinyDIP::im2double(std::forward<ImageType>(input_img)));
+                    workspace.store(output_arg.substr(1), std::move(result));
+                    os << "Saved keypoints to " << output_arg << ".\n";
+                }
+                else
+                {
+                    os << "Error: Input image type [" << get_type_name<DecayedImageType>() << "] cannot be converted to double precision for SIFT.\n";
+                }
             }
         };
 
