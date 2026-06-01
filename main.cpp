@@ -1736,58 +1736,67 @@ namespace handlers
 
         auto process_sift = [&]<typename ImageType>(ImageType&& input_img)
         {
-            using ElementT = TinyDIP::get_deep_scalar_t<std::remove_cvref_t<ImageType>>;
+            using DecayedImageType = std::remove_cvref_t<ImageType>;
+            using ElementT = TinyDIP::get_deep_scalar_t<DecayedImageType>;
 
-            // Create a default polymorphic lambda acting as the ResamplingFunc bridge
-            auto resample_fn = [resample_str](const auto& img, const std::size_t w, const std::size_t h) 
+            if constexpr (TinyDIP::is_bool_data_v<DecayedImageType> || TinyDIP::is_complex_data_v<DecayedImageType>)
             {
-                if (resample_str == "lanczos") 
-                {
-                    return TinyDIP::lanczos_resample(img, w, h);
-                } 
-                else if (resample_str == "bicubic") 
-                {
-                    return TinyDIP::copyResizeBicubic(img, w, h);
-                }
-                else
-                {
-                    throw std::invalid_argument("Unknown resampling method. Use 'lanczos' or 'bicubic'.");
-                }
-            };
-
-            auto exec_default = [&]() -> std::any
+                os << "Error: Input image type [" << get_type_name<DecayedImageType>() << "] does not support SIFT keypoint extraction.\n";
+                return;
+            }
+            else
             {
-                if constexpr (requires { TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<ImageType>(input_img), octaves, levels, sigma, k, static_cast<ElementT>(contrast), static_cast<ElementT>(edge), resample_fn); })
+                // Create a default polymorphic lambda acting as the ResamplingFunc bridge
+                auto resample_fn = [resample_str](const auto& img, const std::size_t w, const std::size_t h) 
                 {
-                    return TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<ImageType>(input_img), octaves, levels, sigma, k, static_cast<ElementT>(contrast), static_cast<ElementT>(edge), resample_fn);
-                }
-                else
-                {
-                    throw std::invalid_argument("Input image type does not support SIFT keypoint extraction.");
-                    return std::any{};
-                }
-            };
-
-            auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
-                requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
-            {
-                if constexpr (requires { TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(input_img), octaves, levels, sigma, k, static_cast<ElementT>(contrast), static_cast<ElementT>(edge), resample_fn); })
-                {
-                    return TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(input_img), octaves, levels, sigma, k, static_cast<ElementT>(contrast), static_cast<ElementT>(edge), resample_fn);
-                }
-                else
-                {
-                    if (!std::ranges::empty(policy_str))
+                    if (resample_str == "lanczos") 
                     {
-                        os << "Warning: Execution policy requested but not supported. Falling back to default.\n";
+                        return TinyDIP::lanczos_resample(img, w, h);
+                    } 
+                    else if (resample_str == "bicubic") 
+                    {
+                        return TinyDIP::copyResizeBicubic(img, w, h);
                     }
-                    return exec_default();
-                }
-            };
+                    else
+                    {
+                        throw std::invalid_argument("Unknown resampling method. Use 'lanczos' or 'bicubic'.");
+                    }
+                };
 
-            std::any result = dispatch_policy_string(policy_str, exec_policy, exec_default, os);
-            workspace.store(output_arg.substr(1), std::move(result));
-            os << "Saved keypoints to " << output_arg << ".\n";
+                auto exec_default = [&]() -> std::any
+                {
+                    if constexpr (requires { TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<ImageType>(input_img), octaves, levels, sigma, k, static_cast<ElementT>(contrast), static_cast<ElementT>(edge), resample_fn); })
+                    {
+                        return TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<ImageType>(input_img), octaves, levels, sigma, k, static_cast<ElementT>(contrast), static_cast<ElementT>(edge), resample_fn);
+                    }
+                    else
+                    {
+                        throw std::invalid_argument(std::string("Input image type [") + std::string(get_type_name<DecayedImageType>()) + "] does not support SIFT keypoint extraction.");
+                        return std::any{};
+                    }
+                };
+
+                auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                    requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                {
+                    if constexpr (requires { TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(input_img), octaves, levels, sigma, k, static_cast<ElementT>(contrast), static_cast<ElementT>(edge), resample_fn); })
+                    {
+                        return TinyDIP::SIFT_impl::get_potential_keypoint(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(input_img), octaves, levels, sigma, k, static_cast<ElementT>(contrast), static_cast<ElementT>(edge), resample_fn);
+                    }
+                    else
+                    {
+                        if (!std::ranges::empty(policy_str))
+                        {
+                            os << "Warning: Execution policy requested but not supported. Falling back to default.\n";
+                        }
+                        return exec_default();
+                    }
+                };
+
+                std::any result = dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                workspace.store(output_arg.substr(1), std::move(result));
+                os << "Saved keypoints to " << output_arg << ".\n";
+            }
         };
 
         if (!dispatch_data_operation<master_image_types>(input_arg, workspace, image_loader_fun, process_sift))
