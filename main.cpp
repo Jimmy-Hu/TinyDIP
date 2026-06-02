@@ -1634,6 +1634,72 @@ namespace handlers
         transform_handler(workspace, args, os);
     }
 
+    //  get_element template function implementation
+    template <
+        typename ImageLoaderFun = MetaImageIO::Loader
+    >
+    requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
+    constexpr void get_element(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout,
+        ImageLoaderFun&& image_loader_fun = ImageLoaderFun{})
+    {
+        if (std::ranges::size(args) < 3)
+        {
+            os << "Usage: get_element <input_container | $var> <output_var | $var> <index>\n";
+            return;
+        }
+
+        const std::string_view input_arg = args[0];
+        const std::string_view output_arg = args[1];
+
+        if (!output_arg.starts_with('$'))
+        {
+            os << "Error: Output must be a memory variable starting with '$'.\n";
+            return;
+        }
+
+        const std::size_t index = parse_arg<std::size_t>(args[2]);
+
+        os << "Extracting element at index " << index << " from " << input_arg << "...\n";
+
+        auto process_element = [&]<typename ContainerType>(ContainerType&& container)
+        {
+            using DecayedT = std::remove_cvref_t<ContainerType>;
+
+            // Verify the type is a mathematically registered container
+            if constexpr (is_vector_v<DecayedT> || is_deque_v<DecayedT> || is_list_v<DecayedT> || is_std_array_v<DecayedT>)
+            {
+                if (index >= std::ranges::size(container))
+                {
+                    os << "Error: Index " << index << " is out of bounds for container of size " << std::ranges::size(container) << ".\n";
+                    return;
+                }
+
+                // Cleanly traverse using ranges to natively support both vectors and lists
+                auto it = std::ranges::begin(container);
+                std::ranges::advance(it, index);
+                
+                // Store the extracted element safely into the workspace (invokes copy constructor to preserve independence)
+                workspace.store(output_arg.substr(1), *it);
+                os << "Saved element to " << output_arg << ".\n";
+            }
+            else
+            {
+                os << "Error: Input type [" << get_type_name<DecayedT>() << "] is not a supported container type.\n";
+            }
+        };
+
+        // Leverage tuple_cat_t to flawlessly support both scalar containers and newly registered image containers!
+        using AllContainerTypes = tuple_cat_t<master_data_types, master_image_container_types>;
+
+        if (!dispatch_data_operation<AllContainerTypes>(input_arg, workspace, image_loader_fun, process_element))
+        {
+            os << "Error: Memory variable not found or unsupported type.\n";
+        }
+    }
+
     //  getPlane_channel_description function implementation
     constexpr auto getPlane_channel_description(const std::size_t channel_index)
     {
