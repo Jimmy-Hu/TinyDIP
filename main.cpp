@@ -3339,15 +3339,45 @@ namespace handlers
 
         auto process_octave = [&]<typename ImageType>(ImageType&& input_img)
         {
-            if constexpr (requires { TinyDIP::SIFT_impl::generate_octave(std::forward<ImageType>(input_img), levels, initial_sigma, k); })
+            using DecayedImageType = std::remove_cvref_t<ImageType>;
+
+            if constexpr (TinyDIP::is_bool_data_v<DecayedImageType> || TinyDIP::is_complex_data_v<DecayedImageType>)
             {
-                auto result = TinyDIP::SIFT_impl::generate_octave(std::forward<ImageType>(input_img), levels, initial_sigma, k);
-                workspace.store(output_arg.substr(1), std::move(result));
-                os << "Saved SIFT octave to " << output_arg << ".\n";
+                os << "Error: Input image type [" << get_type_name<DecayedImageType>() << "] does not support SIFT octave generation.\n";
+                return;
             }
             else
             {
-                os << "Error: Input image type [" << get_type_name<std::remove_cvref_t<ImageType>>() << "] does not support generate_octave.\n";
+                auto process_octave_impl = [&]<typename T>(T&& double_img)
+                {
+                    using ImplDecayedT = std::remove_cvref_t<T>;
+
+                    if constexpr (requires { TinyDIP::SIFT_impl::generate_octave(std::forward<T>(double_img), levels, initial_sigma, k); })
+                    {
+                        auto result = TinyDIP::SIFT_impl::generate_octave(std::forward<T>(double_img), levels, initial_sigma, k);
+                        workspace.store(output_arg.substr(1), std::move(result));
+                        os << "Saved SIFT octave to " << output_arg << ".\n";
+                    }
+                    else
+                    {
+                        os << "Error: Elevated input image type [" << get_type_name<ImplDecayedT>() << "] does not support generate_octave.\n";
+                    }
+                };
+
+                using RawScalarT = TinyDIP::get_deep_scalar_t<DecayedImageType>;
+
+                if constexpr (std::same_as<RawScalarT, double>)
+                {
+                    process_octave_impl(std::forward<ImageType>(input_img));
+                }
+                else if constexpr (requires { TinyDIP::im2double(std::forward<ImageType>(input_img)); })
+                {
+                    process_octave_impl(TinyDIP::im2double(std::forward<ImageType>(input_img)));
+                }
+                else
+                {
+                    os << "Error: Input image type [" << get_type_name<DecayedImageType>() << "] cannot be converted to double precision for SIFT octave generation.\n";
+                }
             }
         };
 
