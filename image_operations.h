@@ -6169,71 +6169,60 @@ namespace TinyDIP
             const SigmaT initial_sigma = 1.6,
             const double k = std::numbers::sqrt2_v<double>)
         {
-            // Safely deduce the exact returned multi-channel image type directly
-            auto deduce_type_lambda = [&](auto&& each_plane) 
+            using ScalarT = get_deep_scalar_t<ElementT>;
+
+            // Elegantly elevate raw multi-channel structs directly to double-precision
+            // to mathematically prevent apply_each plane-reconstruction mismatches!
+            if constexpr (!std::same_as<ScalarT, double>)
             {
-                using ScalarT = get_deep_scalar_t<std::remove_cvref_t<decltype(each_plane)>>;
-                if constexpr (std::same_as<ScalarT, double>)
+                if constexpr (requires { TinyDIP::im2double(input); })
                 {
-                    return TinyDIP::difference_of_gaussian(std::forward<decltype(each_plane)>(each_plane), initial_sigma, initial_sigma);
-                }
-                else if constexpr (requires { TinyDIP::im2double(std::forward<decltype(each_plane)>(each_plane)); })
-                {
-                    // Force floating-point precision on the plane before DoG evaluation
-                    return TinyDIP::difference_of_gaussian(TinyDIP::im2double(std::forward<decltype(each_plane)>(each_plane)), initial_sigma, initial_sigma);
+                    return generate_octave(TinyDIP::im2double(input), number_of_scale_levels, initial_sigma, k);
                 }
                 else
                 {
-                    // Compile-time firewall preventing cryptic void deduction errors on unsupported raw types
-                    static_assert(!std::same_as<ScalarT, ScalarT>, "The underlying channel type of the multi-channel image is not supported by difference_of_gaussian or im2double.");
+                    // Compile-time firewall preventing recursive descent into unsupported structures
+                    static_assert(!std::same_as<ElementT, ElementT>, "Unsupported multi-channel type cannot be dynamically elevated to double precision for DoG.");
                 }
-            };
-            using MultiChannelDiffT = decltype(apply_each(input, deduce_type_lambda));
-
-            std::vector<MultiChannelDiffT> octaves;
-
-            if (number_of_scale_levels < 2)
-            {
-                return octaves;
             }
-
-            // Resize the vector directly for thread-safe assignment in OpenMP
-            octaves.resize(number_of_scale_levels - 1);
-
-            #pragma omp parallel for
-            for (int i = 0; i < static_cast<int>(number_of_scale_levels) - 1; ++i)
+            else
             {
-                // Safely capture 'i' by value and the rest by reference to prevent race conditions
-                octaves[i] = apply_each(input, [&, i](auto&& each_plane)
+                // Safely deduce the exact returned multi-channel image type directly
+                auto deduce_type_lambda = [&](auto&& each_plane) 
                 {
-                    using ScalarT = get_deep_scalar_t<std::remove_cvref_t<decltype(each_plane)>>;
-                    const double sig1 = initial_sigma * std::pow(k, static_cast<double>(i));
-                    const double sig2 = initial_sigma * std::pow(k, static_cast<double>(i + 1));
-                
-                    if constexpr (std::same_as<ScalarT, double>)
+                    return TinyDIP::difference_of_gaussian(std::forward<decltype(each_plane)>(each_plane), initial_sigma, initial_sigma);
+                };
+                using MultiChannelDiffT = decltype(apply_each(input, deduce_type_lambda));
+
+                std::vector<MultiChannelDiffT> octaves;
+
+                if (number_of_scale_levels < 2)
+                {
+                    return octaves;
+                }
+
+                // Resize the vector directly for thread-safe assignment in OpenMP
+                octaves.resize(number_of_scale_levels - 1);
+
+                #pragma omp parallel for
+                for (int i = 0; i < static_cast<int>(number_of_scale_levels) - 1; ++i)
+                {
+                    // Safely capture 'i' by value and the rest by reference to prevent race conditions
+                    octaves[i] = apply_each(input, [&, i](auto&& each_plane)
                     {
+                        const double sig1 = static_cast<double>(initial_sigma) * std::pow(k, static_cast<double>(i));
+                        const double sig2 = static_cast<double>(initial_sigma) * std::pow(k, static_cast<double>(i + 1));
+                        
                         return TinyDIP::difference_of_gaussian(
                             std::forward<decltype(each_plane)>(each_plane),
                             sig1,
                             sig2
                         );
-                    }
-                    else if constexpr (requires { TinyDIP::im2double(std::forward<decltype(each_plane)>(each_plane)); })
-                    {
-                        return TinyDIP::difference_of_gaussian(
-                            TinyDIP::im2double(std::forward<decltype(each_plane)>(each_plane)),
-                            sig1,
-                            sig2
-                        );
-                    }
-                    else
-                    {
-                        static_assert(!std::same_as<ScalarT, ScalarT>, "The underlying channel type of the multi-channel image is not supported by difference_of_gaussian or im2double.");
-                    }
-                });
-            }
+                    });
+                }
 
-            return octaves;
+                return octaves;
+            }
         }
 
         //  get_potential_keypoint template function implementation
