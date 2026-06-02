@@ -4209,6 +4209,12 @@ int main(int argc, char* argv[])
         CommandBundle{"dct2", "Calculate Discrete Cosine Transformation for an image.", TransformerSchema, 
             handlers::dct2
         },
+        CommandBundle{"get_element", "Extract an element from a container (e.g., an octave vector) by index.", TransformerSchema, 
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::get_element(workspace, args, os);
+            }
+        },
         CommandBundle{"getBplane", "Extract the Blue plane (channel 2) from a multi-channel image.", TransformerSchema,
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
