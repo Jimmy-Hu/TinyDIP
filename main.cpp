@@ -609,42 +609,64 @@ struct Workspace
                 return false;
             };
 
-			// try_print_complex_scalar lambda implementation
+            // Polymorphic lambda returning true if the image container type matched
+            auto try_print_image_container = [&]<typename T>() -> bool
+            {
+                if (value.type() == typeid(T))
+                {
+                    print_prefix.template operator()<T>();
+                    const auto* container_ptr = std::any_cast<T>(&value);
+                    os << ", count = " << std::ranges::size(*container_ptr);
+                    
+                    if (!std::ranges::empty(*container_ptr))
+                    {
+                        os << " (first image size: ";
+                        print_size(std::ranges::begin(*container_ptr)->getSize());
+                        os << ")";
+                    }
+                    return true;
+                }
+                return false;
+            };
+
             // Polymorphic lambda returning true if the complex custom scalar type matched
-			// This lambda handles both complex scalars and containers of scalars, providing detailed formatting for each case.
-			// It uses the is_vector_v, is_deque_v, is_list_v, and is_std_array_v traits to detect if the type is a container and formats accordingly.
-            // Reference: https://codereview.stackexchange.com/a/302000/231235
             auto try_print_complex_scalar = [&]<typename T>() -> bool
             {
-                if (value.type() != typeid(T)) {
-                    return false;
-                }
-                
-                print_prefix.template operator()<T>();
-                if constexpr (is_vector_v<T> || is_deque_v<T> || is_list_v<T> || is_std_array_v<T>)
+                if (value.type() == typeid(T))
                 {
-                    os << ", container value = {";
-                    const char *sep = "";
-                    const auto* container_ptr = std::any_cast<T>(&value);
-                    for (const auto& elem : *container_ptr)
+                    print_prefix.template operator()<T>();
+                    if constexpr (is_vector_v<T> || is_deque_v<T> || is_list_v<T> || is_std_array_v<T>)
                     {
-                        os << sep << +elem;
-                        
-                        sep = ", ";
+                        os << ", container value = {";
+                        bool first = true;
+                        const auto* container_ptr = std::any_cast<T>(&value);
+                        for (const auto& elem : *container_ptr)
+                        {
+                            if (!first)
+                            {
+                                os << ", ";
+                            }
+                            os << +elem;
+                            first = false;
+                        }
+                        os << "}";
                     }
-                    os << "}";
+                    else
+                    {
+                        os << ", scalar value = " << std::any_cast<T>(value);
+                    }
+                    return true;
                 }
-                else
-                {
-                    os << ", scalar value = " << std::any_cast<T>(value);
-                }
-                return true;
-                
+                return false;
             };
 
             if (match_any_type<master_image_types>(try_print_image))
             {
                 // Handled successfully by try_print_image short-circuit logic
+            }
+            else if (match_any_type<master_image_container_types>(try_print_image_container))
+            {
+                // Handled successfully by try_print_image_container short-circuit logic
             }
             else if (match_any_type<complex_scalar_types_for_printing>(try_print_complex_scalar))
             {
