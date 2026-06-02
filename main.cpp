@@ -442,6 +442,19 @@ using complex_scalar_types_for_printing = tuple_cat_t<
     all_array_types
 >;
 
+using all_vector_image_types = tuple_map_t<std::vector, master_image_types>;
+using all_deque_image_types = tuple_map_t<std::deque, master_image_types>;
+using all_list_image_types = tuple_map_t<std::list, master_image_types>;
+
+//  master_image_container_types type is used to identify all container types 
+// that hold images, which allows the workspace listing function to apply special
+// formatting logic for these types (e.g. printing count and first image size) without having to check each container type separately.
+using master_image_container_types = tuple_cat_t<
+    all_vector_image_types,
+    all_deque_image_types,
+    all_list_image_types
+>;
+
 //  get_type_name template function implementation
 //  Generic compile-time helper to automatically extract exact human-readable string views for any type.
 //  This utilizes compile-time SFINAE reflection over compiler signature macros.
