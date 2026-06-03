@@ -4255,7 +4255,7 @@ int main(int argc, char* argv[])
                 handlers::construct_rgb(workspace, args, os);
             }
         },        
-        CommandBundle{"create_container", "Create an empty std::vector container based on a prototype element's type.", TransformerSchema, 
+        CommandBundle{"create_container", "Create a std::vector container initialized with the provided prototype element.", TransformerSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
                 handlers::create_container(workspace, args, os);
