@@ -1664,21 +1664,21 @@ namespace handlers
 
         os << "Extracting element at index " << index << " from " << input_arg << "...\n";
 
-        auto process_element = [&]<typename ContainerType>(ContainerType&& container)
+        auto process_element = [&]<typename CandidateType>(CandidateType&& candidate)
         {
-            using DecayedT = std::remove_cvref_t<ContainerType>;
+            using DecayedT = std::remove_cvref_t<CandidateType>;
 
             // Verify the type is a mathematically registered container
             if constexpr (is_vector_v<DecayedT> || is_deque_v<DecayedT> || is_list_v<DecayedT> || is_std_array_v<DecayedT>)
             {
-                if (index >= std::ranges::size(container))
+                if (index >= std::ranges::size(candidate))
                 {
-                    os << "Error: Index " << index << " is out of bounds for container of size " << std::ranges::size(container) << ".\n";
+                    os << "Error: Index " << index << " is out of bounds for container of size " << std::ranges::size(candidate) << ".\n";
                     return;
                 }
 
                 // Cleanly traverse using ranges to natively support both vectors and lists
-                auto it = std::ranges::begin(container);
+                auto it = std::ranges::begin(candidate);
                 std::ranges::advance(it, index);
                 
                 // Store the extracted element safely into the workspace (invokes copy constructor to preserve independence)
