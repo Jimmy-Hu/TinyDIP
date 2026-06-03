@@ -1557,15 +1557,18 @@ namespace handlers
             return;
         }
 
-        os << "Creating empty container based on type of " << input_arg << "...\n";
+        os << "Creating container based on type of " << input_arg << "...\n";
 
         auto process_create = [&]<typename CandidateType>(CandidateType&& candidate)
         {
             using DecayedT = std::remove_cvref_t<CandidateType>;
             
-            std::vector<DecayedT> empty_vec;
-            workspace.store(output_arg.substr(1), std::move(empty_vec));
-            os << "Saved empty container of type [std::vector<" << get_type_name<DecayedT>() << ">] to " << output_arg << ".\n";
+            std::vector<DecayedT> new_vec;
+            // Utilizing emplace_back to insert the initial candidate prototype safely and efficiently
+            new_vec.emplace_back(std::forward<CandidateType>(candidate));
+
+            workspace.store(output_arg.substr(1), std::move(new_vec));
+            os << "Created container and added initial element. Saved [std::vector<" << get_type_name<DecayedT>() << ">] to " << output_arg << ".\n";
         };
 
         using AllElementTypes = tuple_cat_t<master_data_types>;
