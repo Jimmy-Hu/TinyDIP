@@ -1530,6 +1530,51 @@ namespace handlers
         }
     }
 
+	//  create_container template function implementation
+    template <
+        typename ImageLoaderFun = MetaImageIO::Loader
+    >
+    requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
+    constexpr void create_container(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout,
+        ImageLoaderFun&& image_loader_fun = ImageLoaderFun{})
+    {
+        if (std::ranges::size(args) < 2)
+        {
+            os << "Usage: create_container <prototype_element | $var> <output_container | $var>\n";
+            return;
+        }
+
+        const std::string_view input_arg = args[0];
+        const std::string_view output_arg = args[1];
+
+        if (!output_arg.starts_with('$'))
+        {
+            os << "Error: Output must be a memory variable starting with '$'.\n";
+            return;
+        }
+
+        os << "Creating empty container based on type of " << input_arg << "...\n";
+
+        auto process_create = [&]<typename CandidateType>(CandidateType&& candidate)
+        {
+            using DecayedT = std::remove_cvref_t<CandidateType>;
+            
+            std::vector<DecayedT> empty_vec;
+            workspace.store(output_arg.substr(1), std::move(empty_vec));
+            os << "Saved empty container of type [std::vector<" << get_type_name<DecayedT>() << ">] to " << output_arg << ".\n";
+        };
+
+        using AllElementTypes = tuple_cat_t<master_data_types>;
+
+        if (!dispatch_data_operation<AllElementTypes>(input_arg, workspace, image_loader_fun, process_create))
+        {
+            os << "Error: Memory variable not found or unsupported type.\n";
+        }
+    }
+
     //  create_image_with_initial_value template function implementation
     template <
         std::invocable<const std::string_view, Workspace&, TinyDIP::Image<double>&&> ImageSaverFun = MetaImageIO::Saver
