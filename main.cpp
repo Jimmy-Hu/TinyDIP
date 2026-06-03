@@ -899,6 +899,7 @@ struct IOSchema
 constexpr auto GeneratorSchema = IOSchema{ -1, 1 };
 constexpr auto TerminatorSchema = IOSchema{ 0, -1 };
 constexpr auto TransformerSchema = IOSchema{ 0, 1 };
+constexpr auto CombinerSchema = IOSchema{ 0, 2 };
 constexpr auto IndependentSchema = IOSchema{ -1, -1 };
 
 //  CommandRegistry class implementation
