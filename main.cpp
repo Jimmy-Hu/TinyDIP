@@ -4324,6 +4324,12 @@ int main(int argc, char* argv[])
         CommandBundle{"abs", "Calculate the absolute value of an image or container.", TransformerSchema, 
             handlers::abs
         },
+        CommandBundle{"append_element", "Append an element to the back of a container using emplace_back.", CombinerSchema, 
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::append_element(workspace, args, os);
+            }
+        },
         CommandBundle{"bicubic_resize", "Resize an image using Bicubic interpolation.", TransformerSchema, 
             handlers::bicubic_resize
         },
