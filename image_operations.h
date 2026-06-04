@@ -2825,6 +2825,7 @@ namespace TinyDIP
         FloatingPointT y0;
         FloatingPointT sigma_x;
         FloatingPointT sigma_y;
+        FloatingPointT rho;
     };
 
     template<class InputT>
