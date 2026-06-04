@@ -2816,6 +2816,17 @@ namespace TinyDIP
         return output;
     }
 
+    //  GaussianParameters2D struct implementation
+    template <std::floating_point FloatingPointT = double>
+    struct GaussianParameters2D
+    {
+        FloatingPointT amplitude;
+        FloatingPointT x0;
+        FloatingPointT y0;
+        FloatingPointT sigma_x;
+        FloatingPointT sigma_y;
+    };
+
     template<class InputT>
     constexpr static Image<InputT> plus(const Image<InputT>& input1)
     {
