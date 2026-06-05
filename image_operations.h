@@ -2871,6 +2871,33 @@ namespace TinyDIP
         return output;
     }
 
+    //  LMAccumulator struct implementation
+    template <std::floating_point FloatingPointT = double, class ExPo = decltype(std::execution::seq)>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    struct LMAccumulator
+    {
+        std::remove_cvref_t<ExPo> execution_policy{};
+        FloatingPointT sse{ 0.0 };
+        std::array<std::array<FloatingPointT, 6>, 6> H{};
+        std::array<FloatingPointT, 6> g{};
+
+        LMAccumulator operator+(const LMAccumulator& other) const
+        {
+            LMAccumulator res;
+            res.execution_policy = execution_policy;
+            res.sse = sse + other.sse;
+            
+            std::transform(execution_policy, std::ranges::cbegin(g), std::ranges::cend(g), std::ranges::cbegin(other.g), std::ranges::begin(res.g), std::plus<>{});
+            
+            for (std::size_t i = 0; i < H.size(); ++i)
+            {
+                std::transform(execution_policy, std::ranges::cbegin(H[i]), std::ranges::cend(H[i]), std::ranges::cbegin(other.H[i]), std::ranges::begin(res.H[i]), std::plus<>{});
+            }
+            
+            return res;
+        }
+    };
+
     template<class InputT>
     constexpr static Image<InputT> plus(const Image<InputT>& input1)
     {
