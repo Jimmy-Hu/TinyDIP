@@ -3008,6 +3008,64 @@ namespace TinyDIP
         }
     };
 
+	//  solve_linear_system_6x6 template function implementation
+    //  Matrix solver for 6x6 using Gauss-Jordan elimination with partial pivoting
+    template <std::floating_point FloatingPointT = double>
+    constexpr std::array<FloatingPointT, 6> solve_linear_system_6x6(
+        std::array<std::array<FloatingPointT, 6>, 6> A, 
+        std::array<FloatingPointT, 6> b, 
+        const FloatingPointT threshold = static_cast<FloatingPointT>(1e-12))
+    {
+        constexpr int n = 6;
+        for (int i = 0; i < n; ++i)
+        {
+            int max_row = i;
+            FloatingPointT max_val = std::abs(A[i][i]);
+            for (int k = i + 1; k < n; ++k)
+            {
+                if (std::abs(A[k][i]) > max_val)
+                {
+                    max_val = std::abs(A[k][i]);
+                    max_row = k;
+                }
+            }
+
+            if (max_val < threshold)
+            {
+                return { static_cast<FloatingPointT>(0.0), static_cast<FloatingPointT>(0.0), static_cast<FloatingPointT>(0.0), 
+                         static_cast<FloatingPointT>(0.0), static_cast<FloatingPointT>(0.0), static_cast<FloatingPointT>(0.0) };
+            }
+
+            if (max_row != i)
+            {
+                std::swap(A[i], A[max_row]);
+                std::swap(b[i], b[max_row]);
+            }
+
+            for (int k = i + 1; k < n; ++k)
+            {
+                FloatingPointT factor = A[k][i] / A[i][i];
+                for (int j = i; j < n; ++j)
+                {
+                    A[k][j] -= factor * A[i][j];
+                }
+                b[k] -= factor * b[i];
+            }
+        }
+
+        std::array<FloatingPointT, 6> x{};
+        for (int i = n - 1; i >= 0; --i)
+        {
+            FloatingPointT sum = static_cast<FloatingPointT>(0.0);
+            for (int j = i + 1; j < n; ++j)
+            {
+                sum += A[i][j] * x[j];
+            }
+            x[i] = (b[i] - sum) / A[i][i];
+        }
+        return x;
+    }
+
     template<class InputT>
     constexpr static Image<InputT> plus(const Image<InputT>& input1)
     {
