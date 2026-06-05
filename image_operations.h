@@ -2969,6 +2969,35 @@ namespace TinyDIP
         }
     };
 
+	//  SSEMapper template struct implementation
+    template <typename ElementT, std::floating_point FloatingPointT = double>
+    struct SSEMapper
+    {
+        const TinyDIP::Image<ElementT>* image_ptr;
+        GaussianParameters2D<FloatingPointT> parameters;
+
+        constexpr FloatingPointT operator()(const std::size_t idx) const
+        {
+            const std::size_t width = image_ptr->getWidth();
+            const FloatingPointT x = static_cast<FloatingPointT>(idx % width);
+            const FloatingPointT y = static_cast<FloatingPointT>(idx / width);
+            const FloatingPointT z = static_cast<FloatingPointT>(image_ptr->get(idx));
+
+            const FloatingPointT dx = x - parameters.x0;
+            const FloatingPointT dy = y - parameters.y0;
+
+            const FloatingPointT W = static_cast<FloatingPointT>(1.0) / (static_cast<FloatingPointT>(1.0) - parameters.rho * parameters.rho);
+            const FloatingPointT Z_eq = (dx * dx) / (parameters.sigma_x * parameters.sigma_x) 
+                                      - (static_cast<FloatingPointT>(2.0) * parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y) 
+                                      + (dy * dy) / (parameters.sigma_y * parameters.sigma_y);
+
+            const FloatingPointT f_val = parameters.amplitude * std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_eq);
+            const FloatingPointT r = z - f_val;
+            
+            return r * r;
+        }
+    };
+
     template<class InputT>
     constexpr static Image<InputT> plus(const Image<InputT>& input1)
     {
