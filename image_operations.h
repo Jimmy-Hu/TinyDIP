@@ -2826,6 +2826,18 @@ namespace TinyDIP
         FloatingPointT sigma_x;
         FloatingPointT sigma_y;
         FloatingPointT rho;
+
+        friend std::ostream& operator<<(std::ostream& os, const GaussianParameters2D& params)
+        {
+            os << "{ amplitude: " << params.amplitude
+               << ", x0: " << params.x0
+               << ", y0: " << params.y0
+               << ", sigma_x: " << params.sigma_x
+               << ", sigma_y: " << params.sigma_y
+               << ", rho: " << params.rho
+               << " }";
+            return os;
+        }
     };
 
     //  gaussianFigure2D Template Function Implementation (with Execution Policy, GaussianParameters2D)
