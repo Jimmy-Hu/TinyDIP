@@ -2915,12 +2915,7 @@ namespace TinyDIP
     struct LMMapper
     {
         const TinyDIP::Image<ElementT>* image_ptr;
-        FloatingPointT A;
-        FloatingPointT x0;
-        FloatingPointT y0;
-        FloatingPointT sigma_x;
-        FloatingPointT sigma_y;
-        FloatingPointT rho;
+        GaussianParameters2D<FloatingPointT> parameters;
 
         LMAccumulator<FloatingPointT> operator()(const std::size_t idx) const
         {
@@ -2929,26 +2924,26 @@ namespace TinyDIP
             const FloatingPointT y = static_cast<FloatingPointT>(idx / width);
             const FloatingPointT z = static_cast<FloatingPointT>(image_ptr->get(idx));
 
-            const FloatingPointT dx = x - x0;
-            const FloatingPointT dy = y - y0;
+            const FloatingPointT dx = x - parameters.x0;
+            const FloatingPointT dy = y - parameters.y0;
             
-            const FloatingPointT W = static_cast<FloatingPointT>(1.0) / (static_cast<FloatingPointT>(1.0) - rho * rho);
-            const FloatingPointT Z_eq = (dx * dx) / (sigma_x * sigma_x) 
-                                      - (static_cast<FloatingPointT>(2.0) * rho * dx * dy) / (sigma_x * sigma_y) 
-                                      + (dy * dy) / (sigma_y * sigma_y);
+            const FloatingPointT W = static_cast<FloatingPointT>(1.0) / (static_cast<FloatingPointT>(1.0) - parameters.rho * parameters.rho);
+            const FloatingPointT Z_eq = (dx * dx) / (parameters.sigma_x * parameters.sigma_x) 
+                                      - (static_cast<FloatingPointT>(2.0) * parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y) 
+                                      + (dy * dy) / (parameters.sigma_y * parameters.sigma_y);
             
             const FloatingPointT exp_term = std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_eq);
-            const FloatingPointT f_val = A * exp_term;
+            const FloatingPointT f_val = parameters.amplitude * exp_term;
 
             const FloatingPointT r = z - f_val;
 
             std::array<FloatingPointT, 6> J{};
             J[0] = exp_term;
-            J[1] = f_val * W * ((dx / (sigma_x * sigma_x)) - (rho * dy) / (sigma_x * sigma_y));
-            J[2] = f_val * W * ((dy / (sigma_y * sigma_y)) - (rho * dx) / (sigma_x * sigma_y));
-            J[3] = f_val * W * (((dx * dx) / (sigma_x * sigma_x * sigma_x)) - (rho * dx * dy) / (sigma_x * sigma_x * sigma_y));
-            J[4] = f_val * W * (((dy * dy) / (sigma_y * sigma_y * sigma_y)) - (rho * dx * dy) / (sigma_x * sigma_y * sigma_y));
-            J[5] = f_val * W * (((dx * dy) / (sigma_x * sigma_y)) - rho * W * Z_eq);
+            J[1] = f_val * W * ((dx / (parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dy) / (parameters.sigma_x * parameters.sigma_y));
+            J[2] = f_val * W * ((dy / (parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx) / (parameters.sigma_x * parameters.sigma_y));
+            J[3] = f_val * W * (((dx * dx) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_y));
+            J[4] = f_val * W * (((dy * dy) / (parameters.sigma_y * parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y * parameters.sigma_y));
+            J[5] = f_val * W * (((dx * dy) / (parameters.sigma_x * parameters.sigma_y)) - parameters.rho * W * Z_eq);
 
             LMAccumulator<FloatingPointT> acc;
             acc.sse = r * r;
