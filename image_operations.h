@@ -2828,6 +2828,49 @@ namespace TinyDIP
         FloatingPointT rho;
     };
 
+    //  gaussianFigure2D Template Function Implementation (with Execution Policy, GaussianParameters2D)
+    //  General two-dimensional elliptical Gaussian
+    //  https://fabiandablander.com/statistics/Two-Properties.html
+    template<class ExPo, class InputT = double>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    constexpr static auto gaussianFigure2D(
+        ExPo&& execution_policy,
+        const std::size_t xsize, const std::size_t ysize,
+        const GaussianParameters2D<InputT> params)
+    {
+        Image<InputT> output(xsize, ysize);
+        auto sigma1_2 = params.sigma_x * params.sigma_x;
+        auto sigma2_2 = params.sigma_y * params.sigma_y;
+        auto normalize_factor =
+            normalize_factor_input / (static_cast<InputT>(2.0) * std::numbers::pi_v<InputT> *params.sigma_x * params.sigma_y * std::sqrt(static_cast<InputT>(1.0) - std::pow(params.rho, static_cast<InputT>(2.0))));
+
+        auto exp_para = static_cast<InputT>(-1.0) / (static_cast<InputT>(2.0) * sigma1_2 * sigma2_2 * (static_cast<InputT>(1.0) - std::pow(params.rho, static_cast<InputT>(2.0))));
+        auto indices = std::views::iota(std::size_t{ 0 }, ysize);
+        std::for_each(
+            std::forward<ExPo>(execution_policy),
+            std::ranges::begin(indices),
+            std::ranges::end(indices),
+            [&](const std::size_t y) {
+                auto x2 = static_cast<InputT>(y) - params.y0;
+                auto x2_2 = x2 * x2;
+                for (std::size_t x = 0; x < xsize; ++x)
+                {
+                    auto x1 = static_cast<InputT>(x) - params.x0;
+                    auto x1_2 = x1 * x1;
+                    output.at(x, y) = normalize_factor *
+                        std::exp(
+                            exp_para * (
+                                sigma2_2 * x1_2 -
+                                (static_cast<InputT>(2) * params.rho * params.sigma_x * params.sigma_y * x1 * x2) +
+                                sigma1_2 * x2_2
+                                )
+                        );
+                }
+            }
+        );
+        return output;
+    }
+
     template<class InputT>
     constexpr static Image<InputT> plus(const Image<InputT>& input1)
     {
