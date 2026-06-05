@@ -3066,6 +3066,159 @@ namespace TinyDIP
         return x;
     }
 
+	//  estimate_gaussian_parameters_2d template function implementation
+    template <
+        class ExecutionPolicy,
+        typename ElementT,
+        std::floating_point FloatingPointT = double
+    >
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> && std::is_arithmetic_v<ElementT>)
+    constexpr GaussianParameters2D<FloatingPointT> estimate_gaussian_parameters_2d(
+        ExecutionPolicy&& execution_policy,
+        const TinyDIP::Image<ElementT>& image,
+        const std::size_t max_iterations = 1000,
+        const FloatingPointT tolerance = static_cast<FloatingPointT>(1e-7))
+    {
+        if (image.getDimensionality() != 2)
+        {
+            throw std::invalid_argument("Input image must be 2-dimensional.");
+        }
+
+        const std::size_t count = image.count();
+        const std::size_t width = image.getWidth();
+        
+        std::vector<std::size_t> indices(count);
+        std::ranges::iota(indices, 0);
+
+        // Estimate initial guesses natively using Execution Policies
+        auto max_it = std::max_element(
+            std::forward<ExecutionPolicy>(execution_policy),
+            std::ranges::begin(indices),
+            std::ranges::end(indices),
+            [&image](const std::size_t a, const std::size_t b)
+            {
+                return image.get(a) < image.get(b);
+            });
+
+        const std::size_t max_idx = *max_it;
+        FloatingPointT A = static_cast<FloatingPointT>(image.get(max_idx));
+        FloatingPointT x0 = static_cast<FloatingPointT>(max_idx % width);
+        FloatingPointT y0 = static_cast<FloatingPointT>(max_idx / width);
+
+        // Estimate standard deviations & correlation via 2nd moments utilizing OpenMP reduction natively
+        FloatingPointT sum_z = static_cast<FloatingPointT>(0.0);
+        FloatingPointT sum_dx2_z = static_cast<FloatingPointT>(0.0);
+        FloatingPointT sum_dy2_z = static_cast<FloatingPointT>(0.0);
+        FloatingPointT sum_dxdy_z = static_cast<FloatingPointT>(0.0);
+        const std::ptrdiff_t signed_count = static_cast<std::ptrdiff_t>(count);
+
+        #pragma omp parallel for reduction(+:sum_z, sum_dx2_z, sum_dy2_z, sum_dxdy_z)
+        for (std::ptrdiff_t i = 0; i < signed_count; ++i)
+        {
+            const FloatingPointT z_val = static_cast<FloatingPointT>(image.get(static_cast<std::size_t>(i)));
+            if (z_val > A * static_cast<FloatingPointT>(0.1)) // Calculate moments over a reasonable threshold
+            {
+                const FloatingPointT px = static_cast<FloatingPointT>(i % width);
+                const FloatingPointT py = static_cast<FloatingPointT>(i / width);
+                const FloatingPointT dx = px - x0;
+                const FloatingPointT dy = py - y0;
+                
+                sum_z += z_val;
+                sum_dx2_z += (dx * dx) * z_val;
+                sum_dy2_z += (dy * dy) * z_val;
+                sum_dxdy_z += (dx * dy) * z_val;
+            }
+        }
+
+        FloatingPointT sigma_x = (sum_z > static_cast<FloatingPointT>(0.0)) ? std::sqrt(sum_dx2_z / sum_z) : static_cast<FloatingPointT>(10.0);
+        FloatingPointT sigma_y = (sum_z > static_cast<FloatingPointT>(0.0)) ? std::sqrt(sum_dy2_z / sum_z) : static_cast<FloatingPointT>(10.0);
+        FloatingPointT rho = (sum_z > static_cast<FloatingPointT>(0.0)) ? (sum_dxdy_z / sum_z) / (sigma_x * sigma_y) : static_cast<FloatingPointT>(0.0);
+        
+        // Clamp initial rho to valid bound
+        rho = std::max(static_cast<FloatingPointT>(-0.99), std::min(static_cast<FloatingPointT>(0.99), rho));
+
+        // Levenberg-Marquardt Optimization Loop
+        FloatingPointT lambda = static_cast<FloatingPointT>(0.01);
+        FloatingPointT current_sse = std::numeric_limits<FloatingPointT>::max();
+
+        for (std::size_t iter = 0; iter < max_iterations; ++iter)
+        {
+            GaussianParameters2D<FloatingPointT> current_params{ A, x0, y0, sigma_x, sigma_y, rho };
+            LMMapper<ElementT, FloatingPointT> mapper{ &image, current_params };
+            LMReducer<FloatingPointT> reducer{};
+
+            // Multithreaded execution evaluating Jacobian and Residuals simultaneously
+            LMAccumulator<FloatingPointT> acc = std::transform_reduce(
+                std::forward<ExecutionPolicy>(execution_policy),
+                std::ranges::begin(indices),
+                std::ranges::end(indices),
+                LMAccumulator<FloatingPointT>{},
+                reducer,
+                mapper
+            );
+
+            std::array<std::array<FloatingPointT, 6>, 6> H_damped = acc.H;
+            
+            // Apply damping
+            for (int i = 0; i < 6; ++i)
+            {
+                H_damped[i][i] *= (static_cast<FloatingPointT>(1.0) + lambda);
+            }
+
+            std::array<FloatingPointT, 6> delta = solve_linear_system_6x6<FloatingPointT>(H_damped, acc.g);
+
+            // Check if gradient is small enough (convergence)
+            FloatingPointT delta_sq_sum = std::inner_product(std::ranges::begin(delta), std::ranges::end(delta), std::ranges::begin(delta), static_cast<FloatingPointT>(0.0));
+            if (delta_sq_sum < tolerance)
+            {
+                break;
+            }
+
+            FloatingPointT new_A = A + delta[0];
+            FloatingPointT new_x0 = x0 + delta[1];
+            FloatingPointT new_y0 = y0 + delta[2];
+            FloatingPointT new_sigma_x = sigma_x + delta[3];
+            FloatingPointT new_sigma_y = sigma_y + delta[4];
+            FloatingPointT new_rho = rho + delta[5];
+
+            // Clamp new rho strictly inside (-1, 1) range to prevent zero division in W
+            new_rho = std::max(static_cast<FloatingPointT>(-0.999), std::min(static_cast<FloatingPointT>(0.999), new_rho));
+
+            GaussianParameters2D<FloatingPointT> new_params{ new_A, new_x0, new_y0, new_sigma_x, new_sigma_y, new_rho };
+            SSEMapper<ElementT, FloatingPointT> sse_mapper{ &image, new_params };
+            SSEReducer<FloatingPointT> sse_reducer{};
+
+            FloatingPointT new_sse = std::transform_reduce(
+                std::forward<ExecutionPolicy>(execution_policy),
+                std::ranges::begin(indices),
+                std::ranges::end(indices),
+                static_cast<FloatingPointT>(0.0),
+                sse_reducer,
+                sse_mapper
+            );
+
+            if (new_sse < acc.sse)
+            {
+                // Accept step
+                A = new_A;
+                x0 = new_x0;
+                y0 = new_y0;
+                sigma_x = std::abs(new_sigma_x); // Standard deviations must remain positive
+                sigma_y = std::abs(new_sigma_y);
+                rho = new_rho;
+                current_sse = new_sse;
+                lambda /= static_cast<FloatingPointT>(10.0); // Decrease damping factor
+            }
+            else
+            {
+                // Reject step, increase damping factor
+                lambda *= static_cast<FloatingPointT>(10.0);
+            }
+        }
+
+        return { A, x0, y0, sigma_x, sigma_y, rho };
+    }
+
     template<class InputT>
     constexpr static Image<InputT> plus(const Image<InputT>& input1)
     {
