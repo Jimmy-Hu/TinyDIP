@@ -30,6 +30,10 @@ void gaussianFigure2DTest()
             500.0,
             0.7
         );
+	std::cout << "Max value in Gaussian Plane: " << TinyDIP::max(gaussian_plane) << '\n';
+    auto estimated_gaussian_parameter = TinyDIP::estimate_gaussian_parameters_2d(std::execution::par_unseq, gaussian_plane);
+	std::cout << "Estimated Gaussian Parameters: " << estimated_gaussian_parameter << '\n';
+
     gaussian_plane = TinyDIP::multiplies(TinyDIP::normalize(gaussian_plane), 255.0);
     TinyDIP::bmp_write("test_gaussian",
         TinyDIP::constructRGB(
