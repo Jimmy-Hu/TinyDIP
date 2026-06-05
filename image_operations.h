@@ -2952,6 +2952,16 @@ namespace TinyDIP
         }
     };
 
+	//  LMReducer template struct implementation
+    template <std::floating_point FloatingPointT = double>
+    struct LMReducer
+    {
+        LMAccumulator<FloatingPointT> operator()(const LMAccumulator<FloatingPointT>& a, const LMAccumulator<FloatingPointT>& b) const
+        {
+            return a + b;
+        }
+    };
+
     template<class InputT>
     constexpr static Image<InputT> plus(const Image<InputT>& input1)
     {
