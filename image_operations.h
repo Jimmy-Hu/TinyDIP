@@ -2898,6 +2898,60 @@ namespace TinyDIP
         }
     };
 
+	//  LMMapper template struct implementation
+    template <typename ElementT, std::floating_point FloatingPointT = double>
+    struct LMMapper
+    {
+        const TinyDIP::Image<ElementT>* image_ptr;
+        FloatingPointT A;
+        FloatingPointT x0;
+        FloatingPointT y0;
+        FloatingPointT sigma_x;
+        FloatingPointT sigma_y;
+        FloatingPointT rho;
+
+        LMAccumulator<FloatingPointT> operator()(const std::size_t idx) const
+        {
+            const std::size_t width = image_ptr->getWidth();
+            const FloatingPointT x = static_cast<FloatingPointT>(idx % width);
+            const FloatingPointT y = static_cast<FloatingPointT>(idx / width);
+            const FloatingPointT z = static_cast<FloatingPointT>(image_ptr->get(idx));
+
+            const FloatingPointT dx = x - x0;
+            const FloatingPointT dy = y - y0;
+            
+            const FloatingPointT W = static_cast<FloatingPointT>(1.0) / (static_cast<FloatingPointT>(1.0) - rho * rho);
+            const FloatingPointT Z_eq = (dx * dx) / (sigma_x * sigma_x) 
+                                      - (static_cast<FloatingPointT>(2.0) * rho * dx * dy) / (sigma_x * sigma_y) 
+                                      + (dy * dy) / (sigma_y * sigma_y);
+            
+            const FloatingPointT exp_term = std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_eq);
+            const FloatingPointT f_val = A * exp_term;
+
+            const FloatingPointT r = z - f_val;
+
+            std::array<FloatingPointT, 6> J{};
+            J[0] = exp_term;
+            J[1] = f_val * W * ((dx / (sigma_x * sigma_x)) - (rho * dy) / (sigma_x * sigma_y));
+            J[2] = f_val * W * ((dy / (sigma_y * sigma_y)) - (rho * dx) / (sigma_x * sigma_y));
+            J[3] = f_val * W * (((dx * dx) / (sigma_x * sigma_x * sigma_x)) - (rho * dx * dy) / (sigma_x * sigma_x * sigma_y));
+            J[4] = f_val * W * (((dy * dy) / (sigma_y * sigma_y * sigma_y)) - (rho * dx * dy) / (sigma_x * sigma_y * sigma_y));
+            J[5] = f_val * W * (((dx * dy) / (sigma_x * sigma_y)) - rho * W * Z_eq);
+
+            LMAccumulator<FloatingPointT> acc;
+            acc.sse = r * r;
+            for (int i = 0; i < 6; ++i)
+            {
+                acc.g[i] = J[i] * r;
+                for (int j = 0; j < 6; ++j)
+                {
+                    acc.H[i][j] = J[i] * J[j];
+                }
+            }
+            return acc;
+        }
+    };
+
     template<class InputT>
     constexpr static Image<InputT> plus(const Image<InputT>& input1)
     {
