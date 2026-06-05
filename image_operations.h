@@ -2998,6 +2998,16 @@ namespace TinyDIP
         }
     };
 
+	//  SSEReducer template struct implementation
+    template <std::floating_point FloatingPointT = double>
+    struct SSEReducer
+    {
+        constexpr FloatingPointT operator()(const FloatingPointT a, const FloatingPointT b) const
+        {
+            return a + b;
+        }
+    };
+
     template<class InputT>
     constexpr static Image<InputT> plus(const Image<InputT>& input1)
     {
