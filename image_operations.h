@@ -2848,7 +2848,9 @@ namespace TinyDIP
     constexpr static auto gaussianFigure2D(
         ExPo&& execution_policy,
         const std::size_t xsize, const std::size_t ysize,
-        const GaussianParameters2D<InputT> params)
+        const GaussianParameters2D<InputT> params,
+        const InputT normalize_factor_input = 1.0
+        )
     {
         Image<InputT> output(xsize, ysize);
         auto sigma1_2 = params.sigma_x * params.sigma_x;
