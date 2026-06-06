@@ -3075,7 +3075,7 @@ namespace TinyDIP
         std::floating_point FloatingPointT = double
     >
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> && std::is_arithmetic_v<ElementT>)
-    constexpr GaussianParameters2D<FloatingPointT> estimate_gaussian_parameters_2d(
+    GaussianParameters2D<FloatingPointT> estimate_gaussian_parameters_2d(
         ExecutionPolicy&& execution_policy,
         const TinyDIP::Image<ElementT>& image,
         const std::size_t max_iterations = 1000,
