@@ -539,6 +539,17 @@ struct Workspace
         return nullptr;
     }
 
+    //  retrieve_any function implementation
+    std::optional<std::any> retrieve_any(const std::string_view name) const
+    {
+        std::lock_guard<std::mutex> lock(mtx);
+        if (auto it = memory_store.find(std::string(name)); it != std::ranges::end(memory_store))
+        {
+            return it->second;
+        }
+        return std::nullopt;
+    }
+
     //  remove function implementation
     bool remove(const std::string_view name)
     {
