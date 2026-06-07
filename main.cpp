@@ -404,6 +404,7 @@ using all_deque_types = tuple_map_t<std::deque, core_numeric_types>;
 using all_list_types = tuple_map_t<std::list, core_numeric_types>;
 using all_array_types = generate_arrays_t<core_numeric_types, 3, 4>;
 using all_custom_scalar_types = std::tuple<TinyDIP::RGB, TinyDIP::RGB_DOUBLE, TinyDIP::HSV>;
+using all_gaussian_params_types = tuple_map_t<gaussian_params_t, core_floating_point_types>;
 
 // Master Scalar Tuple (Exhaustively includes ALL valid scalar and container output types)
 using master_scalar_types = tuple_cat_t<
