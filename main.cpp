@@ -416,7 +416,8 @@ using master_scalar_types = tuple_cat_t<
     all_vector_types,
     all_deque_types,
     all_list_types,
-    all_array_types
+    all_array_types,
+    all_gaussian_params_types
 >;
 
 // Master Image Tuple (Exhaustively includes ALL valid image structures)
