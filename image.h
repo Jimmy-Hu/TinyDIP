@@ -16,6 +16,7 @@
 #include <iterator>
 #include <list>
 #include <numeric>
+#include <ranges>
 #include <string>
 #include <type_traits>
 #include <variant>
@@ -41,7 +42,7 @@
 namespace TinyDIP
 {
     //  is_streamable concept
-    // Concept to check if a type supports the << operator with std::ostream
+    //  Concept to check if a type supports the << operator with std::ostream
     template<typename T>
     concept is_streamable = requires(std::ostream & os, const T & val)
     {
@@ -56,7 +57,8 @@ namespace TinyDIP
 
         template<std::same_as<std::size_t>... Sizes>
         Image(Sizes... sizes): size{sizes...}, image_data((1 * ... * sizes))
-        {}
+        {
+        }
 
         template<std::same_as<int>... Sizes>
         Image(Sizes... sizes)
@@ -69,7 +71,7 @@ namespace TinyDIP
                     std::ranges::cend(size),
                     std::size_t{1},
                     std::multiplies<>()
-                    )
+                )
             );
         }
 
@@ -78,11 +80,11 @@ namespace TinyDIP
         requires(std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>)
         Image(const Sizes& sizes)
         {
-            if (sizes.empty())
+            if (std::ranges::empty(sizes))
             {
                 throw std::runtime_error("Image size vector is empty!");
             }
-            size.resize(sizes.size());
+            size.resize(std::ranges::size(sizes));
             std::transform(std::ranges::cbegin(sizes), std::ranges::cend(sizes), std::ranges::begin(size), [&](auto&& element) { return element; });
             image_data.resize(
                 std::reduce(
@@ -90,7 +92,8 @@ namespace TinyDIP
                     std::ranges::cend(sizes),
                     std::size_t{1},
                     std::multiplies<>()
-                    ));
+                )
+            );
         }
 
         //  Image constructor
@@ -100,7 +103,8 @@ namespace TinyDIP
             Image(Range&& input, Sizes... sizes):
                 size{sizes...}, image_data(std::from_range, std::forward<Range>(input))
             {
-                if (image_data.size() != (1 * ... * sizes)) {
+                if (std::ranges::size(image_data) != (1 * ... * sizes)) 
+                {
                     throw std::runtime_error("Image data input and the given size are mismatched!");
                 }
             }
@@ -108,9 +112,10 @@ namespace TinyDIP
             template<std::ranges::input_range Range,
                      std::same_as<std::size_t>... Sizes>
             Image(const Range&& input, Sizes... sizes):
-                size{sizes...}, image_data(input.begin(), input.end())
+                size{sizes...}, image_data(std::ranges::begin(input), std::ranges::end(input))
             {
-                if (image_data.size() != (1 * ... * sizes)) {
+                if (std::ranges::size(image_data) != (1 * ... * sizes)) 
+                {
                     throw std::runtime_error("Image data input and the given size are mismatched!");
                 }
             }
@@ -122,12 +127,13 @@ namespace TinyDIP
             Image(const Range& input, Sizes... sizes) :
                 size{ sizes... }
             {
-                if (input.empty())
+                if (std::ranges::empty(input))
                 {
                     throw std::runtime_error("Input vector is empty!");
                 }
                 image_data = std::vector(std::from_range, input);
-                if (image_data.size() != (1 * ... * sizes)) {
+                if (std::ranges::size(image_data) != (1 * ... * sizes)) 
+                {
                     throw std::runtime_error("Image data input and the given size are mismatched!");
                 }
             }
