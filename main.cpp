@@ -519,16 +519,19 @@ constexpr decltype(auto) execute_type_action(TupleT&& action_map, FallbackFun&& 
 struct Workspace
 {
     std::map<std::string, std::any> memory_store;
+    mutable std::mutex mtx;
 
     template <typename T>
     void store(const std::string_view name, T&& item)
     {
+        std::lock_guard<std::mutex> lock(mtx);
         memory_store[std::string(name)] = std::forward<T>(item);
     }
 
     template <typename T>
     const T* retrieve(const std::string_view name) const
     {
+        std::lock_guard<std::mutex> lock(mtx);
         if (auto it = memory_store.find(std::string(name)); it != std::ranges::end(memory_store))
         {
             if (it->second.type() == typeid(T))
@@ -553,6 +556,7 @@ struct Workspace
     //  remove function implementation
     bool remove(const std::string_view name)
     {
+        std::lock_guard<std::mutex> lock(mtx);
         const std::string key = std::string(name);
         if (auto it = memory_store.find(key); it != std::ranges::end(memory_store))
         {
@@ -565,6 +569,7 @@ struct Workspace
     //  rename function implementation
     bool rename(const std::string_view old_name, const std::string_view new_name)
     {
+        std::lock_guard<std::mutex> lock(mtx);
         const std::string old_key(old_name);
         if (auto it = memory_store.find(old_key); it != std::ranges::end(memory_store))
         {
@@ -579,12 +584,15 @@ struct Workspace
     //  Clear all elements in the workspace memory store
     void clear()
     {
+        std::lock_guard<std::mutex> lock(mtx);
         memory_store.clear();
     }
 
     //  list_variables function implementation
     void list_variables(std::ostream& os) const
     {
+        std::lock_guard<std::mutex> lock(mtx);
+        
         if (std::ranges::empty(memory_store))
         {
             os << "  (Workspace is empty)\n";
