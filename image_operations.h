@@ -3089,6 +3089,8 @@ namespace TinyDIP
     }
 
 	//  estimate_gaussian_parameters_2d template function implementation
+    //  Test1: https://godbolt.org/z/Ee6xjPETE
+    //  Test2: https://godbolt.org/z/7rcnqWff6
     template <
         class ExecutionPolicy,
         typename ElementT,
@@ -3106,6 +3108,7 @@ namespace TinyDIP
             throw std::invalid_argument("Input image must be 2-dimensional.");
         }
 
+        constexpr std::size_t num_params = GaussianParameters2D<FloatingPointT>::num_params;
         const std::size_t count = image.count();
         const std::size_t width = image.getWidth();
         
@@ -3127,11 +3130,10 @@ namespace TinyDIP
         FloatingPointT x0 = static_cast<FloatingPointT>(max_idx % width);
         FloatingPointT y0 = static_cast<FloatingPointT>(max_idx / width);
 
-        // Estimate standard deviations & correlation via 2nd moments utilizing OpenMP reduction natively
-        FloatingPointT sum_z = static_cast<FloatingPointT>(0.0);
-        FloatingPointT sum_dx2_z = static_cast<FloatingPointT>(0.0);
-        FloatingPointT sum_dy2_z = static_cast<FloatingPointT>(0.0);
-        FloatingPointT sum_dxdy_z = static_cast<FloatingPointT>(0.0);
+        FloatingPointT sum_z{};
+        FloatingPointT sum_dx2_z{};
+        FloatingPointT sum_dy2_z{};
+        FloatingPointT sum_dxdy_z{};
         const std::ptrdiff_t signed_count = static_cast<std::ptrdiff_t>(count);
 
         #pragma omp parallel for reduction(+:sum_z, sum_dx2_z, sum_dy2_z, sum_dxdy_z)
@@ -3153,7 +3155,11 @@ namespace TinyDIP
         }
 
         FloatingPointT sigma_x = (sum_z > static_cast<FloatingPointT>(0.0)) ? std::sqrt(sum_dx2_z / sum_z) : static_cast<FloatingPointT>(10.0);
+        sigma_x = std::max(static_cast<FloatingPointT>(1e-6), sigma_x);
+        
         FloatingPointT sigma_y = (sum_z > static_cast<FloatingPointT>(0.0)) ? std::sqrt(sum_dy2_z / sum_z) : static_cast<FloatingPointT>(10.0);
+        sigma_y = std::max(static_cast<FloatingPointT>(1e-6), sigma_y);
+        
         FloatingPointT rho = (sum_z > static_cast<FloatingPointT>(0.0)) ? (sum_dxdy_z / sum_z) / (sigma_x * sigma_y) : static_cast<FloatingPointT>(0.0);
         
         // Clamp initial rho to valid bound
@@ -3179,24 +3185,45 @@ namespace TinyDIP
                 mapper
             );
 
-            std::array<std::array<FloatingPointT, 6>, 6> H_damped = acc.H;
-            
-            // Apply damping
-            for (int i = 0; i < 6; ++i)
+            // Marquardt Scaling to prevent ill-conditioning due to disparate parameter scales
+            std::array<FloatingPointT, num_params> scale;
+            for (std::size_t i = 0; i < num_params; ++i)
             {
-                H_damped[i][i] *= (static_cast<FloatingPointT>(1.0) + lambda);
+                scale[i] = std::sqrt(std::abs(acc.H[i][i]));
+                if (scale[i] < static_cast<FloatingPointT>(1e-12))
+                {
+                    scale[i] = static_cast<FloatingPointT>(1.0); // Prevent division by zero
+                }
             }
 
-            std::array<FloatingPointT, 6> delta = solve_linear_system_6x6<FloatingPointT>(H_damped, acc.g);
+            std::array<std::array<FloatingPointT, num_params>, num_params> H_scaled{};
+            std::array<FloatingPointT, num_params> g_scaled{};
+
+            for (std::size_t i = 0; i < num_params; ++i)
+            {
+                g_scaled[i] = acc.g[i] / scale[i];
+                for (std::size_t j = 0; j < num_params; ++j)
+                {
+                    H_scaled[i][j] = acc.H[i][j] / (scale[i] * scale[j]);
+                }
+            }
+
+            // Apply damping to the normalized Hessian
+            for (std::size_t i = 0; i < num_params; ++i)
+            {
+                H_scaled[i][i] += lambda; 
+            }
+
+            std::array<FloatingPointT, num_params> delta_scaled = solve_linear_system<num_params, FloatingPointT>(H_scaled, g_scaled);
+
+            std::array<FloatingPointT, num_params> delta;
+            for (std::size_t i = 0; i < num_params; ++i)
+            {
+                delta[i] = delta_scaled[i] / scale[i];
+            }
 
             // Check if gradient is small enough (convergence)
-            FloatingPointT delta_sq_sum = std::inner_product(
-                std::ranges::begin(delta),
-                std::ranges::end(delta),
-                std::ranges::begin(delta),
-                static_cast<FloatingPointT>(0.0)
-            );
-            
+            FloatingPointT delta_sq_sum = std::inner_product(std::ranges::begin(delta), std::ranges::end(delta), std::ranges::begin(delta), static_cast<FloatingPointT>(0.0));
             if (delta_sq_sum < tolerance)
             {
                 break;
@@ -3205,8 +3232,8 @@ namespace TinyDIP
             FloatingPointT new_A = A + delta[0];
             FloatingPointT new_x0 = x0 + delta[1];
             FloatingPointT new_y0 = y0 + delta[2];
-            FloatingPointT new_sigma_x = sigma_x + delta[3];
-            FloatingPointT new_sigma_y = sigma_y + delta[4];
+            FloatingPointT new_sigma_x = std::max(static_cast<FloatingPointT>(1e-6), std::abs(sigma_x + delta[3]));
+            FloatingPointT new_sigma_y = std::max(static_cast<FloatingPointT>(1e-6), std::abs(sigma_y + delta[4]));
             FloatingPointT new_rho = rho + delta[5];
 
             // Clamp new rho strictly inside (-1, 1) range to prevent zero division in W
@@ -3231,8 +3258,8 @@ namespace TinyDIP
                 A = new_A;
                 x0 = new_x0;
                 y0 = new_y0;
-                sigma_x = std::abs(new_sigma_x); // Standard deviations must remain positive
-                sigma_y = std::abs(new_sigma_y);
+                sigma_x = new_sigma_x;
+                sigma_y = new_sigma_y;
                 rho = new_rho;
                 current_sse = new_sse;
                 lambda /= static_cast<FloatingPointT>(10.0); // Decrease damping factor
