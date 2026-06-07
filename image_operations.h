@@ -3026,20 +3026,19 @@ namespace TinyDIP
         }
     };
 
-	//  solve_linear_system_6x6 template function implementation
-    //  Matrix solver for 6x6 using Gauss-Jordan elimination with partial pivoting
-    template <std::floating_point FloatingPointT = double>
-    constexpr std::array<FloatingPointT, 6> solve_linear_system_6x6(
-        std::array<std::array<FloatingPointT, 6>, 6> A, 
-        std::array<FloatingPointT, 6> b, 
+	//  solve_linear_system template function implementation
+    //  Generalized matrix solver for NxN using Gauss-Jordan elimination with partial pivoting
+    template <std::size_t N, std::floating_point FloatingPointT = double>
+    constexpr std::array<FloatingPointT, N> solve_linear_system(
+        std::array<std::array<FloatingPointT, N>, N> A, 
+        std::array<FloatingPointT, N> b, 
         const FloatingPointT threshold = static_cast<FloatingPointT>(1e-12))
     {
-        constexpr int n = 6;
-        for (int i = 0; i < n; ++i)
+        for (std::size_t i = 0; i < N; ++i)
         {
-            int max_row = i;
+            std::size_t max_row = i;
             FloatingPointT max_val = std::abs(A[i][i]);
-            for (int k = i + 1; k < n; ++k)
+            for (std::size_t k = i + 1; k < N; ++k)
             {
                 if (std::abs(A[k][i]) > max_val)
                 {
@@ -3050,8 +3049,8 @@ namespace TinyDIP
 
             if (max_val < threshold)
             {
-                return { static_cast<FloatingPointT>(0.0), static_cast<FloatingPointT>(0.0), static_cast<FloatingPointT>(0.0), 
-                         static_cast<FloatingPointT>(0.0), static_cast<FloatingPointT>(0.0), static_cast<FloatingPointT>(0.0) };
+                std::array<FloatingPointT, N> zeros{};
+                return zeros; // Matrix is singular or nearly singular
             }
 
             if (max_row != i)
@@ -3060,10 +3059,10 @@ namespace TinyDIP
                 std::swap(b[i], b[max_row]);
             }
 
-            for (int k = i + 1; k < n; ++k)
+            for (std::size_t k = i + 1; k < N; ++k)
             {
-                FloatingPointT factor = A[k][i] / A[i][i];
-                for (int j = i; j < n; ++j)
+                const FloatingPointT factor = A[k][i] / A[i][i];
+                for (std::size_t j = i; j < N; ++j)
                 {
                     A[k][j] -= factor * A[i][j];
                 }
@@ -3071,11 +3070,13 @@ namespace TinyDIP
             }
         }
 
-        std::array<FloatingPointT, 6> x{};
-        for (int i = n - 1; i >= 0; --i)
+        std::array<FloatingPointT, N> x{};
+        
+        // Reverse unsigned loop idiom for back substitution
+        for (std::size_t i = N; i-- > 0; )
         {
-            FloatingPointT sum = static_cast<FloatingPointT>(0.0);
-            for (int j = i + 1; j < n; ++j)
+            FloatingPointT sum{};
+            for (std::size_t j = i + 1; j < N; ++j)
             {
                 sum += A[i][j] * x[j];
             }
