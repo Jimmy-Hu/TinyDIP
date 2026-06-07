@@ -3007,6 +3007,7 @@ namespace TinyDIP
             const FloatingPointT dy = y - parameters.y0;
 
             const FloatingPointT W = static_cast<FloatingPointT>(1.0) / (static_cast<FloatingPointT>(1.0) - parameters.rho * parameters.rho);
+            
             const FloatingPointT Z_eq = (dx * dx) / (parameters.sigma_x * parameters.sigma_x) 
                                       - (static_cast<FloatingPointT>(2.0) * parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y) 
                                       + (dy * dy) / (parameters.sigma_y * parameters.sigma_y);
