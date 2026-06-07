@@ -142,12 +142,13 @@ namespace TinyDIP
             Image(const Range& input, Sizes... sizes):
                 size{sizes...}
             {
-                if (input.empty())
+                if (std::ranges::empty(input))
                 {
                     throw std::runtime_error("Input vector is empty!");
                 }
-                image_data = std::vector(input.begin(), input.end());
-                if (image_data.size() != (1 * ... * sizes)) {
+                image_data = std::vector(std::ranges::begin(input), std::ranges::end(input));
+                if (std::ranges::size(image_data) != (1 * ... * sizes)) 
+                {
                     throw std::runtime_error("Image data input and the given size are mismatched!");
                 }
             }
@@ -159,156 +160,141 @@ namespace TinyDIP
                 (std::same_as<std::ranges::range_value_t<Sizes>, int>)
         Image(const Range& input, const Sizes& sizes)
         {
-            if (input.empty())
+            if (std::ranges::empty(input))
             {
                 throw std::runtime_error("Input vector is empty!");
             }
-            size.resize(sizes.size());
+            size.resize(std::ranges::size(sizes));
             std::transform(std::ranges::cbegin(sizes), std::ranges::cend(sizes), std::ranges::begin(size), [&](auto&& element) { return static_cast<std::size_t>(element); });
             image_data = std::vector(std::ranges::cbegin(input), std::ranges::cend(input));
-            auto count = std::reduce(std::ranges::cbegin(sizes), std::ranges::cend(sizes), 1, std::multiplies());
-            if (image_data.size() != count) {
+            auto count = std::reduce(std::ranges::cbegin(sizes), std::ranges::cend(sizes), std::size_t{1}, std::multiplies());
+            if (std::ranges::size(image_data) != count) 
+            {
                 throw std::runtime_error("Image data input and the given size are mismatched!");
             }
         }
 
         Image(const std::vector<std::vector<ElementT>>& input)
         {
-            if (input.empty())
+            if (std::ranges::empty(input))
             {
                 throw std::runtime_error("Input vector is empty!");
             }
             size.reserve(2);
-            size.emplace_back(input[0].size());
-            size.emplace_back(input.size());
+            size.emplace_back(std::ranges::size(input[0]));
+            size.emplace_back(std::ranges::size(input));
             for (auto& rows : input)
             {
-                image_data.insert(image_data.end(), std::ranges::begin(rows), std::ranges::end(rows));    //  flatten
+                image_data.insert(std::ranges::end(image_data), std::ranges::begin(rows), std::ranges::end(rows));    //  flatten
             }
             return;
         }
 
         //  at template function implementation
-        template<std::same_as<std::size_t>... Args>
-        constexpr ElementT& at(const Args... indexInput)
+        //  Consolidated variadic template using C++20 std::integral to accept any integer or size_t natively.
+        //  decltype(auto) guarantees perfect forwarding of vector reference proxies (e.g., std::vector<bool>::reference).
+        template<std::integral... Args>
+        constexpr decltype(auto) at(const Args... indexInput)
         {
-            return const_cast<ElementT&>(static_cast<const Image &>(*this).at(indexInput...));
+            checkBoundary(static_cast<std::size_t>(indexInput)...);
+            return at_without_boundary_check(static_cast<std::size_t>(indexInput)...);
         }
 
         //  at template function implementation
-        //  Reference: https://codereview.stackexchange.com/a/288736/231235
-        template<std::same_as<std::size_t>... Args>
-        constexpr ElementT const& at(const Args... indexInput) const
+        template<std::integral... Args>
+        constexpr decltype(auto) at(const Args... indexInput) const
         {
-            checkBoundary(indexInput...);
-            return at_without_boundary_check(indexInput...);
-        }
-
-        //  at template function implementation
-        template<std::same_as<int>... Args>
-        constexpr ElementT& at(const Args... indexInput)
-        {
-            return at(static_cast<std::size_t>(indexInput)...);
-        }
-
-        //  at template function implementation
-        template<std::same_as<int>... Args>
-        constexpr ElementT const& at(const Args... indexInput) const
-        {
-            return at(static_cast<std::size_t>(indexInput)...);
+            checkBoundary(static_cast<std::size_t>(indexInput)...);
+            return at_without_boundary_check(static_cast<std::size_t>(indexInput)...);
         }
 
         //  at template function implementation (std::ranges::input_range case)
         template<std::ranges::input_range Indices>
-        requires(std::same_as<std::ranges::range_value_t<Indices>, std::size_t> ||
-                 std::same_as<std::ranges::range_value_t<Indices>, int>)
-        constexpr ElementT const& at(const Indices indexInput) const
+        requires(std::integral<std::ranges::range_value_t<Indices>>)
+        constexpr decltype(auto) at(const Indices& indexInput) const
         {
-            for (std::size_t i = 0; i < indexInput.size(); ++i)
+            std::size_t i = 0;
+            // Iterate using ranges to universally support both continuous (std::vector) and discrete (std::list) ranges
+            for (const auto& idx : indexInput)
             {
-                if (indexInput[i] > size[i])
+                // Boundary check MUST be >= to prevent array overflow segmentation faults
+                if (static_cast<std::size_t>(idx) >= size[i])
                 {
                     throw std::out_of_range("Given index out of range!");
                 }
+                ++i;
             }
             return at_without_boundary_check(indexInput);
         }
 
         //  at template function implementation (std::ranges::input_range case)
         template<std::ranges::input_range Indices>
-        requires(std::same_as<std::ranges::range_value_t<Indices>, std::size_t> ||
-                 std::same_as<std::ranges::range_value_t<Indices>, int>)
-        constexpr ElementT& at(const Indices indexInput)
+        requires(std::integral<std::ranges::range_value_t<Indices>>)
+        constexpr decltype(auto) at(const Indices& indexInput)
         {
-            return const_cast<ElementT&>(static_cast<const Image&>(*this).at(indexInput));
+            std::size_t i = 0;
+            for (const auto& idx : indexInput)
+            {
+                if (static_cast<std::size_t>(idx) >= size[i])
+                {
+                    throw std::out_of_range("Given index out of range!");
+                }
+                ++i;
+            }
+            return at_without_boundary_check(indexInput);
         }
 
         //  at_without_boundary_check template function implementation
-        template<std::same_as<std::size_t>... Args>
-        constexpr ElementT& at_without_boundary_check(const Args... indexInput)
-        {
-            return const_cast<ElementT&>(static_cast<const Image &>(*this).at_without_boundary_check(indexInput...));
-        }
-
-        //  at_without_boundary_check template function implementation
-        template<std::same_as<std::size_t>... Args>
-        constexpr ElementT const& at_without_boundary_check(const Args... indexInput) const
+        template<std::integral... Args>
+        constexpr decltype(auto) at_without_boundary_check(const Args... indexInput)
         {
             constexpr std::size_t n = sizeof...(Args);
-            if (n != size.size()) {
+            if (n != std::ranges::size(size)) 
+            {
                 throw std::runtime_error("Dimensionality mismatched!");
             }
-            std::size_t index = calculateIndex(indexInput...);
-            return image_data[index];
+            return image_data[calculateIndex(static_cast<std::size_t>(indexInput)...)];
         }
 
         //  at_without_boundary_check template function implementation
-        template<std::same_as<int>... Args>
-        constexpr ElementT& at_without_boundary_check(const Args... indexInput)
+        template<std::integral... Args>
+        constexpr decltype(auto) at_without_boundary_check(const Args... indexInput) const
         {
-            return at_without_boundary_check(static_cast<std::size_t>(indexInput)...);
-        }
-
-        //  at_without_boundary_check template function implementation
-        template<std::same_as<int>... Args>
-        constexpr ElementT const& at_without_boundary_check(const Args... indexInput) const
-        {
-            return at_without_boundary_check(static_cast<std::size_t>(indexInput)...);
+            constexpr std::size_t n = sizeof...(Args);
+            if (n != std::ranges::size(size)) 
+            {
+                throw std::runtime_error("Dimensionality mismatched!");
+            }
+            return image_data[calculateIndex(static_cast<std::size_t>(indexInput)...)];
         }
 
         //  at_without_boundary_check template function implementation (std::ranges::input_range case)
         template<std::ranges::input_range Indices>
-        requires(std::same_as<std::ranges::range_value_t<Indices>, std::size_t> ||
-                 std::same_as<std::ranges::range_value_t<Indices>, int>)
-        constexpr ElementT const& at_without_boundary_check(const Indices indexInput) const
+        requires(std::integral<std::ranges::range_value_t<Indices>>)
+        constexpr decltype(auto) at_without_boundary_check(const Indices& indexInput) const
         {
-            std::vector<std::size_t> index_size_t(indexInput.size());
-            std::transform(
-                std::ranges::cbegin(indexInput),
-                std::ranges::cend(indexInput),
-                std::ranges::begin(index_size_t),
-                [&](auto&& element) {return static_cast<std::size_t>(element); }        //  casting to std::size_t
-            );
-            return image_data[calculateIndex(index_size_t)];
+            // Direct injection to calculateIndex removes the severe dynamic memory allocation overhead
+            return image_data[calculateIndex(indexInput)];
         }
 
         //  at_without_boundary_check template function implementation (std::ranges::input_range case)
         template<std::ranges::input_range Indices>
-        requires(std::same_as<std::ranges::range_value_t<Indices>, std::size_t> ||
-                 std::same_as<std::ranges::range_value_t<Indices>, int>)
-        constexpr ElementT& at_without_boundary_check(const Indices indexInput)
+        requires(std::integral<std::ranges::range_value_t<Indices>>)
+        constexpr decltype(auto) at_without_boundary_check(const Indices& indexInput)
         {
-            return const_cast<ElementT&>(static_cast<const Image&>(*this).at_without_boundary_check(indexInput));
+            return image_data[calculateIndex(indexInput)];
         }
 
         //  get function implementation
         constexpr ElementT get(std::size_t index) const noexcept
         {
-            return image_data[index];
+            return static_cast<ElementT>(image_data[index]);
         }
 
         //  set function implementation
-        constexpr ElementT& set(const std::size_t index)
+        //  decltype(auto) ensures that modifying the return element safely propagates 
+        //  into the proxy objects associated with bitwise structures (e.g., vector<bool>)
+        constexpr decltype(auto) set(const std::size_t index)
         {
             if (index >= count())
             {
@@ -337,13 +323,13 @@ namespace TinyDIP
         constexpr Image<TargetT> cast() const
         {
             std::vector<TargetT> output_data;
-            output_data.resize(image_data.size());
+            output_data.resize(std::ranges::size(image_data));
             std::transform(
                 std::ranges::cbegin(image_data),
                 std::ranges::cend(image_data),
                 std::ranges::begin(output_data),
                 [&](const auto& input){ return static_cast<TargetT>(input); }
-                );
+            );
             Image<TargetT> output(output_data, size);
             return output;
         }
@@ -358,13 +344,13 @@ namespace TinyDIP
         requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
         constexpr std::size_t count(ExPo&& execution_policy) const
         {
-            if (size.empty()) return 0;
+            if (std::ranges::empty(size)) return 0;
             return std::reduce(std::forward<ExPo>(execution_policy), std::ranges::cbegin(size), std::ranges::cend(size), std::size_t{ 1 }, std::multiplies());
         }
   
         constexpr std::size_t getDimensionality() const noexcept
         {
-            return size.size();
+            return std::ranges::size(size);
         }
 
         constexpr std::size_t getWidth() const noexcept
@@ -420,13 +406,15 @@ namespace TinyDIP
                 return;
             }
 
-            // A lambda to define how a single element should be printed.
-            auto element_printer = [&](const ElementT& value) {
+            // A generic lambda perfectly accepts primitive copies, proxy instances, or direct references safely
+            auto element_printer = [&](const auto& value) 
+            {
                 if constexpr (is_MultiChannel<ElementT>::value)
                 {
                      os << "( ";
                      // Assumes .channels is an array-like member of the multi-channel type
-                    for (std::size_t i = 0; i < std::size(value.channels); ++i) {
+                    for (std::size_t i = 0; i < std::size(value.channels); ++i) 
+                    {
                         os << +value.channels[i] << (i == std::size(value.channels) - 1 ? "" : " ");
                     }
                     os << ") ";
@@ -526,43 +514,44 @@ namespace TinyDIP
 
         // --- Start of C++23 operator[] ---
         template<std::integral... Args>
-        constexpr ElementT& operator[](Args... indices)&
+        constexpr decltype(auto) operator[](Args... indices)&
         {
             return at_without_boundary_check(static_cast<std::size_t>(indices)...);
         }
 
         template<std::integral... Args>
-        constexpr const ElementT& operator[](Args... indices) const&
+        constexpr decltype(auto) operator[](Args... indices) const&
         {
             return at_without_boundary_check(static_cast<std::size_t>(indices)...);
         }
         // --- End of C++23 operator[] ---
 
         // Nested class for the custom iterator
+        // Refactored to utilize std::vector iterators directly to strictly prevent proxy errors on Image<bool>
         class pixel_iterator
         {
         public:
             using iterator_category = std::forward_iterator_tag;
-            using value_type = std::tuple<ElementT&, std::size_t, std::size_t>;
+            using value_type = std::tuple<typename std::vector<ElementT>::reference, std::size_t, std::size_t>;
             using difference_type = std::ptrdiff_t;
             using pointer = value_type*;
             using reference = value_type;
 
             pixel_iterator() = default;
 
-            pixel_iterator(ElementT* ptr, std::size_t x, std::size_t y, std::size_t width)
-                : current_ptr(ptr), px(x), py(y), image_width(width)
+            pixel_iterator(typename std::vector<ElementT>::iterator iter, std::size_t x, std::size_t y, std::size_t width)
+                : current_iter(iter), px(x), py(y), image_width(width)
             {
             }
 
             reference operator*() const
             {
-                return {*current_ptr, px, py};
+                return {*current_iter, px, py};
             }
 
             pixel_iterator& operator++()
             {
-                ++current_ptr;
+                ++current_iter;
                 ++px;
                 if (px == image_width)
                 {
@@ -582,7 +571,7 @@ namespace TinyDIP
             bool operator==(const pixel_iterator& other) const = default;
 
         private:
-            ElementT* current_ptr = nullptr;
+            typename std::vector<ElementT>::iterator current_iter{};
             std::size_t px = 0;
             std::size_t py = 0;
             std::size_t image_width = 0;
@@ -593,26 +582,26 @@ namespace TinyDIP
         {
         public:
             using iterator_category = std::forward_iterator_tag;
-            using value_type = std::tuple<const ElementT&, std::size_t, std::size_t>;
+            using value_type = std::tuple<typename std::vector<ElementT>::const_reference, std::size_t, std::size_t>;
             using difference_type = std::ptrdiff_t;
             using pointer = value_type*;
             using reference = value_type;
 
             const_pixel_iterator() = default;
 
-            const_pixel_iterator(const ElementT* ptr, std::size_t x, std::size_t y, std::size_t width)
-                : current_ptr(ptr), px(x), py(y), image_width(width)
+            const_pixel_iterator(typename std::vector<ElementT>::const_iterator iter, std::size_t x, std::size_t y, std::size_t width)
+                : current_iter(iter), px(x), py(y), image_width(width)
             {
             }
 
             reference operator*() const
             {
-                return {*current_ptr, px, py};
+                return {*current_iter, px, py};
             }
 
             const_pixel_iterator& operator++()
             {
-                ++current_ptr;
+                ++current_iter;
                 ++px;
                 if (px == image_width)
                 {
@@ -632,7 +621,7 @@ namespace TinyDIP
             bool operator==(const const_pixel_iterator& other) const = default;
 
         private:
-            const ElementT* current_ptr = nullptr;
+            typename std::vector<ElementT>::const_iterator current_iter{};
             std::size_t px = 0;
             std::size_t py = 0;
             std::size_t image_width = 0;
@@ -652,12 +641,12 @@ namespace TinyDIP
 
             [[nodiscard]] auto begin()
             {
-                return pixel_iterator(img.image_data.data(), 0, 0, img.getWidth());
+                return pixel_iterator(std::ranges::begin(img.image_data), 0, 0, img.getWidth());
             }
 
             [[nodiscard]] auto end()
             {
-                return pixel_iterator(img.image_data.data() + img.count(), 0, img.getHeight(), img.getWidth());
+                return pixel_iterator(std::ranges::end(img.image_data), 0, img.getHeight(), img.getWidth());
             }
 
         private:
@@ -678,12 +667,12 @@ namespace TinyDIP
 
             [[nodiscard]] auto begin() const
             {
-                return const_pixel_iterator(img.image_data.data(), 0, 0, img.getWidth());
+                return const_pixel_iterator(std::ranges::cbegin(img.image_data), 0, 0, img.getWidth());
             }
 
             [[nodiscard]] auto end() const
             {
-                return const_pixel_iterator(img.image_data.data() + img.count(), 0, img.getHeight(), img.getWidth());
+                return const_pixel_iterator(std::ranges::cend(img.image_data), 0, img.getHeight(), img.getWidth());
             }
 
         private:
@@ -745,7 +734,7 @@ namespace TinyDIP
          * @param separator The separator string.
          * @param os The output stream.
          */
-        template <std::invocable<const ElementT&> PrintFunc>
+        template <typename PrintFunc>
         void print_recursive_helper(
             std::vector<std::size_t>& indices,
             std::size_t current_dim,
@@ -777,47 +766,52 @@ namespace TinyDIP
         }
 
         // calculateIndex template function implementation
-        template<std::same_as<std::size_t>... Args>
+        template<std::integral... Args>
         constexpr auto calculateIndex(const Args... indices) const
         {
             std::size_t index = 0;
             std::size_t stride = 1;
             std::size_t i = 0;
-            auto update_index = [&](std::size_t idx) {
+            auto update_index = [&](std::size_t idx) 
+            {
                 index += idx * stride;
                 stride *= size[i++];
-                };
-            (update_index(indices), ...);
+            };
+            (update_index(static_cast<std::size_t>(indices)), ...);
             return index;
         }
 
         //  calculateIndex template function implementation
         template<std::ranges::input_range Indices>
-        requires (std::same_as<std::ranges::range_value_t<Indices>, std::size_t>)
+        requires (std::integral<std::ranges::range_value_t<Indices>>)
         constexpr std::size_t calculateIndex(const Indices& indices) const
         {
             std::size_t index = 0;
             std::size_t stride = 1;
             std::size_t i = 0;
-            for (const auto& idx : indices) {
-                index += idx * stride;
+            for (const auto& idx : indices) 
+            {
+                index += static_cast<std::size_t>(idx) * stride;
                 stride *= size[i++];
             }
             return index;
         }
 
-        template<typename... Args>
+        template<std::integral... Args>
         void checkBoundary(const Args... indexInput) const
         {
             constexpr std::size_t n = sizeof...(Args);
-            if(n != size.size())
+            if(n != std::ranges::size(size))
             {
                 throw std::runtime_error("Dimensionality mismatched!");
             }
             std::size_t parameter_pack_index = 0;
-            auto function = [&](auto index) {
-                if (index >= size[parameter_pack_index])
+            auto function = [&](auto index) 
+            {
+                if (static_cast<std::size_t>(index) >= size[parameter_pack_index])
+                {
                     throw std::out_of_range("Given index out of range!");
+                }
                 parameter_pack_index = parameter_pack_index + 1;
             };
 
@@ -830,14 +824,17 @@ namespace TinyDIP
         constexpr bool checkBoundaryTuple(const TupleT location)
         {
             constexpr std::size_t n = std::tuple_size<TupleT>{};
-            if(n != size.size())
+            if(n != std::ranges::size(size))
             {
                 throw std::runtime_error("Dimensionality mismatched!");
             }
             std::size_t parameter_pack_index = 0;
-            auto function = [&](auto index) {
+            auto function = [&](auto index) 
+            {
                 if (std::cmp_greater_equal(index, size[parameter_pack_index]))
+                {
                     return false;
+                }
                 parameter_pack_index = parameter_pack_index + 1;
                 return true;
             };
@@ -852,10 +849,11 @@ namespace TinyDIP
             std::size_t i = 0;
             std::size_t stride = 1;
             std::size_t position = 0;
-            auto update_position = [&](auto index) {
-                    position += index * stride;
-                    stride *= size[i++];
-                };
+            auto update_position = [&](auto index) 
+            {
+                position += index * stride;
+                stride *= size[i++];
+            };
             std::apply([&](auto&&... args) {((update_position(args)), ...);}, location);
             return position;
         }
