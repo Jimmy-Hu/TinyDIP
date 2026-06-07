@@ -2892,10 +2892,12 @@ namespace TinyDIP
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     struct LMAccumulator
     {
+        static constexpr std::size_t num_params = GaussianParameters2D<FloatingPointT>::num_params;
+
         std::remove_cvref_t<ExPo> execution_policy{};
         FloatingPointT sse{ 0.0 };
-        std::array<std::array<FloatingPointT, 6>, 6> H{};
-        std::array<FloatingPointT, 6> g{};
+        std::array<std::array<FloatingPointT, num_params>, num_params> H{};
+        std::array<FloatingPointT, num_params> g{};
 
         LMAccumulator operator+(const LMAccumulator& other) const
         {
