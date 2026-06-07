@@ -2901,11 +2901,21 @@ namespace TinyDIP
             res.execution_policy = execution_policy;
             res.sse = sse + other.sse;
             
-            std::transform(execution_policy, std::ranges::cbegin(g), std::ranges::cend(g), std::ranges::cbegin(other.g), std::ranges::begin(res.g), std::plus<>{});
+            std::transform(
+                execution_policy, 
+                std::ranges::cbegin(g), std::ranges::cend(g), 
+                std::ranges::cbegin(other.g), std::ranges::begin(res.g), 
+                std::plus<>{}
+            );
             
             for (std::size_t i = 0; i < H.size(); ++i)
             {
-                std::transform(execution_policy, std::ranges::cbegin(H[i]), std::ranges::cend(H[i]), std::ranges::cbegin(other.H[i]), std::ranges::begin(res.H[i]), std::plus<>{});
+                std::transform(
+                    execution_policy, 
+                    std::ranges::cbegin(H[i]), std::ranges::cend(H[i]), 
+                    std::ranges::cbegin(other.H[i]), std::ranges::begin(res.H[i]), 
+                    std::plus<>{}
+                );
             }
             
             return res;
