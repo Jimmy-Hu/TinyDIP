@@ -2820,6 +2820,8 @@ namespace TinyDIP
     template <std::floating_point FloatingPointT = double>
     struct GaussianParameters2D
     {
+        static constexpr std::size_t num_params = 6;
+
         FloatingPointT amplitude;
         FloatingPointT x0;
         FloatingPointT y0;
