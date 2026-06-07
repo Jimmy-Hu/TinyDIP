@@ -3170,7 +3170,13 @@ namespace TinyDIP
             std::array<FloatingPointT, 6> delta = solve_linear_system_6x6<FloatingPointT>(H_damped, acc.g);
 
             // Check if gradient is small enough (convergence)
-            FloatingPointT delta_sq_sum = std::inner_product(std::ranges::begin(delta), std::ranges::end(delta), std::ranges::begin(delta), static_cast<FloatingPointT>(0.0));
+            FloatingPointT delta_sq_sum = std::inner_product(
+                std::ranges::begin(delta),
+                std::ranges::end(delta),
+                std::ranges::begin(delta),
+                static_cast<FloatingPointT>(0.0)
+            );
+            
             if (delta_sq_sum < tolerance)
             {
                 break;
