@@ -2930,6 +2930,8 @@ namespace TinyDIP
     template <typename ElementT, std::floating_point FloatingPointT = double>
     struct LMMapper
     {
+        static constexpr std::size_t num_params = GaussianParameters2D<FloatingPointT>::num_params;
+
         const TinyDIP::Image<ElementT>* image_ptr;
         GaussianParameters2D<FloatingPointT> parameters;
 
@@ -2953,7 +2955,7 @@ namespace TinyDIP
 
             const FloatingPointT r = z - f_val;
 
-            std::array<FloatingPointT, 6> J{};
+            std::array<FloatingPointT, num_params> J{};
             J[0] = exp_term;
             J[1] = f_val * W * ((dx / (parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dy) / (parameters.sigma_x * parameters.sigma_y));
             J[2] = f_val * W * ((dy / (parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx) / (parameters.sigma_x * parameters.sigma_y));
@@ -2963,10 +2965,10 @@ namespace TinyDIP
 
             LMAccumulator<FloatingPointT> acc;
             acc.sse = r * r;
-            for (int i = 0; i < 6; ++i)
+            for (std::size_t i = 0; i < num_params; ++i)
             {
                 acc.g[i] = J[i] * r;
-                for (int j = 0; j < 6; ++j)
+                for (std::size_t j = 0; j < num_params; ++j)
                 {
                     acc.H[i][j] = J[i] * J[j];
                 }
