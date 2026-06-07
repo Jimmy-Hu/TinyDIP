@@ -447,7 +447,8 @@ using complex_scalar_types_for_printing = tuple_cat_t<
     all_vector_types,
     all_deque_types,
     all_list_types,
-    all_array_types
+    all_array_types,
+    all_gaussian_params_types
 >;
 
 using all_vector_image_types = tuple_map_t<std::vector, master_image_types>;
