@@ -197,34 +197,6 @@ void difference_and_enhancement(std::string input_path1, std::string input_path2
 #ifndef BOOST_TEST_MODULE
 void addLeadingZeros(std::string input_path, std::string output_path);
 
-//  parse_arg template function implementation
-//  Helper for converting string to numeric types safely
-template <typename T>
-T parse_arg(const std::string_view sv)
-{
-    T result{};
-    if constexpr (std::is_arithmetic_v<T>)
-    {
-        auto [ptr, ec] = std::from_chars(sv.data(), sv.data() + std::ranges::size(sv), result);
-        if (ec != std::errc())
-        {
-            throw std::invalid_argument(std::string("Error parsing argument: ") + std::string(sv));
-        }
-    }
-    else
-    {
-        //  Fallback for non-arithmetic types (unlikely to be used with this function in current context)
-        //  This path forces allocation, but is rarely hit for numeric parsing
-        std::string temp(sv);
-        std::stringstream ss(temp);
-        if (!(ss >> result))
-        {
-            throw std::invalid_argument(std::string("Error parsing argument: ") + temp);
-        }
-    }
-    return result;
-}
-
 void print(auto comment, auto const& seq, char term = ' ') {
     for (std::cout << comment << '\n'; auto const& elem : seq)
         std::cout << elem << term;
