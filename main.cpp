@@ -10,40 +10,7 @@
 //#define USE_BOOST_ITERATOR
 //#define USE_BOOST_SERIALIZATION
 
-//  Standard Library Headers
-#include <algorithm>
-#include <any>
-#include <array>
-#include <charconv>
-#include <chrono>
-#include <cmath>
-#include <cstddef>
-#include <cstdint>
-#include <cstdlib>
-#include <cstring>
-#include <ctime>
-#include <charconv>
-#include <execution>
-#include <filesystem>
-#include <fstream>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <map>
-#include <sstream>
-#include <string>
-#include <string_view>
-#include <system_error>
-#include <thread>
-#include <type_traits>
-#include <valarray>
-#include <vector>
-
-//  Local Headers
-#include "basic_functions.h"
-#include "image_io.h"
-#include "image_operations.h"
-#include "timer.h"
+#include "main.h"
 
 
 //#define BOOST_TEST_DYN_LINK
