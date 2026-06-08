@@ -18,17 +18,17 @@ int main()
 
 void gaussianFigure2DTest()
 {
-    auto gaussian_image = TinyDIP::gaussianFigure2D(10, 10, 5, 5, 1.0, 0.0, 1.0);
-    gaussian_image.print();
+    TinyDIP::GaussianParameters2D<double> gaussianParameters2D;
+    gaussianParameters2D.x0 = 512.0;
+    gaussianParameters2D.y0 = 512.0;
+    gaussianParameters2D.sigma_x = 22.0;
+    gaussianParameters2D.sigma_y = 44.0;
+    gaussianParameters2D.rho = 0.7;
     auto gaussian_plane =
         TinyDIP::gaussianFigure2D(
-            1024,
-            1024,
-            512,
-            512,
-            500.0,
-            500.0,
-            0.7
+            static_cast<std::size_t>(1024),
+            static_cast<std::size_t>(1024),
+            gaussianParameters2D
         );
 	std::cout << "Max value in Gaussian Plane: " << TinyDIP::max(gaussian_plane) << '\n';
     auto estimated_gaussian_parameter = TinyDIP::estimate_gaussian_parameters_2d(std::execution::par_unseq, gaussian_plane);
