@@ -1552,13 +1552,37 @@ namespace handlers
                         {
                             auto exec_default = [&]() -> std::any
                             {
-                                return TinyDIP::estimate_gaussian_parameters_2d(std::execution::seq, std::forward<DataT>(data), max_iterations, tolerance);
+                                if constexpr (requires { TinyDIP::estimate_gaussian_parameters_2d(std::execution::seq, std::forward<DataT>(data), max_iterations, tolerance); })
+                                {
+                                    return TinyDIP::estimate_gaussian_parameters_2d(std::execution::seq, std::forward<DataT>(data), max_iterations, tolerance);
+                                }
+                                else if constexpr (requires { TinyDIP::estimate_gaussian_parameters_2d(std::forward<DataT>(data), max_iterations, tolerance); })
+                                {
+                                    // Just in case the backend doesn't support execution policies natively yet
+                                    return TinyDIP::estimate_gaussian_parameters_2d(std::forward<DataT>(data), max_iterations, tolerance);
+                                }
+                                else
+                                {
+                                    throw std::invalid_argument(std::string("Input image type [") + std::string(get_type_name<DecayedDataT>()) + "] does not support estimate_gaussian_parameters_2d.");
+                                    return std::any{};
+                                }
                             };
 
                             auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
                                 requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                             {
-                                return TinyDIP::estimate_gaussian_parameters_2d(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), max_iterations, tolerance);
+                                if constexpr (requires { TinyDIP::estimate_gaussian_parameters_2d(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), max_iterations, tolerance); })
+                                {
+                                    return TinyDIP::estimate_gaussian_parameters_2d(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), max_iterations, tolerance);
+                                }
+                                else
+                                {
+                                    if (!std::ranges::empty(policy_str))
+                                    {
+                                        os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                    }
+                                    return exec_default();
+                                }
                             };
 
                             return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
