@@ -93,4 +93,16 @@ template <typename T> struct is_std_array : std::false_type {};
 template <typename T, std::size_t N> struct is_std_array<std::array<T, N>> : std::true_type {};
 template <typename T> inline constexpr bool is_std_array_v = is_std_array<T>::value;
 
+//  match_any_type template function implementation
+template <typename TupleT, class FunT>
+constexpr bool match_any_type(FunT&& func)
+{
+    return [&]<template <typename...> class TupleLike, typename... Ts>(std::type_identity<TupleLike<Ts...>>)
+    {
+        return (... || std::forward<FunT>(func).template operator()<Ts>());
+    }(std::type_identity<TupleT>{});
+}
+
+
+
 #endif //TINYDIP_MAIN_H

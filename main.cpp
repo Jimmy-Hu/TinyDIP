@@ -218,16 +218,6 @@ auto myHighLightRegion_parameters(const std::size_t index = 0)
         >> collection;
 }
 
-//  match_any_type template function implementation
-template <typename TupleT, class FunT>
-constexpr bool match_any_type(FunT&& func)
-{
-    return [&]<template <typename...> class TupleLike, typename... Ts>(std::type_identity<TupleLike<Ts...>>)
-    {
-        return (... || std::forward<FunT>(func).template operator()<Ts>());
-    }(std::type_identity<TupleT>{});
-}
-
 // ------------------------------------------------------------------------------------
 //  Advanced Metaprogramming Type Generation Registries
 // ------------------------------------------------------------------------------------
