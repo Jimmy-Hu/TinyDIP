@@ -218,34 +218,6 @@ auto myHighLightRegion_parameters(const std::size_t index = 0)
         >> collection;
 }
 
-
-//  get_type_name template function implementation
-//  Generic compile-time helper to automatically extract exact human-readable string views for any type.
-//  This utilizes compile-time SFINAE reflection over compiler signature macros.
-template <typename T>
-constexpr std::string_view get_type_name()
-{
-#if defined(__clang__)
-    constexpr std::string_view name = __PRETTY_FUNCTION__;
-    constexpr std::size_t start = name.find("T = ") + 4;
-    constexpr std::size_t end = name.find_last_of(']');
-    return name.substr(start, end - start);
-#elif defined(__GNUC__)
-    constexpr std::string_view name = __PRETTY_FUNCTION__;
-    constexpr std::size_t start = name.find("with T = ") + 9;
-    constexpr std::size_t semi_colon_pos = name.find(';', start);
-    constexpr std::size_t end = (semi_colon_pos != std::string_view::npos) ? semi_colon_pos : name.find_last_of(']');
-    return name.substr(start, end - start);
-#elif defined(_MSC_VER)
-    constexpr std::string_view name = __FUNCSIG__;
-    constexpr std::size_t start = name.find("get_type_name<") + 14;
-    constexpr std::size_t end = name.rfind(">(void)");
-    return name.substr(start, end - start);
-#else
-    return "Unknown Type";
-#endif
-}
-
 //  execute_type_action template function implementation
 template <typename TargetT, typename TupleT, typename FallbackFun, std::size_t I = 0>
 constexpr decltype(auto) execute_type_action(TupleT&& action_map, FallbackFun&& fallback)
