@@ -708,5 +708,13 @@ constexpr std::any dispatch_policy_string(
 //  Modern C++ Standard Function signature for highly robust, state-injected execution
 using CommandHandler = std::function<void(Workspace&, std::span<const std::string_view>, std::ostream&)>;
 
+//  IOSchema struct implementation
+//  Schema defining implicit argument positions for the pipeline engine to auto-inject memory variables
+struct IOSchema
+{
+    int in_idx = -1;
+    int out_idx = -1;
+};
+
 
 #endif //TINYDIP_MAIN_H

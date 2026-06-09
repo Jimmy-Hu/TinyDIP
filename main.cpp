@@ -218,14 +218,6 @@ auto myHighLightRegion_parameters(const std::size_t index = 0)
         >> collection;
 }
 
-//  IOSchema struct implementation
-//  Schema defining implicit argument positions for the pipeline engine to auto-inject memory variables
-struct IOSchema
-{
-    int in_idx = -1;
-    int out_idx = -1;
-};
-
 //  Define human-readable pipeline schema routing constants globally
 constexpr auto GeneratorSchema = IOSchema{ -1, 1 };
 constexpr auto TerminatorSchema = IOSchema{ 0, -1 };
