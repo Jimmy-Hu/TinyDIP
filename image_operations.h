@@ -2887,6 +2887,22 @@ namespace TinyDIP
         return output;
     }
 
+    //  gaussianFigure2D Template Function Implementation (with GaussianParameters2D)
+    template<class InputT = double>
+    constexpr static auto gaussianFigure2D(
+        const std::size_t xsize, const std::size_t ysize,
+        const GaussianParameters2D<InputT> params,
+        const InputT normalize_factor_input = 1.0
+    )
+    {
+        return gaussianFigure2D(
+            std::execution::seq,
+            xsize, ysize,
+            params,
+            normalize_factor_input
+        );
+    }
+
     //  LMAccumulator struct implementation
     template <std::floating_point FloatingPointT = double, class ExPo = decltype(std::execution::seq)>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
