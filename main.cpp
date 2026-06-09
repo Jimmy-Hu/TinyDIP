@@ -218,41 +218,6 @@ auto myHighLightRegion_parameters(const std::size_t index = 0)
         >> collection;
 }
 
-//  dispatch_policy_string template function implementation
-//  Helper to dispatch execution policy string to std::execution policies
-template <typename PolicyFun, std::invocable DefaultFun>
-constexpr std::any dispatch_policy_string(
-    const std::string_view policy_str,
-    PolicyFun&& policy_fun,
-    DefaultFun&& default_fun,
-    std::ostream& os)
-{
-    if (policy_str == "par")
-    {
-        return std::forward<PolicyFun>(policy_fun)(std::execution::par);
-    }
-    else if (policy_str == "par_unseq")
-    {
-        return std::forward<PolicyFun>(policy_fun)(std::execution::par_unseq);
-    }
-    else if (policy_str == "unseq")
-    {
-        return std::forward<PolicyFun>(policy_fun)(std::execution::unseq);
-    }
-    else if (policy_str == "seq")
-    {
-        return std::forward<PolicyFun>(policy_fun)(std::execution::seq);
-    }
-    else
-    {
-        if (!std::ranges::empty(policy_str))
-        {
-            os << "Warning: Unknown execution policy '" << policy_str << "'. Falling back to default.\n";
-        }
-        return std::forward<DefaultFun>(default_fun)();
-    }
-}
-
 //  CommandHandler type alias definition
 //  Modern C++ Standard Function signature for highly robust, state-injected execution
 using CommandHandler = std::function<void(Workspace&, std::span<const std::string_view>, std::ostream&)>;
