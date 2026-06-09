@@ -218,10 +218,6 @@ auto myHighLightRegion_parameters(const std::size_t index = 0)
         >> collection;
 }
 
-//  CommandHandler type alias definition
-//  Modern C++ Standard Function signature for highly robust, state-injected execution
-using CommandHandler = std::function<void(Workspace&, std::span<const std::string_view>, std::ostream&)>;
-
 //  IOSchema struct implementation
 //  Schema defining implicit argument positions for the pipeline engine to auto-inject memory variables
 struct IOSchema
