@@ -3609,6 +3609,12 @@ int main(int argc, char* argv[])
         CommandBundle{"dct2", "Calculate Discrete Cosine Transformation for an image.", TransformerSchema, 
             handlers::dct2
         },
+        CommandBundle{"erase_element", "Erase an element from a container by index.", TransformerSchema, 
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::erase_element(workspace, args, os);
+            }
+        },
         CommandBundle{"gaussian_figure_2d", "Generate a 2D Gaussian figure image.", GeneratorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
