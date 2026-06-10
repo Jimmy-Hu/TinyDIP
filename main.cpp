@@ -3754,6 +3754,14 @@ int main(int argc, char* argv[])
         }
     );
 
+    // Register transform_container strictly after registry initialization to prevent circular reference cycles natively!
+    registry.register_command("transform_container", "Apply a CLI command dynamically to each element of a container sequentially or parallelly.", IndependentSchema, 
+        [&registry](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+        {
+            handlers::transform_container(workspace, args, registry, os);
+        }
+    );
+
     if (argc < 2)
     {
         run_interactive_mode(*workspace, registry);
