@@ -669,6 +669,15 @@ constexpr bool dispatch_data_operation(
     }
 }
 
+//  supports_standard_execution_policies concept definition
+//  Concept to rigorously enforce that a polymorphic lambda supports all C++ standard execution policies
+template <typename FunT>
+concept supports_standard_execution_policies = 
+    std::invocable<FunT, decltype(std::execution::seq)> &&
+    std::invocable<FunT, decltype(std::execution::par)> &&
+    std::invocable<FunT, decltype(std::execution::par_unseq)> &&
+    std::invocable<FunT, decltype(std::execution::unseq)>;
+
 //  dispatch_policy_string template function implementation
 //  Helper to dispatch execution policy string to std::execution policies
 template <typename PolicyFun, std::invocable DefaultFun>
