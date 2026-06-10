@@ -912,6 +912,74 @@ constexpr auto make_meta_transform_handler(std::string_view usage, SetupFun&& se
 
 namespace handlers
 {
+    //  erase_element template function implementation
+    template <
+        typename ImageLoaderFun = MetaImageIO::Loader
+    >
+    requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
+    constexpr void erase_element(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout,
+        ImageLoaderFun&& image_loader_fun = ImageLoaderFun{})
+    {
+        if (std::ranges::size(args) < 3)
+        {
+            os << "Usage: erase_element <input_container | $var> <output_var | $var> <index>\n";
+            return;
+        }
+
+        const std::string_view input_arg = args[0];
+        const std::string_view output_arg = args[1];
+
+        if (!output_arg.starts_with('$'))
+        {
+            os << "Error: Output must be a memory variable starting with '$'.\n";
+            return;
+        }
+
+        const std::size_t index = parse_arg<std::size_t>(args[2]);
+
+        os << "Erasing element at index " << index << " from " << input_arg << "...\n";
+
+        auto process_erase = [&]<typename CandidateType>(CandidateType&& candidate)
+        {
+            using DecayedT = std::remove_cvref_t<CandidateType>;
+
+            // Mathematically verify that the type is a registered container that supports erase
+            if constexpr (is_vector_v<DecayedT> || is_deque_v<DecayedT> || is_list_v<DecayedT>)
+            {
+                if (index >= std::ranges::size(candidate))
+                {
+                    os << "Error: Index " << index << " is out of bounds for container of size " << std::ranges::size(candidate) << ".\n";
+                    return;
+                }
+
+                DecayedT new_container = candidate; // Copy original container completely independently
+                
+                // Natively advance iterator and execute erase to dynamically resize the sequence
+                auto it = std::ranges::begin(new_container);
+                std::ranges::advance(it, index);
+                new_container.erase(it);
+                
+                workspace.store(output_arg.substr(1), std::move(new_container));
+                os << "Saved updated container to " << output_arg << ".\n";
+            }
+            else
+            {
+                os << "Error: Input type [" << get_type_name<DecayedT>() << "] is not a supported container type that supports erasing.\n";
+            }
+        };
+
+        // Leverage tuple_cat_t to flawlessly support both scalar containers and newly registered image containers!
+        using AllContainerTypes = tuple_cat_t<master_data_types, master_image_container_types>;
+
+        if (!dispatch_data_operation<AllContainerTypes>(input_arg, workspace, image_loader_fun, process_erase))
+        {
+            os << "Error: Memory variable not found or unsupported type.\n";
+        }
+    }
+
     //  transform_container template function implementation
 	template <typename ImageLoaderFun = MetaImageIO::Loader>
     requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
