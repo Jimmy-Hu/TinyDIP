@@ -791,4 +791,234 @@ public:
     }
 };
 
+namespace handlers
+{
+    //  transform_container template function implementation
+	template <typename ImageLoaderFun = MetaImageIO::Loader>
+    requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
+    constexpr void transform_container(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        const CommandRegistry& registry,
+        std::ostream& os = std::cout,
+        ImageLoaderFun&& image_loader_fun = ImageLoaderFun{})
+    {
+        std::string_view policy_str = "";
+        std::vector<std::string_view> filtered_args{};
+        filtered_args.reserve(std::ranges::size(args));
+
+        for (const auto& arg : args)
+        {
+            if (arg == "seq" || arg == "par" || arg == "par_unseq" || arg == "unseq")
+            {
+                policy_str = arg;
+            }
+            else
+            {
+                filtered_args.emplace_back(arg);
+            }
+        }
+
+        if (std::ranges::size(filtered_args) < 3)
+        {
+            os << "Usage: transform_container [execution_policy] <input_container | $var> <output_container | $var> <command_name> [command_args...]\n";
+            return;
+        }
+
+        const std::string_view input_arg = filtered_args[0];
+        const std::string_view output_arg = filtered_args[1];
+        const std::string_view cmd_name = filtered_args[2];
+        
+        std::vector<std::string_view> sub_args{};
+        for(std::size_t i = 3; i < std::ranges::size(filtered_args); ++i)
+        {
+            sub_args.emplace_back(filtered_args[i]);
+        }
+
+        os << "Applying command '" << cmd_name << "' to elements of " << input_arg << "...\n";
+
+        auto process_container = [&]<typename CandidateType>(CandidateType&& candidate) -> std::any
+        {
+            using DecayedT = std::remove_cvref_t<CandidateType>;
+
+            if constexpr (is_vector_v<DecayedT> || is_deque_v<DecayedT> || is_list_v<DecayedT>)
+            {
+                if (std::ranges::empty(candidate))
+                {
+                    os << "Warning: Input container is empty. Output will be an empty container.\n";
+                    workspace.store(output_arg.substr(1), std::vector<typename DecayedT::value_type>{});
+                    return std::any{};
+                }
+                
+                const std::size_t total_elements = std::ranges::size(candidate);
+                std::vector<std::any> result_anys(total_elements);
+                
+                auto exec_default = [&]() -> std::any
+                {
+                    std::size_t idx = 0;
+                    for(const auto& element : candidate)
+                    {
+                        const std::string temp_in = "__tc_in_" + std::to_string(idx);
+                        const std::string temp_out = "__tc_out_" + std::to_string(idx);
+                        
+                        workspace.store(temp_in, element); 
+                        
+                        std::vector<std::string> local_args_str{};
+                        if (!std::ranges::empty(policy_str)) 
+                        {
+                            local_args_str.emplace_back(std::string(policy_str));
+                        }
+                        local_args_str.emplace_back("$" + temp_in);
+                        local_args_str.emplace_back("$" + temp_out);
+                        for (const auto& sa : sub_args) 
+                        {
+                            local_args_str.emplace_back(std::string(sa));
+                        }
+                        
+                        std::vector<std::string_view> local_args_sv{};
+                        for (const auto& s : local_args_str) 
+                        {
+                            local_args_sv.emplace_back(s);
+                        }
+                        
+                        std::stringstream ss{};
+                        registry.execute(workspace, std::string(cmd_name), local_args_sv, ss);
+                        
+                        auto out_any = workspace.retrieve_any(temp_out);
+                        if (out_any.has_value())
+                        {
+                            result_anys[idx] = out_any.value();
+                        }
+                        else
+                        {
+                            throw std::runtime_error("Command failed to produce output variable: $" + temp_out + "\nLog: " + ss.str());
+                        }
+                        
+                        workspace.remove(temp_in);
+                        workspace.remove(temp_out);
+                        ++idx;
+                    }
+                    return std::any{};
+                };
+
+                auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                    requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                {
+                    std::vector<typename DecayedT::value_type> elements(std::ranges::begin(candidate), std::ranges::end(candidate));
+                    auto indices = std::views::iota(std::size_t{0}, total_elements);
+                    
+                    std::for_each(
+                        std::forward<ExecPolicy>(exec_policy),
+                        std::ranges::begin(indices),
+                        std::ranges::end(indices),
+                        [&](const std::size_t idx)
+                        {
+                            const std::string temp_in = "__tc_in_" + std::to_string(idx);
+                            const std::string temp_out = "__tc_out_" + std::to_string(idx);
+                            
+                            workspace.store(temp_in, elements[idx]); 
+                            
+                            std::vector<std::string> local_args_str{};
+                            if (!std::ranges::empty(policy_str)) 
+                            {
+                                local_args_str.emplace_back(std::string(policy_str));
+                            }
+                            local_args_str.emplace_back("$" + temp_in);
+                            local_args_str.emplace_back("$" + temp_out);
+                            for (const auto& sa : sub_args) 
+                            {
+                                local_args_str.emplace_back(std::string(sa));
+                            }
+                            
+                            std::vector<std::string_view> local_args_sv{};
+                            for (const auto& s : local_args_str) 
+                            {
+                                local_args_sv.emplace_back(s);
+                            }
+                            
+                            std::stringstream ss{};
+                            registry.execute(workspace, std::string(cmd_name), local_args_sv, ss);
+                            
+                            auto out_any = workspace.retrieve_any(temp_out);
+                            if (out_any.has_value())
+                            {
+                                result_anys[idx] = out_any.value();
+                            }
+                            else
+                            {
+                                throw std::runtime_error("Command failed to produce output variable: $" + temp_out + "\nLog: " + ss.str());
+                            }
+                            
+                            workspace.remove(temp_in);
+                            workspace.remove(temp_out);
+                        }
+                    );
+                    return std::any{};
+                };
+
+                try
+                {
+                    dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                }
+                catch (const std::exception& e)
+                {
+                    os << "Error during transform_container execution: " << e.what() << "\n";
+                    return std::any{};
+                }
+                
+                if (std::ranges::empty(result_anys) || !result_anys[0].has_value())
+                {
+                    os << "Error: Output results are empty or invalid.\n";
+                    return std::any{};
+                }
+
+                bool reconstructed = false;
+                auto try_reconstruct = [&]<typename OutT>() -> bool
+                {
+                    if (result_anys[0].type() == typeid(OutT))
+                    {
+                        std::vector<OutT> final_vec{};
+                        final_vec.reserve(total_elements);
+                        for (std::size_t i = 0; i < total_elements; ++i)
+                        {
+                            if (result_anys[i].type() != typeid(OutT))
+                            {
+                                throw std::runtime_error("Inconsistent output types detected during transformation.");
+                            }
+                            // Leverage std::move and std::any_cast<OutT&> to natively preserve zero-copy performance!
+                            final_vec.emplace_back(std::move(std::any_cast<OutT&>(result_anys[i])));
+                        }
+                        workspace.store(output_arg.substr(1), std::move(final_vec));
+                        os << "Successfully transformed container. Saved to " << output_arg << ".\n";
+                        reconstructed = true;
+                        return true;
+                    }
+                    return false;
+                };
+
+                using ReconstructibleTypes = tuple_cat_t<master_data_types, all_gaussian_params_types>; 
+                
+                if (!match_any_type<ReconstructibleTypes>(try_reconstruct))
+                {
+                    os << "Error: Unrecognized output type from transformation. Hash: " << result_anys[0].type().hash_code() << "\n";
+                }
+
+                return std::any{};
+            }
+            else
+            {
+                os << "Error: Input type [" << get_type_name<DecayedT>() << "] is not a supported container type for transformation.\n";
+                return std::any{};
+            }
+        };
+
+        using AllContainerTypes = tuple_cat_t<master_data_types, master_image_container_types>;
+
+        if (!dispatch_data_operation<AllContainerTypes>(input_arg, workspace, image_loader_fun, process_container))
+        {
+            os << "Error: Memory variable not found or unsupported type.\n";
+        }
+    }
+}
+
 #endif //TINYDIP_MAIN_H
