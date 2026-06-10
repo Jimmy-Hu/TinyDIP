@@ -680,7 +680,7 @@ concept supports_standard_execution_policies =
 
 //  dispatch_policy_string template function implementation
 //  Helper to dispatch execution policy string to std::execution policies
-template <typename PolicyFun, std::invocable DefaultFun>
+template <supports_standard_execution_policies PolicyFun, std::invocable DefaultFun>
 constexpr std::any dispatch_policy_string(
     const std::string_view policy_str,
     PolicyFun&& policy_fun,
