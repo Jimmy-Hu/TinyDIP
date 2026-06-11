@@ -44,6 +44,23 @@
 #include "image_operations.h"
 #include "timer.h"
 
+//  sanitize_string_view function implementation
+//  Helper for safely sanitizing cross-platform path strings and REPL tokens natively with zero allocations
+constexpr std::string_view sanitize_string_view(std::string_view sv)
+{
+    auto is_junk = [](unsigned char c) { return std::isspace(c) || c == '\r' || c == '\n' || c == '\"' || c == '\''; };
+    while (!sv.empty() && is_junk(static_cast<unsigned char>(sv.back())))
+    {
+        sv.remove_suffix(1);
+    }
+    while (!sv.empty() && is_junk(static_cast<unsigned char>(sv.front())))
+    {
+        sv.remove_prefix(1);
+    }
+    return sv;
+}
+
+
 //  parse_arg template function implementation
 //  Helper for converting string to numeric types safely
 template <typename T>
