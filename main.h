@@ -912,6 +912,43 @@ constexpr auto make_meta_transform_handler(std::string_view usage, SetupFun&& se
 
 namespace handlers
 {
+    //  copy function implementation
+    constexpr void copy(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout)
+    {
+        if (std::ranges::size(args) < 2)
+        {
+            os << "Usage: copy <$src_var> <$dst_var>\n";
+            return;
+        }
+
+        const std::string_view src_arg = args[0];
+        const std::string_view dst_arg = args[1];
+
+        if (!src_arg.starts_with('$') || !dst_arg.starts_with('$'))
+        {
+            os << "Error: Both arguments must be memory variables starting with '$'.\n";
+            return;
+        }
+
+        const std::string_view src_name = src_arg.substr(1);
+        const std::string_view dst_name = dst_arg.substr(1);
+
+        auto val_opt = workspace.retrieve_any(src_name);
+        if (val_opt.has_value())
+        {
+            // std::any naturally performs a safe deep copy of the underlying type erased object
+            workspace.store(dst_name, val_opt.value());
+            os << "Copied variable $" << src_name << " to $" << dst_name << ".\n";
+        }
+        else
+        {
+            os << "Error: Memory variable $" << src_name << " not found.\n";
+        }
+    }
+
     //  erase_element template function implementation
     template <
         typename ImageLoaderFun = MetaImageIO::Loader
