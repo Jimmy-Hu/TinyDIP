@@ -66,20 +66,21 @@ constexpr std::string_view sanitize_string_view(std::string_view sv)
 template <typename T>
 T parse_arg(const std::string_view sv)
 {
+    const std::string_view clean_sv = sanitize_string_view(sv);
     T result{};
     if constexpr (std::is_arithmetic_v<T>)
     {
-        auto [ptr, ec] = std::from_chars(sv.data(), sv.data() + std::ranges::size(sv), result);
+        auto [ptr, ec] = std::from_chars(clean_sv.data(), clean_sv.data() + std::ranges::size(clean_sv), result);
         if (ec != std::errc())
         {
-            throw std::invalid_argument(std::string("Error parsing argument: ") + std::string(sv));
+            throw std::invalid_argument(std::string("Error parsing argument: ") + std::string(clean_sv));
         }
     }
     else
     {
         //  Fallback for non-arithmetic types (unlikely to be used with this function in current context)
         //  This path forces allocation, but is rarely hit for numeric parsing
-        std::string temp(sv);
+        std::string temp(clean_sv);
         std::stringstream ss(temp);
         if (!(ss >> result))
         {
