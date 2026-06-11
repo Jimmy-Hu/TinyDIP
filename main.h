@@ -547,10 +547,16 @@ public:
 
             const std::filesystem::path input_path = std::string(arg);
             const bool has_ext = input_path.has_extension();
+            std::string ext{};
+            if (has_ext)
+            {
+                ext = input_path.extension().string();
+                std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c) { return std::tolower(c); });
+            }
 
             if constexpr (std::is_same_v<ImageType, TinyDIP::Image<TinyDIP::RGB>>)
             {
-                if (has_ext && input_path.extension() == ".ppm")
+                if (ext == ".ppm")
                 {
                     return TinyDIP::pnm::read(input_path);
                 }
@@ -559,7 +565,7 @@ public:
             }
             else if constexpr (std::is_same_v<ImageType, TinyDIP::Image<double>>)
             {
-                if (has_ext && input_path.extension() == ".csv")
+                if (ext == ".csv")
                 {
                     return TinyDIP::double_image::read_from_csv(input_path.string().c_str());
                 }
@@ -590,33 +596,40 @@ public:
             else
             {
                 const std::filesystem::path output_filepath = std::string(arg);
-                const std::filesystem::path path_without_extension = output_filepath.parent_path() / output_filepath.stem();
+                const bool has_ext = output_filepath.has_extension();
+                std::string ext{};
+                if (has_ext)
+                {
+                    ext = output_filepath.extension().string();
+                    std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c) { return std::tolower(c); });
+                }
+                const std::filesystem::path base_path = has_ext ? (output_filepath.parent_path() / output_filepath.stem()) : output_filepath;
                 
                 if constexpr (std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<double>>)
                 {
-                    if (output_filepath.extension() == ".csv")
+                    if (ext == ".csv")
                     {
                         TinyDIP::double_image::write_to_csv(output_filepath.string().c_str(), std::forward<ImageType>(img));
                     }
                     else
                     {
-                        TinyDIP::double_image::write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
+                        TinyDIP::double_image::write(base_path.string().c_str(), std::forward<ImageType>(img));
                     }
                 }
                 else if constexpr (std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<TinyDIP::RGB>>)
                 {
-                    if (output_filepath.extension() == ".ppm")
+                    if (ext == ".ppm")
                     {
                         TinyDIP::pnm::write(std::forward<ImageType>(img), output_filepath);
                     }
                     else
                     {
-                        TinyDIP::bmp_write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
+                        TinyDIP::bmp_write(base_path.string().c_str(), std::forward<ImageType>(img));
                     }
                 }
                 else if constexpr (std::is_same_v<std::decay_t<ImageType>, TinyDIP::Image<TinyDIP::HSV>>)
                 {
-                    TinyDIP::hsv_write(path_without_extension.string().c_str(), std::forward<ImageType>(img));
+                    TinyDIP::hsv_write(base_path.string().c_str(), std::forward<ImageType>(img));
                 }
                 else
                 {
