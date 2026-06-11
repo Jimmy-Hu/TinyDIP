@@ -3599,7 +3599,10 @@ int main(int argc, char* argv[])
             {
                 handlers::construct_rgb(workspace, args, os);
             }
-        },        
+        },
+        CommandBundle{"copy", "Copy a memory variable in the workspace to a new variable.", IndependentSchema,
+            handlers::copy
+        },
         CommandBundle{"create_container", "Create a std::vector container initialized with the provided prototype element.", TransformerSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
