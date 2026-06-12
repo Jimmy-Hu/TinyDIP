@@ -98,10 +98,19 @@ void imageElementwiseWeightedAddTest(
     TinyDIP::bmp_write(std::string(output_path).c_str(), output_image);
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     TinyDIP::Timer timer1;
-    imageElementwiseAddTest();
+    if (argc < 2)
+    {
+        imageElementwiseAddTest();
+    }
+    else if (argc == 3)
+    {
+        std::filesystem::path input_path1 = std::string(argv[1]);
+        std::filesystem::path input_path2 = std::string(argv[2]);
+        imageElementwiseWeightedAddTest(input_path1, input_path2, std::string("imageElementwiseWeightedAddTest"));
+    }
     return EXIT_SUCCESS;
 }
 
