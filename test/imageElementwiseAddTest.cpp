@@ -30,6 +30,45 @@ void imageElementwiseAddTest(const std::size_t N1 = 10)
     test.print();
 }
 
+//  imageElementwiseWeightedAddTest Template Function Implementation
+template<TinyDIP::arithmetic FloatingType = double>
+void imageElementwiseWeightedAddTest(
+    const std::filesystem::path& input_path1,
+    const std::filesystem::path& input_path2,
+    const std::string_view output_path,
+    const FloatingType weight = 0.7
+)
+{
+    if (!std::filesystem::exists(input_path1))
+    {
+        std::cerr << "File not found: " << input_path << '\n';
+        return;
+    }
+    if (!std::filesystem::exists(input_path1))
+    {
+        std::cerr << "File not found: " << input_path << '\n';
+        return;
+    }
+    TinyDIP::Image<TinyDIP::RGB> input_img1(0, 0);
+    if (input_path1.extension() == ".bmp")
+    {
+        input_img1 = TinyDIP::bmp_read(input_path1.string().c_str(), true);
+    }
+    else
+    {
+        input_img1 = TinyDIP::pnm::read(std::execution::par, input_path1.string().c_str());
+    }
+    TinyDIP::Image<TinyDIP::RGB> input_img2(0, 0);
+    if (input_path2.extension() == ".bmp")
+    {
+        input_img2 = TinyDIP::bmp_read(input_path2.string().c_str(), true);
+    }
+    else
+    {
+        input_img2 = TinyDIP::pnm::read(std::execution::par, input_path2.string().c_str());
+    }
+}
+
 int main()
 {
     TinyDIP::Timer timer1;
