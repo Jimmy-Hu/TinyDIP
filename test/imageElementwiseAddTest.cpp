@@ -17,14 +17,15 @@
 #include "../image_operations.h"
 #include "../timer.h"
 
+//  imageElementwiseAddTest Function Implementation
 void imageElementwiseAddTest(const std::size_t N1 = 10)
 {
-    auto test = TinyDIP::Image<int>(N1, 10);
+    auto test = TinyDIP::Image<int>(N1, static_cast<std::size_t>(10));
     test.setAllValue(1);
     test += test;
     test.print();
 
-    auto test2 = TinyDIP::Image<int>(N1 + 1, 11);
+    auto test2 = TinyDIP::Image<int>(N1 + 1, static_cast<std::size_t>(11));
     test2.setAllValue(1);
     test += test2;
     test.print();
