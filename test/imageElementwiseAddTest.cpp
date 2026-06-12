@@ -43,12 +43,12 @@ void imageElementwiseWeightedAddTest(
 {
     if (!std::filesystem::exists(input_path1))
     {
-        std::cerr << "File not found: " << input_path << '\n';
+        std::cerr << "File not found: " << input_path1 << '\n';
         return;
     }
-    if (!std::filesystem::exists(input_path1))
+    if (!std::filesystem::exists(input_path2))
     {
-        std::cerr << "File not found: " << input_path << '\n';
+        std::cerr << "File not found: " << input_path2 << '\n';
         return;
     }
     TinyDIP::Image<TinyDIP::RGB> input_img1(0, 0);
@@ -84,16 +84,16 @@ void imageElementwiseWeightedAddTest(
                 image1,
                 image2
             );
-            auto lambda_output = TinyDIP::normalize(lambda_output);
-            auto lambda_output = TinyDIP::pixelwise_transform(
+            auto double_image_output = TinyDIP::normalize(TinyDIP::im2double(lambda_output));
+            double_image_output = TinyDIP::pixelwise_transform(
                 [&](const auto& input_pixel)
                 {
                     return std::pow(input_pixel, static_cast<FloatingType>(1.0) / gamma);
                 },
-                lambda_output
+                double_image_output
             );
-            lambda_output = TinyDIP::multiplies(lambda_output, static_cast<FloatingType>(255.0));
-            return lambda_output;
+            double_image_output = TinyDIP::multiplies(double_image_output, static_cast<FloatingType>(255.0));
+            return TinyDIP::im2uint8(double_image_output);
         }
     );
     TinyDIP::bmp_write(std::string(output_path).c_str(), output_image);
