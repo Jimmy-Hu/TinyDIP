@@ -36,7 +36,8 @@ void imageElementwiseWeightedAddTest(
     const std::filesystem::path& input_path1,
     const std::filesystem::path& input_path2,
     const std::string_view output_path,
-    const FloatingType weight = 0.7
+    const FloatingType weight = 0.7,
+    const FloatingType gamma = 2.2
 )
 {
     if (!std::filesystem::exists(input_path1))
@@ -67,6 +68,34 @@ void imageElementwiseWeightedAddTest(
     {
         input_img2 = TinyDIP::pnm::read(std::execution::par, input_path2.string().c_str());
     }
+    auto output_image = TinyDIP::apply_each(
+        input_img1,
+        input_img2,
+        [&](const TinyDIP::Image<TinyDIP::GrayScale>& image1, const TinyDIP::Image<TinyDIP::GrayScale>& image2)
+        {
+            auto lambda_output = TinyDIP::pixelwise_transform(
+                [&](const TinyDIP::GrayScale& input_pixel1, const TinyDIP::GrayScale& input_pixel2)
+                {
+                    auto value1 = static_cast<FloatingType>(input_pixel1);
+                    auto value2 = static_cast<FloatingType>(input_pixel2);
+                    return static_cast<TinyDIP::GrayScale>(value1 * weight + value2 * (static_cast<FloatingType>(1.0) - weight));
+                },
+                image1,
+                image2
+            );
+            auto lambda_output = TinyDIP::normalize(lambda_output);
+            auto lambda_output = TinyDIP::pixelwise_transform(
+                [&](const auto& input_pixel)
+                {
+                    return std::pow(input_pixel, static_cast<FloatingType>(1.0) / gamma);
+                },
+                lambda_output
+            );
+            lambda_output = TinyDIP::multiplies(lambda_output, static_cast<FloatingType>(255.0));
+            return lambda_output;
+        }
+    );
+    TinyDIP::bmp_write(std::string(output_path).c_str(), output_image);
 }
 
 int main()
