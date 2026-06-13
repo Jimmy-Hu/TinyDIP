@@ -368,7 +368,7 @@ struct Workspace
     bool remove(const std::string_view name)
     {
         std::lock_guard<std::mutex> lock(mtx);
-        const std::string key = std::string(name);
+        const std::string key = std::string(sanitize_string_view(name));
         if (auto it = memory_store.find(key); it != std::ranges::end(memory_store))
         {
             memory_store.erase(it);
