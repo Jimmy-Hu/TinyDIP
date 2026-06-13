@@ -336,14 +336,14 @@ struct Workspace
     void store(const std::string_view name, T&& item)
     {
         std::lock_guard<std::mutex> lock(mtx);
-        memory_store[std::string(name)] = std::forward<T>(item);
+        memory_store[std::string(sanitize_string_view(name))] = std::forward<T>(item);
     }
 
     template <typename T>
     const T* retrieve(const std::string_view name) const
     {
         std::lock_guard<std::mutex> lock(mtx);
-        if (auto it = memory_store.find(std::string(name)); it != std::ranges::end(memory_store))
+        if (auto it = memory_store.find(std::string(sanitize_string_view(name))); it != std::ranges::end(memory_store))
         {
             if (it->second.type() == typeid(T))
             {
@@ -357,7 +357,7 @@ struct Workspace
     std::optional<std::any> retrieve_any(const std::string_view name) const
     {
         std::lock_guard<std::mutex> lock(mtx);
-        if (auto it = memory_store.find(std::string(name)); it != std::ranges::end(memory_store))
+        if (auto it = memory_store.find(std::string(sanitize_string_view(name))); it != std::ranges::end(memory_store))
         {
             return it->second;
         }
