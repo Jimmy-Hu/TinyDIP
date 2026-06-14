@@ -563,7 +563,8 @@ public:
                 throw std::invalid_argument(std::string("Memory variable not found or type mismatch: ") + std::string(var_name));
             }
 
-            const std::filesystem::path input_path = std::string(arg);
+            const std::string_view clean_arg = sanitize_string_view(arg);
+            const std::filesystem::path input_path = std::string(clean_arg);
             const bool has_ext = input_path.has_extension();
             std::string ext{};
             if (has_ext)
@@ -613,7 +614,8 @@ public:
             }
             else
             {
-                const std::filesystem::path output_filepath = std::string(arg);
+                const std::string_view clean_arg = sanitize_string_view(arg);
+                const std::filesystem::path output_filepath = std::string(clean_arg);
                 const bool has_ext = output_filepath.has_extension();
                 std::string ext{};
                 if (has_ext)
