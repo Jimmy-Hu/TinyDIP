@@ -689,15 +689,28 @@ constexpr bool dispatch_data_operation(
     }
     else
     {
-        const std::filesystem::path input_path = std::string(input_arg);
-        if (input_path.extension() == ".dbmp")
+        const std::string_view clean_arg = sanitize_string_view(input_arg);
+        const std::filesystem::path input_path = std::string(clean_arg);
+        std::string ext{};
+        if (input_path.has_extension())
         {
-            processor(image_loader.template operator()<TinyDIP::Image<double>>(input_arg, workspace));
+            ext = input_path.extension().string();
+            std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c) { return std::tolower(c); });
+        }
+
+        if (ext == ".dbmp" || ext == ".csv")
+        {
+            processor(image_loader.template operator()<TinyDIP::Image<double>>(clean_arg, workspace));
+        }
+        else if (ext == ".hsv")
+        {
+            processor(image_loader.template operator()<TinyDIP::Image<TinyDIP::HSV>>(clean_arg, workspace));
         }
         else
         {
-            processor(image_loader.template operator()<TinyDIP::Image<TinyDIP::RGB>>(input_arg, workspace));
+            processor(image_loader.template operator()<TinyDIP::Image<TinyDIP::RGB>>(clean_arg, workspace));
         }
+        
         return true;
     }
 }
