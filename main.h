@@ -1196,7 +1196,8 @@ namespace handlers
             return;
         }
 
-        const std::filesystem::path dir_path = std::string(args[0]);
+        const std::string_view clean_arg = sanitize_string_view(args[0]);
+        const std::filesystem::path dir_path = std::string(clean_arg);
         std::filesystem::create_directories(dir_path);
 
         os << "Saving workspace bundle to " << dir_path.string() << "...\n";
@@ -1220,6 +1221,11 @@ namespace handlers
                         TinyDIP::double_image::write(file_path.string().c_str(), *img_ptr); 
                         os << "  Saved $" << name << " -> " << file_path.string() << ".dbmp\n";
                     }
+                    else if constexpr (std::is_same_v<T, TinyDIP::Image<TinyDIP::HSV>>)
+                    {
+                        TinyDIP::hsv_write(file_path.string().c_str(), *img_ptr); 
+                        os << "  Saved $" << name << " -> " << file_path.string() << ".hsv\n";
+                    }
                     return true;
                 }
                 return false;
@@ -1227,7 +1233,8 @@ namespace handlers
 
             using saveable_image_types = std::tuple<
                 TinyDIP::Image<TinyDIP::RGB>,
-                TinyDIP::Image<double>
+                TinyDIP::Image<double>,
+                TinyDIP::Image<TinyDIP::HSV>
             >;
 
             if (match_any_type<saveable_image_types>(try_save_image))
