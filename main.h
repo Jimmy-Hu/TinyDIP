@@ -1133,7 +1133,7 @@ namespace handlers
         std::invocable<const std::string_view, Workspace&> ImageLoaderFun = MetaImageIO::Loader,
         std::invocable<const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> ImageSaverFun = MetaImageIO::Saver
     >
-    void read(
+    constexpr void read(
         Workspace& workspace,
         std::span<const std::string_view> args,
         std::ostream& os = std::cout,
@@ -1147,8 +1147,8 @@ namespace handlers
         }
 
         const std::string_view input_arg = args[0];
-        std::string output_arg_str;
-        std::string_view output_arg;
+        std::string output_arg_str{};
+        std::string_view output_arg{};
 
         if (std::ranges::size(args) > 1)
         {
@@ -1161,8 +1161,9 @@ namespace handlers
         }
         else
         {
-            // Dynamically assign variable name from origin file name stem
-            const std::filesystem::path input_path = std::string(input_arg);
+            // Dynamically assign variable name from origin file name stem securely
+            const std::string_view clean_input = sanitize_string_view(input_arg);
+            const std::filesystem::path input_path = std::string(clean_input);
             output_arg_str = "$" + input_path.stem().string();
             output_arg = output_arg_str;
         }
@@ -1181,7 +1182,7 @@ namespace handlers
         }
 
         os << "Done.\n";
-	}
+    }
 
     //  transform_container template function implementation
 	template <typename ImageLoaderFun = MetaImageIO::Loader>
