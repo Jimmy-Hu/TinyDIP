@@ -1128,6 +1128,61 @@ namespace handlers
         os << "Workspace loaded successfully.\n";
     }
 
+	//  read template function implementation
+    template <
+        std::invocable<const std::string_view, Workspace&> ImageLoaderFun = MetaImageIO::Loader,
+        std::invocable<const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> ImageSaverFun = MetaImageIO::Saver
+    >
+    void read(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout,
+        ImageLoaderFun&& image_loader_fun = ImageLoaderFun{},
+        ImageSaverFun&& image_saver_fun = ImageSaverFun{})
+    {
+        if (std::ranges::empty(args))
+        {
+            os << "Usage: read <input_file> [$var]\n";
+            return;
+        }
+
+        const std::string_view input_arg = args[0];
+        std::string output_arg_str;
+        std::string_view output_arg;
+
+        if (std::ranges::size(args) > 1)
+        {
+            output_arg = args[1];
+            if (!output_arg.starts_with('$'))
+            {
+                os << "Error: Output must be a memory variable starting with '$'.\n";
+                return;
+            }
+        }
+        else
+        {
+            // Dynamically assign variable name from origin file name stem
+            const std::filesystem::path input_path = std::string(input_arg);
+            output_arg_str = "$" + input_path.stem().string();
+            output_arg = output_arg_str;
+        }
+
+        os << "Reading " << input_arg << " into memory as " << output_arg << "...\n";
+        
+        auto process_read = [&]<typename ImageType>(ImageType&& input_img)
+        {
+            image_saver_fun(output_arg, workspace, std::forward<ImageType>(input_img));
+        };
+
+        if (!dispatch_data_operation<master_image_types>(input_arg, workspace, image_loader_fun, process_read))
+        {
+            os << "Error: Memory variable not found or unsupported type.\n";
+            return;
+        }
+
+        os << "Done.\n";
+	}
+
     //  transform_container template function implementation
 	template <typename ImageLoaderFun = MetaImageIO::Loader>
     requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
