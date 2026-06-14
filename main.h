@@ -1063,6 +1063,70 @@ namespace handlers
         }
     }
 
+    //  load_workspace function implementation
+    constexpr void load_workspace(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout)
+    {
+        if (std::ranges::size(args) < 1)
+        {
+            os << "Usage: load_workspace <directory_bundle_path>\n";
+            return;
+        }
+
+        const std::filesystem::path dir_path = std::string(args[0]);
+
+        if (!std::filesystem::exists(dir_path) || !std::filesystem::is_directory(dir_path))
+        {
+            os << "Error: Workspace directory bundle does not exist: " << dir_path.string() << "\n";
+            return;
+        }
+
+        os << "Loading workspace bundle from " << dir_path.string() << "...\n";
+
+        for (const auto& entry : std::filesystem::directory_iterator(dir_path))
+        {
+            if (entry.is_regular_file())
+            {
+                const std::string name = entry.path().stem().string();
+                const std::string ext = entry.path().extension().string();
+
+                if (ext == ".bmp")
+                {
+                    auto img = TinyDIP::bmp_read(entry.path().string().c_str(), true);
+                    workspace.store(name, std::move(img));
+                    os << "  Loaded " << entry.path().filename().string() << " -> $" << name << "\n";
+                }
+                else if (ext == ".dbmp")
+                {
+                    auto img = TinyDIP::double_image::read(entry.path().string().c_str(), true);
+                    workspace.store(name, std::move(img));
+                    os << "  Loaded " << entry.path().filename().string() << " -> $" << name << "\n";
+                }
+                else if (ext == ".hsv")
+                {
+                    auto img = TinyDIP::hsv_read(entry.path().string().c_str(), true);
+                    workspace.store(name, std::move(img));
+                    os << "  Loaded " << entry.path().filename().string() << " -> $" << name << "\n";
+                }
+                else if (ext == ".csv")
+                {
+                    auto img = TinyDIP::double_image::read_from_csv(entry.path().string().c_str());
+                    workspace.store(name, std::move(img));
+                    os << "  Loaded " << entry.path().filename().string() << " -> $" << name << "\n";
+                }
+                else if (ext == ".ppm")
+                {
+                    auto img = TinyDIP::pnm::read(entry.path());
+                    workspace.store(name, std::move(img));
+                    os << "  Loaded " << entry.path().filename().string() << " -> $" << name << "\n";
+                }
+            }
+        }
+        os << "Workspace loaded successfully.\n";
+    }
+
     //  transform_container template function implementation
 	template <typename ImageLoaderFun = MetaImageIO::Loader>
     requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
