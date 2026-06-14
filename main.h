@@ -1075,7 +1075,8 @@ namespace handlers
             return;
         }
 
-        const std::filesystem::path dir_path = std::string(args[0]);
+        const std::string_view clean_arg = sanitize_string_view(args[0]);
+        const std::filesystem::path dir_path = std::string(clean_arg);
 
         if (!std::filesystem::exists(dir_path) || !std::filesystem::is_directory(dir_path))
         {
