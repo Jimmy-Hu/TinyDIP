@@ -958,6 +958,64 @@ constexpr auto make_meta_transform_handler(std::string_view usage, SetupFun&& se
 
 namespace handlers
 {
+    //  dct3 function implementation
+    constexpr void dct3(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout
+    )
+    {
+        auto transform_handler = make_meta_transform_handler<2, master_image_container_types>(
+            "dct3 [execution_policy] <input_container | $var> <output_container | $var>",
+            [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+            {
+                os << "Calculating DCT-3 for " << filtered_args[0];
+                if (!std::ranges::empty(policy_str))
+                {
+                    os << " (Policy: " << policy_str << ")";
+                }
+                os << "...\n";
+
+                return [policy_str, &os]<typename ImageType>(ImageType && img) -> std::any
+                {
+                    auto exec_default = [&]() -> std::any
+                    {
+                        if constexpr (requires { TinyDIP::dct3(std::forward<ImageType>(img)); })
+                        {
+                            return TinyDIP::dct3(std::forward<ImageType>(img));
+                        }
+                        else
+                        {
+                            throw std::invalid_argument("Input image container type does not support dct3 operation.");
+                            return std::any{};
+                        }
+                    };
+
+                    auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy && exec_policy) -> std::any
+                        requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                    {
+                        if constexpr (requires { TinyDIP::dct3(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img)); })
+                        {
+                            return TinyDIP::dct3(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img));
+                        }
+                        else
+                        {
+                            if (!std::ranges::empty(policy_str))
+                            {
+                                os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                            }
+                            return exec_default();
+                        }
+                    };
+
+                    return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                };
+            }
+        );
+
+        transform_handler(workspace, args, os);
+    }
+
     //  copy function implementation
     constexpr void copy(
         Workspace& workspace,
