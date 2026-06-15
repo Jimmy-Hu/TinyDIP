@@ -987,8 +987,8 @@ namespace handlers
                         else
                         {
                             throw std::invalid_argument("Input image container type does not support dct3 operation.");
-                            return std::any{};
                         }
+                        return std::any{};
                     };
 
                     auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy && exec_policy) -> std::any
