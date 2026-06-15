@@ -405,7 +405,6 @@ namespace handlers
                             else
                             {
                                 throw std::invalid_argument("Input image type does not support abs operation.");
-                                return std::any{};
                             }
                         }
                         else if constexpr (std::ranges::input_range<DecayedDataT>)
@@ -422,6 +421,8 @@ namespace handlers
                         {
                             return TinyDIP::generic_abs(std::forward<DataT>(data));
                         }
+                    
+                        return std::any{};
                     };
 
                     auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
