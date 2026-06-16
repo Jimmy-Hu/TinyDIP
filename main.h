@@ -1186,6 +1186,64 @@ namespace handlers
         os << "Workspace loaded successfully.\n";
     }
 
+    //  normalize function implementation
+    constexpr void normalize(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout
+    )
+    {
+        auto transform_handler = make_meta_transform_handler<2, master_data_types>(
+            "normalize [execution_policy] <input_data | $var> <output_data | $var>",
+            [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+            {
+                os << "Normalizing " << filtered_args[0];
+                if (!std::ranges::empty(policy_str))
+                {
+                    os << " (Policy: " << policy_str << ")";
+                }
+                os << "...\n";
+
+                return [policy_str, &os]<typename DataT>(DataT && data) -> std::any
+                {
+                    auto exec_default = [&]() -> std::any
+                    {
+                        if constexpr (requires { TinyDIP::normalize(std::forward<DataT>(data)); })
+                        {
+                            return TinyDIP::normalize(std::forward<DataT>(data));
+                        }
+                        else
+                        {
+                            throw std::invalid_argument("Input data type does not support normalize operation.");
+                        }
+                        return std::any{};
+                    };
+
+                    auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy && exec_policy) -> std::any
+                        requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                    {
+                        if constexpr (requires { TinyDIP::normalize(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data)); })
+                        {
+                            return TinyDIP::normalize(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data));
+                        }
+                        else
+                        {
+                            if (!std::ranges::empty(policy_str))
+                            {
+                                os << "Warning: Execution policy requested but not supported for this data type/operation. Falling back to default.\n";
+                            }
+                            return exec_default();
+                        }
+                    };
+
+                    return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                };
+            }
+        );
+
+        transform_handler(workspace, args, os);
+    }
+
 	//  read template function implementation
     template <
         std::invocable<const std::string_view, Workspace&> ImageLoaderFun = MetaImageIO::Loader,
