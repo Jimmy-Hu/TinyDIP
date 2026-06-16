@@ -2194,15 +2194,20 @@ namespace TinyDIP
 
     //  normalize template function implementation
     template<class ElementT = double>
+    requires std::floating_point<ElementT> || 
+        requires {
+            typename ElementT::value_type;
+            requires std::floating_point<typename ElementT::value_type>;
+        }
     constexpr static auto normalize(const Image<ElementT>& input)
     {
         auto max_value = max(input);
         auto min_value = min(input);
-        auto difference_value = max_value - min_value;
         Image<ElementT> min_value_plane = input;
         min_value_plane.setAllValue(min_value);
-        Image<ElementT> difference_value_plane = input;
-        difference_value_plane.setAllValue(difference_value);
+        Image<ElementT> max_value_plane = input;
+        max_value_plane.setAllValue(max_value);
+        auto difference_value_plane = subtract(max_value_plane, min_value_plane);
         return divides(subtract(input, min_value_plane), difference_value_plane);
     }
 
