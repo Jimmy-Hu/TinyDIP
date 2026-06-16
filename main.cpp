@@ -3508,6 +3508,9 @@ int main(int argc, char* argv[])
         CommandBundle{ "multiply", "Multiply an image or container by a scalar.", TransformerSchema,
             handlers::multiply
         },
+        CommandBundle{"normalize", "Normalize an image or container.", TransformerSchema,
+            handlers::normalize
+        },
         CommandBundle{"ones", "Generate an image filled with ones.", GeneratorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
