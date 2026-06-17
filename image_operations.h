@@ -4222,7 +4222,7 @@ namespace TinyDIP
     }
 
     //  max template function implementation
-    template<typename ElementT = double>
+    template<std::totally_ordered ElementT = double>
     constexpr static auto max(const Image<ElementT>& input)
     {
         return std::ranges::max(input.getImageData());
