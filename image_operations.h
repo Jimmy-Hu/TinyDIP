@@ -4237,7 +4237,7 @@ namespace TinyDIP
     }
 
     //  minmax template function implementation
-    template<typename ElementT = double>
+    template<std::totally_ordered ElementT = double>
     constexpr static auto minmax(const Image<ElementT>& input)
     {
         return std::ranges::minmax(input.getImageData());
