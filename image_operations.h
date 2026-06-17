@@ -4207,7 +4207,7 @@ namespace TinyDIP
     }
 
     //  min template function implementation
-    template<typename ElementT = double>
+    template<std::totally_ordered ElementT = double>
     constexpr static auto min(const Image<ElementT>& input)
     {
         return std::ranges::min(input.getImageData());
