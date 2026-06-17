@@ -2194,11 +2194,11 @@ namespace TinyDIP
 
     //  normalize template function implementation
     template<class ElementT = double>
-    requires std::floating_point<ElementT> || 
+    requires (std::floating_point<ElementT> || 
         requires {
             typename ElementT::value_type;
             requires std::floating_point<typename ElementT::value_type>;
-        }
+        }) and (std::totally_ordered<ElementT>)
     constexpr static auto normalize(const Image<ElementT>& input)
     {
         auto max_value = max(input);
