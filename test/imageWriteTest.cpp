@@ -87,5 +87,26 @@ int main(int argc, char* argv[])
         imageWriteTest();
         return EXIT_SUCCESS;
     }
+    else
+    {
+        std::vector<std::tuple<std::size_t, std::size_t>> locations;
+        for (int i = 1; i < argc; ++i)
+        {
+            std::istringstream iss(argv[i]);
+            std::size_t x, y;
+            char comma;
+            if (iss >> x >> comma >> y && comma == ',')
+            {
+                locations.emplace_back(x, y);
+            }
+            else
+            {
+                std::cerr << "Invalid input format: " << argv[i] << ". Expected format: x,y" << std::endl;
+                return EXIT_FAILURE;
+            }
+        }
+        auto test_image = generateImage(locations);
+        TinyDIP::bmp_write("generated_image", TinyDIP::constructRGB(test_image, test_image, test_image));
+    }
     return EXIT_SUCCESS;
 }
