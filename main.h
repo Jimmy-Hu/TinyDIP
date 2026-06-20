@@ -1186,6 +1186,183 @@ namespace handlers
         os << "Workspace loaded successfully.\n";
     }
 
+	//  manhattan_distance template function implementation
+    template <
+        typename ImageLoaderFun = MetaImageIO::Loader
+    >
+    requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
+    constexpr void manhattan_distance(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout,
+        ImageLoaderFun&& image_loader_fun = ImageLoaderFun{})
+    {
+        std::string_view policy_str = "";
+        std::vector<std::string_view> filtered_args{};
+        filtered_args.reserve(std::ranges::size(args));
+
+        for (const auto& arg : args)
+        {
+            if (arg == "seq" || arg == "par" || arg == "par_unseq" || arg == "unseq")
+            {
+                policy_str = arg;
+            }
+            else
+            {
+                filtered_args.emplace_back(arg);
+            }
+        }
+
+        if (std::ranges::size(filtered_args) < 2)
+        {
+            os << "Usage: manhattan_distance [execution_policy] <input1_data | $var> <input2_data | $var> [output_var | $var]\n";
+            return;
+        }
+
+        const std::string_view input1_arg = filtered_args[0];
+        const std::string_view input2_arg = filtered_args[1];
+        std::string_view output_arg = "";
+        
+        if (std::ranges::size(filtered_args) > 2)
+        {
+            output_arg = filtered_args[2];
+        }
+
+        os << "Calculating Manhattan distance between " << input1_arg << " and " << input2_arg;
+        if (!std::ranges::empty(policy_str))
+        {
+            os << " (Policy: " << policy_str << ")";
+        }
+        os << "...\n";
+
+        auto process_input1 = [&]<typename Data1T>(Data1T&& data1)
+        {
+            auto process_input2 = [&]<typename Data2T>(Data2T&& data2)
+            {
+                using Decayed1T = std::remove_cvref_t<Data1T>;
+                using Decayed2T = std::remove_cvref_t<Data2T>;
+
+                auto exec_default = [&]() -> std::any
+                {
+                    if constexpr (requires { TinyDIP::manhattan_distance(std::forward<Data1T>(data1), std::forward<Data2T>(data2)); })
+                    {
+                        return TinyDIP::manhattan_distance(std::forward<Data1T>(data1), std::forward<Data2T>(data2));
+                    }
+                    else
+                    {
+                        throw std::invalid_argument(std::string("Input types [") + std::string(get_type_name<Decayed1T>()) + "] and [" + std::string(get_type_name<Decayed2T>()) + "] do not support manhattan_distance.");
+                        return std::any{};
+                    }
+                };
+
+                auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                    requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                {
+                    if constexpr (requires { TinyDIP::manhattan_distance(std::forward<ExecPolicy>(exec_policy), std::forward<Data1T>(data1), std::forward<Data2T>(data2)); })
+                    {
+                        return TinyDIP::manhattan_distance(std::forward<ExecPolicy>(exec_policy), std::forward<Data1T>(data1), std::forward<Data2T>(data2));
+                    }
+                    else
+                    {
+                        if (!std::ranges::empty(policy_str))
+                        {
+                            os << "Warning: Execution policy requested but not supported for these data types/operation. Falling back to default.\n";
+                        }
+                        return exec_default();
+                    }
+                };
+
+                try
+                {
+                    std::any result = dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+
+                    // std::any{} indicates an error occurred and was caught safely in the default blocks
+                    if (!result.has_value())
+                    {
+                        return;
+                    }
+
+                    bool handled = false;
+                    auto handle_result = [&]<typename ScalarT>() -> bool
+                    {
+                        if (result.type() == typeid(ScalarT))
+                        {
+                            auto& scalar_result = std::any_cast<ScalarT&>(result);
+                            if (!std::ranges::empty(output_arg))
+                            {
+                                if (output_arg.starts_with('$'))
+                                {
+                                    workspace.store(output_arg.substr(1), scalar_result);
+                                    os << "Saved Manhattan Distance result to " << output_arg << "\n";
+                                }
+                                else
+                                {
+                                    os << "Error: Output must be a memory variable starting with '$'.\n";
+                                }
+                            }
+                            else
+                            {
+                                if constexpr (is_vector_v<ScalarT> || is_deque_v<ScalarT> || is_list_v<ScalarT> || is_std_array_v<ScalarT>)
+                                {
+                                    os << "Manhattan Distance result: {";
+                                    bool first = true;
+                                    for (const auto& elem : scalar_result)
+                                    {
+                                        if (!first)
+                                        {
+                                            os << ", ";
+                                        }
+                                        os << +elem;
+                                        first = false;
+                                    }
+                                    os << "}\n";
+                                }
+                                else if constexpr (requires { os << scalar_result; })
+                                {
+                                    if constexpr (sizeof(ScalarT) == 1 && std::is_integral_v<ScalarT>)
+                                    {
+                                        os << "Manhattan Distance result: " << +scalar_result << "\n";
+                                    }
+                                    else
+                                    {
+                                        os << "Manhattan Distance result: " << scalar_result << "\n";
+                                    }
+                                }
+                                else
+                                {
+                                    os << "Manhattan Distance result evaluated successfully (Non-printable complex type).\n";
+                                }
+                            }
+                            handled = true;
+                            return true;
+                        }
+                        return false;
+                    };
+
+                    if (!match_any_type<master_scalar_types>(handle_result))
+                    {
+                        os << "Error: Output type from processor is unknown or unsupported. Type Name: [" 
+                           << result.type().name() << "]\n";
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    os << "Error calculating manhattan_distance: " << e.what() << '\n';
+                }
+            };
+
+            if (!dispatch_data_operation<master_data_types>(input2_arg, workspace, image_loader_fun, process_input2))
+            {
+                os << "Error: Memory variable not found or unsupported type for input2: " << input2_arg << "\n";
+            }
+        };
+
+        if (!dispatch_data_operation<master_data_types>(input1_arg, workspace, image_loader_fun, process_input1))
+        {
+            os << "Error: Memory variable not found or unsupported type for input1: " << input1_arg << "\n";
+        }
+    }
+
     //  normalize function implementation
     constexpr void normalize(
         Workspace& workspace,
