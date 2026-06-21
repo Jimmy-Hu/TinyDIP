@@ -10,7 +10,7 @@ void rgb2hsvTest();
 
 int main()
 {
-    auto start = std::chrono::system_clock::now();
+    TinyDIP::Timer timer1;
     rgb2hsvTest();
     return EXIT_SUCCESS;
 }
