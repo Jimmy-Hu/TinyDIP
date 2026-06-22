@@ -57,6 +57,8 @@ constexpr auto generateImage(
     const RangeT& locations,
     const std::size_t width = 32,
     const std::size_t height = 18
+    const std::size_t output_size_width = 1920,
+    const std::size_t output_size_height = 1080
 )
 {
     TinyDIP::Image<TinyDIP::GrayScale> test_image(width, height);
@@ -76,6 +78,7 @@ constexpr auto generateImage(
             }
         }
     }
+    test_image = TinyDIP::resize_nearest_neighbor(test_image, output_size_width, output_size_height);
     return test_image;
 }
 
