@@ -56,7 +56,7 @@ requires(std::convertible_to<std::ranges::range_value_t<RangeT>, std::tuple<std:
 constexpr auto generateImage(
     const RangeT& locations,
     const std::size_t width = 32,
-    const std::size_t height = 18
+    const std::size_t height = 18,
     const std::size_t output_size_width = 1920,
     const std::size_t output_size_height = 1080
 )
