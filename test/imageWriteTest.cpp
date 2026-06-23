@@ -55,6 +55,7 @@ template<std::ranges::random_access_range RangeT>
 requires(std::convertible_to<std::ranges::range_value_t<RangeT>, std::tuple<std::size_t, std::size_t>>)
 constexpr auto generateImage(
     const RangeT& locations,
+    const TinyDIP::GrayScale backgroundColor = 128,
     const std::size_t width = 32,
     const std::size_t height = 18,
     const std::size_t output_size_width = 1920,
@@ -74,7 +75,7 @@ constexpr auto generateImage(
             }
             else
             {
-                test_image.at(x, y) = 0; // Explicitly set the background to 0
+                test_image.at(x, y) = backgroundColor;
             }
         }
     }
