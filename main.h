@@ -715,6 +715,14 @@ constexpr bool dispatch_data_operation(
     }
 }
 
+
+//  QueuedCommand struct implementation
+struct QueuedCommand
+{
+    std::string name;
+    std::vector<std::string> args;
+};
+
 //  supports_standard_execution_policies concept definition
 //  Concept to rigorously enforce that a polymorphic lambda supports all C++ standard execution policies
 template <typename FunT>
