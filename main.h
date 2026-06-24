@@ -723,6 +723,90 @@ struct QueuedCommand
     std::vector<std::string> args;
 };
 
+//  PeepholeOptimizer class implementation
+class PeepholeOptimizer
+{
+public:
+    static void optimize(std::vector<QueuedCommand>& pipeline, std::ostream& os)
+    {
+        if (std::ranges::empty(pipeline)) 
+        {
+            return;
+        }
+
+        std::vector<QueuedCommand> optimized_pipeline;
+        optimized_pipeline.reserve(std::ranges::size(pipeline));
+
+        for (std::size_t i = 0; i < std::ranges::size(pipeline); ++i)
+        {
+            const auto& cmd1 = pipeline[i];
+
+            // 1. Identify Redundant Scalar Math (Multiply by 1.0)
+            if (cmd1.name == "multiply" && std::ranges::size(cmd1.args) >= 3)
+            {
+                const std::string_view factor = cmd1.args.back();
+                const std::string_view clean_factor = sanitize_string_view(factor);
+                double factor_val = 0.0;
+                
+                // Safely parse the trailing argument natively without exceptions
+                auto [ptr, ec] = std::from_chars(clean_factor.data(), clean_factor.data() + std::ranges::size(clean_factor), factor_val);
+                
+                // factor_val == 1.0 is mathematically robust for any formatting ("1", "1.00", "1e0")
+                if (ec == std::errc() && factor_val == 1.0)
+                {
+                    const std::string cmd1_in = (std::ranges::size(cmd1.args) > 3) ? cmd1.args[1] : cmd1.args[0];
+                    const std::string cmd1_out = (std::ranges::size(cmd1.args) > 3) ? cmd1.args[2] : cmd1.args[1];
+                    
+                    os << "  [Peephole Optimizer] Detected Identity operation: 'multiply' by 1.0.\n";
+                    os << "  [Peephole Optimizer] Downgrading to zero-overhead 'copy'.\n";
+                    
+                    QueuedCommand copy_cmd;
+                    copy_cmd.name = "copy";
+                    copy_cmd.args = {cmd1_in, cmd1_out};
+                    optimized_pipeline.emplace_back(std::move(copy_cmd));
+                    continue;
+                }
+            }
+
+            // 2. Identify Mathematical Inverses (DCT -> IDCT or IDCT -> DCT)
+            if (i + 1 < std::ranges::size(pipeline))
+            {
+                const auto& cmd2 = pipeline[i + 1];
+
+                if ((cmd1.name == "dct2" && cmd2.name == "idct2") ||
+                    (cmd1.name == "idct2" && cmd2.name == "dct2"))
+                {
+                    // Structurally extract the input and output variables, accounting for optional execution policies
+                    const std::string cmd1_in = (std::ranges::size(cmd1.args) > 2) ? cmd1.args[1] : cmd1.args[0];
+                    const std::string cmd1_out = (std::ranges::size(cmd1.args) > 2) ? cmd1.args[2] : cmd1.args[1];
+                    const std::string cmd2_in = (std::ranges::size(cmd2.args) > 2) ? cmd2.args[1] : cmd2.args[0];
+                    const std::string cmd2_out = (std::ranges::size(cmd2.args) > 2) ? cmd2.args[2] : cmd2.args[1];
+
+                    // Verify that the intermediate variable strictly connects the two nodes
+                    if (cmd1_out == cmd2_in)
+                    {
+                        os << "  [Peephole Optimizer] Detected redundant inverse chain: '" << cmd1.name << "' -> '" << cmd2.name << "'.\n";
+                        os << "  [Peephole Optimizer] Collapsing chain into zero-overhead 'copy' (" << cmd1_in << " -> " << cmd2_out << ").\n";
+                        
+                        QueuedCommand copy_cmd;
+                        copy_cmd.name = "copy";
+                        copy_cmd.args = {cmd1_in, cmd2_out};
+                        optimized_pipeline.emplace_back(std::move(copy_cmd));
+                        
+                        ++i; // Skip the next command mathematically since it was absorbed
+                        continue;
+                    }
+                }
+            }
+            
+            // If no optimization matched, push the command unmodified natively
+            optimized_pipeline.emplace_back(pipeline[i]);
+        }
+        
+        pipeline = std::move(optimized_pipeline);
+    }
+};
+
 //  supports_standard_execution_policies concept definition
 //  Concept to rigorously enforce that a polymorphic lambda supports all C++ standard execution policies
 template <typename FunT>
