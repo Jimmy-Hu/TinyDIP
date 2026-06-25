@@ -3187,7 +3187,7 @@ constexpr CommandRegistry command_registration(CommandBundle<Funs>&&... bundles)
 }
 
 //  run_interactive_mode function implementation
-//  Interactive REPL loop implementation with dynamic Pipeline '|' argument injection
+//  Interactive REPL loop implementation with dynamic Pipeline '|' AST Generation
 void run_interactive_mode(Workspace& workspace, const CommandRegistry& registry, std::ostream& os = std::cout)
 {
     os << "TinyDIP Interactive Interpreter\n";
@@ -3246,7 +3246,10 @@ void run_interactive_mode(Workspace& workspace, const CommandRegistry& registry,
             segments_tokens.pop_back();
         }
 
+        std::vector<QueuedCommand> execution_pipeline;
         std::string prev_pipe_var = "";
+        bool parsing_failed = false;
+
         for (std::size_t i = 0; i < std::ranges::size(segments_tokens); ++i)
         {
             const auto& tokens = segments_tokens[i];
@@ -3261,6 +3264,7 @@ void run_interactive_mode(Workspace& workspace, const CommandRegistry& registry,
             if (!schema_opt)
             {
                 os << "Unknown command: " << command_name << "\n";
+                parsing_failed = true;
                 break;
             }
             const IOSchema schema = *schema_opt;
@@ -3294,16 +3298,27 @@ void run_interactive_mode(Workspace& workspace, const CommandRegistry& registry,
                 args_str.insert(std::ranges::begin(args_str) + insert_pos, next_pipe_var);
             }
 
+            execution_pipeline.push_back({command_name, std::move(args_str)});
+            prev_pipe_var = next_pipe_var;
+        }
+
+        if (parsing_failed)
+        {
+            continue;
+        }
+
+        PeepholeOptimizer::optimize(execution_pipeline, os);
+
+        for (const auto& cmd : execution_pipeline)
+        {
             std::vector<std::string_view> args_sv;
-            args_sv.reserve(std::ranges::size(args_str));
-            for (const auto& arg : args_str)
+            args_sv.reserve(std::ranges::size(cmd.args));
+            for (const auto& arg : cmd.args)
             {
                 args_sv.emplace_back(arg);
             }
 
-            registry.execute(workspace, command_name, args_sv, os);
-
-            prev_pipe_var = next_pipe_var;
+            registry.execute(workspace, cmd.name, args_sv, os);
         }
     }
 }
