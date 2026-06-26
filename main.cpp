@@ -3307,7 +3307,7 @@ void run_interactive_mode(Workspace& workspace, const CommandRegistry& registry,
             continue;
         }
 
-        PeepholeOptimizer::optimize(execution_pipeline, os);
+        PeepholeOptimizer<decltype(execution_pipeline)>::optimize(execution_pipeline, os);
 
         for (const auto& cmd : execution_pipeline)
         {
