@@ -723,32 +723,60 @@ struct QueuedCommand
     std::vector<std::string> args;
 };
 
-//  PeepholeOptimizer class implementation
+//  PeepholeOptimizer template class implementation
+template <std::ranges::input_range RangeT>
+requires std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, QueuedCommand>
 class PeepholeOptimizer
 {
 public:
-    static void optimize(std::vector<QueuedCommand>& pipeline, std::ostream& os)
+    static void optimize(RangeT& pipeline, std::ostream& os)
     {
-        if (std::ranges::empty(pipeline)) 
+        RangeT optimized_pipeline;
+        
+        // Ensure strictly safe memory reservations for sequence structures natively
+        if constexpr (std::ranges::sized_range<RangeT> && requires { optimized_pipeline.reserve(1); })
         {
-            return;
+            optimized_pipeline.reserve(std::ranges::size(pipeline));
         }
 
-        std::vector<QueuedCommand> optimized_pipeline;
-        optimized_pipeline.reserve(std::ranges::size(pipeline));
+        auto it = std::ranges::begin(pipeline);
+        const auto end = std::ranges::end(pipeline);
 
-        for (std::size_t i = 0; i < std::ranges::size(pipeline); ++i)
+        // State-machine cache to cleanly bypass single-pass limitations of strict input iterators
+        std::optional<QueuedCommand> pending_cmd;
+
+        auto push_to_optimized = [&](QueuedCommand&& cmd)
         {
-            const auto& cmd1 = pipeline[i];
+            if constexpr (requires { optimized_pipeline.emplace_back(std::move(cmd)); })
+            {
+                optimized_pipeline.emplace_back(std::move(cmd));
+            }
+            else
+            {
+                optimized_pipeline.push_back(std::move(cmd));
+            }
+        };
 
-            // 1. Identify Redundant Scalar Math (Multiply by 1.0)
+        while (it != end || pending_cmd.has_value())
+        {
+            QueuedCommand cmd1;
+            if (pending_cmd.has_value())
+            {
+                cmd1 = std::move(pending_cmd.value());
+                pending_cmd.reset();
+            }
+            else
+            {
+                cmd1 = std::move(*it);
+                ++it;
+            }
+
             if (cmd1.name == "multiply" && std::ranges::size(cmd1.args) >= 3)
             {
                 const std::string_view factor = cmd1.args.back();
                 const std::string_view clean_factor = sanitize_string_view(factor);
                 double factor_val = 0.0;
                 
-                // Safely parse the trailing argument natively without exceptions
                 auto [ptr, ec] = std::from_chars(clean_factor.data(), clean_factor.data() + std::ranges::size(clean_factor), factor_val);
                 
                 // factor_val == 1.0 is mathematically robust for any formatting ("1", "1.00", "1e0")
@@ -763,15 +791,15 @@ public:
                     QueuedCommand copy_cmd;
                     copy_cmd.name = "copy";
                     copy_cmd.args = {cmd1_in, cmd1_out};
-                    optimized_pipeline.emplace_back(std::move(copy_cmd));
+                    push_to_optimized(std::move(copy_cmd));
                     continue;
                 }
             }
 
-            // 2. Identify Mathematical Inverses (DCT -> IDCT or IDCT -> DCT)
-            if (i + 1 < std::ranges::size(pipeline))
+            if (it != end)
             {
-                const auto& cmd2 = pipeline[i + 1];
+                QueuedCommand cmd2 = std::move(*it);
+                ++it;
 
                 if ((cmd1.name == "dct2" && cmd2.name == "idct2") ||
                     (cmd1.name == "idct2" && cmd2.name == "dct2"))
@@ -791,16 +819,17 @@ public:
                         QueuedCommand copy_cmd;
                         copy_cmd.name = "copy";
                         copy_cmd.args = {cmd1_in, cmd2_out};
-                        optimized_pipeline.emplace_back(std::move(copy_cmd));
-                        
-                        ++i; // Skip the next command mathematically since it was absorbed
-                        continue;
+                        push_to_optimized(std::move(copy_cmd));
+                        continue; // Both cmd1 and cmd2 are handled and cleanly absorbed
                     }
                 }
+
+                // If no inverse sequence is formed, dynamically buffer cmd2 for the next evaluation pass
+                pending_cmd = std::move(cmd2);
             }
             
-            // If no optimization matched, push the command unmodified natively
-            optimized_pipeline.emplace_back(pipeline[i]);
+            // If no optimization matched, push cmd1 natively
+            push_to_optimized(std::move(cmd1));
         }
         
         pipeline = std::move(optimized_pipeline);
