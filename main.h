@@ -731,108 +731,196 @@ class PeepholeOptimizer
 public:
     static void optimize(RangeT& pipeline, std::ostream& os)
     {
-        RangeT optimized_pipeline;
-        
-        // Ensure strictly safe memory reservations for sequence structures natively
-        if constexpr (std::ranges::sized_range<RangeT> && requires { optimized_pipeline.reserve(1); })
+        if (std::ranges::empty(pipeline))
         {
-            optimized_pipeline.reserve(std::ranges::size(pipeline));
+            return;
         }
 
-        auto it = std::ranges::begin(pipeline);
-        const auto end = std::ranges::end(pipeline);
-
-        // State-machine cache to cleanly bypass single-pass limitations of strict input iterators
-        std::optional<QueuedCommand> pending_cmd;
-
-        auto push_to_optimized = [&](QueuedCommand&& cmd)
+        bool changed = true;
+        while (changed)
         {
-            if constexpr (requires { optimized_pipeline.emplace_back(std::move(cmd)); })
+            changed = false;
+            RangeT optimized_pipeline;
+            
+            if constexpr (std::ranges::sized_range<RangeT> && requires { optimized_pipeline.reserve(1); })
             {
-                optimized_pipeline.emplace_back(std::move(cmd));
-            }
-            else
-            {
-                optimized_pipeline.push_back(std::move(cmd));
-            }
-        };
-
-        while (it != end || pending_cmd.has_value())
-        {
-            QueuedCommand cmd1;
-            if (pending_cmd.has_value())
-            {
-                cmd1 = std::move(pending_cmd.value());
-                pending_cmd.reset();
-            }
-            else
-            {
-                cmd1 = std::move(*it);
-                ++it;
+                optimized_pipeline.reserve(std::ranges::size(pipeline));
             }
 
-            if (cmd1.name == "multiply" && std::ranges::size(cmd1.args) >= 3)
+            auto it = std::ranges::begin(pipeline);
+            const auto end = std::ranges::end(pipeline);
+
+            std::optional<QueuedCommand> pending_cmd;
+
+            auto push_to_optimized = [&](QueuedCommand&& cmd)
             {
-                const std::string_view factor = cmd1.args.back();
-                const std::string_view clean_factor = sanitize_string_view(factor);
-                double factor_val = 0.0;
-                
-                auto [ptr, ec] = std::from_chars(clean_factor.data(), clean_factor.data() + std::ranges::size(clean_factor), factor_val);
-                
-                // factor_val == 1.0 is mathematically robust for any formatting ("1", "1.00", "1e0")
-                if (ec == std::errc() && factor_val == 1.0)
+                if constexpr (requires { optimized_pipeline.emplace_back(std::move(cmd)); })
                 {
-                    const std::string cmd1_in = (std::ranges::size(cmd1.args) > 3) ? cmd1.args[1] : cmd1.args[0];
-                    const std::string cmd1_out = (std::ranges::size(cmd1.args) > 3) ? cmd1.args[2] : cmd1.args[1];
-                    
-                    os << "  [Peephole Optimizer] Detected Identity operation: 'multiply' by 1.0.\n";
-                    os << "  [Peephole Optimizer] Downgrading to zero-overhead 'copy'.\n";
-                    
-                    QueuedCommand copy_cmd;
-                    copy_cmd.name = "copy";
-                    copy_cmd.args = {cmd1_in, cmd1_out};
-                    push_to_optimized(std::move(copy_cmd));
-                    continue;
+                    optimized_pipeline.emplace_back(std::move(cmd));
                 }
-            }
-
-            if (it != end)
-            {
-                QueuedCommand cmd2 = std::move(*it);
-                ++it;
-
-                if ((cmd1.name == "dct2" && cmd2.name == "idct2") ||
-                    (cmd1.name == "idct2" && cmd2.name == "dct2"))
+                else
                 {
-                    // Structurally extract the input and output variables, accounting for optional execution policies
-                    const std::string cmd1_in = (std::ranges::size(cmd1.args) > 2) ? cmd1.args[1] : cmd1.args[0];
-                    const std::string cmd1_out = (std::ranges::size(cmd1.args) > 2) ? cmd1.args[2] : cmd1.args[1];
-                    const std::string cmd2_in = (std::ranges::size(cmd2.args) > 2) ? cmd2.args[1] : cmd2.args[0];
-                    const std::string cmd2_out = (std::ranges::size(cmd2.args) > 2) ? cmd2.args[2] : cmd2.args[1];
-
-                    // Verify that the intermediate variable strictly connects the two nodes
-                    if (cmd1_out == cmd2_in)
+                    optimized_pipeline.push_back(std::move(cmd));
+                }
+            };
+            
+            auto get_io = [](const QueuedCommand& c) -> std::pair<std::string, std::string>
+            {
+                if (c.name == "copy" && std::ranges::size(c.args) >= 2)
+                {
+                    return {c.args[0], c.args[1]};
+                }
+                if (c.name == "dct2" || c.name == "idct2" || c.name == "abs" || c.name == "normalize" || c.name == "multiply")
+                {
+                    bool has_policy = (std::ranges::size(c.args) > 0 && (c.args[0] == "seq" || c.args[0] == "par" || c.args[0] == "par_unseq" || c.args[0] == "unseq"));
+                    std::size_t offset = has_policy ? 1 : 0;
+                    if (std::ranges::size(c.args) > offset + 1)
                     {
-                        os << "  [Peephole Optimizer] Detected redundant inverse chain: '" << cmd1.name << "' -> '" << cmd2.name << "'.\n";
-                        os << "  [Peephole Optimizer] Collapsing chain into zero-overhead 'copy' (" << cmd1_in << " -> " << cmd2_out << ").\n";
+                        return {c.args[offset], c.args[offset + 1]};
+                    }
+                }
+                return {"", ""};
+            };
+
+            auto update_in = [](QueuedCommand& c, const std::string& new_in) -> bool
+            {
+                if (c.name == "copy" && std::ranges::size(c.args) >= 2)
+                {
+                    c.args[0] = new_in;
+                    return true;
+                }
+                if (c.name == "dct2" || c.name == "idct2" || c.name == "abs" || c.name == "normalize" || c.name == "multiply")
+                {
+                    bool has_policy = (std::ranges::size(c.args) > 0 && (c.args[0] == "seq" || c.args[0] == "par" || c.args[0] == "par_unseq" || c.args[0] == "unseq"));
+                    std::size_t offset = has_policy ? 1 : 0;
+                    if (std::ranges::size(c.args) > offset + 1)
+                    {
+                        c.args[offset] = new_in;
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            auto update_out = [](QueuedCommand& c, const std::string& new_out) -> bool
+            {
+                if (c.name == "copy" && std::ranges::size(c.args) >= 2)
+                {
+                    c.args[1] = new_out;
+                    return true;
+                }
+                if (c.name == "dct2" || c.name == "idct2" || c.name == "abs" || c.name == "normalize" || c.name == "multiply")
+                {
+                    bool has_policy = (std::ranges::size(c.args) > 0 && (c.args[0] == "seq" || c.args[0] == "par" || c.args[0] == "par_unseq" || c.args[0] == "unseq"));
+                    std::size_t offset = has_policy ? 1 : 0;
+                    if (std::ranges::size(c.args) > offset + 1)
+                    {
+                        c.args[offset + 1] = new_out;
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            while (it != end || pending_cmd.has_value())
+            {
+                QueuedCommand cmd1;
+                if (pending_cmd.has_value())
+                {
+                    cmd1 = std::move(pending_cmd.value());
+                    pending_cmd.reset();
+                }
+                else
+                {
+                    cmd1 = std::move(*it);
+                    ++it;
+                }
+
+                // 1. Identify Redundant Scalar Math (Multiply by 1.0)
+                if (cmd1.name == "multiply" && std::ranges::size(cmd1.args) >= 3)
+                {
+                    const std::string_view factor = cmd1.args.back();
+                    const std::string_view clean_factor = sanitize_string_view(factor);
+                    double factor_val = 0.0;
+                    
+                    auto [ptr, ec] = std::from_chars(clean_factor.data(), clean_factor.data() + std::ranges::size(clean_factor), factor_val);
+                    
+                    if (ec == std::errc() && factor_val == 1.0)
+                    {
+                        auto [cmd1_in, cmd1_out] = get_io(cmd1);
+                        
+                        os << "  [Peephole Optimizer] Detected Identity operation: 'multiply' by 1.0.\n";
+                        os << "  [Peephole Optimizer] Downgrading to zero-overhead 'copy'.\n";
                         
                         QueuedCommand copy_cmd;
                         copy_cmd.name = "copy";
-                        copy_cmd.args = {cmd1_in, cmd2_out};
-                        push_to_optimized(std::move(copy_cmd));
-                        continue; // Both cmd1 and cmd2 are handled and cleanly absorbed
+                        copy_cmd.args = {cmd1_in, cmd1_out};
+                        cmd1 = std::move(copy_cmd);
+                        changed = true;
                     }
                 }
 
-                // If no inverse sequence is formed, dynamically buffer cmd2 for the next evaluation pass
-                pending_cmd = std::move(cmd2);
+                // Try to fetch cmd2 to check pairs
+                if (!pending_cmd.has_value() && it != end)
+                {
+                    QueuedCommand cmd2 = std::move(*it);
+                    ++it;
+
+                    auto [cmd1_in, cmd1_out] = get_io(cmd1);
+                    auto [cmd2_in, cmd2_out] = get_io(cmd2);
+
+                    if (!cmd1_out.empty() && cmd1_out == cmd2_in)
+                    {
+                        // A. Inverses
+                        if ((cmd1.name == "dct2" && cmd2.name == "idct2") ||
+                            (cmd1.name == "idct2" && cmd2.name == "dct2"))
+                        {
+                            os << "  [Peephole Optimizer] Detected redundant inverse chain: '" << cmd1.name << "' -> '" << cmd2.name << "'.\n";
+                            os << "  [Peephole Optimizer] Collapsing chain into zero-overhead 'copy' (" << cmd1_in << " -> " << cmd2_out << ").\n";
+                            
+                            QueuedCommand copy_cmd;
+                            copy_cmd.name = "copy";
+                            copy_cmd.args = {cmd1_in, cmd2_out};
+                            push_to_optimized(std::move(copy_cmd));
+                            changed = true;
+                            continue;
+                        }
+
+                        // B. Forward Copy Propagation
+                        if (cmd1.name == "copy" && cmd1_out.find("$__pipe_") == 0)
+                        {
+                            if (update_in(cmd2, cmd1_in))
+                            {
+                                os << "  [Peephole Optimizer] Forwarding 'copy' input natively.\n";
+                                pending_cmd = std::move(cmd2);
+                                changed = true;
+                                continue;
+                            }
+                        }
+
+                        // C. Backward Copy Propagation
+                        if (cmd2.name == "copy" && cmd2_in.find("$__pipe_") == 0)
+                        {
+                            if (update_out(cmd1, cmd2_out))
+                            {
+                                os << "  [Peephole Optimizer] Collapsing trailing 'copy' natively.\n";
+                                pending_cmd = std::move(cmd1);
+                                changed = true;
+                                continue;
+                            }
+                        }
+                    }
+
+                    // No match -> keep cmd2 for next pass
+                    pending_cmd = std::move(cmd2);
+                }
+
+                // Push cmd1 if it didn't merge
+                push_to_optimized(std::move(cmd1));
             }
-            
-            // If no optimization matched, push cmd1 natively
-            push_to_optimized(std::move(cmd1));
+
+            pipeline = std::move(optimized_pipeline);
         }
-        
-        pipeline = std::move(optimized_pipeline);
     }
 };
 
