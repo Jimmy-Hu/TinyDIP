@@ -719,6 +719,92 @@ constexpr bool dispatch_data_operation(
 //  Modern C++ Standard Function signature for highly robust, state-injected execution
 using CommandHandler = std::function<void(Workspace&, std::span<const std::string_view>, std::ostream&)>;
 
+//  IOSchema struct implementation
+//  Schema defining implicit argument positions for the pipeline engine to auto-inject memory variables
+struct IOSchema
+{
+    int in_idx = -1;
+    int out_idx = -1;
+};
+
+//  Define human-readable pipeline schema routing constants globally
+constexpr auto GeneratorSchema = IOSchema{ -1, 1 };
+constexpr auto TerminatorSchema = IOSchema{ 0, -1 };
+constexpr auto TransformerSchema = IOSchema{ 0, 1 };
+constexpr auto CombinerSchema = IOSchema{ 0, 2 };
+constexpr auto IndependentSchema = IOSchema{ -1, -1 };
+
+//  CommandRegistry class implementation
+class CommandRegistry
+{
+public:
+    struct CommandInfo
+    {
+        std::string description;
+        IOSchema schema;
+        CommandHandler handler;
+    };
+
+private:
+    std::map<std::string, CommandInfo> commands;
+
+public:
+    void register_command(const std::string_view name, const std::string_view description, const IOSchema schema, CommandHandler handler)
+    {
+        commands.emplace(std::string(name), CommandInfo{std::string(description), schema, std::move(handler)});
+    }
+
+    //  Fallback for commands without pipeline routing specifications
+    void register_command(const std::string_view name, const std::string_view description, CommandHandler handler)
+    {
+        commands.emplace(std::string(name), CommandInfo{std::string(description), IOSchema{-1, -1}, std::move(handler)});
+    }
+
+    std::optional<IOSchema> get_schema(const std::string_view command_name) const
+    {
+        if (auto it = commands.find(std::string(command_name)); it != std::ranges::end(commands))
+        {
+            return it->second.schema;
+        }
+        return std::nullopt;
+    }
+
+    void list_commands(std::ostream& os = std::cout) const
+    {
+        os << "Available Commands:\n";
+        for (const auto& [name, info] : commands)
+        {
+            os << "  " << std::left << std::setw(15) << name << " : " << info.description << "\n";
+        }
+        os << "\nUsage: ./tinydip <command> [args...]\n";
+        os << "Tip: Use '$name' to read/write from in-memory variables.\n";
+        os << "Tip: Chain commands with '|' pipelines. (e.g. read file.bmp | bicubic_resize 512 512 | $out)\n";
+    }
+
+    void execute(Workspace& workspace, const std::string& command_name, std::span<const std::string_view> args, std::ostream& os = std::cout) const
+    {
+        if (auto it = commands.find(command_name); it != std::ranges::end(commands))
+        {
+            try
+            {
+                it->second.handler(workspace, args, os);
+            }
+            catch (const std::exception& e)
+            {
+                os << "Error executing command '" << command_name << "': " << e.what() << "\n";
+            }
+        }
+        else
+        {
+            os << "Unknown command: " << command_name << "\n";
+            list_commands(os); 
+        }
+    }
+};
+
+// ------------------------------------------------------------------------------------
+//  Peephole Optimization Engine (Lazy Evaluation AST)
+// ------------------------------------------------------------------------------------
 
 //  QueuedCommand struct implementation
 struct QueuedCommand
@@ -995,89 +1081,6 @@ constexpr std::any dispatch_policy_string(
         return std::forward<DefaultFun>(default_fun)();
     }
 }
-
-//  IOSchema struct implementation
-//  Schema defining implicit argument positions for the pipeline engine to auto-inject memory variables
-struct IOSchema
-{
-    int in_idx = -1;
-    int out_idx = -1;
-};
-
-//  Define human-readable pipeline schema routing constants globally
-constexpr auto GeneratorSchema = IOSchema{ -1, 1 };
-constexpr auto TerminatorSchema = IOSchema{ 0, -1 };
-constexpr auto TransformerSchema = IOSchema{ 0, 1 };
-constexpr auto CombinerSchema = IOSchema{ 0, 2 };
-constexpr auto IndependentSchema = IOSchema{ -1, -1 };
-
-//  CommandRegistry class implementation
-class CommandRegistry
-{
-public:
-    struct CommandInfo
-    {
-        std::string description;
-        IOSchema schema;
-        CommandHandler handler;
-    };
-
-private:
-    std::map<std::string, CommandInfo> commands;
-
-public:
-    void register_command(const std::string_view name, const std::string_view description, const IOSchema schema, CommandHandler handler)
-    {
-        commands.emplace(std::string(name), CommandInfo{std::string(description), schema, std::move(handler)});
-    }
-
-    //  Fallback for commands without pipeline routing specifications
-    void register_command(const std::string_view name, const std::string_view description, CommandHandler handler)
-    {
-        commands.emplace(std::string(name), CommandInfo{std::string(description), IOSchema{-1, -1}, std::move(handler)});
-    }
-
-    std::optional<IOSchema> get_schema(const std::string_view command_name) const
-    {
-        if (auto it = commands.find(std::string(command_name)); it != std::ranges::end(commands))
-        {
-            return it->second.schema;
-        }
-        return std::nullopt;
-    }
-
-    void list_commands(std::ostream& os = std::cout) const
-    {
-        os << "Available Commands:\n";
-        for (const auto& [name, info] : commands)
-        {
-            os << "  " << std::left << std::setw(15) << name << " : " << info.description << "\n";
-        }
-        os << "\nUsage: ./tinydip <command> [args...]\n";
-        os << "Tip: Use '$name' to read/write from in-memory variables.\n";
-        os << "Tip: Chain commands with '|' pipelines. (e.g. read file.bmp | bicubic_resize 512 512 | $out)\n";
-    }
-
-    void execute(Workspace& workspace, const std::string& command_name, std::span<const std::string_view> args, std::ostream& os = std::cout) const
-    {
-        if (auto it = commands.find(command_name); it != std::ranges::end(commands))
-        {
-            try
-            {
-                it->second.handler(workspace, args, os);
-            }
-            catch (const std::exception& e)
-            {
-                os << "Error executing command '" << command_name << "': " << e.what() << "\n";
-            }
-        }
-        else
-        {
-            os << "Unknown command: " << command_name << "\n";
-            list_commands(os); 
-        }
-    }
-};
 
 //  --------------------------------------------------------------------------
 //  Workspace Memory Operation Handlers
