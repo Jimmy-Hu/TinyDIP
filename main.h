@@ -782,10 +782,14 @@ public:
                 {
                     return {c.args[0], c.args[1]};
                 }
-                if (c.name == "dct2" || c.name == "idct2" || c.name == "abs" || c.name == "normalize" || c.name == "multiply")
+
+                constexpr std::array<std::string_view, 5> transform_ops = {"dct2", "idct2", "abs", "normalize", "multiply"};
+                if (match_any(c.name, transform_ops))
                 {
-                    bool has_policy = (std::ranges::size(c.args) > 0 && (c.args[0] == "seq" || c.args[0] == "par" || c.args[0] == "par_unseq" || c.args[0] == "unseq"));
-                    std::size_t offset = has_policy ? 1 : 0;
+                    constexpr std::array<std::string_view, 4> policies = {"seq", "par", "par_unseq", "unseq"};
+                    const bool has_policy = (std::ranges::size(c.args) > 0 && match_any(c.args[0], policies));
+                    const std::size_t offset = has_policy ? 1 : 0;
+                    
                     if (std::ranges::size(c.args) > offset + 1)
                     {
                         return {c.args[offset], c.args[offset + 1]};
@@ -801,10 +805,14 @@ public:
                     c.args[0] = new_in;
                     return true;
                 }
-                if (c.name == "dct2" || c.name == "idct2" || c.name == "abs" || c.name == "normalize" || c.name == "multiply")
+                
+                constexpr std::array<std::string_view, 5> transform_ops = {"dct2", "idct2", "abs", "normalize", "multiply"};
+                if (match_any(c.name, transform_ops))
                 {
-                    bool has_policy = (std::ranges::size(c.args) > 0 && (c.args[0] == "seq" || c.args[0] == "par" || c.args[0] == "par_unseq" || c.args[0] == "unseq"));
-                    std::size_t offset = has_policy ? 1 : 0;
+                    constexpr std::array<std::string_view, 4> policies = {"seq", "par", "par_unseq", "unseq"};
+                    const bool has_policy = (std::ranges::size(c.args) > 0 && match_any(c.args[0], policies));
+                    const std::size_t offset = has_policy ? 1 : 0;
+                    
                     if (std::ranges::size(c.args) > offset + 1)
                     {
                         c.args[offset] = new_in;
@@ -821,10 +829,14 @@ public:
                     c.args[1] = new_out;
                     return true;
                 }
-                if (c.name == "dct2" || c.name == "idct2" || c.name == "abs" || c.name == "normalize" || c.name == "multiply")
+                
+                constexpr std::array<std::string_view, 5> transform_ops = {"dct2", "idct2", "abs", "normalize", "multiply"};
+                if (match_any(c.name, transform_ops))
                 {
-                    bool has_policy = (std::ranges::size(c.args) > 0 && (c.args[0] == "seq" || c.args[0] == "par" || c.args[0] == "par_unseq" || c.args[0] == "unseq"));
-                    std::size_t offset = has_policy ? 1 : 0;
+                    constexpr std::array<std::string_view, 4> policies = {"seq", "par", "par_unseq", "unseq"};
+                    const bool has_policy = (std::ranges::size(c.args) > 0 && match_any(c.args[0], policies));
+                    const std::size_t offset = has_policy ? 1 : 0;
+                    
                     if (std::ranges::size(c.args) > offset + 1)
                     {
                         c.args[offset + 1] = new_out;
