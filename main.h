@@ -831,7 +831,7 @@ requires std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, Q
 class PeepholeOptimizer
 {
 public:
-    static void optimize(RangeT& pipeline, std::ostream& os)
+    static void optimize(RangeT& pipeline, const CommandRegistry& registry, std::ostream& os)
     {
         if (std::ranges::empty(pipeline))
         {
@@ -866,29 +866,70 @@ public:
                 }
             };
             
-            auto get_io = [](const QueuedCommand& c) -> std::pair<std::string, std::string>
+            // Dynamically evaluate schemas at runtime to find inputs and outputs for ANY registered command
+            auto get_io = [&](const QueuedCommand& c) -> std::pair<std::string, std::string>
             {
                 if (c.name == "copy" && std::ranges::size(c.args) >= 2)
                 {
                     return {c.args[0], c.args[1]};
                 }
 
-                constexpr std::array<std::string_view, 5> transform_ops = {"dct2", "idct2", "abs", "normalize", "multiply"};
-                if (match_any(c.name, transform_ops))
+                auto schema_opt = registry.get_schema(c.name);
+                if (schema_opt && schema_opt->in_idx != -1 && schema_opt->out_idx != -1)
                 {
-                    constexpr std::array<std::string_view, 4> policies = {"seq", "par", "par_unseq", "unseq"};
-                    const bool has_policy = (std::ranges::size(c.args) > 0 && match_any(c.args[0], policies));
-                    const std::size_t offset = has_policy ? 1 : 0;
+                    std::string in_val = "";
+                    std::string out_val = "";
+                    std::size_t non_policy_count = 0;
                     
-                    if (std::ranges::size(c.args) > offset + 1)
+                    constexpr std::array<std::string_view, 4> policies = {"seq", "par", "par_unseq", "unseq"};
+
+                    // Zero-allocation loop tracking non-policy arguments securely using match_any
+                    for (const auto& arg : c.args)
                     {
-                        return {c.args[offset], c.args[offset + 1]};
+                        if (!match_any(arg, policies))
+                        {
+                            if (non_policy_count == static_cast<std::size_t>(schema_opt->in_idx))
+                            {
+                                in_val = arg;
+                            }
+                            if (non_policy_count == static_cast<std::size_t>(schema_opt->out_idx))
+                            {
+                                out_val = arg;
+                            }
+                            ++non_policy_count;
+                        }
+                    }
+                    
+                    if (!in_val.empty() && !out_val.empty())
+                    {
+                        return {in_val, out_val};
                     }
                 }
                 return {"", ""};
             };
 
-            auto update_in = [](QueuedCommand& c, const std::string& new_in) -> bool
+            auto update_arg_by_schema = [&](QueuedCommand& c, int logical_idx, const std::string& new_val) -> bool
+            {
+                std::size_t non_policy_count = 0;
+                constexpr std::array<std::string_view, 4> policies = {"seq", "par", "par_unseq", "unseq"};
+                
+                for (std::size_t i = 0; i < std::ranges::size(c.args); ++i)
+                {
+                    const auto& arg = c.args[i];
+                    if (!match_any(arg, policies))
+                    {
+                        if (non_policy_count == static_cast<std::size_t>(logical_idx))
+                        {
+                            c.args[i] = new_val;
+                            return true;
+                        }
+                        ++non_policy_count;
+                    }
+                }
+                return false;
+            };
+
+            auto update_in = [&](QueuedCommand& c, const std::string& new_in) -> bool
             {
                 if (c.name == "copy" && std::ranges::size(c.args) >= 2)
                 {
@@ -896,23 +937,15 @@ public:
                     return true;
                 }
                 
-                constexpr std::array<std::string_view, 5> transform_ops = {"dct2", "idct2", "abs", "normalize", "multiply"};
-                if (match_any(c.name, transform_ops))
+                auto schema_opt = registry.get_schema(c.name);
+                if (schema_opt && schema_opt->in_idx != -1)
                 {
-                    constexpr std::array<std::string_view, 4> policies = {"seq", "par", "par_unseq", "unseq"};
-                    const bool has_policy = (std::ranges::size(c.args) > 0 && match_any(c.args[0], policies));
-                    const std::size_t offset = has_policy ? 1 : 0;
-                    
-                    if (std::ranges::size(c.args) > offset + 1)
-                    {
-                        c.args[offset] = new_in;
-                        return true;
-                    }
+                    return update_arg_by_schema(c, schema_opt->in_idx, new_in);
                 }
                 return false;
             };
 
-            auto update_out = [](QueuedCommand& c, const std::string& new_out) -> bool
+            auto update_out = [&](QueuedCommand& c, const std::string& new_out) -> bool
             {
                 if (c.name == "copy" && std::ranges::size(c.args) >= 2)
                 {
@@ -920,18 +953,10 @@ public:
                     return true;
                 }
                 
-                constexpr std::array<std::string_view, 5> transform_ops = {"dct2", "idct2", "abs", "normalize", "multiply"};
-                if (match_any(c.name, transform_ops))
+                auto schema_opt = registry.get_schema(c.name);
+                if (schema_opt && schema_opt->out_idx != -1)
                 {
-                    constexpr std::array<std::string_view, 4> policies = {"seq", "par", "par_unseq", "unseq"};
-                    const bool has_policy = (std::ranges::size(c.args) > 0 && match_any(c.args[0], policies));
-                    const std::size_t offset = has_policy ? 1 : 0;
-                    
-                    if (std::ranges::size(c.args) > offset + 1)
-                    {
-                        c.args[offset + 1] = new_out;
-                        return true;
-                    }
+                    return update_arg_by_schema(c, schema_opt->out_idx, new_out);
                 }
                 return false;
             };
