@@ -723,6 +723,18 @@ struct QueuedCommand
     std::vector<std::string> args;
 };
 
+//  match_any template function implementation
+//  Helper function to flawlessly check if a target string matches any element in an input container
+template <std::ranges::input_range RangeT>
+requires (std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string_view> or
+          std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string> or
+          std::convertible_to<std::ranges::range_value_t<RangeT>, std::string_view> or
+          std::convertible_to<std::ranges::range_value_t<RangeT>, std::string>)
+constexpr bool match_any(const std::string_view target, const RangeT& container)
+{
+    return std::ranges::find(std::ranges::begin(container), std::ranges::end(container), target) != std::ranges::end(container);
+}
+
 //  PeepholeOptimizer template class implementation
 template <std::ranges::input_range RangeT>
 requires std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, QueuedCommand>
