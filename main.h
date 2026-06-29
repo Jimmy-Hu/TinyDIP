@@ -1640,9 +1640,11 @@ namespace handlers
         std::vector<std::string_view> filtered_args{};
         filtered_args.reserve(std::ranges::size(args));
 
+        constexpr std::array<std::string_view, 4> policies = {"seq", "par", "par_unseq", "unseq"};
+
         for (const auto& arg : args)
         {
-            if (arg == "seq" || arg == "par" || arg == "par_unseq" || arg == "unseq")
+            if (match_any(arg, policies))
             {
                 policy_str = arg;
             }
