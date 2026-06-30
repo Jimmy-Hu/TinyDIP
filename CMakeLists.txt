@@ -10,6 +10,26 @@ project(TinyDIP VERSION 1.0 LANGUAGES C CXX)
 # Reference: https://stackoverflow.com/a/3379246/6667035
 set(CMAKE_VERBOSE_MAKEFILE on)
 
+# --- RPATH Configuration for Custom GCC (e.g., GCC 17) ---
+# Define the directory containing the new libgomp.so.1 and libstdc++.so.6
+# Common locations: /usr/local/lib64, /opt/gcc-17/lib64, /opt/gcc-latest/lib64
+set(CUSTOM_GCC_LIB_DIR "/usr/local/lib64" CACHE PATH "Path to custom GCC library directory")
+
+# Use, i.e. do not skip the full RPATH for the build tree
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+
+# Use the install RPATH during the build phase as well
+# This ensures that executables run directly from the build directory can find the libraries
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
+# Set the RPATH to be used when installing
+set(CMAKE_INSTALL_RPATH "${CUSTOM_GCC_LIB_DIR}")
+
+# Add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# ---------------------------------------------------------
+
 # --- CUDA Setup ---
 # Option to enable/disable CUDA, default is ON
 OPTION(ENABLE_CUDA "Enable CUDA support" ON)
