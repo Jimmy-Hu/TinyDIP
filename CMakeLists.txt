@@ -465,7 +465,8 @@ target_link_libraries(windowedFilterTest PUBLIC TBB::tbb)
 
 if(ENABLE_CUDA)
     # === LINK LIBRARIES FOR CUDA TEST ===
-    target_link_libraries(stitchingCudaTest PUBLIC TBB::tbb)
+    # Explicitly link OpenMP::OpenMP_CXX to resolve libgomp symbols in mixed-language targets
+    target_link_libraries(stitchingCudaTest PUBLIC TBB::tbb OpenMP::OpenMP_CXX)
 
     set_target_properties(stitchingCudaTest PROPERTIES
         CUDA_HOST_COMPILER_STANDARD ${CMAKE_CXX_STANDARD}
@@ -473,20 +474,18 @@ if(ENABLE_CUDA)
     )
     message(STATUS "Setting CUDA Host C++ Standard for stitchingCudaTest to: ${CMAKE_CXX_STANDARD}")
 
-    # Link against TBB like other tests
-    target_link_libraries(warpPerspectiveCudaTest PUBLIC TBB::tbb)
+    # Explicitly link OpenMP for warpPerspectiveCudaTest
+    target_link_libraries(warpPerspectiveCudaTest PUBLIC TBB::tbb OpenMP::OpenMP_CXX)
     
-    # === FIX: Set Host Compilation Standard for CUDA Target ===
-    # Explicitly tell CMake to use the project's C++ standard (CMAKE_CXX_STANDARD)
-    # for the host compiler when compiling CUDA code for this target.
-    # This ensures headers like <format> are found correctly.
     set_target_properties(warpPerspectiveCudaTest PROPERTIES
         CUDA_HOST_COMPILER_STANDARD ${CMAKE_CXX_STANDARD}
         CUDA_HOST_COMPILER_STANDARD_REQUIRED YES
     )
     message(STATUS "Setting CUDA Host C++ Standard for warpPerspectiveCudaTest to: ${CMAKE_CXX_STANDARD}")
 
-    target_link_libraries(warpPerspectiveCudaTest2 PUBLIC TBB::tbb)
+    # Explicitly link OpenMP for warpPerspectiveCudaTest2
+    target_link_libraries(warpPerspectiveCudaTest2 PUBLIC TBB::tbb OpenMP::OpenMP_CXX)
+    
     set_target_properties(warpPerspectiveCudaTest2 PROPERTIES
         CUDA_HOST_COMPILER_STANDARD ${CMAKE_CXX_STANDARD}
         CUDA_HOST_COMPILER_STANDARD_REQUIRED YES
