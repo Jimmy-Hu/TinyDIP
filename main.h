@@ -1122,6 +1122,43 @@ constexpr std::string_view extract_policy_string(std::span<const std::string_vie
     return "";
 }
 
+//  args_filter template function implementation
+//  Helper to gracefully filter out execution policies from CLI arguments natively
+//  Upgraded to a highly generalized, container-agnostic template returning any requested sequence type
+template <typename ArgsContainer = std::vector<std::string_view>>
+constexpr ArgsContainer args_filter(const std::span<const std::string_view> args)
+{
+    constexpr std::array<std::string_view, 4> policies = {"seq", "par", "par_unseq", "unseq"};
+    ArgsContainer filtered_args;
+    
+    // Safely evaluate if the container natively supports memory reservation with SFINAE
+    if constexpr (requires { filtered_args.reserve(1); })
+    {
+        filtered_args.reserve(std::ranges::size(args));
+    }
+    
+    for (const auto& arg : args)
+    {
+        if (!match_any(arg, policies))
+        {
+            if constexpr (requires { filtered_args.emplace_back(arg); })
+            {
+                filtered_args.emplace_back(arg);
+            }
+            else if constexpr (requires { filtered_args.push_back(arg); })
+            {
+                filtered_args.push_back(arg);
+            }
+            else
+            {
+                filtered_args.insert(std::ranges::end(filtered_args), arg);
+            }
+        }
+    }
+    
+    return filtered_args;
+}
+
 //  --------------------------------------------------------------------------
 //  Workspace Memory Operation Handlers
 //  --------------------------------------------------------------------------
