@@ -1107,6 +1107,21 @@ constexpr std::any dispatch_policy_string(
     }
 }
 
+//  extract_policy_string function implementation
+//  Helper to gracefully extract an execution policy from CLI arguments natively
+constexpr std::string_view extract_policy_string(std::span<const std::string_view> args)
+{
+    constexpr std::array<std::string_view, 4> policies = {"seq", "par", "par_unseq", "unseq"};
+    for (const auto& arg : args)
+    {
+        if (match_any(arg, policies))
+        {
+            return arg;
+        }
+    }
+    return "";
+}
+
 //  --------------------------------------------------------------------------
 //  Workspace Memory Operation Handlers
 //  --------------------------------------------------------------------------
