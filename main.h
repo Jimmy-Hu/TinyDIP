@@ -1665,7 +1665,8 @@ namespace handlers
 
 	//  manhattan_distance template function implementation
     template <
-        typename ImageLoaderFun = MetaImageIO::Loader
+        typename ImageLoaderFun = MetaImageIO::Loader,
+        typename ArgsContainer = std::vector<std::string_view>
     >
     requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
     constexpr void manhattan_distance(
@@ -1674,23 +1675,8 @@ namespace handlers
         std::ostream& os = std::cout,
         ImageLoaderFun&& image_loader_fun = ImageLoaderFun{})
     {
-        std::string_view policy_str = "";
-        std::vector<std::string_view> filtered_args{};
-        filtered_args.reserve(std::ranges::size(args));
-
-        constexpr std::array<std::string_view, 4> policies = {"seq", "par", "par_unseq", "unseq"};
-
-        for (const auto& arg : args)
-        {
-            if (match_any(arg, policies))
-            {
-                policy_str = arg;
-            }
-            else
-            {
-                filtered_args.emplace_back(arg);
-            }
-        }
+        std::string_view policy_str = extract_policy_string(args);
+        ArgsContainer filtered_args = args_filter<ArgsContainer>(args);
 
         if (std::ranges::size(filtered_args) < 2)
         {
