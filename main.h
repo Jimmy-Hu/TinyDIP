@@ -1186,22 +1186,8 @@ struct MetaTransformHandler
               std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<double>&&>)
     constexpr void operator()(Workspace& workspace, std::span<const std::string_view> args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
     {
-        std::string_view policy_str = "";
-        ArgsContainer filtered_args;
-        filtered_args.reserve(std::ranges::size(args));
-
-        for (const auto& arg : args)
-        {
-            const std::string_view sv_arg = arg;
-            if (sv_arg == "seq" || sv_arg == "par" || sv_arg == "par_unseq" || sv_arg == "unseq")
-            {
-                policy_str = sv_arg;
-            }
-            else
-            {
-                filtered_args.emplace_back(sv_arg);
-            }
-        }
+        const std::string_view policy_str = extract_policy_string(args);
+        const ArgsContainer filtered_args = args_filter<ArgsContainer>(args);
 
         if (std::ranges::size(filtered_args) < MinArgs)
         {
