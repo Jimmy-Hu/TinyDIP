@@ -1491,7 +1491,8 @@ namespace handlers
     //  construct_rgb template function implementation
     template <
         typename ImageLoaderFun = MetaImageIO::Loader,
-        typename ImageSaverFun = MetaImageIO::Saver
+        typename ImageSaverFun = MetaImageIO::Saver,
+        typename ArgsContainer = std::vector<std::string_view>
     >
     requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&> &&
               std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&>)
@@ -1502,22 +1503,8 @@ namespace handlers
         ImageLoaderFun&& image_loader_fun = ImageLoaderFun{},
         ImageSaverFun&& image_saver_fun = ImageSaverFun{})
     {
-        std::string_view policy_str = "";
-        std::vector<std::string_view> filtered_args;
-        filtered_args.reserve(std::ranges::size(args));
-
-        for (const auto& arg : args)
-        {
-            const std::string_view sv_arg = arg;
-            if (sv_arg == "seq" || sv_arg == "par" || sv_arg == "par_unseq" || sv_arg == "unseq")
-            {
-                policy_str = sv_arg;
-            }
-            else
-            {
-                filtered_args.emplace_back(sv_arg);
-            }
-        }
+        const std::string_view policy_str = extract_policy_string(args);
+        const ArgsContainer filtered_args = args_filter<ArgsContainer>(args);
 
         if (std::ranges::size(filtered_args) < 4)
         {
