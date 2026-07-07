@@ -294,11 +294,11 @@ namespace TinyDIP
         //  set function implementation
         //  decltype(auto) ensures that modifying the return element safely propagates 
         //  into the proxy objects associated with bitwise structures (e.g., vector<bool>)
-        constexpr decltype(auto) set(const std::size_t index)
+        constexpr decltype(auto) set(const std::size_t index, std::ostream& os = std::cout)
         {
             if (index >= count())
             {
-                std::cout << "index = " << index << ", count = " << count() << '\n';
+                os << "index = " << index << ", count = " << count() << '\n';
                 throw std::out_of_range("Given index out of range!");
             }
             return image_data[index];
