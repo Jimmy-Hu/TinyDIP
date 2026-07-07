@@ -1669,6 +1669,60 @@ namespace handlers
         }
     }
 
+    //  create_image_with_initial_value template function implementation
+    template <
+        std::invocable<const std::string_view, Workspace&, TinyDIP::Image<double>&&> ImageSaverFun = MetaImageIO::Saver
+    >
+    constexpr void create_image_with_initial_value(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        const double initial_value,
+        const std::string_view command_name,
+        std::ostream& os = std::cout,
+        ImageSaverFun&& image_saver_fun = ImageSaverFun{})
+    {
+        if (std::ranges::size(args) < 2)
+        {
+            os << "Usage: " << command_name << " <output_img | $var> <dim1> [dim2] [dim3] ...\n";
+            return;
+        }
+
+        const std::string_view output_arg = args[0];
+        
+        std::vector<std::size_t> sizes;
+        sizes.reserve(std::ranges::size(args) - 1);
+        std::size_t total_elements = 1;
+        
+        for (std::size_t i = 1; i < std::ranges::size(args); ++i)
+        {
+            const std::size_t dim = parse_arg<std::size_t>(args[i]);
+            sizes.emplace_back(dim);
+            total_elements *= dim;
+        }
+
+        os << "Generating " << command_name << " image with dimensions: ";
+        for (std::size_t i = 0; i < std::ranges::size(sizes); ++i)
+        {
+            os << sizes[i];
+            if (i + 1 < std::ranges::size(sizes))
+            {
+                os << " x ";
+            }
+        }
+        os << "...\n";
+
+        std::vector<double> data(total_elements, initial_value);
+        TinyDIP::Image<double> output_img(data, sizes);
+
+        if constexpr (requires { output_img.setAllValue(initial_value); })
+        {
+            output_img.setAllValue(initial_value);
+        }
+
+        image_saver_fun(output_arg, workspace, std::move(output_img));
+        os << "Saved to " << output_arg << "\n";
+    }
+
     //  dct3 function implementation
     constexpr void dct3(
         Workspace& workspace,
