@@ -2722,7 +2722,12 @@ namespace handlers
 
                 auto exec_default = [&]() -> std::any
                 {
-                    if constexpr (requires { std::forward<Data1T>(data1) - std::forward<Data2T>(data2); })
+                    if constexpr (TinyDIP::is_bool_data_v<Decayed1T> || TinyDIP::is_bool_data_v<Decayed2T> || TinyDIP::is_complex_data_v<Decayed1T> || TinyDIP::is_complex_data_v<Decayed2T>)
+                    {
+                        throw std::invalid_argument("Mathematical subtraction is explicitly disabled for boolean / complex data types.");
+                        return std::any{};
+                    }
+                    else if constexpr (requires { std::forward<Data1T>(data1) - std::forward<Data2T>(data2); })
                     {
                         return std::forward<Data1T>(data1) - std::forward<Data2T>(data2);
                     }
@@ -2736,7 +2741,12 @@ namespace handlers
                 auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
                     requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                 {
-                    if constexpr (requires { TinyDIP::subtract(std::forward<ExecPolicy>(exec_policy), std::forward<Data1T>(data1), std::forward<Data2T>(data2)); })
+                    if constexpr (TinyDIP::is_bool_data_v<Decayed1T> || TinyDIP::is_bool_data_v<Decayed2T> || TinyDIP::is_complex_data_v<Decayed1T> || TinyDIP::is_complex_data_v<Decayed2T>)
+                    {
+                        throw std::invalid_argument("Mathematical subtraction is explicitly disabled for boolean / complex data types.");
+                        return std::any{};
+                    }
+                    else if constexpr (requires { TinyDIP::subtract(std::forward<ExecPolicy>(exec_policy), std::forward<Data1T>(data1), std::forward<Data2T>(data2)); })
                     {
                         return TinyDIP::subtract(std::forward<ExecPolicy>(exec_policy), std::forward<Data1T>(data1), std::forward<Data2T>(data2));
                     }
