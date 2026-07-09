@@ -126,6 +126,7 @@ namespace TinyDIP
         //  Image constructor
         #ifdef __cpp_lib_containers_ranges
             template<std::ranges::input_range Range, std::same_as<std::size_t>... Sizes>
+            requires(std::convertible_to<std::ranges::range_value_t<Range>, ElementT>)
             Image(const Range& input, Sizes... sizes) :
                 size{ sizes... }
             {
@@ -141,6 +142,7 @@ namespace TinyDIP
             }
         #else
             template<std::ranges::input_range Range, std::same_as<std::size_t>... Sizes>
+            requires(std::convertible_to<std::ranges::range_value_t<Range>, ElementT>)
             Image(const Range& input, Sizes... sizes):
                 size{sizes...}
             {
