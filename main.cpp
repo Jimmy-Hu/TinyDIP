@@ -2797,6 +2797,12 @@ int main(int argc, char* argv[])
         CommandBundle{"subimage", "Extract a sub-region from an image.", TransformerSchema,
             handlers::subimage
         },
+        CommandBundle{"subtract", "Subtract two images or containers pixel-wise.", CombinerSchema, 
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::subtract(workspace, args, os);
+            }
+        },
         CommandBundle{"sum", "Calculate the sum of all elements in an image or container.", TransformerSchema,
             handlers::sum
         },
