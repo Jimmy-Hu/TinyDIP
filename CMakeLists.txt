@@ -538,6 +538,23 @@ IF (CMAKE_VERSION VERSION_GREATER_EQUAL "3.18" AND CMAKE_BUILD_TYPE STREQUAL "De
   cmake_language(CALL print_all_variables)
 ENDIF()
 
+# ------------------------------------------------------------------------------------
+#  Dynamic Plugin Architecture Configuration
+# ------------------------------------------------------------------------------------
+
+# Configure Plugin Output Directory
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/plugins)
+
+# Add Math Plugin Module
+add_library(plugin_math MODULE plugin_math.cpp)
+set_target_properties(plugin_math PROPERTIES
+    PREFIX ""
+    OUTPUT_NAME "tinydip_math"
+)
+
+# Ensure the plugin correctly links against TBB if multithreading handlers are invoked
+target_link_libraries(plugin_math PRIVATE tbb)
+
 include(GNUInstallDirs)
 
 install(TARGETS TinyDIP
