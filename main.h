@@ -1936,6 +1936,95 @@ namespace handlers
         }
     }
 
+    //  estimate_gaussian_params_2d function implementation
+    constexpr void estimate_gaussian_params_2d(
+        Workspace& workspace,
+        std::span<const std::string_view> args,
+        std::ostream& os = std::cout)
+    {
+        auto transform_handler = make_meta_scalar_handler<2>(
+            "estimate_gaussian_params_2d [execution_policy] <input_img | $var> <output_var | $var> [max_iterations=1000] [tolerance=1e-7]", 
+            "estimate_gaussian_params_2d", "Estimate Gaussian Parameters 2D", 
+            [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
+            {
+                std::size_t max_iterations = 1000;
+                double tolerance = 1e-7;
+                if (std::ranges::size(filtered_args) > 2)
+                {
+                    max_iterations = parse_arg<std::size_t>(filtered_args[2]);
+                }
+                if (std::ranges::size(filtered_args) > 3)
+                {
+                    tolerance = parse_arg<double>(filtered_args[3]);
+                }
+
+                os << "Estimating 2D Gaussian parameters for " << filtered_args[0] << "...\n";
+
+                return [max_iterations, tolerance, policy_str, &os]<typename DataT>(DataT&& data) -> std::any
+                {
+                    using DecayedDataT = std::remove_cvref_t<DataT>;
+
+                    if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
+                    {
+                        using ElementT = TinyDIP::get_deep_scalar_t<DecayedDataT>;
+                        
+                        if constexpr (std::is_arithmetic_v<ElementT> && !TinyDIP::is_bool_data_v<ElementT>)
+                        {
+                            auto exec_default = [&]() -> std::any
+                            {
+                                if constexpr (requires { TinyDIP::estimate_gaussian_parameters_2d(std::execution::seq, std::forward<DataT>(data), max_iterations, tolerance); })
+                                {
+                                    return TinyDIP::estimate_gaussian_parameters_2d(std::execution::seq, std::forward<DataT>(data), max_iterations, tolerance);
+                                }
+                                else if constexpr (requires { TinyDIP::estimate_gaussian_parameters_2d(std::forward<DataT>(data), max_iterations, tolerance); })
+                                {
+                                    // Just in case the backend doesn't support execution policies natively yet
+                                    return TinyDIP::estimate_gaussian_parameters_2d(std::forward<DataT>(data), max_iterations, tolerance);
+                                }
+                                else
+                                {
+                                    throw std::invalid_argument(std::string("Input image type [") + std::string(get_type_name<DecayedDataT>()) + "] does not support estimate_gaussian_parameters_2d.");
+                                    return std::any{};
+                                }
+                            };
+
+                            auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                                requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                            {
+                                if constexpr (requires { TinyDIP::estimate_gaussian_parameters_2d(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), max_iterations, tolerance); })
+                                {
+                                    return TinyDIP::estimate_gaussian_parameters_2d(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), max_iterations, tolerance);
+                                }
+                                else
+                                {
+                                    if (!std::ranges::empty(policy_str))
+                                    {
+                                        os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                    }
+                                    return exec_default();
+                                }
+                            };
+
+                            return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                        }
+                        else
+                        {
+                            throw std::invalid_argument("Input image must have arithmetic elements to estimate Gaussian parameters.");
+                            return std::any{};
+                        }
+                    }
+                    else
+                    {
+                        throw std::invalid_argument("Input data type must be an Image.");
+                        return std::any{};
+                    }
+                };
+            }
+        );
+
+        transform_handler(workspace, args, os);
+    }
+
     //  load_workspace function implementation
     constexpr void load_workspace(
         Workspace& workspace,
