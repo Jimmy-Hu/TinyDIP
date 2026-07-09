@@ -1163,6 +1163,149 @@ constexpr ArgsContainer args_filter(const std::span<const std::string_view> args
 //  Workspace Memory Operation Handlers
 //  --------------------------------------------------------------------------
 
+//  MetaScalarHandler template struct implementation
+//  Generic Meta Handler strictly refactoring scalar reduction commands like max, min, and sum
+template <
+    std::size_t MinArgs,
+    typename SetupFun,
+    typename ArgsContainer = std::vector<std::string_view>,
+    typename CheckingTypes = master_data_types
+>
+requires(std::invocable<SetupFun, const ArgsContainer&, const std::string_view, std::ostream&>)
+struct MetaScalarHandler
+{
+    std::string_view usage_string_;
+    std::string_view op_name_;
+    std::string_view capitalized_op_name_;
+    SetupFun setup_fun_;
+
+    template <
+        typename ImageLoaderFun = MetaImageIO::Loader
+    >
+    requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
+    constexpr void operator()(Workspace& workspace, std::span<const std::string_view> args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}) const
+    {
+        std::string_view policy_str = "";
+        ArgsContainer filtered_args;
+        filtered_args.reserve(std::ranges::size(args));
+
+        for (const auto& arg : args)
+        {
+            const std::string_view sv_arg = arg;
+            if (sv_arg == "seq" || sv_arg == "par" || sv_arg == "par_unseq" || sv_arg == "unseq")
+            {
+                policy_str = sv_arg;
+            }
+            else
+            {
+                filtered_args.emplace_back(sv_arg);
+            }
+        }
+
+        if (std::ranges::size(filtered_args) < MinArgs)
+        {
+            os << "Usage: " << usage_string_ << "\n";
+            if (usage_string_.find("[execution_policy]") != std::string_view::npos)
+            {
+                os << "       Optional Execution policies: seq, par, par_unseq, unseq\n";
+            }
+            return;
+        }
+
+        const std::string_view input_arg = filtered_args[0];
+        std::string_view output_arg = "";
+        
+        if (std::ranges::size(filtered_args) > 1)
+        {
+            output_arg = filtered_args[1];
+        }
+
+        auto core_processor = setup_fun_(filtered_args, policy_str, os);
+
+        std::optional<std::any> final_result_opt;
+
+        // Polymorphic lambda to cleanly execute the algorithm dynamically independent of data type
+        auto process_scalar = [&]<typename DataT>(DataT&& input_data)
+        {
+            final_result_opt = core_processor(std::forward<DataT>(input_data));
+        };
+
+        if (!dispatch_data_operation<CheckingTypes>(input_arg, workspace, image_loader_fun, process_scalar))
+        {
+            os << "Error: Memory variable not found or unsupported type.\n";
+            return;
+        }
+
+        if (final_result_opt.has_value())
+        {
+            std::any scalar_result_any = std::move(*final_result_opt);
+
+            bool handled = false;
+            auto handle_result = [&]<typename ScalarT>() -> bool
+            {
+                if (scalar_result_any.type() == typeid(ScalarT))
+                {
+                    auto& scalar_result = std::any_cast<ScalarT&>(scalar_result_any);
+                    if (!std::ranges::empty(output_arg))
+                    {
+                        if (output_arg.starts_with('$'))
+                        {
+                            workspace.store(output_arg.substr(1), scalar_result);
+                            os << "Saved " << op_name_ << " result to " << output_arg << "\n";
+                        }
+                        else
+                        {
+                            os << "Error: Output must be a memory variable starting with '$'.\n";
+                        }
+                    }
+                    else
+                    {
+                        if constexpr (is_vector_v<ScalarT> || is_deque_v<ScalarT> || is_list_v<ScalarT> || is_std_array_v<ScalarT>)
+                        {
+                            os << capitalized_op_name_ << " result: {";
+                            bool first = true;
+                            for (const auto& elem : scalar_result)
+                            {
+                                if (!first)
+                                {
+                                    os << ", ";
+                                }
+                                os << +elem;
+                                first = false;
+                            }
+                            os << "}\n";
+                        }
+                        else if constexpr (requires { os << scalar_result; })
+                        {
+                            if constexpr (sizeof(ScalarT) == 1 && std::is_integral_v<ScalarT>)
+                            {
+                                os << capitalized_op_name_ << " result: " << +scalar_result << "\n";
+                            }
+                            else
+                            {
+                                os << capitalized_op_name_ << " result: " << scalar_result << "\n";
+                            }
+                        }
+                        else
+                        {
+                            os << capitalized_op_name_ << " result evaluated successfully (Non-printable complex type).\n";
+                        }
+                    }
+                    handled = true;
+                    return true;
+                }
+                return false;
+            };
+
+            if (!match_any_type<master_scalar_types>(handle_result))
+            {
+                os << "Error: Output type from processor is unknown or unsupported. Type Name: [" 
+                   << scalar_result_any.type().name() << "]\n";
+            }
+        }
+    }
+};
+
 //  MetaTransformHandler template struct implementation
 //  Generic Meta Handler strictly refactoring transform commands like abs, bicubic_resize, dct2, dct3, idct2, and lanczos_resample
 template <
