@@ -160,8 +160,9 @@ namespace TinyDIP
 
         //  Image constructor
         template<std::ranges::input_range Range, std::ranges::input_range Sizes>
-        requires(std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>) or
-                (std::same_as<std::ranges::range_value_t<Sizes>, int>)
+        requires(std::convertible_to<std::ranges::range_value_t<Range>, ElementT>) and
+                ((std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>) or
+                 (std::same_as<std::ranges::range_value_t<Sizes>, int>))
         Image(const Range& input, const Sizes& sizes)
         {
             if (std::ranges::empty(input))
