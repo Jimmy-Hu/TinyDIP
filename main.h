@@ -2822,7 +2822,7 @@ namespace handlers
             }
             else if constexpr (is_std_array_v<Decayed1T>)
             {
-                success2 = dispatch_data_operation<all_array_3_types>(input2_arg, workspace, image_loader_fun, process_input2);
+                success2 = dispatch_data_operation<all_array_types>(input2_arg, workspace, image_loader_fun, process_input2);
             }
             else
             {
