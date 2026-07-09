@@ -2722,9 +2722,9 @@ namespace handlers
 
                 auto exec_default = [&]() -> std::any
                 {
-                    if constexpr (TinyDIP::is_bool_data_v<Decayed1T> || TinyDIP::is_bool_data_v<Decayed2T> || TinyDIP::is_complex_data_v<Decayed1T> || TinyDIP::is_complex_data_v<Decayed2T>)
+                    if constexpr (TinyDIP::is_bool_data_v<Decayed1T> || TinyDIP::is_bool_data_v<Decayed2T>)
                     {
-                        throw std::invalid_argument("Mathematical subtraction is explicitly disabled for boolean / complex data types.");
+                        throw std::invalid_argument("Mathematical subtraction is explicitly disabled for boolean data types.");
                         return std::any{};
                     }
                     else if constexpr (requires { std::forward<Data1T>(data1) - std::forward<Data2T>(data2); })
@@ -2741,9 +2741,9 @@ namespace handlers
                 auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
                     requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                 {
-                    if constexpr (TinyDIP::is_bool_data_v<Decayed1T> || TinyDIP::is_bool_data_v<Decayed2T> || TinyDIP::is_complex_data_v<Decayed1T> || TinyDIP::is_complex_data_v<Decayed2T>)
+                    if constexpr (TinyDIP::is_bool_data_v<Decayed1T> || TinyDIP::is_bool_data_v<Decayed2T>)
                     {
-                        throw std::invalid_argument("Mathematical subtraction is explicitly disabled for boolean / complex data types.");
+                        throw std::invalid_argument("Mathematical subtraction is explicitly disabled for boolean data types.");
                         return std::any{};
                     }
                     else if constexpr (requires { TinyDIP::subtract(std::forward<ExecPolicy>(exec_policy), std::forward<Data1T>(data1), std::forward<Data2T>(data2)); })
@@ -2801,9 +2801,37 @@ namespace handlers
                 }
             };
 
-            if (!dispatch_data_operation<master_data_types>(input2_arg, workspace, image_loader_fun, process_input2))
+            using Decayed1T = std::remove_cvref_t<Data1T>;
+            bool success2 = false;
+
+            if constexpr (TinyDIP::is_Image<Decayed1T>::value)
             {
-                os << "Error: Memory variable not found or unsupported type for input2: " << input2_arg << "\n";
+                success2 = dispatch_data_operation<master_image_types>(input2_arg, workspace, image_loader_fun, process_input2);
+            }
+            else if constexpr (is_vector_v<Decayed1T>)
+            {
+                success2 = dispatch_data_operation<all_vector_types>(input2_arg, workspace, image_loader_fun, process_input2);
+            }
+            else if constexpr (is_deque_v<Decayed1T>)
+            {
+                success2 = dispatch_data_operation<all_deque_types>(input2_arg, workspace, image_loader_fun, process_input2);
+            }
+            else if constexpr (is_list_v<Decayed1T>)
+            {
+                success2 = dispatch_data_operation<all_list_types>(input2_arg, workspace, image_loader_fun, process_input2);
+            }
+            else if constexpr (is_std_array_v<Decayed1T>)
+            {
+                success2 = dispatch_data_operation<all_array_3_types>(input2_arg, workspace, image_loader_fun, process_input2);
+            }
+            else
+            {
+                success2 = dispatch_data_operation<core_numeric_types>(input2_arg, workspace, image_loader_fun, process_input2);
+            }
+
+            if (!success2)
+            {
+                os << "Error: Memory variable not found or structurally incompatible type for input2: " << input2_arg << "\n";
             }
         };
 
