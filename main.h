@@ -1107,16 +1107,21 @@ constexpr std::any dispatch_policy_string(
     }
 }
 
-//  extract_policy_string function implementation
+//  extract_policy_string template function implementation
 //  Helper to gracefully extract an execution policy from CLI arguments natively
-constexpr std::string_view extract_policy_string(std::span<const std::string_view> args)
+template <std::ranges::input_range RangeT>
+requires (std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string_view> or
+          std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string> or
+          std::convertible_to<std::ranges::range_value_t<RangeT>, std::string_view> or
+          std::convertible_to<std::ranges::range_value_t<RangeT>, std::string>)
+constexpr std::string_view extract_policy_string(const RangeT& args)
 {
     constexpr std::array<std::string_view, 4> policies = {"seq", "par", "par_unseq", "unseq"};
     for (const auto& arg : args)
     {
         if (match_any(arg, policies))
         {
-            return arg;
+            return std::string_view(arg);
         }
     }
     return "";
