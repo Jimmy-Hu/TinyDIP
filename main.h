@@ -1306,6 +1306,16 @@ struct MetaScalarHandler
     }
 };
 
+//  make_meta_scalar_handler template function implementation
+template <std::size_t MinArgs, typename CheckingTypes = master_data_types, typename SetupFun, typename ArgsContainer = std::vector<std::string_view>>
+constexpr auto make_meta_scalar_handler(std::string_view usage, std::string_view op_name, std::string_view capitalized_op_name, SetupFun&& setup)
+{
+    return MetaScalarHandler<MinArgs, std::remove_cvref_t<SetupFun>, ArgsContainer, CheckingTypes>{
+        usage, op_name, capitalized_op_name, std::forward<SetupFun>(setup)
+    };
+}
+
+
 //  MetaTransformHandler template struct implementation
 //  Generic Meta Handler strictly refactoring transform commands like abs, bicubic_resize, dct2, dct3, idct2, and lanczos_resample
 template <
