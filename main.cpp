@@ -11,6 +11,7 @@
 //#define USE_BOOST_SERIALIZATION
 
 #include "main.h"
+#include "dynamic_loader.h"
 
 
 //#define BOOST_TEST_DYN_LINK
@@ -2684,9 +2685,6 @@ int main(int argc, char* argv[])
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"abs", "Calculate the absolute value of an image or container.", TransformerSchema, 
-            handlers::abs
-        },
         CommandBundle{"append_element", "Append an element to the back of a container using emplace_back.", CombinerSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
@@ -2789,12 +2787,6 @@ int main(int argc, char* argv[])
         CommandBundle{"load_workspace", "Load memory variables from a directory bundle.", IndependentSchema, 
             handlers::load_workspace
         },
-        CommandBundle{"max", "Calculate the maximum value of an image or container.", TransformerSchema,
-            handlers::max
-        },
-        CommandBundle{"min", "Calculate the minimum value of an image or container.", TransformerSchema,
-            handlers::min
-        },
         CommandBundle{ "multiply", "Multiply an image or container by a scalar.", TransformerSchema,
             handlers::multiply
         },
@@ -2842,15 +2834,6 @@ int main(int argc, char* argv[])
         CommandBundle{"subimage", "Extract a sub-region from an image.", TransformerSchema,
             handlers::subimage
         },
-        CommandBundle{"subtract", "Subtract two images or containers pixel-wise.", CombinerSchema, 
-            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
-            {
-                handlers::subtract(workspace, args, os);
-            }
-        },
-        CommandBundle{"sum", "Calculate the sum of all elements in an image or container.", TransformerSchema,
-            handlers::sum
-        },
         CommandBundle{"to_complex", "Convert an image or container to a complex number format.", TransformerSchema,
             handlers::to_complex
         },
@@ -2884,6 +2867,9 @@ int main(int argc, char* argv[])
             handlers::transform_container(workspace, args, registry, os);
         }
     );
+
+    //  Dynamically Load Plugins
+    auto active_plugins = load_plugins(registry);
 
     if (argc < 2)
     {
