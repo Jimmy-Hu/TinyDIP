@@ -221,39 +221,6 @@ auto myHighLightRegion_parameters(const std::size_t index = 0)
 
 namespace handlers
 {
-    //  gaussian_figure_2d template function implementation
-    template <
-        std::invocable<const std::string_view, Workspace&, TinyDIP::Image<double>&&> ImageSaverFun = MetaImageIO::Saver
-    >
-    constexpr void gaussian_figure_2d(
-        Workspace& workspace,
-        std::span<const std::string_view> args,
-        std::ostream& os = std::cout,
-        ImageSaverFun&& image_saver_fun = ImageSaverFun{})
-    {
-        if (std::ranges::size(args) < 6)
-        {
-            os << "Usage: gaussian_figure_2d <output_img | $var> <width> <height> <center_x> <center_y> <sigma>\n";
-            return;
-        }
-
-        const std::string_view output_arg = args[0];
-        const std::size_t width = parse_arg<std::size_t>(args[1]);
-        const std::size_t height = parse_arg<std::size_t>(args[2]);
-        const std::size_t center_x = parse_arg<std::size_t>(args[3]);
-        const std::size_t center_y = parse_arg<std::size_t>(args[4]);
-        const double sigma = parse_arg<double>(args[5]);
-
-        os << "Generating Gaussian Figure 2D with dimensions: " << width << " x " << height 
-           << ", center: (" << center_x << ", " << center_y << "), sigma: " << sigma << "...\n";
-
-        // Generate the 2D Gaussian Figure utilizing the native double precision wrapper directly from the TinyDIP engine
-        auto output_img = TinyDIP::gaussianFigure2D(width, height, center_x, center_y, sigma);
-
-        image_saver_fun(output_arg, workspace, std::move(output_img));
-        os << "Saved to " << output_arg << "\n";
-    }
-
     //  get_element template function implementation
     template <
         typename ImageLoaderFun = MetaImageIO::Loader
