@@ -19,7 +19,12 @@ extern "C" TINYDIP_PLUGIN_EXPORT void register_plugin_commands(CommandRegistry& 
         }
     );
     
-    registry.register_command("min", "Calculate the minimum value of an image or container.", TransformerSchema, handlers::min);
+    registry.register_command("min", "Calculate the minimum value of an image or container.", TransformerSchema,
+        [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+        {
+            handlers::min(workspace, args, os);
+        }
+    );
 
     registry.register_command("subtract", "Subtract two images or containers pixel-wise.", CombinerSchema, 
         [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
