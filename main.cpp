@@ -221,24 +221,6 @@ auto myHighLightRegion_parameters(const std::size_t index = 0)
 
 namespace handlers
 {
-    //  getPlane_channel_description function implementation
-    constexpr auto getPlane_channel_description(const std::size_t channel_index)
-    {
-        if (channel_index == 0)
-        {
-            "getRplane [execution_policy] <input_img | $var> <output_img | $var>";
-        }
-        else if (channel_index == 1)
-        {
-            return "getGplane [execution_policy] <input_img | $var> <output_img | $var>";
-        }
-        else if (channel_index == 2)
-        {
-            return "getBplane [execution_policy] <input_img | $var> <output_img | $var>";
-        }
-        return "";
-    }
-
     //  getPlane function implementation
     constexpr void getPlane(
         Workspace& workspace,
