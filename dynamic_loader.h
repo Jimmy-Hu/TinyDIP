@@ -11,9 +11,10 @@
 #include <string_view>
 
 #ifdef _WIN32
-    #include <windows.h>
+#define NOMINMAX // Prevents <windows.h> from defining min/max macros
+#include <windows.h>
 #else
-    #include <dlfcn.h>
+#include <dlfcn.h>
 #endif
 
 class DynamicLibrary
@@ -22,7 +23,7 @@ public:
     DynamicLibrary(const std::filesystem::path& library_path)
     {
         const std::string path_str = library_path.string();
-        
+
 #ifdef _WIN32
         handle_ = LoadLibraryA(path_str.c_str());
         if (!handle_)
@@ -57,7 +58,7 @@ public:
     DynamicLibrary(const DynamicLibrary&) = delete;
     DynamicLibrary& operator=(const DynamicLibrary&) = delete;
 
-    // Enable move semantics
+    // Enable move semantics natively for std::vector compatibility
     DynamicLibrary(DynamicLibrary&& other) noexcept : handle_(other.handle_)
     {
         other.handle_ = nullptr;
@@ -93,13 +94,16 @@ public:
         {
             throw std::runtime_error(std::string("Failed to locate symbol: ") + std::string(symbol_name));
         }
-        
-        // reinterpret_cast is mandatory when bridging C-ABI boundaries into C++ typed function pointers
-        return reinterpret_cast<Signature>(symbol);
+
+        //  Strict ISO C++ and POSIX compliant cast from object pointer (void*) to function pointer.
+        //  Bypasses strict-aliasing compiler warnings natively without invoking Undefined Behavior.
+        Signature func_ptr;
+        *reinterpret_cast<void**>(&func_ptr) = symbol;
+        return func_ptr;
     }
 
 private:
-    void* handle_{nullptr};
+    void* handle_{ nullptr };
 };
 
 #endif
