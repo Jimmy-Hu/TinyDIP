@@ -12,7 +12,12 @@ extern "C" TINYDIP_PLUGIN_EXPORT void register_plugin_commands(CommandRegistry& 
 
     registry.register_command("abs", "Calculate the absolute value of an image or container.", TransformerSchema, handlers::abs);
     
-    registry.register_command("max", "Calculate the maximum value of an image or container.", TransformerSchema, handlers::max);
+    registry.register_command("max", "Calculate the maximum value of an image or container.", TransformerSchema,
+        [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+        {
+            handlers::max(workspace, args, os);
+        }
+    );
     
     registry.register_command("min", "Calculate the minimum value of an image or container.", TransformerSchema, handlers::min);
 
