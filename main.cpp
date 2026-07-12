@@ -2303,7 +2303,10 @@ int main(int argc, char* argv[])
             handlers::load_workspace
         },
         CommandBundle{ "multiply", "Multiply an image or container by a scalar.", TransformerSchema,
-            handlers::multiply
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::multiply(workspace, args, os);
+            }
         },
         CommandBundle{"normalize", "Normalize an image or container.", TransformerSchema,
             handlers::normalize
