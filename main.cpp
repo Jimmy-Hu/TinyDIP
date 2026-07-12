@@ -2147,14 +2147,20 @@ constexpr auto make_unary_transform_bundle(
     return CommandBundle<decltype(handler)>{name, description, TransformerSchema, std::move(handler)};
 }
 
-//  load_plugins function implementation
-inline auto load_plugins(CommandRegistry& registry, const std::filesystem::path& plugin_dir = "./plugins")
+//  load_plugins template function implementation
+//  Helper function to seamlessly load and register dynamic modules natively
+//  Upgraded to natively accept any container type (std::vector, std::deque, std::list)
+template <typename PluginContainerT>
+requires(std::same_as<std::ranges::range_value_t<PluginContainerT>, DynamicLibrary>)
+inline void load_plugins(
+    CommandRegistry& registry,
+    PluginContainerT& active_plugins,
+    const std::filesystem::path& plugin_dir = "./plugins",
+    std::ostream& os = std::cout)
 {
-    std::vector<DynamicLibrary> active_plugins;
-
     if (std::filesystem::exists(plugin_dir) && std::filesystem::is_directory(plugin_dir))
     {
-        std::cout << "Scanning for dynamic modules in " << plugin_dir << "...\n";
+        os << "Scanning for dynamic modules in " << plugin_dir.string() << "...\n";
         
         for (const auto& entry : std::filesystem::directory_iterator(plugin_dir))
         {
@@ -2173,23 +2179,33 @@ inline auto load_plugins(CommandRegistry& registry, const std::filesystem::path&
                     register_fn(registry);
                     
                     // Securely hold the library handle in RAM so it doesn't destruct while executing
-                    active_plugins.emplace_back(std::move(lib));
+                    // Utilizing emplace_back to dynamically support vector, deque, and list natively
+                    if constexpr (requires { active_plugins.emplace_back(std::move(lib)); })
+                    {
+                        active_plugins.emplace_back(std::move(lib));
+                    }
+                    else if constexpr (requires { active_plugins.push_back(std::move(lib)); })
+                    {
+                        active_plugins.push_back(std::move(lib));
+                    }
+                    else
+                    {
+                        active_plugins.insert(std::ranges::end(active_plugins), std::move(lib));
+                    }
                     
-                    std::cout << "  Loaded module: " << entry.path().filename().string() << "\n";
+                    os << "  Loaded module: " << entry.path().filename().string() << "\n";
                 }
                 catch (const std::exception& e)
                 {
-                    std::cerr << "  Warning: Module skipped (" << e.what() << ")\n";
+                    os << "  Warning: Module skipped (" << e.what() << ")\n";
                 }
             }
         }
     }
     else
     {
-        std::cout << "No " << plugin_dir.string() << " directory found. Running with core commands only.\n";
+        os << "No " << plugin_dir.string() << " directory found. Running with core commands only.\n";
     }
-
-    return active_plugins;
 }
 
 //  Main Entry Point
