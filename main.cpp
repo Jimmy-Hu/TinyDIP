@@ -2344,7 +2344,10 @@ int main(int argc, char* argv[])
             handlers::rotate
         },
         CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IndependentSchema,
-            handlers::save_workspace
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::save_workspace(workspace, args, os);
+            }
         },
         CommandBundle{"sift_generate_octave", "Generate a SIFT octave (Difference of Gaussian images).", TransformerSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
