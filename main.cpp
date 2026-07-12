@@ -2309,7 +2309,10 @@ int main(int argc, char* argv[])
             }
         },
         CommandBundle{"normalize", "Normalize an image or container.", TransformerSchema,
-            handlers::normalize
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::normalize(workspace, args, os);
+            }
         },
         CommandBundle{"ones", "Generate an image filled with ones.", GeneratorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
