@@ -1336,13 +1336,19 @@ struct MetaTransformHandler
     SetupFun setup_fun_;
 
     template <
+        std::ranges::input_range RangeT,
         typename ImageLoaderFun = MetaImageIO::Loader,
         typename ImageSaverFun = MetaImageIO::Saver
     >
-    requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&> &&
+    requires ((std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string_view> or
+               std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string> or
+               std::convertible_to<std::ranges::range_value_t<RangeT>, std::string_view> or
+               std::convertible_to<std::ranges::range_value_t<RangeT>, std::string>) and
+              std::invocable<ImageLoaderFun, const std::string_view, Workspace&> &&
               std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> &&
-              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<double>&&>)
-    constexpr void operator()(Workspace& workspace, std::span<const std::string_view> args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
+              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<double>&&> &&
+              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::HSV>&&>)
+    constexpr void operator()(Workspace& workspace, const RangeT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
     {
         const std::string_view policy_str = extract_policy_string(args);
         const ArgsContainer filtered_args = args_filter<ArgsContainer>(args);
@@ -1363,7 +1369,7 @@ struct MetaTransformHandler
         // Parse trailing args, output initial message, and retrieve dedicated transformation process
         auto core_processor = setup_fun_(filtered_args, policy_str, os);
 
-        std::optional<std::any> final_result_opt;
+        std::optional<std::any> final_result_opt{};
 
         auto process_wrapper = [&]<typename ImageType>(ImageType&& input_img)
         {
