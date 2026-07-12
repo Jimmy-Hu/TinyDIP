@@ -33,5 +33,10 @@ extern "C" TINYDIP_PLUGIN_EXPORT void register_plugin_commands(CommandRegistry& 
         }
     );
 
-    registry.register_command("sum", "Calculate the sum of all elements in an image or container.", TransformerSchema, handlers::sum);
+    registry.register_command("sum", "Calculate the sum of all elements in an image or container.", TransformerSchema,
+        [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+        {
+            handlers::sum(workspace, args, os);
+        }
+    );
 }
