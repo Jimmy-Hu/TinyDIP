@@ -1073,64 +1073,6 @@ namespace handlers
         transform_handler(workspace, args, os);
     }
 
-    //  max function implementation
-    constexpr void max(
-        Workspace& workspace,
-        std::span<const std::string_view> args,
-        std::ostream& os = std::cout
-    )
-    {
-        auto transform_handler = make_meta_scalar_handler<1>(
-                "max <input_data | $var> [output_var | $var]", 
-                "max", "Max", 
-                [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
-                {
-                    if (!std::ranges::empty(policy_str))
-                    {
-                        os << "Warning: Execution policy '" << policy_str << "' is ignored for 'max'.\n";
-                    }
-                    os << "Calculating max of " << filtered_args[0] << "...\n";
-
-                    return []<typename DataT>(DataT&& data) -> std::any
-                    {
-                        using DecayedDataT = std::remove_cvref_t<DataT>;
-                        
-                        if constexpr (TinyDIP::is_complex_data_v<DecayedDataT>)
-                        {
-                            throw std::invalid_argument("Input data type (complex) does not support max (elements are not comparable).");
-                            return std::any{};
-                        }
-                        else if constexpr (TinyDIP::is_Image<DecayedDataT>::value)
-                        {
-                            if constexpr (requires { TinyDIP::max(std::forward<DataT>(data)); })
-                            {
-                                return TinyDIP::max(std::forward<DataT>(data));
-                            }
-                            else
-                            {
-                                throw std::invalid_argument("Input image type does not support max.");
-                                return std::any{};
-                            }
-                        }
-                        else
-                        {
-                            if constexpr (requires { std::ranges::max(std::forward<DataT>(data)); })
-                            {
-                                return std::ranges::max(std::forward<DataT>(data));
-                            }
-                            else
-                            {
-                                throw std::invalid_argument("Input container type does not support max (elements are not comparable).");
-                                return std::any{};
-                            }
-                        }
-                    };
-                }
-            );
-
-        transform_handler(workspace, args, os);
-    }
-
     //  min function implementation
     constexpr void min(
         Workspace& workspace,
