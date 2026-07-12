@@ -2213,6 +2213,9 @@ int main(int argc, char* argv[])
 {
     // Configure the shared state memory workspace
     auto workspace = std::make_shared<Workspace>();
+
+    // Define the persistent active plugins container at the highest scope to govern RAII destructors safely
+    std::vector<DynamicLibrary> active_plugins;
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
@@ -2408,8 +2411,24 @@ int main(int argc, char* argv[])
         }
     );
 
-    //  Dynamically Load Plugins
-    auto active_plugins = load_plugins(registry);
+    // Register the dynamic load_plugins command natively to allow on-the-fly module injections!
+    registry.register_command("load_plugins", "Dynamically load plugin modules from a specified directory.", IndependentSchema, 
+        [&registry, &active_plugins](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+        {
+            (void)workspace; // Securely suppress unused warning gracefully
+            std::filesystem::path dir = "./plugins";
+            
+            if (!std::ranges::empty(args))
+            {
+                dir = std::string(sanitize_string_view(args[0]));
+            }
+            
+            load_plugins(registry, active_plugins, dir, os);
+        }
+    );
+
+    //  Dynamically Load Plugins on boot automatically
+    load_plugins(registry, active_plugins);
 
     if (argc < 2)
     {
