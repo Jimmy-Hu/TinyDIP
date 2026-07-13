@@ -1576,7 +1576,7 @@ namespace handlers
 
                 auto exec_default = [&]() -> std::any
                 {
-                    if constexpr (is_bool_data_v<Decayed1T> || is_bool_data_v<Decayed2T>)
+                    if constexpr (TinyDIP::is_bool_data_v<Decayed1T> || TinyDIP::is_bool_data_v<Decayed2T>)
                     {
                         throw std::invalid_argument("Mathematical addition is explicitly disabled for boolean data types.");
                         return std::any{};
@@ -1595,7 +1595,7 @@ namespace handlers
                 auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
                     requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                 {
-                    if constexpr (is_bool_data_v<Decayed1T> || is_bool_data_v<Decayed2T>)
+                    if constexpr (TinyDIP::is_bool_data_v<Decayed1T> || TinyDIP::is_bool_data_v<Decayed2T>)
                     {
                         throw std::invalid_argument("Mathematical addition is explicitly disabled for boolean data types.");
                         return std::any{};
