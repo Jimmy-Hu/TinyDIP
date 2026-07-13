@@ -1526,6 +1526,175 @@ namespace handlers
         transform_handler(workspace, args, os);
     }
 
+    //  add template function implementation
+    template <
+        std::ranges::input_range RangeT,
+        typename ImageLoaderFun = MetaImageIO::Loader,
+        typename ImageSaverFun = MetaImageIO::Saver
+    >
+    requires ((std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string_view> or
+               std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string> or
+               std::convertible_to<std::ranges::range_value_t<RangeT>, std::string_view> or
+               std::convertible_to<std::ranges::range_value_t<RangeT>, std::string>) and
+              std::invocable<ImageLoaderFun, const std::string_view, Workspace&> &&
+              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> &&
+              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<double>&&> &&
+              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::HSV>&&>)
+    constexpr void add(
+        Workspace& workspace,
+        const RangeT& args,
+        std::ostream& os = std::cout,
+        ImageLoaderFun&& image_loader_fun = ImageLoaderFun{},
+        ImageSaverFun&& image_saver_fun = ImageSaverFun{})
+    {
+        const std::string_view policy_str = extract_policy_string(args);
+        const auto filtered_args = args_filter(args);
+
+        if (std::ranges::size(filtered_args) < 3)
+        {
+            os << "Usage: add [execution_policy] <input1_data | $var> <input2_data | $var> <output_var | $var>\n";
+            return;
+        }
+
+        const std::string_view input1_arg = filtered_args[0];
+        const std::string_view input2_arg = filtered_args[1];
+        const std::string_view output_arg = filtered_args[2];
+
+        os << "Adding " << input2_arg << " to " << input1_arg;
+        if (!std::ranges::empty(policy_str))
+        {
+            os << " (Policy: " << policy_str << ")";
+        }
+        os << "...\n";
+
+        auto process_input1 = [&]<typename Data1T>(Data1T&& data1)
+        {
+            auto process_input2 = [&]<typename Data2T>(Data2T&& data2)
+            {
+                using Decayed1T = std::remove_cvref_t<Data1T>;
+                using Decayed2T = std::remove_cvref_t<Data2T>;
+
+                auto exec_default = [&]() -> std::any
+                {
+                    if constexpr (is_bool_data_v<Decayed1T> || is_bool_data_v<Decayed2T>)
+                    {
+                        throw std::invalid_argument("Mathematical addition is explicitly disabled for boolean data types.");
+                        return std::any{};
+                    }
+                    else if constexpr (requires { std::forward<Data1T>(data1) + std::forward<Data2T>(data2); })
+                    {
+                        return std::forward<Data1T>(data1) + std::forward<Data2T>(data2);
+                    }
+                    else
+                    {
+                        throw std::invalid_argument(std::string("Input types [") + std::string(get_type_name<Decayed1T>()) + "] and [" + std::string(get_type_name<Decayed2T>()) + "] do not support addition.");
+                        return std::any{};
+                    }
+                };
+
+                auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                    requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                {
+                    if constexpr (is_bool_data_v<Decayed1T> || is_bool_data_v<Decayed2T>)
+                    {
+                        throw std::invalid_argument("Mathematical addition is explicitly disabled for boolean data types.");
+                        return std::any{};
+                    }
+                    else if constexpr (requires { TinyDIP::add(std::forward<ExecPolicy>(exec_policy), std::forward<Data1T>(data1), std::forward<Data2T>(data2)); })
+                    {
+                        return TinyDIP::add(std::forward<ExecPolicy>(exec_policy), std::forward<Data1T>(data1), std::forward<Data2T>(data2));
+                    }
+                    else if constexpr (requires { std::forward<Data1T>(data1) + std::forward<Data2T>(data2); })
+                    {
+                        if (!std::ranges::empty(policy_str))
+                        {
+                            os << "Warning: Execution policy requested but not supported natively for these data types. Falling back to default.\n";
+                        }
+                        return std::forward<Data1T>(data1) + std::forward<Data2T>(data2);
+                    }
+                    else
+                    {
+                        if (!std::ranges::empty(policy_str))
+                        {
+                            os << "Warning: Execution policy requested but not supported for these data types/operation. Falling back to default.\n";
+                        }
+                        return exec_default();
+                    }
+                };
+
+                try
+                {
+                    std::any result = dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+
+                    // std::any{} indicates an error occurred and was caught safely in the default blocks
+                    if (!result.has_value())
+                    {
+                        return;
+                    }
+
+                    auto try_save_output = [&]<typename OutT>() -> bool
+                    {
+                        if (result.type() == typeid(OutT))
+                        {
+                            image_saver_fun(output_arg, workspace, std::move(std::any_cast<OutT&>(result)));
+                            os << "Saved to " << output_arg << "\n";
+                            return true;
+                        }
+                        return false;
+                    };
+
+                    if (!match_any_type<master_data_types>(try_save_output))
+                    {
+                        os << "Error: Output type from processor is unknown or unsupported. Type Name: [" 
+                           << result.type().name() << "]\n";
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    os << "Error calculating add: " << e.what() << '\n';
+                }
+            };
+
+            using Decayed1T = std::remove_cvref_t<Data1T>;
+            bool success2 = false;
+
+            if constexpr (TinyDIP::is_Image<Decayed1T>::value)
+            {
+                success2 = dispatch_data_operation<master_image_types>(input2_arg, workspace, image_loader_fun, process_input2);
+            }
+            else if constexpr (is_vector_v<Decayed1T>)
+            {
+                success2 = dispatch_data_operation<all_vector_types>(input2_arg, workspace, image_loader_fun, process_input2);
+            }
+            else if constexpr (is_deque_v<Decayed1T>)
+            {
+                success2 = dispatch_data_operation<all_deque_types>(input2_arg, workspace, image_loader_fun, process_input2);
+            }
+            else if constexpr (is_list_v<Decayed1T>)
+            {
+                success2 = dispatch_data_operation<all_list_types>(input2_arg, workspace, image_loader_fun, process_input2);
+            }
+            else if constexpr (is_std_array_v<Decayed1T>)
+            {
+                success2 = dispatch_data_operation<all_array_3_types>(input2_arg, workspace, image_loader_fun, process_input2);
+            }
+            else
+            {
+                success2 = dispatch_data_operation<core_numeric_types>(input2_arg, workspace, image_loader_fun, process_input2);
+            }
+
+            if (!success2)
+            {
+                os << "Error: Memory variable not found or structurally incompatible type for input2: " << input2_arg << "\n";
+            }
+        };
+
+        if (!dispatch_data_operation<master_data_types>(input1_arg, workspace, image_loader_fun, process_input1))
+        {
+            os << "Error: Memory variable not found or unsupported type for input1: " << input1_arg << "\n";
+        }
+    }
+
     //  append_element template function implementation
     template <
         typename ImageLoaderFun = MetaImageIO::Loader
