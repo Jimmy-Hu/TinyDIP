@@ -17,6 +17,13 @@ extern "C" TINYDIP_PLUGIN_EXPORT void register_plugin_commands(CommandRegistry& 
         }
     );
     
+    registry.register_command("add", "Add two images or containers pixel-wise.", CombinerSchema, 
+        [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+        {
+            handlers::add(workspace, args, os);
+        }
+    );
+
     registry.register_command("max", "Calculate the maximum value of an image or container.", TransformerSchema,
         [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
         {
