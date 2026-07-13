@@ -366,6 +366,7 @@ endif()
 target_link_libraries(TinyDIP -lm)
 #target_link_libraries(TinyDIP -lomp)
 target_link_libraries(TinyDIP -lpthread)
+target_link_libraries(TinyDIP ${CMAKE_DL_LIBS})
 target_link_libraries(TinyDIP tbb)
 target_link_libraries(absTest PUBLIC TBB::tbb)
 target_link_libraries(allOfTest PUBLIC TBB::tbb)
@@ -545,6 +546,10 @@ ENDIF()
 # Configure Plugin Output Directory
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/plugins)
 
+# CRITICAL FIX: Force the host executable to export its internal symbols (like bmp_read)
+# to the dynamic symbol table so that loaded plugins can mathematically resolve them at runtime!
+set_target_properties(TinyDIP PROPERTIES ENABLE_EXPORTS TRUE)
+
 # Add Math Plugin Module
 add_library(plugin_math MODULE plugin_math.cpp)
 set_target_properties(plugin_math PROPERTIES
@@ -552,8 +557,9 @@ set_target_properties(plugin_math PROPERTIES
     OUTPUT_NAME "tinydip_math"
 )
 
-# Ensure the plugin correctly links against TBB if multithreading handlers are invoked
-target_link_libraries(plugin_math PRIVATE tbb)
+# Ensure the plugin correctly links against TBB if multithreading handlers are invoked,
+# AND explicitly link to TinyDIP to resolve host-level C++ symbols natively!
+target_link_libraries(plugin_math PRIVATE tbb TinyDIP)
 
 include(GNUInstallDirs)
 
