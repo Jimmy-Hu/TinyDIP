@@ -5,6 +5,7 @@
 #include "../cube.h"
 #include "../cube_operations.h"
 
+//  plusTest Template Function Implementation
 template<class T>
 constexpr void plusTest(const std::size_t N1 = 10, const std::size_t N2 = 10)
 {
@@ -12,10 +13,10 @@ constexpr void plusTest(const std::size_t N1 = 10, const std::size_t N2 = 10)
     image1.setAllValue(1);
     auto vector1 = std::vector<decltype(image1)>();
     vector1.push_back(image1);
-    assert(TinyDIP::plus(vector1, vector1, vector1)[0].count() == N1 * N2);
+    assert(TinyDIP::add(vector1, vector1, vector1)[0].count() == N1 * N2);
     auto image2 = TinyDIP::Image<T>(N1, N2);
     image2.setAllValue(3);
-    assert(TinyDIP::plus(vector1, vector1, vector1)[0] == image2);
+    assert(TinyDIP::add(vector1, vector1, vector1)[0] == image2);
 }
 
 int main()
