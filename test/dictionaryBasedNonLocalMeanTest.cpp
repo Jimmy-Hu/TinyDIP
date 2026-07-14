@@ -65,7 +65,7 @@ function [output] = dictionaryBasedNonlocalMean(Dictionary, input)
 end
 */
 
-//  dictionaryBasedNonlocalMean Function Implementation
+//  dictionaryBasedNonlocalMean Template Function Implementation
 template<class ExPo, class ElementT = double, std::ranges::random_access_range RangeOfRange1, std::ranges::random_access_range RangeOfRange2>
 requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>> and
           std::ranges::random_access_range<std::remove_cvref_t<RangeOfRange1>> and
@@ -124,7 +124,7 @@ constexpr static auto dictionaryBasedNonlocalMean(  ExPo execution_policy,
     
     for (std::size_t i = 0; i < outputs.size(); ++i)
     {
-        output = TinyDIP::plus(output, outputs[i]);
+        output = TinyDIP::add(output, outputs[i]);
     }
     auto image = TinyDIP::Image<ElementT>(output[0].getWidth(), output[0].getHeight());
     image.setAllValue(sum_of_weights);
