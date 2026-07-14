@@ -168,7 +168,6 @@ static auto get_real_size_PWM_image(
     const std::size_t light_bead_height = 8,
     const std::size_t x_extension_pixel_count = 41,
     const std::size_t y_extension_pixel_count = 45,
-    const int reg_avg_div_inv = 17,
     const int estimated_average_offset = 20,
     const bool adp_adj_hist_weight_en = true,       //  adaptive adjustment histogram weight
     const bool local_dimming_en = true,
@@ -196,11 +195,21 @@ static auto get_real_size_PWM_image(
         {
             return static_cast<int>(TinyDIP::max(TinyDIP::getRplane(each_block)));
         }, split_overlap_output);
+    const int representation_bit_count = 19;
     auto split_overlap_estimated_average = TinyDIP::recursive_transform<2>(
         std::forward<ExecutionPolicy>(policy),
         [&](const auto& each_block)
         {
-            return (((static_cast<int>(TinyDIP::sum(TinyDIP::getRplane(each_block))) * reg_avg_div_inv) >> 18) + 1) >> 1;
+            return (((
+                        static_cast<int>(TinyDIP::sum(TinyDIP::getRplane(each_block))) *
+                        calculate_reg_avg_div_inv(
+                            input_img.getWidth() / light_bead_width,
+                            input_img.getHeight() / light_bead_height,
+                            x_extension_pixel_count,
+                            y_extension_pixel_count,
+                            representation_bit_count
+                        )
+                     ) >> (representation_bit_count - 1)) + 1) >> 1;
         }, split_overlap_output);
     auto split_overlap_histogram = TinyDIP::recursive_transform<2>(
         std::forward<ExecutionPolicy>(policy),
