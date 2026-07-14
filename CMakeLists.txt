@@ -561,6 +561,15 @@ set_target_properties(plugin_math PROPERTIES
 # AND explicitly link to TinyDIP to resolve host-level C++ symbols natively!
 target_link_libraries(plugin_math PRIVATE tbb TinyDIP)
 
+# Add Math (Add) Plugin Module
+add_library(plugin_math_add MODULE plugin_math_add.cpp)
+set_target_properties(plugin_math_add PROPERTIES
+    PREFIX ""
+    OUTPUT_NAME "tinydip_math_add"
+)
+
+target_link_libraries(plugin_math_add PRIVATE tbb TinyDIP)
+
 include(GNUInstallDirs)
 
 install(TARGETS TinyDIP
