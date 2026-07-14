@@ -23,7 +23,8 @@ set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 # Set the RPATH to be used when installing
-set(CMAKE_INSTALL_RPATH "${CUSTOM_GCC_LIB_DIR}")
+# CRITICAL PORTABILITY FIX: Added $ORIGIN/lib to enable "Option A: Bundling Shared Libraries" natively!
+set(CMAKE_INSTALL_RPATH "$ORIGIN/lib;${CUSTOM_GCC_LIB_DIR}")
 
 # Add the automatically determined parts of the RPATH
 # which point to directories outside the build tree to the install RPATH
