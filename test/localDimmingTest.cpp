@@ -334,7 +334,6 @@ static auto localDimmingTest(
         32,
         static_cast<std::size_t>(0),
         static_cast<std::size_t>(0),
-        146,
         0,
         true,       //  adaptive adjustment histogram weight
         true,
