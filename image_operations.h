@@ -3310,10 +3310,11 @@ namespace TinyDIP
         return std::forward<InputT>(input);
     }
 
+    //  add Template Function Implementation
     template<class InputT, class... Args>
     constexpr static Image<InputT> add(const Image<InputT>& input1, const Args&... inputs)
     {
-        return pixelwise_transform(std::plus<>{}, input1, plus(inputs...));
+        return pixelwise_transform(std::plus<>{}, input1, add(inputs...));
     }
 
     template<class InputT, class... Args>
