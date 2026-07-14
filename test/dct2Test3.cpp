@@ -115,7 +115,7 @@ auto each_image(  ExPo execution_policy,
         for (std::size_t x = 0; x < x_size; ++x)
         {
             auto function = [&](auto&& element) {
-                return TinyDIP::plus(element,
+                return TinyDIP::add(element,
                     get_offset(
                         execution_policy,
                         element,
