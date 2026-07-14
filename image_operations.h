@@ -3301,6 +3301,15 @@ namespace TinyDIP
         return input1;
     }
 
+	//  add Template Function Implementation (with Execution Policy)
+    template <class ExecutionPolicy, typename InputT>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    constexpr static auto add(ExecutionPolicy&& exec_policy, InputT&& input)
+    {
+        (void)exec_policy; // Policy is unused for a single element return
+        return std::forward<InputT>(input);
+    }
+
     template<class InputT, class... Args>
     constexpr static Image<InputT> add(const Image<InputT>& input1, const Args&... inputs)
     {
