@@ -3296,24 +3296,24 @@ namespace TinyDIP
     }
 
     template<class InputT>
-    constexpr static Image<InputT> plus(const Image<InputT>& input1)
+    constexpr static Image<InputT> add(const Image<InputT>& input1)
     {
         return input1;
     }
 
     template<class InputT, class... Args>
-    constexpr static Image<InputT> plus(const Image<InputT>& input1, const Args&... inputs)
+    constexpr static Image<InputT> add(const Image<InputT>& input1, const Args&... inputs)
     {
         return pixelwise_transform(std::plus<>{}, input1, plus(inputs...));
     }
 
     template<class InputT, class... Args>
-    constexpr static auto plus(const std::vector<Image<InputT>>& input1, const Args&... inputs)
+    constexpr static auto add(const std::vector<Image<InputT>>& input1, const Args&... inputs)
     {
         return recursive_transform<1>(
             [](auto&& input1_element, auto&&... inputs_element)
             {
-                return plus(input1_element, inputs_element...);
+                return add(input1_element, inputs_element...);
             }, input1, inputs...);
     }
 
