@@ -135,6 +135,23 @@ static auto gamma_table_generator(
     }
 }
 
+//  calculate_reg_avg_div_inv Template Function Implementation
+template<TinyDIP::arithmetic FloatingType = double>
+static auto calculate_reg_avg_div_inv(
+    const std::size_t block_size_x = 60,
+    const std::size_t block_size_y = 60,
+    const std::size_t x_extension_pixel_count = 30,
+    const std::size_t y_extension_pixel_count = 30,
+    const std::size_t representation_bit_count = 19
+)
+{
+    auto width = block_size_x + x_extension_pixel_count * 2;
+    auto height = block_size_y + y_extension_pixel_count * 2;
+    auto block_count = width * height;
+    auto block_count_inv = static_cast<FloatingType>(1) / static_cast<FloatingType>(block_count);
+    return static_cast<int>(std::round(std::pow(2, representation_bit_count) * block_count_inv));
+}
+
 //  get_real_size_PWM_image Template Function Implementation
 template<
     class ExecutionPolicy,
