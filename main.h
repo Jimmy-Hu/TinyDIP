@@ -477,23 +477,53 @@ struct Workspace
                     print_prefix.template operator()<T>();
                     if constexpr (is_vector_v<T> || is_deque_v<T> || is_list_v<T> || is_std_array_v<T>)
                     {
-                        os << ", container value = {";
+                        // Using std::print for maximum formatting precision natively via C++23 rules
+                        std::print(os, ", container value = {{");
                         bool first = true;
                         const auto* container_ptr = std::any_cast<T>(&value);
                         for (const auto& elem : *container_ptr)
                         {
                             if (!first)
                             {
-                                os << ", ";
+                                std::print(os, ", ");
                             }
-                            os << +elem;
+                            
+                            using ElemT = std::remove_cvref_t<decltype(elem)>;
+                            
+                            if constexpr (std::is_arithmetic_v<ElemT>)
+                            {
+                                std::print(os, "{}", +elem);
+                            }
+                            else if constexpr (TinyDIP::is_complex_data_v<ElemT> && requires { elem.real(); elem.imag(); })
+                            {
+                                std::print(os, "({} + {}i)", elem.real(), elem.imag());
+                            }
+                            else
+                            {
+                                // Fallback for unsupported complex types (like RGB) lacking std::formatter
+                                os << +elem;
+                            }
+                            
                             first = false;
                         }
-                        os << "}";
+                        std::print(os, "}}");
                     }
                     else
                     {
-                        os << ", scalar value = " << std::any_cast<T>(value);
+                        if constexpr (std::is_arithmetic_v<T>)
+                        {
+                            std::print(os, ", scalar value = {}", +std::any_cast<T>(value));
+                        }
+                        else if constexpr (TinyDIP::is_complex_data_v<T> && requires { std::any_cast<T>(value).real(); std::any_cast<T>(value).imag(); })
+                        {
+                            const auto& val = std::any_cast<T>(value);
+                            std::print(os, ", scalar value = ({} + {}i)", val.real(), val.imag());
+                        }
+                        else
+                        {
+                            std::print(os, ", scalar value = ");
+                            os << std::any_cast<T>(value);
+                        }
                     }
                     return true;
                 }
