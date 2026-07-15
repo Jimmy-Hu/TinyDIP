@@ -21,6 +21,37 @@ fi
 echo "Building project... (Output and warnings are being recorded to build_log.txt)"
 env CLICOLOR_FORCE=1 cmake --build ./build --parallel --verbose -j10 2>&1 | tee build_log.txt
 
+# ------------------------------------------------------------------------------------
+#  Automated Dependency Harvesting for Portable Deployment
+# ------------------------------------------------------------------------------------
+echo "Packaging shared libraries for deployment..."
+
+# 1. Create the deployment library directory
+mkdir -p ./build/lib
+
+# 2. Define the exact regex filter for safe, portable libraries
+# We explicitly want OpenCV, TBB, GCC C++ runtimes, HDF5, Qt5, VTK, and other image codecs.
+SAFE_LIBS_REGEX="(libopencv|libtbb|libstdc\+\+|libgomp|libgcc_s|libhdf5|libQt5|libvtk|libopenblas|libgfortran|libpng|libjpeg|libtiff|libwebp)"
+
+# 3. Harvest from the main executable
+if [ -f "./build/TinyDIP" ]; then
+    echo "Harvesting dependencies for TinyDIP..."
+    ldd ./build/TinyDIP | awk '{print $3}' | grep -E $SAFE_LIBS_REGEX | xargs -I '{}' cp -vn '{}' ./build/lib/
+fi
+
+# 4. Harvest from any compiled plugins
+if [ -d "./build/plugins" ]; then
+    echo "Harvesting dependencies for dynamic plugins..."
+    for plugin in ./build/plugins/*.so; do
+        if [ -f "$plugin" ]; then
+            ldd "$plugin" | awk '{print $3}' | grep -E $SAFE_LIBS_REGEX | xargs -I '{}' cp -vn '{}' ./build/lib/
+        fi
+    done
+fi
+
+echo "Deployment package successfully assembled in ./build/lib/"
+# ------------------------------------------------------------------------------------
+
 # Run executables
 ./build/TinyDIP
 ./build/recursiveTransformTest
