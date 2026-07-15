@@ -29,14 +29,17 @@ echo "Packaging shared libraries for deployment..."
 # 1. Create the deployment library directory
 mkdir -p ./build/lib
 
-# 2. Define the exact regex filter for safe, portable libraries
-# We explicitly want OpenCV, TBB, GCC C++ runtimes, HDF5, Qt5, VTK, and other crucial low-level codecs.
-SAFE_LIBS_REGEX="(libopencv|libtbb|libstdc\+\+|libgomp|libgcc_s|libhdf5|libQt5|libvtk|libopenblas|libgfortran|libpng|libjpeg|libtiff|libwebp|libsz|libaec|libcrypto|libcurl|libjsoncpp|libfreetype|libharfbuzz|libz\.|libexpat|libav|libsw|libx26|libvpx|liblzma|libssl|libxml2)"
+# 2. Define the exact regex filter to EXCLUDE system-locked libraries (Blacklist approach)
+# We must NOT copy kernel-bound GLIBC components or hardware-specific graphics drivers.
+# Everything else (OpenCV, FFmpeg, VTK, Qt5, Custom GCC) will be bundled automatically!
+BLACKLIST_REGEX="(libc\.so|libm\.so|libdl\.so|libpthread\.so|librt\.so|libresolv\.so|libnsl\.so|libutil\.so|libcrypt\.so|libGL\.so|libGLX\.so|libEGL\.so|libGLdispatch\.so|libdrm\.so|libX11|libxcb|libXext|libXrender|libXfixes|libXau|libXdmcp|libudev\.so|ld-linux|libvulkan|libgbm|libwayland)"
 
 # 3. Harvest from the main executable
+# awk 'NF == 4 {print $3}' safely extracts the absolute paths, ignoring virtual VDSO.
+# grep -v -E inverts the match to exclude the blacklist.
 if [ -f "./build/TinyDIP" ]; then
     echo "Harvesting dependencies for TinyDIP..."
-    ldd ./build/TinyDIP | awk '{print $3}' | grep -E $SAFE_LIBS_REGEX | xargs -I '{}' cp -vn '{}' ./build/lib/
+    ldd ./build/TinyDIP | awk 'NF == 4 {print $3}' | grep -v -E "$BLACKLIST_REGEX" | xargs -I '{}' cp -vn '{}' ./build/lib/
 fi
 
 # 4. Harvest from any compiled plugins
@@ -44,7 +47,7 @@ if [ -d "./build/plugins" ]; then
     echo "Harvesting dependencies for dynamic plugins..."
     for plugin in ./build/plugins/*.so; do
         if [ -f "$plugin" ]; then
-            ldd "$plugin" | awk '{print $3}' | grep -E $SAFE_LIBS_REGEX | xargs -I '{}' cp -vn '{}' ./build/lib/
+            ldd "$plugin" | awk 'NF == 4 {print $3}' | grep -v -E "$BLACKLIST_REGEX" | xargs -I '{}' cp -vn '{}' ./build/lib/
         fi
     done
 fi
