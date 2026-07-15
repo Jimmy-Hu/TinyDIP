@@ -30,8 +30,8 @@ echo "Packaging shared libraries for deployment..."
 mkdir -p ./build/lib
 
 # 2. Define the exact regex filter for safe, portable libraries
-# We explicitly want OpenCV, TBB, GCC C++ runtimes, HDF5, Qt5, VTK, and other image codecs.
-SAFE_LIBS_REGEX="(libopencv|libtbb|libstdc\+\+|libgomp|libgcc_s|libhdf5|libQt5|libvtk|libopenblas|libgfortran|libpng|libjpeg|libtiff|libwebp)"
+# We explicitly want OpenCV, TBB, GCC C++ runtimes, HDF5, Qt5, VTK, and other crucial low-level codecs.
+SAFE_LIBS_REGEX="(libopencv|libtbb|libstdc\+\+|libgomp|libgcc_s|libhdf5|libQt5|libvtk|libopenblas|libgfortran|libpng|libjpeg|libtiff|libwebp|libsz|libaec|libcrypto|libcurl|libjsoncpp|libfreetype|libharfbuzz|libz\.|libexpat|libav|libsw|libx26|libvpx|liblzma|libssl|libxml2)"
 
 # 3. Harvest from the main executable
 if [ -f "./build/TinyDIP" ]; then
@@ -49,9 +49,22 @@ if [ -d "./build/plugins" ]; then
     done
 fi
 
+# 5. Generate a portable launch wrapper script
+# This solves the RUNPATH scoping issue by forcing all deep dependencies to check the lib folder first!
+echo "Generating launch.sh wrapper..."
+cat << 'EOF' > ./build/launch.sh
+#!/bin/sh
+# Industry standard wrapper to enforce local library prioritization
+# Utilizing $0 natively ensures POSIX compliance so it resolves perfectly under 'sh', 'bash', or 'dash'
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+export LD_LIBRARY_PATH="$SCRIPT_DIR/lib:$LD_LIBRARY_PATH"
+exec "$SCRIPT_DIR/TinyDIP" "$@"
+EOF
+chmod +x ./build/launch.sh
+
 echo "Deployment package successfully assembled in ./build/lib/"
 # ------------------------------------------------------------------------------------
 
-# Run executables
-./build/TinyDIP
+# Run executables using the new isolated launch script
+./build/launch.sh
 ./build/recursiveTransformTest
