@@ -15,13 +15,13 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev
+        sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev gcc-14 g++-14
 
     - name: Configure and Build Tests (Linux)
       run: |
         mkdir build_test
         cd build_test
-        cmake .. -DCMAKE_CXX_STANDARD=23 -DENABLE_CUDA=OFF
+        cmake .. -DCMAKE_CXX_STANDARD=23 -DENABLE_CUDA=OFF -DCMAKE_C_COMPILER="gcc-14" -DCMAKE_CXX_COMPILER="g++-14"
         make -j$(nproc)
     
     - name: Run Unit Tests (Linux)
