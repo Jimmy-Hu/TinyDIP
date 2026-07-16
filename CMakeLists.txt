@@ -326,6 +326,30 @@ foreach(TEST_NAME IN LISTS TINYDIP_TESTS)
     endif()
 endforeach()
 
+# ------------------------------------------------------------------------------------
+#  CUDA Test Executables
+# ------------------------------------------------------------------------------------
+if(ENABLE_CUDA)
+    set(CUDA_TESTS
+        stitchingCudaTest
+        warpPerspectiveCudaTest
+        warpPerspectiveCudaTest2
+    )
+
+    foreach(CUDA_TEST_NAME IN LISTS CUDA_TESTS)
+        add_executable(${CUDA_TEST_NAME} test/${CUDA_TEST_NAME}.cpp image_io.cpp image_operations_cuda.cu)
+        target_link_libraries(${CUDA_TEST_NAME} PUBLIC TBB::tbb ${OpenCV_LIBS})
+        
+        # Explicitly tell CMake to use the project's C++ standard for the host compiler
+        set_target_properties(${CUDA_TEST_NAME} PROPERTIES
+            CUDA_HOST_COMPILER_STANDARD ${CMAKE_CXX_STANDARD}
+            CUDA_HOST_COMPILER_STANDARD_REQUIRED YES
+        )
+        message(STATUS "Setting CUDA Host C++ Standard for ${CUDA_TEST_NAME} to: ${CMAKE_CXX_STANDARD}")
+    endforeach()
+endif()
+
+
 # target_include_directories
 # Add include directories needed by ALL targets (like TBB)
 # target_include_directories(TinyDIP PUBLIC ${TBB_INCLUDE_DIRS}) # Example if TBB needed includes universally
