@@ -134,34 +134,25 @@ jobs:
       run: rm -rf build_test_gcc
   
   verify-linux-gcc-15-self-hosted:
-    name: Linux x86 (GCC 15.2.0 - Local Machine)
-    runs-on: [self-hosted, linux]
-    
+    name: Linux x86 (GCC Local Machine)
+    runs-on: self-hosted
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Check Environment
-      run: |
-        g++ --version
-        cmake --version
-        /opt/gcc-15.2.0/bin/g++ --version
 
-    - name: Configure and Build Tests (Fast)
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev
+
+    - name: Configure and Build Tests (Linux)
       run: |
         rm -rf build_test_gcc_local
         mkdir build_test_gcc_local
         cd build_test_gcc_local
-        
-        cmake .. \
-          -DCMAKE_CXX_STANDARD=23 \
-          -DENABLE_CUDA=OFF \
-          -DCMAKE_C_COMPILER=/opt/gcc-15.2.0/bin/gcc \
-          -DCMAKE_CXX_COMPILER=/opt/gcc-15.2.0/bin/g++ \
-          -DCMAKE_CXX_FLAGS="-Wl,-rpath,/opt/gcc-15.2.0/lib64"
-        
+        cmake .. -DCMAKE_CXX_STANDARD=23 -DENABLE_CUDA=OFF -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++"
         make -j$(nproc)
     
-    - name: Run Unit Tests
+    - name: Run Unit Tests (Linux)
       run: |
         cd build_test_gcc_local
         echo "Running absTest..."
