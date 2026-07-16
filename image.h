@@ -413,30 +413,49 @@ namespace TinyDIP
             }
 
             // A generic lambda perfectly accepts primitive copies, proxy instances, or direct references safely
-            auto element_printer = [&](const auto& value) 
-            {
-                if constexpr (is_MultiChannel<ElementT>::value)
+            auto element_printer = [&](const auto& value)
                 {
-                    std::print(os, "( ");
-                    // Assumes .channels is an array-like member of the multi-channel type
-                    for (std::size_t i = 0; i < std::size(value.channels); ++i) 
+                    if constexpr (is_MultiChannel<ElementT>::value)
                     {
-                        std::print(os, "{}{}", +value.channels[i], (i == std::size(value.channels) - 1 ? "" : " "));
+                        os << "( ";
+                        // Assumes .channels is an array-like member of the multi-channel type
+                        for (std::size_t i = 0; i < std::size(value.channels); ++i)
+                        {
+                            if constexpr (std::formattable<decltype(+value.channels[i]), char>) {
+                                std::print(os, "{}", +value.channels[i]);
+                            }
+                            else {
+                                os << +value.channels[i];
+                            }
+
+                            if (i != std::size(value.channels) - 1) {
+                                os << " ";
+                            }
+                        }
+                        os << ") ";
                     }
-                    std::print(os, ") ");
-                }
-                else if constexpr (is_streamable<ElementT> && !std::is_fundamental_v<ElementT>)
-                {
-                    // For non-fundamental types (like custom structs), keep stream insertion 
-                    // unless a std::formatter specialization is explicitly confirmed.
-                    os << value;
-                }
-                else
-                {
-                    // Use std::print for better C++23 precision and formatting (resolves long double limits)
-                    std::print(os, "{}", +value);
-                }
-            };
+                    else if constexpr (is_streamable<ElementT> && !std::is_fundamental_v<ElementT>)
+                    {
+                        // For non-fundamental types (like custom structs), try modern formatting first, 
+                        // otherwise fall back to standard stream insertion safely.
+                        if constexpr (std::formattable<ElementT, char>) {
+                            std::print(os, "{}", value);
+                        }
+                        else {
+                            os << value;
+                        }
+                    }
+                    else
+                    {
+                        // Use unary '+' to ensure char types are printed as numbers
+                        if constexpr (std::formattable<decltype(+value), char>) {
+                            std::print(os, "{}", +value);
+                        }
+                        else {
+                            os << +value;
+                        }
+                    }
+                };
 
             std::vector<std::size_t> indices(getDimensionality(), 0);
             print_recursive_helper(indices, getDimensionality() - 1, element_printer, separator, os);
