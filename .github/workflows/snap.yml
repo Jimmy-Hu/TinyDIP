@@ -190,7 +190,7 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev linux-tools-common linux-tools-generic linux-tools-azure
+        sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev linux-tools-common linux-tools-generic linux-tools-azure gcc-14 g++-14
         sudo apt-get install -y "linux-tools-$(uname -r)" "linux-cloud-tools-$(uname -r)" || true
         find /usr/lib/linux-tools -name perf -type f -executable | head -n 1
 
@@ -198,7 +198,7 @@ jobs:
       run: |
         mkdir build_test
         cd build_test
-        cmake .. -DCMAKE_CXX_STANDARD=23 -DENABLE_CUDA=OFF -DCMAKE_CXX_FLAGS="-fno-omit-frame-pointer"
+        cmake .. -DCMAKE_CXX_STANDARD=23 -DENABLE_CUDA=OFF -DCMAKE_CXX_FLAGS="-fno-omit-frame-pointer" -DCMAKE_C_COMPILER="gcc-14" -DCMAKE_CXX_COMPILER="g++-14"
         make -j$(nproc)
 
     - name: Run Performance Profiling (perf)
