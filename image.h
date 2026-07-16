@@ -417,22 +417,24 @@ namespace TinyDIP
             {
                 if constexpr (is_MultiChannel<ElementT>::value)
                 {
-                     os << "( ";
-                     // Assumes .channels is an array-like member of the multi-channel type
+                    std::print(os, "( ");
+                    // Assumes .channels is an array-like member of the multi-channel type
                     for (std::size_t i = 0; i < std::size(value.channels); ++i) 
                     {
-                        os << +value.channels[i] << (i == std::size(value.channels) - 1 ? "" : " ");
+                        std::print(os, "{}{}", +value.channels[i], (i == std::size(value.channels) - 1 ? "" : " "));
                     }
-                    os << ") ";
+                    std::print(os, ") ");
                 }
                 else if constexpr (is_streamable<ElementT> && !std::is_fundamental_v<ElementT>)
                 {
+                    // For non-fundamental types (like custom structs), keep stream insertion 
+                    // unless a std::formatter specialization is explicitly confirmed.
                     os << value;
                 }
                 else
                 {
-                    // Use unary '+' to ensure char types are printed as numbers
-                    os << +value;
+                    // Use std::print for better C++23 precision and formatting (resolves long double limits)
+                    std::print(os, "{}", +value);
                 }
             };
 
