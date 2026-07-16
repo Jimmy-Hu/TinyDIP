@@ -237,6 +237,94 @@ endif()
 # add the executable
 add_executable(TinyDIP main.cpp image_io.cpp)
 
+# ------------------------------------------------------------------------------------
+#  Test Executables (Refactored using foreach to reduce code duplication)
+# ------------------------------------------------------------------------------------
+set(TINYDIP_TESTS
+    absTest
+    allOfTest
+    bicubicInterpolationTest
+    bilateralFilterTest
+    concatHorizontalTest
+    concatVerticalTest
+    concatTest
+    conv2Test
+    conv2Test2
+    convnTest
+    DiamondWheelAnalysis
+    dct2Test
+    dct2Test2
+    dct2Test3
+    dct2Test4
+    dft2Test
+    differenceOfGaussianTest
+    doubleImageIOTest
+    # dictionaryBasedNonLocalMeanTest 
+    gaussianFigure2DTest
+    getNFromVariadicTemplatesTest
+    highlightRegionTest
+    histogramTest
+    idct2Test
+    imgaussfiltTest
+    increaseIntensityTest
+    isIntegerTest
+    juliaFractalGeneratorTest
+    lanczosResamplingTest
+    mandelbrotFractalGeneratorTest
+    manhattanDistanceTest
+    # meanTest 
+    multipliesParallelTest
+    multipliesWithImageVectorsTest
+    otsuThresholdTest
+    paste2DTest
+    phoenixFractalGeneratorTest
+    plusTest
+    powTest
+    # powParallelTest 
+    printDbmpFileTest
+    subimageTest
+    subimage2Test
+    rgb2hsvTest
+    randFunctionTest
+    dct3DetailTest
+    dct3Test
+    idct3DetailTest
+    pixelwiseOperationTest
+    # pixelwiseOperationParallelTest 
+    rainDictionaryAnalysis
+    RANSAC_InlierVisualizationTest
+    recursiveAllOfTest
+    recursiveAnyOfTest
+    recursiveFindIfTest
+    recursiveFoldRightAllTest
+    recursiveForeachTest
+    recursiveMinmaxTest
+    recursiveNoneOfTest
+    recursiveReduceTest
+    recursiveRemoveCopyTest
+    recursiveRemoveCopyIfTest
+    recursiveSizeTest
+    # recursiveTransformTest 
+    # recursiveTransformReduceTest 
+    refineHomographyFunctionTest
+    siftDrawMatches
+    stitchingTest
+    stitchingMultipleTest
+    # sumTest 
+    testingRANSAC_MSAC_HomographyEstimation
+    transposeTest
+    windowedFilterTest
+)
+
+# Loop through all tests to generate targets and link dependencies uniformly
+foreach(TEST_NAME IN LISTS TINYDIP_TESTS)
+    add_executable(${TEST_NAME} test/${TEST_NAME}.cpp image_io.cpp)
+    # FIX: Ensure ALL tests link against OpenCV, TBB, and other necessary libraries
+    target_link_libraries(${TEST_NAME} PUBLIC TBB::tbb ${OpenCV_LIBS})
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+        target_link_libraries(${TEST_NAME} PUBLIC stdc++fs)
+    endif()
+endforeach()
 
 # target_include_directories
 # Add include directories needed by ALL targets (like TBB)
