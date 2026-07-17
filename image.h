@@ -52,6 +52,21 @@ namespace TinyDIP
         { os << val } -> std::same_as<std::ostream&>;
     };
 
+    //  Polyfill concept for std::formattable to support compilers lacking complete C++23 features
+#if (defined(__cpp_lib_format) && __cpp_lib_format >= 202207L) || \
+    (defined(__GNUC__) && __GNUC__ >= 14 && !defined(__clang__)) || \
+    (defined(_MSC_VER) && _MSC_VER >= 1938)
+    // Use standard std::formattable for modern compilers (e.g., g++-14+, g++-15, latest MSVC)
+    template<typename T, typename CharT = char>
+    concept is_formattable_compat = std::formattable<T, CharT>;
+#else
+    // Fallback for older compilers lacking std::formattable (e.g., older GCC/Clang on WSL)
+    template<typename T, typename CharT = char>
+    concept is_formattable_compat = requires(std::formatter<std::remove_cvref_t<T>, CharT> f, std::basic_format_parse_context<CharT> pc) {
+        f.parse(pc);
+    };
+#endif
+
     template <typename ElementT>
     class Image
     {
