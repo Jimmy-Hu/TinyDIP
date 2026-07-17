@@ -246,30 +246,35 @@ set(TINYDIP_TESTS
     bicubicInterpolationTest
     bilateralFilterTest
     concatHorizontalTest
-    concatVerticalTest
     concatTest
+    concatVerticalTest
     conv2Test
     conv2Test2
     convnTest
-    DiamondWheelAnalysis
     dct2Test
     dct2Test2
     dct2Test3
     dct2Test4
+    dct3DetailTest
+    dct3LargeImageTest
+    dct3Test
     dft2Test
+    DiamondWheelAnalysis
+    # dictionaryBasedNonLocalMeanTest 
     differenceOfGaussianTest
     doubleImageIOTest
-    # dictionaryBasedNonLocalMeanTest 
     gaussianFigure2DTest
     getNFromVariadicTemplatesTest
     highlightRegionTest
     histogramTest
     idct2Test
+    idct3DetailTest
     imgaussfiltTest
     increaseIntensityTest
     isIntegerTest
     juliaFractalGeneratorTest
     lanczosResamplingTest
+    localDimmingTest
     mandelbrotFractalGeneratorTest
     manhattanDistanceTest
     # meanTest 
@@ -278,20 +283,14 @@ set(TINYDIP_TESTS
     otsuThresholdTest
     paste2DTest
     phoenixFractalGeneratorTest
+    pixelwiseOperationTest
+    # pixelwiseOperationParallelTest 
     plusTest
     powTest
     # powParallelTest 
     printDbmpFileTest
-    subimageTest
-    subimage2Test
-    rgb2hsvTest
-    randFunctionTest
-    dct3DetailTest
-    dct3Test
-    idct3DetailTest
-    pixelwiseOperationTest
-    # pixelwiseOperationParallelTest 
     rainDictionaryAnalysis
+    randFunctionTest
     RANSAC_InlierVisualizationTest
     recursiveAllOfTest
     recursiveAnyOfTest
@@ -301,15 +300,18 @@ set(TINYDIP_TESTS
     recursiveMinmaxTest
     recursiveNoneOfTest
     recursiveReduceTest
-    recursiveRemoveCopyTest
     recursiveRemoveCopyIfTest
+    recursiveRemoveCopyTest
     recursiveSizeTest
-    # recursiveTransformTest 
     # recursiveTransformReduceTest 
+    # recursiveTransformTest 
     refineHomographyFunctionTest
+    rgb2hsvTest
     siftDrawMatches
-    stitchingTest
     stitchingMultipleTest
+    stitchingTest
+    subimage2Test
+    subimageTest
     # sumTest 
     testingRANSAC_MSAC_HomographyEstimation
     transposeTest
