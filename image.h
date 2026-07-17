@@ -10,6 +10,7 @@
 #include <complex>
 #include <concepts>
 #include <exception>
+#include <format>
 #include <fstream>
 #include <functional>
 #include <iostream>
