@@ -43,6 +43,7 @@ namespace TinyDIP
         }             
         unsigned char header[54];
         auto returnValue = fread(header, sizeof(unsigned char), 54, fp);
+        (void)returnValue;
         unsigned long output;
         output = header[18] + 
             ((unsigned long)header[19] << 8) +
