@@ -244,6 +244,7 @@ namespace TinyDIP
             {
                 printf("%d\n", OriginImageData[loop]);
                 auto returnValue = system("read -n 1 -s -p \"Press any key to continue...\n\"");
+                (void)returnValue;
             }
             for(int y = 0; y < output.YSIZE; y++)
             {
@@ -258,6 +259,7 @@ namespace TinyDIP
                     OriginImageData[3 * ((output.YSIZE - y - 1) * output.XSIZE + x) + 1],
                     OriginImageData[3 * ((output.YSIZE - y - 1) * output.XSIZE + x) + 0]);
                     auto returnValue = system("read -n 1 -s -p \"Press any key to continue...\n\"");
+                    (void)returnValue;
                 }
             }
             free(OriginImageData);
@@ -504,6 +506,7 @@ namespace TinyDIP
             printf("Size of the input image: %ld\n", static_cast<size_t>(OriginSizeX * OriginSizeY));
             unsigned char header[54];
             auto returnValue = fread(header, sizeof(unsigned char), 54, fp);
+            (void)returnValue;
             double* image;
             unsigned char FillingByte = bmp_filling_byte_calc(OriginSizeX, 8);
             image = static_cast<double*>(malloc(sizeof * image * (OriginSizeX + FillingByte) * OriginSizeY));
@@ -631,6 +634,7 @@ namespace TinyDIP
         printf("Size of the input image: %ld\n", static_cast<size_t>(OriginSizeX * OriginSizeY * 3));
         unsigned char header[54];
         auto returnValue = fread(header, sizeof(unsigned char), 54, fp);
+        (void)returnValue;
         double* image;
         unsigned char filling_bytes = bmp_filling_byte_calc(OriginSizeX, 8);
         image = static_cast<double*>(malloc(sizeof * image * (OriginSizeX * 3 + filling_bytes) * OriginSizeY));
