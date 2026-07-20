@@ -95,8 +95,7 @@ namespace TinyDIP
         {    
             fname_bmp = std::string(filename);
         }    
-        unsigned char filling_bytes;
-        filling_bytes = bmp_filling_byte_calc(xsize);
+        unsigned char filling_bytes = bmp_filling_byte_calc(xsize);
         FILE *fp;
         fp = fopen(fname_bmp.string().c_str(), "rb");
         if (fp == NULL)
@@ -104,9 +103,74 @@ namespace TinyDIP
             printf("Fail to read file!\n");
             return -1;
         }             
+        
         unsigned char header[54];
         auto result = fread(header, sizeof(unsigned char), 54, fp);
-        result = fread(image, sizeof(unsigned char), (size_t)(long)(xsize * 3 + filling_bytes)*ysize, fp);
+        if (result != 54) {
+            fclose(fp);
+            return -1;
+        }
+
+        // Fetch Bit Count and Image Data Offset to properly support 8-bit (256 colors) and 24-bit
+        int biBitCount = header[28] + (header[29] << 8);
+        unsigned int bfOffBits = header[10] + (header[11] << 8) + (header[12] << 16) + (header[13] << 24);
+
+        if (biBitCount == 24)
+        {
+            fseek(fp, bfOffBits, SEEK_SET);
+            result = fread(image, sizeof(unsigned char), (size_t)(long)(xsize * 3 + filling_bytes) * ysize, fp);
+            (void)result;
+        }
+        else if (biBitCount == 8)
+        {
+            unsigned char palette[1024] = {0};
+            unsigned int header_size = header[14] + (header[15] << 8) + (header[16] << 16) + (header[17] << 24);
+            int palette_size = bfOffBits - (14 + header_size);
+            if (palette_size > 1024) palette_size = 1024;
+            
+            // Read Color Palette
+            if (palette_size > 0)
+            {
+                fseek(fp, 14 + header_size, SEEK_SET);
+                result = fread(palette, 1, palette_size, fp);
+            }
+
+            fseek(fp, bfOffBits, SEEK_SET);
+            
+            // 8-bit BMP images are padded to a multiple of 4 bytes per row
+            int padding_8 = (4 - (xsize % 4)) % 4;
+            
+            unsigned char* row_buffer = static_cast<unsigned char*>(malloc(xsize + padding_8));
+            if (row_buffer != NULL)
+            {
+                for (int y = 0; y < ysize; ++y)
+                {
+                    memset(row_buffer, 0, xsize + padding_8);
+                    result = fread(row_buffer, 1, xsize + padding_8, fp);
+                    
+                    for (int x = 0; x < xsize; ++x)
+                    {
+                        unsigned char index = row_buffer[x];
+                        // Convert 8-bit palette index into 24-bit standard Buffer (Blue, Green, Red)
+                        image[y * (xsize * 3 + filling_bytes) + x * 3 + 0] = palette[index * 4 + 0]; // Blue
+                        image[y * (xsize * 3 + filling_bytes) + x * 3 + 1] = palette[index * 4 + 1]; // Green
+                        image[y * (xsize * 3 + filling_bytes) + x * 3 + 2] = palette[index * 4 + 2]; // Red
+                    }
+                    
+                    // Fill output padding bytes with 0 for the 24-bit alignment
+                    for (int p = 0; p < filling_bytes; ++p)
+                    {
+                        image[y * (xsize * 3 + filling_bytes) + xsize * 3 + p] = 0;
+                    }
+                }
+                free(row_buffer);
+            }
+        }
+        else
+        {
+            printf("Unsupported BMP bit depth: %d\n", biBitCount);
+        }
+
         fclose(fp); 
         return 0;
     }
