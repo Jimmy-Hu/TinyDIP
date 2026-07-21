@@ -221,18 +221,6 @@ auto myHighLightRegion_parameters(const std::size_t index = 0)
 
 namespace handlers
 {
-    //  help function implementation
-    constexpr void help(
-        const CommandRegistry& registry,
-        Workspace& workspace,
-        std::span<const std::string_view> args,
-        std::ostream& os = std::cout)
-    {
-        (void)workspace;
-        (void)args;
-        registry.list_commands(os);
-    }
-
     //  hsv2rgb function implementation
     constexpr void hsv2rgb(
         Workspace& workspace,
