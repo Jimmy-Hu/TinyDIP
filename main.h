@@ -2061,77 +2061,83 @@ namespace handlers
 
             auto execute_count = [&]<typename TargetT>(TargetT&& target_val)
             {
-                auto exec_default = [&]() -> std::any
+                using TargetDecayedT = std::remove_cvref_t<TargetT>;
+                
+                // Strict C++20 cross-type comparison firewall to protect against unconstrained PSTL hard-errors
+                if constexpr (requires(const ElementT& e, const TargetDecayedT& t) { { e == t } -> std::convertible_to<bool>; })
                 {
-                    if constexpr ((TinyDIP::is_Image<DecayedT>::value) and
-                                  (requires { TinyDIP::count(std::forward<DataT>(data), std::forward<TargetT>(target_val)); }))
+                    auto exec_default = [&]() -> std::any
                     {
-                        return TinyDIP::count(std::forward<DataT>(data), std::forward<TargetT>(target_val));
-                    }
-                    else if constexpr ((std::ranges::input_range<DecayedT>) and
-                                       (requires { std::ranges::count(std::forward<DataT>(data), std::forward<TargetT>(target_val)); }))
-                    {
-                        return static_cast<std::size_t>(std::ranges::count(std::forward<DataT>(data), std::forward<TargetT>(target_val)));
-                    }
-                    else
-                    {
-                        throw std::invalid_argument("Input type does not support counting operations natively.");
-                        return std::any{};
-                    }
-                };
-
-                auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
-                    requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
-                {
-                    if constexpr ((TinyDIP::is_Image<DecayedT>::value) and
-                                  (requires { TinyDIP::count(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), std::forward<TargetT>(target_val)); }))
-                    {
-                        return TinyDIP::count(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), std::forward<TargetT>(target_val));
-                    }
-                    else if constexpr ((std::ranges::input_range<DecayedT>) and
-                                       (requires { std::count(std::forward<ExecPolicy>(exec_policy), std::ranges::begin(data), std::ranges::end(data), std::forward<TargetT>(target_val)); }))
-                    {
-                        return static_cast<std::size_t>(std::count(std::forward<ExecPolicy>(exec_policy), std::ranges::begin(data), std::ranges::end(data), std::forward<TargetT>(target_val)));
-                    }
-                    else
-                    {
-                        throw std::invalid_argument("Input type does not support execution-policy multi-threaded counting operations natively.");
-                        return std::any{};
-                    }
-                };
-
-                try
-                {
-                    std::any result = dispatch_policy_string(policy_str, exec_policy, exec_default, os);
-
-                    // std::any{} indicates an error occurred and was caught safely in the default blocks
-                    if (!result.has_value())
-                    {
-                        return;
-                    }
-
-                    const std::size_t final_count = std::any_cast<std::size_t>(result);
-
-                    if (!std::ranges::empty(output_arg))
-                    {
-                        if (output_arg.starts_with('$'))
+                        if constexpr (TinyDIP::is_Image<DecayedT>::value && requires { TinyDIP::count(std::forward<DataT>(data), std::forward<TargetT>(target_val)); })
                         {
-                            workspace.store(output_arg.substr(1), final_count);
-                            std::print(os, "Saved count result to {}\n", output_arg);
+                            return TinyDIP::count(std::forward<DataT>(data), std::forward<TargetT>(target_val));
+                        }
+                        else if constexpr (std::ranges::input_range<DecayedT> && requires { std::ranges::count(std::forward<DataT>(data), std::forward<TargetT>(target_val)); })
+                        {
+                            return static_cast<std::size_t>(std::ranges::count(std::forward<DataT>(data), std::forward<TargetT>(target_val)));
                         }
                         else
                         {
-                            std::print(os, "Error: Output must be a memory variable starting with '$'.\n");
+                            throw std::invalid_argument("Input type does not support counting operations natively.");
+                            return std::any{};
+                        }
+                    };
+
+                    auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                        requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                    {
+                        if constexpr (TinyDIP::is_Image<DecayedT>::value && requires { TinyDIP::count(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), std::forward<TargetT>(target_val)); })
+                        {
+                            return TinyDIP::count(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), std::forward<TargetT>(target_val));
+                        }
+                        else if constexpr (std::ranges::input_range<DecayedT> && requires { std::count(std::forward<ExecPolicy>(exec_policy), std::ranges::begin(data), std::ranges::end(data), std::forward<TargetT>(target_val)); })
+                        {
+                            return static_cast<std::size_t>(std::count(std::forward<ExecPolicy>(exec_policy), std::ranges::begin(data), std::ranges::end(data), std::forward<TargetT>(target_val)));
+                        }
+                        else
+                        {
+                            throw std::invalid_argument("Input type does not support execution-policy multi-threaded counting operations natively.");
+                            return std::any{};
+                        }
+                    };
+
+                    try
+                    {
+                        std::any result = dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+
+                        // std::any{} indicates an error occurred and was caught safely in the default blocks
+                        if (!result.has_value())
+                        {
+                            return;
+                        }
+
+                        const std::size_t final_count = std::any_cast<std::size_t>(result);
+
+                        if (!std::ranges::empty(output_arg))
+                        {
+                            if (output_arg.starts_with('$'))
+                            {
+                                workspace.store(output_arg.substr(1), final_count);
+                                std::print(os, "Saved count result to {}\n", output_arg);
+                            }
+                            else
+                            {
+                                std::print(os, "Error: Output must be a memory variable starting with '$'.\n");
+                            }
+                        }
+                        else
+                        {
+                            std::print(os, "Count result: {}\n", final_count);
                         }
                     }
-                    else
+                    catch (const std::exception& e)
                     {
-                        std::print(os, "Count result: {}\n", final_count);
+                        std::print(os, "Error calculating count: {}\n", e.what());
                     }
                 }
-                catch (const std::exception& e)
+                else
                 {
-                    std::print(os, "Error calculating count: {}\n", e.what());
+                    throw std::invalid_argument(std::string("Error: Cannot mathematically compare [") + std::string(get_type_name<ElementT>()) + "] with [" + std::string(get_type_name<TargetDecayedT>()) + "].");
                 }
             };
 
