@@ -2031,7 +2031,7 @@ namespace handlers
             using DecayedT = std::remove_cvref_t<DataT>;
             
             // Extract the deep mathematical scalar natively avoiding template evaluation ambiguity
-            using ElementT = get_deep_scalar_t<DecayedT>;
+            using ElementT = TinyDIP::get_deep_scalar_t<DecayedT>;
 
             auto execute_count = [&]<typename TargetT>(TargetT&& target_val)
             {
