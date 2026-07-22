@@ -4262,7 +4262,7 @@ namespace TinyDIP
 
     //  count template function implementation (Execution Policy)
     template <class ExecutionPolicy, typename ElementT>
-    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and std::equality_comparable<ElementT>)
     constexpr static auto count(ExecutionPolicy&& exec_policy, const Image<ElementT>& input, const std::type_identity_t<ElementT>& target)
     {
         // CRITICAL: Must use 'const auto&' to prevent a massive O(N) deep memory copy of the vector!
