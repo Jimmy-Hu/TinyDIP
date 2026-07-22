@@ -4255,7 +4255,8 @@ namespace TinyDIP
 
     //  count template function implementation
     template<typename ElementT>
-    constexpr static auto count(const Image<ElementT>& input, ElementT target)
+    requires(std::equality_comparable<ElementT>)
+    constexpr static auto count(const Image<ElementT>& input, const std::type_identity_t<ElementT>& target)
     {
         return std::ranges::count(input.getImageData(), target);
     }
