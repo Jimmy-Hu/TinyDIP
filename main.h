@@ -61,6 +61,16 @@ constexpr std::string_view sanitize_string_view(std::string_view sv)
     return sv;
 }
 
+//  iequals function implementation
+//  Helper for zero-allocation, compile-time case-insensitive string comparison
+constexpr bool iequals(const std::string_view a, const std::string_view b)
+{
+    return std::ranges::equal(a, b, [](const unsigned char c1, const unsigned char c2)
+        {
+            auto to_lower = [](const unsigned char c) { return (c >= 'A' && c <= 'Z') ? (c + ('a' - 'A')) : c; };
+            return to_lower(c1) == to_lower(c2);
+        });
+}
 
 //  parse_arg template function implementation
 //  Helper for converting string_view to numeric types safely using std::from_chars (C++17 High Performance)
