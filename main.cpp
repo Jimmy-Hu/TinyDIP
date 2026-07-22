@@ -2050,6 +2050,13 @@ int main(int argc, char* argv[])
         }
     );
 
+    registry.register_command("count", "Count occurrences of a specific value in an image or container.", CombinerSchema, 
+        [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+        {
+            handlers::count(workspace, args, os);
+        }
+    );
+
     // Register the help command dynamically to ensure it has access to the final mapped registry
     registry.register_command("help", "List all available commands.", IndependentSchema,
         [&registry](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
