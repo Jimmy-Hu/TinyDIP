@@ -4262,20 +4262,18 @@ namespace TinyDIP
     }
 
     //  count template function implementation (Execution Policy)
-    template <class ExecutionPolicy, typename ElementT>
-    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and std::equality_comparable<ElementT>)
-    constexpr static auto count(ExecutionPolicy&& exec_policy, const Image<ElementT>& input, const std::type_identity_t<ElementT>& target)
+    template <class ExPo, class ElementT, class TargetT>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>> and
+              (requires(const ElementT& e, const std::remove_cvref_t<TargetT>& t) { { e == t } -> std::convertible_to<bool>; }))
+    constexpr static auto count(ExPo&& execution_policy, const Image<ElementT>& input, TargetT&& target)
     {
-        // CRITICAL: Must use 'const auto&' to prevent a massive O(N) deep memory copy of the vector!
         const auto& image_data = input.getImageData();
-    
-        // Explicitly utilizing contiguous iterators allows the compiler to apply SIMD auto-vectorization natively!
-        return static_cast<std::size_t>(std::count(
-            std::forward<ExecutionPolicy>(exec_policy),
+        return std::count(
+            std::forward<ExPo>(execution_policy),
             std::ranges::cbegin(image_data),
             std::ranges::cend(image_data),
-            target
-        ));
+            std::forward<TargetT>(target)
+        );
     }
 
     //  unique_value template function implementation
