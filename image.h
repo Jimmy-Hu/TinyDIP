@@ -53,12 +53,12 @@ namespace TinyDIP
     };
 
     //  Polyfill concept for std::formattable to support compilers lacking complete C++23 features
-#if defined(__cpp_lib_format) && __cpp_lib_format >= 202207L
-    // Use standard std::formattable for modern compilers in C++23 mode
+#if defined(__cpp_lib_format) && __cpp_lib_format >= 202207L && !defined(__CUDACC__)
+    // Use standard std::formattable for modern compilers in C++23 mode (excluding CUDA nvcc)
     template<typename T, typename CharT = char>
     concept is_formattable_compat = std::formattable<T, CharT>;
 #else
-    // Fallback for older compilers or C++20 mode lacking std::formattable
+    // Fallback for older compilers, C++20 mode lacking std::formattable, or CUDA nvcc
     template<typename T, typename CharT = char>
     concept is_formattable_compat = requires(std::formatter<std::remove_cvref_t<T>, CharT> f, std::basic_format_parse_context<CharT> pc)
     {
