@@ -2068,7 +2068,8 @@ namespace handlers
                     {
                         return TinyDIP::count(std::forward<DataT>(data), std::forward<TargetT>(target_val));
                     }
-                    else if constexpr (std::ranges::input_range<DecayedT>)
+                    else if constexpr ((std::ranges::input_range<DecayedT>) and
+                                       (requires { std::ranges::count(std::forward<DataT>(data), std::forward<TargetT>(target_val)); }))
                     {
                         return static_cast<std::size_t>(std::ranges::count(std::forward<DataT>(data), std::forward<TargetT>(target_val)));
                     }
@@ -2087,7 +2088,8 @@ namespace handlers
                     {
                         return TinyDIP::count(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), std::forward<TargetT>(target_val));
                     }
-                    else if constexpr (std::ranges::input_range<DecayedT>)
+                    else if constexpr ((std::ranges::input_range<DecayedT>) and
+                                       (requires { std::count(std::forward<ExecPolicy>(exec_policy), std::ranges::begin(data), std::ranges::end(data), std::forward<TargetT>(target_val)); }))
                     {
                         return static_cast<std::size_t>(std::count(std::forward<ExecPolicy>(exec_policy), std::ranges::begin(data), std::ranges::end(data), std::forward<TargetT>(target_val)));
                     }
