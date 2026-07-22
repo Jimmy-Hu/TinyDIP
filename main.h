@@ -79,7 +79,18 @@ T parse_arg(const std::string_view sv)
 {
     const std::string_view clean_sv = sanitize_string_view(sv);
     T result{};
-    if constexpr (std::is_arithmetic_v<T>)
+    
+    // Explicitly intercept bool since std::is_arithmetic_v<bool> is true, 
+    // but std::from_chars absolutely does NOT support boolean types!
+    if constexpr (std::same_as<T, bool>)
+    {
+        if (clean_sv == "1" || iequals(clean_sv, "true")) return true;
+        if (clean_sv == "0" || iequals(clean_sv, "false")) return false;
+        
+        throw std::invalid_argument(std::string("Error parsing boolean argument: ") + std::string(clean_sv));
+    }
+    // High-performance numeric parsing for ints, floats, doubles
+    else if constexpr (std::is_arithmetic_v<T>)
     {
         auto [ptr, ec] = std::from_chars(clean_sv.data(), clean_sv.data() + std::ranges::size(clean_sv), result);
         if (ec != std::errc())
@@ -87,10 +98,9 @@ T parse_arg(const std::string_view sv)
             throw std::invalid_argument(std::string("Error parsing argument: ") + std::string(clean_sv));
         }
     }
-    else if constexpr (requires(std::stringstream & stream) { stream >> result; })
+    // Fallback for objects that natively support stream extraction via C++20 concepts
+    else if constexpr (requires(std::stringstream& stream) { stream >> result; })
     {
-        //  Fallback for non-arithmetic types that natively support stream extraction
-        //  This path forces allocation, but is safely conditionally compiled via C++20 concepts
         std::string temp(clean_sv);
         std::stringstream ss(temp);
         if (!(ss >> result))
@@ -98,12 +108,12 @@ T parse_arg(const std::string_view sv)
             throw std::invalid_argument(std::string("Error parsing argument: ") + temp);
         }
     }
+    // Compile-time firewall for complex abstract types (e.g. TinyDIP::RGB)
     else
     {
-        //  Compile-time firewall: Throws clean runtime error instead of hard compiler crash!
-        //  Directly guides the user to utilize memory variables for complex types (e.g., RGB)
         throw std::invalid_argument(std::string("Parsing raw string literals into this complex data type is unsupported. Please use a memory variable ($var) instead."));
     }
+    
     return result;
 }
 
