@@ -63,7 +63,7 @@ constexpr std::string_view sanitize_string_view(std::string_view sv)
 
 
 //  parse_arg template function implementation
-//  Helper for converting string to numeric types safely
+//  Helper for converting string_view to numeric types safely using std::from_chars (C++17 High Performance)
 template <typename T>
 T parse_arg(const std::string_view sv)
 {
@@ -77,16 +77,22 @@ T parse_arg(const std::string_view sv)
             throw std::invalid_argument(std::string("Error parsing argument: ") + std::string(clean_sv));
         }
     }
-    else
+    else if constexpr (requires(std::stringstream & stream) { stream >> result; })
     {
-        //  Fallback for non-arithmetic types (unlikely to be used with this function in current context)
-        //  This path forces allocation, but is rarely hit for numeric parsing
+        //  Fallback for non-arithmetic types that natively support stream extraction
+        //  This path forces allocation, but is safely conditionally compiled via C++20 concepts
         std::string temp(clean_sv);
         std::stringstream ss(temp);
         if (!(ss >> result))
         {
             throw std::invalid_argument(std::string("Error parsing argument: ") + temp);
         }
+    }
+    else
+    {
+        //  Compile-time firewall: Throws clean runtime error instead of hard compiler crash!
+        //  Directly guides the user to utilize memory variables for complex types (e.g., RGB)
+        throw std::invalid_argument(std::string("Parsing raw string literals into this complex data type is unsupported. Please use a memory variable ($var) instead."));
     }
     return result;
 }
