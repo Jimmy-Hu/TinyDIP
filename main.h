@@ -2037,7 +2037,8 @@ namespace handlers
             {
                 auto exec_default = [&]() -> std::any
                 {
-                    if constexpr (TinyDIP::is_Image<DecayedT>::value)
+                    if constexpr ((TinyDIP::is_Image<DecayedT>::value) and
+                                  (requires { TinyDIP::count(std::forward<DataT>(data), std::forward<TargetT>(target_val)); }))
                     {
                         return TinyDIP::count(std::forward<DataT>(data), std::forward<TargetT>(target_val));
                     }
@@ -2055,7 +2056,8 @@ namespace handlers
                 auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
                     requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
                 {
-                    if constexpr (TinyDIP::is_Image<DecayedT>::value)
+                    if constexpr ((TinyDIP::is_Image<DecayedT>::value) and
+                                  (requires { TinyDIP::count(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), std::forward<TargetT>(target_val)); }))
                     {
                         return TinyDIP::count(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), std::forward<TargetT>(target_val));
                     }
