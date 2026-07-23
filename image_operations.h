@@ -4312,6 +4312,14 @@ namespace TinyDIP
         return result;
     }
 
+    //  replace template function implementation (Sequential Default)
+    template<class ElementT>
+    requires(std::equality_comparable<ElementT>)
+    constexpr static Image<ElementT> replace(const Image<ElementT>& input, const std::type_identity_t<ElementT> target, const std::type_identity_t<ElementT> new_val)
+    {
+        return replace(std::execution::seq, input, target, new_val);
+    }
+
     //  unique_value template function implementation
     template<typename ElementT>
     constexpr static bool unique_value(const Image<ElementT>& input, ElementT target)
