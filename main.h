@@ -3801,7 +3801,7 @@ namespace handlers
         auto process_input = [&]<typename DataT>(DataT&& data)
         {
             using DecayedT = std::remove_cvref_t<DataT>;
-            using ElementT = get_deep_scalar_t<DecayedT>;
+            using ElementT = TinyDIP::get_deep_scalar_t<DecayedT>;
 
             auto execute_replace = [&]<typename TargetT, typename NewT>(TargetT&& target_val, NewT&& new_val)
             {
