@@ -4276,6 +4276,42 @@ namespace TinyDIP
         );
     }
 
+    // ------------------------------------------------------------------------------------
+    //  Replace Template Function Implementations
+    // ------------------------------------------------------------------------------------
+
+    //  replace template function implementation (Execution Policy)
+    template<class ExPo, class ElementT>
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExPo>> && std::equality_comparable<ElementT>)
+    constexpr static auto replace(ExPo&& execution_policy, const Image<ElementT>& input, const std::type_identity_t<ElementT> target, const std::type_identity_t<ElementT> new_val)
+    {
+        // Deep copy the original image structure to safely mutate the output
+        Image<ElementT> result = input;
+    
+        // C++20 Metaprogramming Firewall: Dispatch to SIMD-optimized std::replace ONLY if mutable vector access is natively available
+        if constexpr (requires { std::replace(std::forward<ExPo>(execution_policy), std::ranges::begin(result.getImageData()), std::ranges::end(result.getImageData()), target, new_val); })
+        {
+            std::replace(std::forward<ExPo>(execution_policy), std::ranges::begin(result.getImageData()), std::ranges::end(result.getImageData()), target, new_val);
+        }
+        else
+        {
+            auto indices = std::views::iota(std::size_t{0}, result.count());
+            std::for_each(
+                std::forward<ExPo>(execution_policy), 
+                std::ranges::begin(indices), 
+                std::ranges::end(indices),
+                [&](const std::size_t idx)
+                {
+                    if (result.get(idx) == target)
+                    {
+                        result.set(idx, new_val);
+                    }
+                }
+            );
+        }
+        return result;
+    }
+
     //  unique_value template function implementation
     template<typename ElementT>
     constexpr static bool unique_value(const Image<ElementT>& input, ElementT target)
