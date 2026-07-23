@@ -421,6 +421,8 @@ namespace TinyDIP
 
         std::vector<ElementT> const& getImageData() const noexcept { return image_data; }      //  expose the internal data
 
+        std::vector<ElementT>& getImageData() noexcept { return image_data; }                  //  expose mutable internal data for SIMD algorithms
+
         /**
          * print function implementation
          * @brief Prints the image content to an output stream.
