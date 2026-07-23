@@ -159,7 +159,8 @@ template<
     std::ranges::random_access_range HistogramWeightRange,
     TinyDIP::arithmetic FloatingType = double
 >
-requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
+requires((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) and
+         (TinyDIP::arithmetic<std::ranges::range_value_t<HistogramWeightRange>>))
 static auto get_real_size_PWM_image(
     ExecutionPolicy&& policy,
     const TinyDIP::Image<ElementT>& input_img,
