@@ -290,8 +290,15 @@ static auto get_real_size_PWM_image(
                 );
             }
             
+            const int representation_bit_count2 = 12;
             int final_adptive_weight = clamp12bit(clamp12bit((
-                    static_cast<int>((sum_of_histogram * 9318 + std::pow(2, 11))) >> 12
+                    static_cast<int>((sum_of_histogram * weight_of_sum_of_histogram(
+                            input_img.getWidth() / light_bead_width,
+                            input_img.getHeight() / light_bead_height,
+                            x_extension_pixel_count,
+                            y_extension_pixel_count,
+                            representation_bit_count2
+                        ) + std::pow(2, representation_bit_count2 - 1))) >> representation_bit_count2
                 )) + std::invoke(
                 [](const int maximum, const int average, const bool light_spot_protect_en = false)
                 {
