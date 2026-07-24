@@ -163,6 +163,23 @@ static auto calculate_block_count_inv(
     return static_cast<int>(std::round(std::pow(2, representation_bit_count) * block_count_inv));
 }
 
+//  weight_of_sum_of_histogram Template Function Implementation
+template<TinyDIP::arithmetic FloatingType = double>
+static auto weight_of_sum_of_histogram(
+    const std::size_t block_size_x = 60,
+    const std::size_t block_size_y = 60,
+    const std::size_t x_extension_pixel_count = 30,
+    const std::size_t y_extension_pixel_count = 30,
+    const std::size_t representation_bit_count = 12
+)
+{
+    auto block_count = calculate_block_count(block_size_x, block_size_y, x_extension_pixel_count, y_extension_pixel_count);
+    auto half_block_count = static_cast<FloatingType>(block_count) / static_cast<FloatingType>(2);
+    return static_cast<int>(std::round(
+        (static_cast<FloatingType>((std::pow(2, representation_bit_count) - 1)) / half_block_count) * std::pow(2, representation_bit_count)
+    ));
+}
+
 //  get_real_size_PWM_image Template Function Implementation
 template<
     class ExecutionPolicy,
