@@ -158,9 +158,7 @@ static auto calculate_reg_avg_div_inv(
     const std::size_t representation_bit_count = 19
 )
 {
-    auto width = block_size_x + x_extension_pixel_count * 2;
-    auto height = block_size_y + y_extension_pixel_count * 2;
-    auto block_count = width * height;
+    auto block_count = calculate_block_count(block_size_x, block_size_y, x_extension_pixel_count, y_extension_pixel_count);
     auto block_count_inv = static_cast<FloatingType>(1) / static_cast<FloatingType>(block_count);
     return static_cast<int>(std::round(std::pow(2, representation_bit_count) * block_count_inv));
 }
