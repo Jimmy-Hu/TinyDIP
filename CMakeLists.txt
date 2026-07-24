@@ -455,6 +455,15 @@ set_target_properties(plugin_math_add PROPERTIES
 
 target_link_libraries(plugin_math_add PRIVATE tbb TinyDIP)
 
+# Add Replace Plugin Module
+add_library(plugin_replace MODULE plugin_replace.cpp)
+set_target_properties(plugin_replace PROPERTIES
+    PREFIX ""
+    OUTPUT_NAME "tinydip_replace"
+)
+
+target_link_libraries(plugin_replace PRIVATE tbb TinyDIP)
+
 include(GNUInstallDirs)
 
 install(TARGETS TinyDIP
