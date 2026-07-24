@@ -150,7 +150,7 @@ static auto calculate_block_count(
 
 //  calculate_reg_avg_div_inv Template Function Implementation
 template<TinyDIP::arithmetic FloatingType = double>
-static auto calculate_reg_avg_div_inv(
+static auto calculate_block_count_inv(
     const std::size_t block_size_x = 60,
     const std::size_t block_size_y = 60,
     const std::size_t x_extension_pixel_count = 30,
@@ -214,7 +214,7 @@ static auto get_real_size_PWM_image(
         {
             return (((
                         static_cast<int>(TinyDIP::sum(TinyDIP::getRplane(each_block))) *
-                        calculate_reg_avg_div_inv(
+                        calculate_block_count_inv(
                             input_img.getWidth() / light_bead_width,
                             input_img.getHeight() / light_bead_height,
                             x_extension_pixel_count,
