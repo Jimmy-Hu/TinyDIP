@@ -135,6 +135,19 @@ static auto gamma_table_generator(
     }
 }
 
+//  calculate_block_count Function Implementation
+static auto calculate_block_count(
+    const std::size_t block_size_x = 60,
+    const std::size_t block_size_y = 60,
+    const std::size_t x_extension_pixel_count = 30,
+    const std::size_t y_extension_pixel_count = 30
+)
+{
+    auto width = block_size_x + x_extension_pixel_count * 2;
+    auto height = block_size_y + y_extension_pixel_count * 2;
+    return width * height;
+}
+
 //  calculate_reg_avg_div_inv Template Function Implementation
 template<TinyDIP::arithmetic FloatingType = double>
 static auto calculate_reg_avg_div_inv(
