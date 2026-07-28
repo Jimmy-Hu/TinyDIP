@@ -52,6 +52,13 @@ Both `std::ranges` and [concepts](https://en.cppreference.com/w/cpp/language/con
 
 6. Check that `g++` is installed correctly.
     
+    ```shell
+    sudo apt-get install g++ -y
+    ```
+    
+    For Debian, g++-13 can be installed as https://stackoverflow.com/a/78308350/6667035 mentioned.
+
+
 ##### 
 
 TinyDIP library could be built with [CMake](https://cmake.org/) as the following commands:
