@@ -229,16 +229,16 @@ static auto get_real_size_PWM_image(
         std::forward<ExecutionPolicy>(policy),
         [&](const auto& each_block)
         {
-            return (((
-                        static_cast<int>(TinyDIP::sum(TinyDIP::getRplane(each_block))) *
-                        calculate_block_count_inv(
+            return static_cast<int>((((
+                        static_cast<unsigned long long>(TinyDIP::sum(TinyDIP::getRplane(each_block))) *
+                        static_cast<unsigned long long>(calculate_block_count_inv(
                             input_img.getWidth() / light_bead_width,
                             input_img.getHeight() / light_bead_height,
                             x_extension_pixel_count,
                             y_extension_pixel_count,
                             representation_bit_count
-                        )
-                     ) >> (representation_bit_count - 1)) + 1) >> 1;
+                        ))
+                     ) >> (representation_bit_count - 1)) + 1) >> 1);
         }, split_overlap_output);
     auto split_overlap_histogram = TinyDIP::recursive_transform<2>(
         std::forward<ExecutionPolicy>(policy),
