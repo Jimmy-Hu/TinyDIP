@@ -107,32 +107,88 @@ static auto gamma_table_generator(
     const int output_bits = 12
 )
 {
-    if (gamma == 2.2)
+    const int NUM_NODES = 33; // 0 to 256, step of 8, total 33 nodes
+    const int STEP = 8;
+    const FloatingType output_max = std::pow(static_cast<FloatingType>(2.0), static_cast<FloatingType>(output_bits)) - 1.0;
+
+    std::vector<int> nodes_x(NUM_NODES);
+    std::vector<int> baseline_y(NUM_NODES);
+    
+    // Pre-calculate the perfect, lossless ideal curve as the absolute reference for Minimax evaluation.
+    std::vector<FloatingType> ideal_y(input_maximum + 1);
+    for (int x = 0; x <= input_maximum; ++x)
     {
-        std::vector<int> gamma_node = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256};
-        std::vector<int> gamma_value = {0, 2, 9, 23, 43, 69, 104, 146, 195, 253, 320, 394, 477, 569, 670, 780, 899, 1026, 1165, 1312, 1468, 1635, 1810, 1997, 2193, 2399, 2615, 2842, 3079, 3326, 3584, 3851, 4130};
-        return std::make_pair(gamma_node, gamma_value);
+        FloatingType normalized_x = static_cast<FloatingType>(x) / static_cast<FloatingType>(input_maximum);
+        ideal_y[x] = std::pow(normalized_x, gamma) * output_max;
     }
-    else if (gamma == 1.0)
+
+    // Generate baseline nodes using standard mathematical calculation and rounding.
+    for (int i = 0; i < NUM_NODES; ++i)
     {
-        std::vector<int> gamma_node = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256};
-        std::vector<int> gamma_value = {0, 129, 257, 386, 515, 642, 772, 899, 1027, 1155, 1285, 1413, 1542, 1670, 1799, 1927, 2056, 2183, 2312, 2441, 2568, 2698, 2825, 2955, 3083, 3211, 3339, 3469, 3597, 3726, 3854, 3982, 4113};
-        return std::make_pair(gamma_node, gamma_value);
+        int x = i * STEP;
+        nodes_x[i] = x;
+        
+        // Note: When x=256, normalized_x > 1.0. This generates a mathematically extrapolated value (> 4095).
+        // This is a strictly required technique to ensure the hardware's piece-wise linear (PWL) 
+        // interpolation works correctly without dropping values for the final segment (x=248~255).
+        FloatingType normalized_x = static_cast<FloatingType>(x) / static_cast<FloatingType>(input_maximum);
+        baseline_y[i] = static_cast<int>(std::round(std::pow(normalized_x, gamma) * output_max));
     }
-    else
+
+    std::vector<int> optimized_y = baseline_y;
+
+    // The boundary nodes (x=0, x=256) are strictly fixed to ensure boundary safety and continuity.
+    // We only apply the Minimax tuning optimization to the intermediate nodes.
+    for (int i = 1; i < NUM_NODES - 1; ++i)
     {
-        std::vector<int> gamma_node = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256};
-        std::vector<int> gamma_value;
-        gamma_value.resize(std::ranges::size(gamma_node));
-        for (std::size_t i = 0; i < std::ranges::size(gamma_node); ++i)
+        FloatingType best_error = std::numeric_limits<FloatingType>::max();
+        int best_val = baseline_y[i];
+
+        int x_start = nodes_x[i-1];
+        int x_mid   = nodes_x[i];
+        int x_end   = nodes_x[i+1];
+
+        int y_start = optimized_y[i-1]; // Left node is already optimized in the previous iteration
+        int y_end   = baseline_y[i+1];  // Right node is still the initial baseline value
+
+        // Test tweaking the current anchor point by -3 to +3 to minimize the chord error
+        for (int tweak = -3; tweak <= 3; ++tweak)
         {
-            gamma_value[i] = std::round(
-                std::pow(static_cast<FloatingType>(gamma_node[i]) / static_cast<FloatingType>(input_maximum), gamma) * 
-                (std::pow(static_cast<FloatingType>(2.0), static_cast<FloatingType>(output_bits)) - 1)
-            );
+            int test_y = baseline_y[i] + tweak;
+            if (test_y < 0) continue; // Basic boundary protection
+            
+            FloatingType max_err = 0.0;
+            
+            for (int x = x_start; x <= x_mid; ++x)
+            {
+                if (x > input_maximum) break; // Prevent out-of-bounds access for ideal_y array
+                FloatingType y_interp = y_start + static_cast<FloatingType>(test_y - y_start) * (x - x_start) / (x_mid - x_start);
+                FloatingType err = std::abs(y_interp - ideal_y[x]);
+                if (err > max_err) max_err = err;
+            }
+            
+            for (int x = x_mid; x <= x_end; ++x)
+            {
+                if (x > input_maximum) break;
+                FloatingType y_interp = test_y + static_cast<FloatingType>(y_end - test_y) * (x - x_mid) / (x_end - x_mid);
+                FloatingType err = std::abs(y_interp - ideal_y[x]);
+                if (err > max_err) max_err = err;
+            }
+
+            // Minimax core logic: If this tweak reduces the maximum chord error in the affected segments, 
+            // record it as the current optimal value.
+            if (max_err < best_error)
+            {
+                best_error = max_err;
+                best_val = test_y;
+            }
         }
-        return std::make_pair(gamma_node, gamma_value);
+        
+        // Commit the best value found by the Minimax optimizer to the final output array
+        optimized_y[i] = best_val;
     }
+
+    return std::make_pair(nodes_x, optimized_y);
 }
 
 //  calculate_block_count Function Implementation
