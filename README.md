@@ -116,7 +116,7 @@ TinyDIP library could be built with [CMake](https://cmake.org/) as the following
   
   https://codereview.stackexchange.com/q/263289/231235
   
-- Image Rotation and Transpose Functions Implementation in C++, Mar. 26, 2024 @ GMT+8
+- Image Rotation and Transpose Functions Implementation in C++ (Asked on Mar. 26, 2024 @ GMT+8)
   
   https://codereview.stackexchange.com/q/291249/231235
   
