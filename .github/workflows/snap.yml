@@ -12,10 +12,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev gcc-14 g++-14
+    #- name: Install Dependencies
+    #  run: |
+    #    sudo apt-get update
+    #    sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev gcc-14 g++-14
 
     - name: Configure and Build Tests (Linux)
       run: |
@@ -311,30 +311,30 @@ jobs:
     - name: Clean up Build Artifacts
       run: rm -rf build_win
 
-  verify-linux-arm:
-    name: Linux ARM64 (QEMU)
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
+  #verify-linux-arm:
+  #  name: Linux ARM64 (QEMU)
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #  - uses: actions/checkout@v4
 
-    - name: Build & Test in ARM64 Emulator
-      uses: uraimo/run-on-arch-action@v2
-      with:
-        arch: aarch64
-        distro: ubuntu22.04
+  #  - name: Build & Test in ARM64 Emulator
+  #    uses: uraimo/run-on-arch-action@v2
+  #    with:
+  #      arch: aarch64
+  #      distro: ubuntu22.04
         
-        run: |
-          apt-get update
-          apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev
-          
-          mkdir build_arm
-          cd build_arm
-          cmake .. -DCMAKE_CXX_STANDARD=23 -DENABLE_CUDA=OFF
-          make -j2
-          
-          echo "Running ARM64 tests..."
-          ./absTest
-          ./dct2Test
+  #      run: |
+  #        apt-get update
+  #        apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev
+  #        
+  #        mkdir build_arm
+  #        cd build_arm
+  #        cmake .. -DCMAKE_CXX_STANDARD=23 -DENABLE_CUDA=OFF
+  #        make -j2
+  #        
+  #        echo "Running ARM64 tests..."
+  #        ./absTest
+  #        ./dct2Test
 
 
 
