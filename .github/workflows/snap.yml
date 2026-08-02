@@ -12,10 +12,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    #- name: Install Dependencies
-    #  run: |
-    #    sudo apt-get update
-    #    sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev gcc-14 g++-14
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev gcc-14 g++-14
 
     - name: Configure and Build Tests (Linux)
       run: |
@@ -139,10 +139,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev
+    #- name: Install Dependencies
+    #  run: |
+    #    sudo apt-get update
+    #    sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev
 
     - name: Configure and Build Tests (Linux)
       run: |
