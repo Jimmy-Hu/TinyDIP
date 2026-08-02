@@ -31,6 +31,15 @@ set(CMAKE_INSTALL_RPATH "$ORIGIN/lib;${CUSTOM_GCC_LIB_DIR}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # ---------------------------------------------------------
 
+OPTION(TINYDIP_FULL_BUILD "Enable full exhaustive template type instantiation (Slow compile)" OFF)
+
+if(TINYDIP_FULL_BUILD)
+    message(STATUS "TINYDIP_FULL_BUILD is ON: Exhaustive type instantiation enabled (Compilation will be extremely slow).")
+    add_compile_definitions(TINYDIP_FULL_BUILD)
+else()
+    message(STATUS "TINYDIP_FULL_BUILD is OFF: Fast compile mode enabled (Only core representative types instantiated).")
+endif()
+
 # --- CUDA Setup ---
 # Option to enable/disable CUDA, default is ON
 OPTION(ENABLE_CUDA "Enable CUDA support" ON)
@@ -435,34 +444,38 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/plugins)
 # to the dynamic symbol table so that loaded plugins can mathematically resolve them at runtime!
 set_target_properties(TinyDIP PROPERTIES ENABLE_EXPORTS TRUE)
 
-# Add Math Plugin Module
-add_library(plugin_math MODULE plugin_math.cpp)
-set_target_properties(plugin_math PROPERTIES
-    PREFIX ""
-    OUTPUT_NAME "tinydip_math"
-)
+if(TINYDIP_FULL_BUILD)
+    # Add Math Plugin Module
+    add_library(plugin_math MODULE plugin_math.cpp)
+    set_target_properties(plugin_math PROPERTIES
+        PREFIX ""
+        OUTPUT_NAME "tinydip_math"
+    )
 
-# Ensure the plugin correctly links against TBB if multithreading handlers are invoked,
-# AND explicitly link to TinyDIP to resolve host-level C++ symbols natively!
-target_link_libraries(plugin_math PRIVATE tbb TinyDIP)
+    # Ensure the plugin correctly links against TBB if multithreading handlers are invoked,
+    # AND explicitly link to TinyDIP to resolve host-level C++ symbols natively!
+    target_link_libraries(plugin_math PRIVATE tbb TinyDIP)
 
-# Add Math (Add) Plugin Module
-add_library(plugin_math_add MODULE plugin_math_add.cpp)
-set_target_properties(plugin_math_add PROPERTIES
-    PREFIX ""
-    OUTPUT_NAME "tinydip_math_add"
-)
+    # Add Math (Add) Plugin Module
+    add_library(plugin_math_add MODULE plugin_math_add.cpp)
+    set_target_properties(plugin_math_add PROPERTIES
+        PREFIX ""
+        OUTPUT_NAME "tinydip_math_add"
+    )
 
-target_link_libraries(plugin_math_add PRIVATE tbb TinyDIP)
+    target_link_libraries(plugin_math_add PRIVATE tbb TinyDIP)
 
-# Add Replace Plugin Module
-add_library(plugin_replace MODULE plugin_replace.cpp)
-set_target_properties(plugin_replace PROPERTIES
-    PREFIX ""
-    OUTPUT_NAME "tinydip_replace"
-)
+    # Add Replace Plugin Module
+    add_library(plugin_replace MODULE plugin_replace.cpp)
+    set_target_properties(plugin_replace PROPERTIES
+        PREFIX ""
+        OUTPUT_NAME "tinydip_replace"
+    )
 
-target_link_libraries(plugin_replace PRIVATE tbb TinyDIP)
+    target_link_libraries(plugin_replace PRIVATE tbb TinyDIP)
+else()
+    message(STATUS "Skipping plugin builds due to TINYDIP_FULL_BUILD being OFF.")
+endif()
 
 include(GNUInstallDirs)
 
