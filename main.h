@@ -152,6 +152,14 @@ constexpr bool match_any_type(FunT&& func)
 //  Advanced Metaprogramming Type Generation Registries
 // ------------------------------------------------------------------------------------
 
+#ifndef TINYDIP_FULL_BUILD
+
+using core_numeric_types = std::tuple<
+    bool, unsigned char, int, double, std::size_t
+>;
+
+#else
+
 // Core Fundamental Types
 using core_numeric_types = std::tuple<
     bool, char, signed char, unsigned char,
@@ -161,6 +169,8 @@ using core_numeric_types = std::tuple<
     std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t,
     float, double, long double, std::size_t, std::ptrdiff_t
 >;
+
+#endif
 
 using core_floating_point_types = std::tuple<float, double, long double>;
 
