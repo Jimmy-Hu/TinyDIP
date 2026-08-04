@@ -19,6 +19,7 @@ void lanczosResamplingTest(
     auto input_img = TinyDIP::bmp_read(std::string(input_image_path).c_str(), false);
     auto output_img =
         TinyDIP::lanczos_resample(
+            std::execution::unseq,
             input_img,
             input_img.getWidth() * 2,
             input_img.getHeight() * 2
