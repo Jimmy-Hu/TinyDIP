@@ -68,6 +68,7 @@ void process_single_image(
         output_image = TinyDIP::paste2D(
             output_image,
             TinyDIP::lanczos_resample(
+                std::execution::unseq,
                 TinyDIP::subimage2(source_image, startx, endx, starty, endy),
                 720,
                 1380
@@ -75,7 +76,7 @@ void process_single_image(
             0,
             0);
         output_image = TinyDIP::rotate_detail_shear_transformation_degree(output_image, static_cast<long double>(-90));
-        output_image = TinyDIP::lanczos_resample(output_image, 1920, 720);
+        output_image = TinyDIP::lanczos_resample(std::execution::unseq, output_image, 1920, 720);
         
         // Place the output file in the same directory as the source
         std::filesystem::path output_filename_bmp = source_filename.parent_path() / (source_filename.stem().string() + std::string("_lanczos_resample"));
