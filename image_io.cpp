@@ -202,6 +202,7 @@ namespace TinyDIP
         if (fp == NULL)
         {     
             std::cerr << "Fail to read file: " << fname_bmp.string() << "!\n";
+            throw std::runtime_error("Fail to read BMP file!");
             return output;
         }             
         output.FILENAME = fname_bmp;
