@@ -283,6 +283,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup Latest MSVC Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1
+
     - name: Restore vcpkg artifacts
       uses: actions/cache@v3
       with:
@@ -295,9 +298,9 @@ jobs:
       run: |
         vcpkg install opencv:x64-windows tbb:x64-windows boost:x64-windows
 
-    - name: Configure CMake
+    - name: Configure CMake (Ninja + MSVC)
       run: |
-        cmake -S . -B build_win `
+        cmake -S . -B build_win -G Ninja `
           -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake `
           -DCMAKE_CXX_STANDARD=23 `
           -DENABLE_CUDA=OFF
@@ -306,7 +309,7 @@ jobs:
       run: cmake --build build_win --config Release
 
     - name: Run Test
-      run: .\build_win\Release\absTest.exe
+      run: .\build_win\absTest.exe
 
     - name: Clean up Build Artifacts
       run: rm -rf build_win
