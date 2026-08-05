@@ -1,5 +1,5 @@
 name: tinydip
-base: core24
+base: core26
 version: '1.0'
 summary: Tiny Digital Image Processing Library
 description: |
@@ -38,10 +38,10 @@ parts:
 
     # Runtime dependencies (shared libraries)
     stage-packages:
-      - libopencv-core406t64
-      - libopencv-imgcodecs406t64
-      - libopencv-highgui406t64
-      - libopencv-imgproc406t64
+      - libopencv-core-dev
+      - libopencv-imgcodecs-dev
+      - libopencv-highgui-dev
+      - libopencv-imgproc-dev
       - libtbb12
       - libgomp1
       - libstdc++6
