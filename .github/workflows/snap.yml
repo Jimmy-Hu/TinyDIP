@@ -277,42 +277,43 @@ jobs:
     - name: Clean up Build Artifacts
       run: rm -rf build_mac
 
-  verify-windows:
-    name: Windows (MSVC)
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
+  #Disabled Windows build due to the known MSVC bug "error C2641: cannot deduce template arguments for 'std::ranges::elements_of'""
+  #verify-windows:
+  #  name: Windows (MSVC)
+  #  runs-on: windows-latest
+  #  steps:
+  #  - uses: actions/checkout@v4
 
-    - name: Setup Latest MSVC Developer Command Prompt
-      uses: ilammy/msvc-dev-cmd@v1
+  #  - name: Setup Latest MSVC Developer Command Prompt
+  #    uses: ilammy/msvc-dev-cmd@v1
 
-    - name: Restore vcpkg artifacts
-      uses: actions/cache@v3
-      with:
-        path: |
-          C:\vcpkg\installed
-          C:\vcpkg\packages
-        key: vcpkg-${{ runner.os }}-opencv-tbb-v1
+  #  - name: Restore vcpkg artifacts
+  #    uses: actions/cache@v3
+  #    with:
+  #      path: |
+  #        C:\vcpkg\installed
+  #        C:\vcpkg\packages
+  #      key: vcpkg-${{ runner.os }}-opencv-tbb-v1
 
-    - name: Install Libraries via vcpkg
-      run: |
-        vcpkg install opencv:x64-windows tbb:x64-windows boost:x64-windows
+  #  - name: Install Libraries via vcpkg
+  #    run: |
+  #      vcpkg install opencv:x64-windows tbb:x64-windows boost:x64-windows
 
-    - name: Configure CMake (Ninja + MSVC)
-      run: |
-        cmake -S . -B build_win -G Ninja `
-          -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake `
-          -DCMAKE_CXX_STANDARD=23 `
-          -DENABLE_CUDA=OFF
+  #  - name: Configure CMake (Ninja + MSVC)
+  #    run: |
+  #      cmake -S . -B build_win -G Ninja `
+  #        -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake `
+  #        -DCMAKE_CXX_STANDARD=23 `
+  #        -DENABLE_CUDA=OFF
 
-    - name: Build
-      run: cmake --build build_win --config Release
+  #  - name: Build
+  #    run: cmake --build build_win --config Release
 
-    - name: Run Test
-      run: .\build_win\absTest.exe
+  #  - name: Run Test
+  #    run: .\build_win\absTest.exe
 
-    - name: Clean up Build Artifacts
-      run: rm -rf build_win
+  #  - name: Clean up Build Artifacts
+  #    run: rm -rf build_win
 
   verify-linux-arm:
     name: Linux ARM64 (QEMU)
