@@ -33,6 +33,17 @@ constexpr static auto otsuThresholdTest(
     );
 }
 
+//  normalize Template Function Implementation
+template<class ExecutionPolicy, class ProbabilityType = double>
+requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
+constexpr auto normalize(ExecutionPolicy&& execution_policy, const std::vector<int>& input)
+{
+    auto sum = std::reduce(std::forward<ExecutionPolicy>(execution_policy), std::ranges::cbegin(input), std::ranges::cend(input), ProbabilityType{});
+    std::vector<ProbabilityType> output(input.size());
+    std::transform(std::forward<ExecutionPolicy>(execution_policy), std::ranges::cbegin(input), std::ranges::cend(input), std::ranges::begin(output), [&](auto&& element) { return static_cast<ProbabilityType>(element) / sum; });
+    return output;
+}
+
 int main(int argc, char* argv[])
 {
     std::string image_filename = "../InputImages/1.bmp";    //  Default file path
