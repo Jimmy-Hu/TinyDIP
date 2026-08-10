@@ -1908,6 +1908,14 @@ namespace TinyDIP
         {
             throw std::runtime_error(Formatter() << "error: starty > endy starty = " << starty << ", endy = " << endy << '\n');
         }
+        if ((startx > input.getWidth()) || (endx > input.getWidth()))
+        {
+            throw std::runtime_error(Formatter() << "error: (startx or endx) > image width\n");
+        }
+        if ((starty > input.getHeight()) || (endy > input.getHeight()))
+        {
+            throw std::runtime_error(Formatter() << "error: (starty or endy) > image height\n");
+        }
         Image<ElementT> output(endx - startx + 1, endy - starty + 1);
         const auto width = output.getWidth();
         const auto height = output.getHeight();
