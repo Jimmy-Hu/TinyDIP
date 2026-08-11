@@ -44,6 +44,13 @@ constexpr auto normalize(ExecutionPolicy&& execution_policy, const std::vector<i
     return output;
 }
 
+//  normalize Template Function Implementation (Overload for default execution policy)
+template<class ProbabilityType = double>
+constexpr auto normalize(const std::vector<int>& input)
+{
+    return normalize<const std::execution::sequenced_policy, ProbabilityType>(std::move(std::execution::seq), input);
+}
+
 int main(int argc, char* argv[])
 {
     std::string image_filename = "../InputImages/1.bmp";    //  Default file path
