@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <execution>
+#include <filesystem>
 #include <map>
 #include <omp.h>
 #include <span>
