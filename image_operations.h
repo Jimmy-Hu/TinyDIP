@@ -3602,8 +3602,15 @@ namespace TinyDIP
     }
 
 	//  dct3_one_plane template function implementation
-    template<complex_or_floating_point ElementT = double, complex_or_floating_point OutputT = ElementT>
-    Image<OutputT> dct3_one_plane(const std::vector<Image<ElementT>>& input, const std::size_t plane_index)
+    template<
+        image_random_access_range RangeT,
+        typename ElementT = extract_image_element_t<std::ranges::range_value_t<RangeT>>,
+        complex_or_floating_point OutputT = ElementT
+    >
+    Image<OutputT> dct3_one_plane(
+        const RangeT& input,
+        const std::size_t plane_index
+    )
     {
         using ScalarT = get_scalar_type_t<ElementT>;
         constexpr ScalarT PI = std::numbers::pi_v<ScalarT>;
