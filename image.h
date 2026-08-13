@@ -946,6 +946,19 @@ namespace TinyDIP
 
     template <typename T>
     struct is_Image<Image<T>> : std::true_type {};
+
+    // Type trait to safely extract the underlying ElementT from an Image object
+    template <typename T>
+    struct extract_image_element;
+
+    template <typename ElementT>
+    struct extract_image_element<Image<ElementT>>
+    {
+        using type = ElementT;
+    };
+
+    template <typename T>
+    using extract_image_element_t = typename extract_image_element<T>::type;
 }
 
 
