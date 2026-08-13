@@ -3666,7 +3666,7 @@ namespace TinyDIP
         output.resize(input.size());
         for (std::size_t i = 0; i < input.size(); ++i)
         {
-            output[i] = dct3_one_plane<ElementT, OutputT>(input, i);
+            output[i] = dct3_one_plane(input, i);
         }
         return output;
     }
