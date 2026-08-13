@@ -35,6 +35,14 @@ namespace TinyDIP
         or std::same_as<long double, T>
         ;
 
+    // image_random_access_range concept definition
+    // Concept combining random access range, is_Image validation, and underlying type constraints
+    template <typename RangeT>
+    concept image_random_access_range =
+        std::ranges::random_access_range<RangeT> &&
+        is_Image<std::ranges::range_value_t<RangeT>>::value &&
+        complex_or_floating_point<extract_image_element_t<std::ranges::range_value_t<RangeT>>>;
+
     //  all_of template function implementation
     template<typename ElementT, class UnaryPredicate>
     constexpr auto all_of(const Image<ElementT>& input, UnaryPredicate p)
