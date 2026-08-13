@@ -16,13 +16,21 @@
 //  paste2DTest template function implementation
 template<class ExecutionPolicy>
 requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
-void paste2DTest(ExecutionPolicy&& execution_policy, const std::filesystem::path& file_path, std::string_view output_path)
+void paste2DTest(
+    ExecutionPolicy&& execution_policy,
+    const std::filesystem::path& file_path,
+    std::string_view output_path,
+    const std::size_t input_resize_width = 1280,
+    const std::size_t input_resize_height = 720,
+    const std::size_t output_width = 1920,
+    const std::size_t output_height = 720
+)
 {
     if (!std::filesystem::exists(std::string(output_path) + std::string(".bmp")))
     {
         auto image_input = TinyDIP::bmp_read(file_path.string().c_str(), true);
-        image_input = TinyDIP::copyResizeBicubic(image_input, 1280, 720);
-        TinyDIP::Image<TinyDIP::RGB> output_image(1920, 720);
+        image_input = TinyDIP::copyResizeBicubic(image_input, input_resize_width, input_resize_height);
+        TinyDIP::Image<TinyDIP::RGB> output_image(output_width, output_height);
         output_image = TinyDIP::paste2D(std::forward<ExecutionPolicy>(execution_policy), output_image, image_input, 0, 0);
         TinyDIP::bmp_write(std::string(output_path).c_str(), output_image);
     }
