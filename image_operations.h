@@ -3659,8 +3659,12 @@ namespace TinyDIP
     }
 
     //  dct3 template function implementation
-    template<complex_or_floating_point ElementT = double, complex_or_floating_point OutputT = ElementT>
-    std::vector<Image<OutputT>> dct3(const std::vector<Image<ElementT>>& input)
+    template<
+        image_random_access_range RangeT,
+        typename ElementT = extract_image_element_t<std::ranges::range_value_t<RangeT>>,
+        complex_or_floating_point OutputT = ElementT
+    >
+    std::vector<Image<OutputT>> dct3(const RangeT& input)
     {
         std::vector<Image<OutputT>> output;
         output.resize(input.size());
