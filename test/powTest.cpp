@@ -4,6 +4,16 @@
 #include "../image.h"
 #include "../image_operations.h"
 
+//  powTest Function Implementation
+void powTest(const TinyDIP::RGB& input)
+{
+    std::size_t N1 = 10, N2 = 10;
+    TinyDIP::Image<TinyDIP::RGB> test_input(N1, N2);
+    test_input.setAllValue(input);
+    TinyDIP::pow(test_input, 2.0).print(" ");
+    return;
+}
+
 template<class T>
 void powTest()
 {
