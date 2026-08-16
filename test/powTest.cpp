@@ -3,6 +3,7 @@
 #include "../basic_functions.h"
 #include "../image.h"
 #include "../image_operations.h"
+#include "../timer.h"
 
 //  powTest Function Implementation
 void powTest(const TinyDIP::RGB& input)
