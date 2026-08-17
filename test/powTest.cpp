@@ -37,6 +37,6 @@ int main()
     powTest<int>();
     powTest<float>();
     powTest<double>();
-    powTest<TinyDIP::RGB>(TinyDIP::RGB{2, 2, 2});
+    powTest(TinyDIP::RGB{2, 2, 2});
     return EXIT_SUCCESS;
 }
