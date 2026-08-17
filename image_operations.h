@@ -3658,6 +3658,81 @@ namespace TinyDIP
         return output;
     }
 
+    // dct3_one_plane template function implementation
+    template<
+        class ExecutionPolicy,
+        image_random_access_range RangeT,
+        typename ElementT = extract_image_element_t<std::ranges::range_value_t<RangeT>>,
+        complex_or_floating_point OutputT = ElementT
+    >
+    requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
+    Image<OutputT> dct3_one_plane(
+        ExecutionPolicy&& execution_policy,
+        const RangeT& input,
+        const std::size_t plane_index)
+    {
+        using ScalarT = get_scalar_type_t<ElementT>;
+        const ScalarT PI{std::numbers::pi_v<ScalarT>};
+        const ScalarT SQRT2{std::numbers::sqrt2_v<ScalarT>};
+
+        const auto N1 = static_cast<OutputT>(input[0].getWidth());
+        const auto N2 = static_cast<OutputT>(input[0].getHeight());
+        const auto N3 = static_cast<OutputT>(std::ranges::size(input));
+        const auto N3_size = std::ranges::size(input);
+        
+        const auto alpha1 = (plane_index == 0) ? (SQRT2 / static_cast<OutputT>(2)) : (OutputT{1.0});
+        
+        Image<OutputT> output(input[plane_index].getWidth(), input[plane_index].getHeight());
+
+        // Standard algorithm leveraging the execution policy for outer dimension iteration
+        std::for_each(
+            std::forward<ExecutionPolicy>(execution_policy),
+            std::views::iota(std::size_t{0}, output.getHeight()).begin(),
+            std::views::iota(std::size_t{0}, output.getHeight()).end(),
+            [&](const std::size_t y)
+            {
+                const OutputT alpha2 = (y == 0) ? (SQRT2 / static_cast<OutputT>(2)) : (OutputT{1.0});
+
+                // OpenMP threading utilized alongside standard execution policies for extreme workloads
+                #pragma omp parallel for
+                for (std::ptrdiff_t x_idx = 0; x_idx < static_cast<std::ptrdiff_t>(output.getWidth()); ++x_idx)
+                {
+                    const std::size_t x = static_cast<std::size_t>(x_idx);
+                    OutputT sum{};
+                    const OutputT alpha3 = (x == 0) ? (SQRT2 / static_cast<OutputT>(2)) : (OutputT{1.0});
+
+                    // Static hardware bounds are ideal here; variables dynamic bounds are used for software generalized scaling
+                    for (std::size_t inner_z = 0; inner_z < N3_size; ++inner_z)
+                    {
+                        const auto& plane = input[inner_z];
+                        for (std::size_t inner_y = 0; inner_y < plane.getHeight(); ++inner_y)
+                        {
+                            for (std::size_t inner_x = 0; inner_x < plane.getWidth(); ++inner_x)
+                            {
+                                const auto l1_term1 = (PI / (static_cast<OutputT>(2) * N1));
+                                const auto l1_term2 = (static_cast<OutputT>(2) * static_cast<OutputT>(inner_x) + static_cast<OutputT>(1));
+                                const auto l1 = l1_term1 * l1_term2 * static_cast<OutputT>(x);
+                                
+                                const auto l2_term1 = (PI / (static_cast<OutputT>(2) * N2));
+                                const auto l2_term2 = (static_cast<OutputT>(2) * static_cast<OutputT>(inner_y) + static_cast<OutputT>(1));
+                                const auto l2 = l2_term1 * l2_term2 * static_cast<OutputT>(y);
+                                
+                                const auto l3_term1 = (PI / (static_cast<OutputT>(2) * N3));
+                                const auto l3_term2 = (static_cast<OutputT>(2) * static_cast<OutputT>(inner_z) + static_cast<OutputT>(1));
+                                const auto l3 = l3_term1 * l3_term2 * static_cast<OutputT>(plane_index);
+                                
+                                sum += static_cast<OutputT>(plane.at(inner_x, inner_y)) *
+                                       std::cos(l1) * std::cos(l2) * std::cos(l3);
+                            }
+                        }
+                    }
+                    output.at(x, y) = static_cast<OutputT>(8) * alpha1 * alpha2 * alpha3 * sum / (N1 * N2 * N3);
+                }
+            }
+        );
+        return output;
+    }
+
     //  dct3 template function implementation
     template<
         image_random_access_range RangeT,
