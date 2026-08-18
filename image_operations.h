@@ -3625,7 +3625,7 @@ namespace TinyDIP
         constexpr ScalarT SQRT2 = std::numbers::sqrt2_v<ScalarT>;
 
         const auto N1 = static_cast<OutputT>(input[0].getWidth());
-        auto N2 = static_cast<OutputT>(input[0].getHeight());
+        const auto N2 = static_cast<OutputT>(input[0].getHeight());
         auto N3 = input.size();
         auto alpha1 = (plane_index == 0) ? (SQRT2 / static_cast<OutputT>(2)) : (OutputT{1.0});
         auto output = Image<OutputT>(input[plane_index].getWidth(), input[plane_index].getHeight());
