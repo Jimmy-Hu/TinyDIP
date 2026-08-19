@@ -3627,7 +3627,7 @@ namespace TinyDIP
         const auto N1 = static_cast<OutputT>(input[0].getWidth());
         const auto N2 = static_cast<OutputT>(input[0].getHeight());
         const auto N3 = input.size();
-        auto alpha1 = (plane_index == 0) ? (SQRT2 / static_cast<OutputT>(2)) : (OutputT{1.0});
+        const auto alpha1 = (plane_index == 0) ? (SQRT2 / static_cast<OutputT>(2)) : (OutputT{1.0});
         auto output = Image<OutputT>(input[plane_index].getWidth(), input[plane_index].getHeight());
         #pragma omp parallel for
         for (std::size_t y = 0; y < output.getHeight(); ++y)
