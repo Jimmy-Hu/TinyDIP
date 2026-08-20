@@ -1,0 +1,61 @@
+name: TinyDIP Hardware-Software Co-Design CI
+
+# ==============================================================================
+# Separation of Concerns (vs. snap.yml)
+# 
+# - snap.yml: Handles macro-level product delivery, cross-platform compatibility
+#   (Linux/macOS/ARM64), performance profiling, and Snap packaging.
+# 
+# - hw-sw-codesign.yml (This file): Serves as the micro-level R&D lab strictly
+#   focused on hardware kernels. It runs parallel jobs to verify the core C++ 
+#   logic via the latest GCC 17 and synthesizes the SystemVerilog RTL via CIRCT.
+# ==============================================================================
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # ------------------------------------------------------------------------------
+  # Job 1: Software Twin Verification (GCC 17 Daily Build)
+  # ------------------------------------------------------------------------------
+  # Purpose:
+  # 1. Macro Abstraction Check: Ensures that hardware-specific annotations 
+  #    (e.g., TINYDIP_HW_FLATTEN) are safely ignored by strict C++ compilers 
+  #    without triggering syntax errors under -Werror.
+  # 2. Algorithm Equivalence: Proves that the exact same C++20/23 source code 
+  #    fed to the hardware synthesizer produces mathematically correct results 
+  #    when executed on a standard CPU.
+  software-twin-verification:
+    name: CPU Software Twin Test (GCC 17)
+    runs-on: self-hosted
+    #container:
+    #  image: ghcr.io/
+    
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Configure CMake (Software Twin Mode)
+        run: >
+          cmake -S . -B build_sw 
+          -DCMAKE_BUILD_TYPE=Release 
+          -DCMAKE_CXX_COMPILER=g++ 
+          -DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror"
+
+      - name: Build Hardware Kernel Tests
+        run: cmake --build build_sw --target tinydip_hw_kernel_tests --parallel $(nproc)
+
+      - name: Execute Software Twin Logic
+        run: ./build_sw/tinydip_hw_kernel_tests
+
+
+
+
+
+
+
+
+
