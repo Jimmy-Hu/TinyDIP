@@ -9,6 +9,8 @@
 #include "../../base_types.h"
 #include "../../basic_functions.h"
 #include "../../image.h"
+#include "../../image_operations.h"
+#include "../../timer.h"
 
 // ---------------------------------------------------------
 // Default Processor
@@ -124,7 +126,7 @@ constexpr void process_and_stream_image(
 }
 
 // ---------------------------------------------------------
-// 5. Unit Test and Verification
+// Unit Test and Verification
 // ---------------------------------------------------------
 
 void test_process_and_stream_image()
