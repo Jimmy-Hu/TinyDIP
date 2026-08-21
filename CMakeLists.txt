@@ -364,7 +364,7 @@ endif()
 #  Hardware-Software Co-Design (CIRCT & Software Twin)
 # ------------------------------------------------------------------------------------
 
-add_executable(tinydip_hw_kernel_tests test/hw_kernel_tests.cpp)
+add_executable(tinydip_hw_kernel_tests test/hw/hw_kernel_tests.cpp)
 
 target_link_libraries(tinydip_hw_kernel_tests PUBLIC TBB::tbb ${OpenCV_LIBS})
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
