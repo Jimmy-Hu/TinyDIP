@@ -859,7 +859,7 @@ namespace TinyDIP
         std::uint8_t Red = input.channels[0], Green = input.channels[1], Blue = input.channels[2];
         std::vector<std::uint8_t> v{ Red, Green, Blue };
         std::ranges::sort(v);
-        std::uint8_t Max = v[2], Mid = v[1], Min = v[0];
+        std::uint8_t Max = v[2], Min = v[0];
 
         auto H1 = std::acos(0.5 * ((Red - Green) + (Red - Blue)) /
             std::sqrt(((std::pow((Red - Green), 2.0)) +
