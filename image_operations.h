@@ -3428,7 +3428,6 @@ namespace TinyDIP
              ((!std::same_as<InputT, RGB>) && (!std::same_as<InputT, RGB_DOUBLE>) && (!std::same_as<InputT, HSV>) && (!is_MultiChannel<InputT>::value)))
     constexpr static auto multiplies(const Image<InputT>& input1, const TimesT times)
     {
-        using DecayedT1 = std::remove_cvref_t<TimesT>;
         if constexpr (is_complex<TimesT>::value)
         {
             using ScalarInput = get_deep_scalar_t<InputT>;
