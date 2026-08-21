@@ -360,6 +360,21 @@ if(ENABLE_CUDA)
     endforeach()
 endif()
 
+# ------------------------------------------------------------------------------------
+#  Hardware-Software Co-Design (CIRCT & Software Twin)
+# ------------------------------------------------------------------------------------
+
+add_executable(tinydip_hw_kernel_tests test/hw_kernel_tests.cpp)
+
+target_link_libraries(tinydip_hw_kernel_tests PUBLIC TBB::tbb ${OpenCV_LIBS})
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    target_link_libraries(tinydip_hw_kernel_tests PUBLIC stdc++fs)
+endif()
+
+# --- Hardware Synthesis Pipeline Target (Polygeist / CIRCT) ---
+set(POLYGEIST_EXE "polygeist" CACHE STRING "")
+set(CIRCT_OPT_EXE "circt-opt" CACHE STRING "")
+set(CIRCT_TRANSLATE_EXE "circt-translate" CACHE STRING "")
 
 # target_include_directories
 # Add include directories needed by ALL targets (like TBB)
