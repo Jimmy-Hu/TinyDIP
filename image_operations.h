@@ -1733,7 +1733,7 @@ namespace TinyDIP
     }
 
     //  print_with_latex function implementation
-    static void print_with_latex(Image<RGB> input)
+    inline void print_with_latex(Image<RGB> input)
     {
         std::cout << "\\begin{tikzpicture}[x=1cm,y=0.4cm]\n";
         for (std::size_t y = 0; y < input.getHeight(); ++y)
