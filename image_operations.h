@@ -1715,7 +1715,7 @@ namespace TinyDIP
     }
 
     //  im2double function implementation
-    static auto im2double(Image<GrayScale> input)
+    inline auto im2double(Image<GrayScale> input)
     {
         return input.cast<double>();
     }
