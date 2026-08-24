@@ -949,7 +949,7 @@ namespace TinyDIP
 
     //  Grayscale2RGB function implementation
     //  Grayscale2RGB function returns RGB pixel which represents GrayScale input in hue color scale. 
-    static auto Grayscale2RGB(GrayScale input)
+    inline auto Grayscale2RGB(GrayScale input)
     {
         HSV hsv;
         hsv.channels[0] = static_cast<double>(input) / 256.0 * 360;
