@@ -6,6 +6,16 @@ cmake_minimum_required(VERSION 3.13)        # For lgtm.com service
 # Start with C and CXX, CUDA will be enabled conditionally
 project(TinyDIP VERSION 1.0 LANGUAGES C CXX)
 
+# Locate ccache and configure it as the global compiler launcher
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    message(STATUS "ccache integration enabled successfully.")
+else()
+    message(WARNING "ccache not found. Installing it is highly recommended for faster builds.")
+endif()
+
 # print compile/link commands
 # Reference: https://stackoverflow.com/a/3379246/6667035
 set(CMAKE_VERBOSE_MAKEFILE on)
