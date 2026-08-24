@@ -1727,7 +1727,7 @@ namespace TinyDIP
     }
 
     //  im2uint8 function implementation
-    static auto im2uint8(Image<double> input)
+    inline auto im2uint8(Image<double> input)
     {
         return input.cast<GrayScale>();
     }
