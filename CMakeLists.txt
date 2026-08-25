@@ -374,17 +374,42 @@ endif()
 #  Hardware-Software Co-Design (CIRCT & Software Twin)
 # ------------------------------------------------------------------------------------
 
-add_executable(tinydip_hw_kernel_tests test/hw/hw_kernel_tests.cpp)
+# Add the custom cmake directory to the module search path
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-target_link_libraries(tinydip_hw_kernel_tests PUBLIC TBB::tbb ${OpenCV_LIBS})
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-    target_link_libraries(tinydip_hw_kernel_tests PUBLIC stdc++fs)
-endif()
+# Locate Polygeist and CIRCT using our custom Find modules
+find_package(Polygeist REQUIRED)
+find_package(CIRCT REQUIRED)
 
-# --- Hardware Synthesis Pipeline Target (Polygeist / CIRCT) ---
-set(POLYGEIST_EXE "polygeist" CACHE STRING "")
-set(CIRCT_OPT_EXE "circt-opt" CACHE STRING "")
-set(CIRCT_TRANSLATE_EXE "circt-translate" CACHE STRING "")
+# Define input and output paths
+set(HW_SOURCE "${CMAKE_SOURCE_DIR}/test/tinydip_hw_kernel_tests.cpp")
+set(MLIR_OUTPUT "${CMAKE_BINARY_DIR}/tinydip_hw.mlir")
+set(SV_OUTPUT "${CMAKE_BINARY_DIR}/tinydip_hw.sv")
+
+# Polygeist (C++ to MLIR)
+add_custom_command(
+    OUTPUT ${MLIR_OUTPUT}
+    COMMAND ${POLYGEIST_EXECUTABLE} --std=c++20 ${HW_SOURCE} -o ${MLIR_OUTPUT}
+    DEPENDS ${HW_SOURCE}
+    COMMENT "Generating MLIR from C++ source via Polygeist..."
+)
+
+# CIRCT (MLIR to SystemVerilog)
+# Utilizing the variables correctly exported by FindCIRCT.cmake
+add_custom_command(
+    OUTPUT ${SV_OUTPUT}
+    COMMAND ${CIRCT_OPT_EXECUTABLE} --pass-pipeline="builtin.module(hw-legalize-names,hw.module(hw-flatten-io))" ${MLIR_OUTPUT} -o ${CMAKE_BINARY_DIR}/temp.mlir
+    COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} --export-verilog ${CMAKE_BINARY_DIR}/temp.mlir -o ${SV_OUTPUT}
+    DEPENDS ${MLIR_OUTPUT}
+    COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT..."
+)
+
+# Custom Target
+add_custom_target(
+    synth_hardware
+    DEPENDS ${SV_OUTPUT}
+    COMMENT "Hardware synthesis pipeline completed."
+)
 
 # target_include_directories
 # Add include directories needed by ALL targets (like TBB)
