@@ -31,27 +31,31 @@ jobs:
   software-twin-verification:
     name: CPU Software Twin Test (GCC 17)
     runs-on: self-hosted
-    #container:
-    #  image: ghcr.io/
+    container:
+      # Explicitly hardcoded to lowercase 'jimmy-hu' to comply with Docker registry rules
+      # as GitHub expressions lack a built-in lowercase function during Job Setup.
+      image: ghcr.io/jimmy-hu/gcc17-daily-env:latest 
     
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Configure CMake (Software Twin Mode)
-        run: >
-          cmake -S . -B build_sw 
-          -DTINYDIP_BUILD_HW_KERNELS=ON
-          -DCMAKE_BUILD_TYPE=Release 
-          -DCMAKE_CXX_COMPILER=g++ 
-          -DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror"
+      - name: Configure ccache persistence
+        uses: actions/cache@v4
+        with:
+          path: /github/home/.cache/ccache
+          key: ccache-gcc17-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            ccache-gcc17-${{ runner.os }}-
 
-      - name: Build Hardware Kernel Tests
-        run: cmake --build build_sw --target tinydip_hw_kernel_tests --parallel $(nproc)
+      - name: Configure CMake (Preset: hw-codesign)
+        run: cmake --preset hw-codesign -DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror"
+
+      - name: Build Hardware Kernel Tests (Preset: hw-build-twin)
+        run: cmake --build --preset hw-build-twin
 
       - name: Execute Software Twin Logic
-        run: ./build_sw/tinydip_hw_kernel_tests
-
+        run: ./build_hw-codesign/tinydip_hw_kernel_tests
 
   # ------------------------------------------------------------------------------
   # Job 2: Hardware Synthesis Pipeline (Polygeist / CIRCT)
@@ -62,29 +66,23 @@ jobs:
   hardware-synthesis:
     name: RTL Synthesis (CIRCT)
     runs-on: self-hosted
-    #container:
-      #image: ghcr.io/
+    container:
+      # Explicitly hardcoded to lowercase 'jimmy-hu' to comply with Docker registry rules
+      image: ghcr.io/jimmy-hu/circt-toolchain:latest
       
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Configure CMake (Hardware Synthesis Mode)
-        run: cmake -S . -B build_hw -DTINYDIP_BUILD_HW_KERNELS=ON
+      - name: Configure CMake (Preset: hw-codesign)
+        run: cmake --preset hw-codesign
 
-      - name: Run CIRCT Synthesis Pipeline
-        run: cmake --build build_hw --target synth_hardware
+      - name: Run CIRCT Synthesis Pipeline (Preset: hw-build-rtl)
+        run: cmake --build --preset hw-build-rtl
 
       - name: Upload Hardware RTL Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: tinydip-systemverilog-rtl
-          path: build_hw/*.sv
+          path: build_hw-codesign/*.sv
           retention-days: 7
-
-
-
-
-
-
-
