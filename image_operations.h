@@ -898,7 +898,7 @@ namespace TinyDIP
     }
 
     //  hsv2rgb function implementation
-    static auto hsv2rgb(HSV input)
+    inline auto hsv2rgb(HSV input)
     {
         RGB output{};
         long double H = input.channels[0], S = input.channels[1], Max = input.channels[2];
