@@ -389,14 +389,14 @@ if(TINYDIP_BUILD_HW_KERNELS)
     find_package(CIRCT REQUIRED)
 
     # --- Software Twin Verification Target (GCC 17) ---
-    add_executable(tinydip_hw_kernel_tests test/tinydip_hw_kernel_tests.cpp)
+    add_executable(tinydip_hw_kernel_tests test/hw/hw_kernel_tests.cpp)
     target_link_libraries(tinydip_hw_kernel_tests PUBLIC TBB::tbb ${OpenCV_LIBS})
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
         target_link_libraries(tinydip_hw_kernel_tests PUBLIC stdc++fs)
     endif()
 
     # --- Hardware Synthesis Pipeline Target (Polygeist / CIRCT) ---
-    set(HW_SOURCE "${CMAKE_SOURCE_DIR}/test/tinydip_hw_kernel_tests.cpp")
+    set(HW_SOURCE "${CMAKE_SOURCE_DIR}/test/hw/hw_kernel_tests.cpp")
     set(MLIR_OUTPUT "${CMAKE_BINARY_DIR}/tinydip_hw.mlir")
     set(SV_OUTPUT "${CMAKE_BINARY_DIR}/tinydip_hw.sv")
 
