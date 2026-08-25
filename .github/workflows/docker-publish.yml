@@ -1,0 +1,38 @@
+name: Publish CI Environment Images
+
+# Trigger this workflow only when Dockerfiles are modified
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'docker/**'
+  workflow_dispatch: # Allows manual trigger from the GitHub UI
+
+# CRITICAL: Grant permission to upload packages to GHCR
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push-circt:
+    name: Build CIRCT Toolchain Image
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push CIRCT Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/circt.Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/circt-toolchain:latest
