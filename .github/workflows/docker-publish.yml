@@ -36,3 +36,26 @@ jobs:
           file: ./docker/circt.Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/circt-toolchain:latest
+
+  build-and-push-gcc17:
+    name: Build GCC 17 Daily Environment
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push GCC 17 Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/gcc17.Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/gcc17-daily-env:latest
