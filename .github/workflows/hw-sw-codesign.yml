@@ -48,13 +48,13 @@ jobs:
           restore-keys: |
             ccache-gcc17-${{ runner.os }}-
 
-      - name: Configure CMake (Preset: hw-codesign)
+      - name: "Configure CMake (Preset: hw-codesign)"
         run: cmake --preset hw-codesign -DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror"
 
-      - name: Build Hardware Kernel Tests (Preset: hw-build-twin)
+      - name: "Build Hardware Kernel Tests (Preset: hw-build-twin)"
         run: cmake --build --preset hw-build-twin
 
-      - name: Execute Software Twin Logic
+      - name: "Execute Software Twin Logic"
         run: ./build_hw-codesign/tinydip_hw_kernel_tests
 
   # ------------------------------------------------------------------------------
@@ -64,23 +64,23 @@ jobs:
   # Translates the verified C++ hardware kernels into MLIR and ultimately lowers 
   # them into synthesizable SystemVerilog (FIRRTL) using the LLVM/CIRCT toolchain.
   hardware-synthesis:
-    name: RTL Synthesis (CIRCT)
+    name: "RTL Synthesis (CIRCT)"
     runs-on: self-hosted
     container:
       # Explicitly hardcoded to lowercase 'jimmy-hu' to comply with Docker registry rules
       image: ghcr.io/jimmy-hu/circt-toolchain:latest
       
     steps:
-      - name: Checkout Source Code
+      - name: "Checkout Source Code"
         uses: actions/checkout@v4
 
-      - name: Configure CMake (Preset: hw-codesign)
+      - name: "Configure CMake (Preset: hw-codesign)"
         run: cmake --preset hw-codesign
 
-      - name: Run CIRCT Synthesis Pipeline (Preset: hw-build-rtl)
+      - name: "Run CIRCT Synthesis Pipeline (Preset: hw-build-rtl)"
         run: cmake --build --preset hw-build-rtl
 
-      - name: Upload Hardware RTL Artifacts
+      - name: "Upload Hardware RTL Artifacts"
         uses: actions/upload-artifact@v4
         with:
           name: tinydip-systemverilog-rtl
