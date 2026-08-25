@@ -22,6 +22,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # Convert the repository owner name to strictly lowercase to satisfy Docker naming rules
+      - name: Convert owner to lower case
+        run: echo "REPO_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -35,7 +39,8 @@ jobs:
           context: .
           file: ./docker/circt.Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/circt-toolchain:latest
+          # Use the environment variable we just created
+          tags: ghcr.io/${{ env.REPO_OWNER }}/circt-toolchain:latest
 
   build-and-push-gcc17:
     name: Build GCC 17 Daily Environment
@@ -44,6 +49,10 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      # Convert the repository owner name to strictly lowercase to satisfy Docker naming rules
+      - name: Convert owner to lower case
+        run: echo "REPO_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -58,4 +67,5 @@ jobs:
           context: .
           file: ./docker/gcc17.Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/gcc17-daily-env:latest
+          # Use the environment variable we just created
+          tags: ghcr.io/${{ env.REPO_OWNER }}/gcc17-daily-env:latest
