@@ -43,9 +43,17 @@
             "jobs": 0
         },
         {
-            "name": "hw-build",
+            "name": "hw-build-twin",
+            "displayName": "Build Software Twin Kernels",
             "configurePreset": "hw-codesign",
-            "targets": ["synth_hardware", "tinydip_hw_kernel_tests"],
+            "targets": ["tinydip_hw_kernel_tests"],
+            "jobs": 0
+        },
+        {
+            "name": "hw-build-rtl",
+            "displayName": "Run Hardware Synthesis (CIRCT)",
+            "configurePreset": "hw-codesign",
+            "targets": ["synth_hardware"],
             "jobs": 0
         }
     ]
