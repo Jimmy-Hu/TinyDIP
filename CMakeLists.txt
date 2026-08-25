@@ -374,42 +374,58 @@ endif()
 #  Hardware-Software Co-Design (CIRCT & Software Twin)
 # ------------------------------------------------------------------------------------
 
-# Add the custom cmake directory to the module search path
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+# Define a build option for hardware synthesis, default is OFF to protect pure software CI
+option(TINYDIP_BUILD_HW_KERNELS "Enable hardware synthesis and twin tests (requires Polygeist/CIRCT)" OFF)
 
-# Locate Polygeist and CIRCT using our custom Find modules
-find_package(Polygeist REQUIRED)
-find_package(CIRCT REQUIRED)
+if(TINYDIP_BUILD_HW_KERNELS)
+    message(STATUS "TINYDIP_BUILD_HW_KERNELS is ON: Configuring hardware synthesis pipeline...")
 
-# Define input and output paths
-set(HW_SOURCE "${CMAKE_SOURCE_DIR}/test/tinydip_hw_kernel_tests.cpp")
-set(MLIR_OUTPUT "${CMAKE_BINARY_DIR}/tinydip_hw.mlir")
-set(SV_OUTPUT "${CMAKE_BINARY_DIR}/tinydip_hw.sv")
+    # Add the custom cmake directory to the module search path
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-# Polygeist (C++ to MLIR)
-add_custom_command(
-    OUTPUT ${MLIR_OUTPUT}
-    COMMAND ${POLYGEIST_EXECUTABLE} --std=c++20 ${HW_SOURCE} -o ${MLIR_OUTPUT}
-    DEPENDS ${HW_SOURCE}
-    COMMENT "Generating MLIR from C++ source via Polygeist..."
-)
+    # Locate Polygeist and CIRCT using our custom Find modules
+    # The REQUIRED keyword is now safe because this block only runs in the HW CI container
+    find_package(Polygeist REQUIRED)
+    find_package(CIRCT REQUIRED)
 
-# CIRCT (MLIR to SystemVerilog)
-# Utilizing the variables correctly exported by FindCIRCT.cmake
-add_custom_command(
-    OUTPUT ${SV_OUTPUT}
-    COMMAND ${CIRCT_OPT_EXECUTABLE} --pass-pipeline="builtin.module(hw-legalize-names,hw.module(hw-flatten-io))" ${MLIR_OUTPUT} -o ${CMAKE_BINARY_DIR}/temp.mlir
-    COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} --export-verilog ${CMAKE_BINARY_DIR}/temp.mlir -o ${SV_OUTPUT}
-    DEPENDS ${MLIR_OUTPUT}
-    COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT..."
-)
+    # --- Software Twin Verification Target (GCC 17) ---
+    add_executable(tinydip_hw_kernel_tests test/tinydip_hw_kernel_tests.cpp)
+    target_link_libraries(tinydip_hw_kernel_tests PUBLIC TBB::tbb ${OpenCV_LIBS})
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+        target_link_libraries(tinydip_hw_kernel_tests PUBLIC stdc++fs)
+    endif()
 
-# Custom Target
-add_custom_target(
-    synth_hardware
-    DEPENDS ${SV_OUTPUT}
-    COMMENT "Hardware synthesis pipeline completed."
-)
+    # --- Hardware Synthesis Pipeline Target (Polygeist / CIRCT) ---
+    set(HW_SOURCE "${CMAKE_SOURCE_DIR}/test/tinydip_hw_kernel_tests.cpp")
+    set(MLIR_OUTPUT "${CMAKE_BINARY_DIR}/tinydip_hw.mlir")
+    set(SV_OUTPUT "${CMAKE_BINARY_DIR}/tinydip_hw.sv")
+
+    # Polygeist (C++ to MLIR)
+    add_custom_command(
+        OUTPUT ${MLIR_OUTPUT}
+        COMMAND ${POLYGEIST_EXECUTABLE} --std=c++20 ${HW_SOURCE} -o ${MLIR_OUTPUT}
+        DEPENDS ${HW_SOURCE}
+        COMMENT "Generating MLIR from C++ source via Polygeist..."
+    )
+
+    # CIRCT (MLIR to SystemVerilog)
+    add_custom_command(
+        OUTPUT ${SV_OUTPUT}
+        COMMAND ${CIRCT_OPT_EXECUTABLE} --pass-pipeline="builtin.module(hw-legalize-names,hw.module(hw-flatten-io))" ${MLIR_OUTPUT} -o ${CMAKE_BINARY_DIR}/temp.mlir
+        COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} --export-verilog ${CMAKE_BINARY_DIR}/temp.mlir -o ${SV_OUTPUT}
+        DEPENDS ${MLIR_OUTPUT}
+        COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT..."
+    )
+
+    # Custom Target
+    add_custom_target(
+        synth_hardware
+        DEPENDS ${SV_OUTPUT}
+        COMMENT "Hardware synthesis pipeline completed."
+    )
+else()
+    message(STATUS "TINYDIP_BUILD_HW_KERNELS is OFF: Skipping hardware synthesis pipeline.")
+endif()
 
 # target_include_directories
 # Add include directories needed by ALL targets (like TBB)
