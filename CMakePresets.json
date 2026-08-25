@@ -1,0 +1,52 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 21,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build_${presetName}",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
+            "name": "sw-release",
+            "displayName": "Software Only (Release)",
+            "description": "Standard build for pure CPU software verification (Default CI)",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "TINYDIP_BUILD_HW_KERNELS": "OFF"
+            }
+        },
+        {
+            "name": "hw-codesign",
+            "displayName": "Hardware-Software Co-Design",
+            "description": "Enables Polygeist and CIRCT for hardware kernel synthesis",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "TINYDIP_BUILD_HW_KERNELS": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "sw-build",
+            "configurePreset": "sw-release",
+            "jobs": 0
+        },
+        {
+            "name": "hw-build",
+            "configurePreset": "hw-codesign",
+            "targets": ["synth_hardware", "tinydip_hw_kernel_tests"],
+            "jobs": 0
+        }
+    ]
+}
