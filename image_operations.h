@@ -853,7 +853,7 @@ namespace TinyDIP
     #endif
 
     //  rgb2hsv function implementation
-    static auto rgb2hsv(RGB input)
+    inline auto rgb2hsv(RGB input)
     {
         HSV output{};
         std::uint8_t Red = input.channels[0], Green = input.channels[1], Blue = input.channels[2];
