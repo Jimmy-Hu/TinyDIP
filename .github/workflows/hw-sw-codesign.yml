@@ -63,7 +63,7 @@ jobs:
             ccache-gcc17-${{ runner.os }}-
 
       - name: "Configure CMake (Preset: hw-codesign)"
-        run: cmake --preset hw-codesign -DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror" -DENABLE_CUDA=OFF -DPOLYGEIST_EXECUTABLE=/bin/true
+        run: cmake --preset hw-codesign -DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror" -DENABLE_CUDA=OFF -DPOLYGEIST_EXECUTABLE=/bin/true -DCIRCT_OPT_EXECUTABLE=/bin/true -DCIRCT_TRANSLATE_EXECUTABLE=/bin/true
 
       - name: "Build Hardware Kernel Tests (Preset: hw-build-twin)"
         run: cmake --build --preset hw-build-twin
