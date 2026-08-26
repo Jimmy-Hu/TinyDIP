@@ -30,7 +30,7 @@ jobs:
   #    when executed on a standard CPU.
   software-twin-verification:
     name: CPU Software Twin Test (GCC 17)
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     container:
       # Explicitly hardcoded to lowercase 'jimmy-hu' to comply with Docker registry rules
       # as GitHub expressions lack a built-in lowercase function during Job Setup.
@@ -65,7 +65,7 @@ jobs:
   # them into synthesizable SystemVerilog (FIRRTL) using the LLVM/CIRCT toolchain.
   hardware-synthesis:
     name: "RTL Synthesis (CIRCT)"
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     container:
       # Explicitly hardcoded to lowercase 'jimmy-hu' to comply with Docker registry rules
       image: ghcr.io/jimmy-hu/circt-toolchain:latest
