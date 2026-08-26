@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     build-essential flex bison git \
     libgmp-dev libmpfr-dev libmpc-dev \
     cmake ninja-build clang-format \
-    libtbb-dev libomp-dev libopencv-dev libboost-dev \
+    libtbb-dev libomp-dev libopencv-dev libboost-dev libboost-all-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Clone the GCC master branch (currently GCC 17 trunk) and compile
