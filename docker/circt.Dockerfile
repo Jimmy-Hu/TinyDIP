@@ -11,6 +11,12 @@ RUN apt-get update && apt-get install -y \
     gzip \
     ca-certificates \
     libstdc++6 \
+    cmake \
+    make \
+    git \
+    libtbb-dev \
+    libomp-dev \
+    libopencv-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and extract Pre-built CIRCT binaries directly
