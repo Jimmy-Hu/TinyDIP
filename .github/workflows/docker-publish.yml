@@ -42,6 +42,21 @@ jobs:
           # Use the environment variable we just created
           tags: ghcr.io/${{ env.REPO_OWNER }}/circt-toolchain:latest
 
+      # Verify the toolchain installation right after pushing the image
+      - name: Verify CIRCT and Polygeist Paths and Versions
+        run: |
+          docker run --rm ghcr.io/${{ env.REPO_OWNER }}/circt-toolchain:latest /bin/sh -c "
+            echo '=== Verifying CIRCT (firtool) ==='
+            /opt/circt/bin/firtool --version
+            
+            echo '=== Verifying Polygeist (cgeist) ==='
+            /opt/polygeist/bin/cgeist --version
+            
+            echo '=== Verifying Global PATH accessibility ==='
+            which firtool || echo 'Warning: firtool is not in the global PATH'
+            which cgeist || echo 'Warning: cgeist is not in the global PATH'
+          "
+
   build-and-push-gcc17:
     name: Build GCC 17 Daily Environment
     runs-on: ubuntu-latest
