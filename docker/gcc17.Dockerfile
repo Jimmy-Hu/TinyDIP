@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
 # Clone the GCC master branch (currently GCC 17 trunk) and compile
 # Using depth=1 to fetch only the latest daily commit to save bandwidth
 RUN echo "Cloning and building GCC 17 from source..." && \
-    git clone --depth 1 https://gcc.gnu.org/git/gcc.git /tmp/gcc-source && \
+    git clone --depth 1 https://github.com/gcc-mirror/gcc.git /tmp/gcc-source && \
     mkdir /tmp/gcc-build && cd /tmp/gcc-build && \
     /tmp/gcc-source/configure \
         --prefix=/opt/gcc-17 \
