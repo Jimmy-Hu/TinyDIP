@@ -47,8 +47,9 @@ RUN echo "Cloning and building Polygeist from source (this will take 1-2 hours).
         -DClang_DIR=/tmp/polygeist/llvm-project/build/lib/cmake/clang \
         -DCMAKE_BUILD_TYPE=Release && \
     ninja && \
-    mkdir -p /opt/polygeist/bin && \
+    mkdir -p /opt/polygeist/bin /opt/polygeist/lib && \
     cp bin/cgeist /opt/polygeist/bin/ && \
+    cp -r /tmp/polygeist/llvm-project/build/lib/clang /opt/polygeist/lib/ && \
     rm -rf /tmp/polygeist
 
 # Inject the binaries into the system PATH
