@@ -14,6 +14,8 @@ RUN apt-get update && apt-get install -y \
     libstdc++6 \
     cmake \
     git \
+    ninja-build \
+    python3 \
     libtbb-dev \
     libomp-dev \
     libopencv-dev \
@@ -28,12 +30,26 @@ RUN echo "Downloading pre-built CIRCT binaries..." && \
     wget -qO- https://github.com/llvm/circt/releases/download/firtool-1.156.0/circt-full-shared-linux-x64.tar.gz | \
     tar -xz -C /opt/circt --strip-components=1
 
-# Download and extract Pre-built Polygeist binaries
-# Polygeist also occasionally provides pre-built binaries, or you can point to a community build
-RUN echo "Downloading pre-built Polygeist binaries..." && \
-    mkdir -p /opt/polygeist && \
-    wget -qO- https://github.com/llvm/Polygeist/releases/download/v0.0.4/Polygeist-ubuntu-20.04.tar.gz | \
-    tar -xz -C /opt/polygeist --strip-components=1 || echo "Warning: Polygeist binary fetch failed, fallback needed."
+# Build Polygeist from source (Official repository does not provide pre-built binaries)
+# This requires compiling the exact matching LLVM submodule first.
+RUN echo "Cloning and building Polygeist from source (this will take 1-2 hours)..." && \
+    git clone --recursive https://github.com/llvm/Polygeist.git /tmp/polygeist && \
+    mkdir -p /tmp/polygeist/llvm-project/build && cd /tmp/polygeist/llvm-project/build && \
+    cmake -G Ninja ../llvm \
+        -DLLVM_ENABLE_PROJECTS="clang;mlir" \
+        -DLLVM_TARGETS_TO_BUILD="host" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DLLVM_ENABLE_ASSERTIONS=ON && \
+    ninja && \
+    mkdir -p /tmp/polygeist/build && cd /tmp/polygeist/build && \
+    cmake -G Ninja .. \
+        -DMLIR_DIR=/tmp/polygeist/llvm-project/build/lib/cmake/mlir \
+        -DClang_DIR=/tmp/polygeist/llvm-project/build/lib/cmake/clang \
+        -DCMAKE_BUILD_TYPE=Release && \
+    ninja && \
+    mkdir -p /opt/polygeist/bin && \
+    cp bin/cgeist /opt/polygeist/bin/ && \
+    rm -rf /tmp/polygeist
 
 # Inject the binaries into the system PATH
 ENV PATH="/opt/circt/bin:/opt/polygeist/bin:${PATH}"
