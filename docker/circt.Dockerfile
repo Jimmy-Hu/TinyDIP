@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y \
     libopencv-dev \
     libboost-dev \
     libboost-all-dev \
+    verilator \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and extract Pre-built CIRCT binaries directly
