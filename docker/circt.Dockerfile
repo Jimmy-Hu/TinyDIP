@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
 # Download and extract Pre-built CIRCT binaries directly
 RUN echo "Downloading pre-built CIRCT binaries..." && \
     mkdir -p /opt/circt && \
-    wget -qO- https://github.com/llvm/circt/releases/download/firtool-1.75.0/circt-bin-ubuntu-20.04.tar.gz | \
+    wget -qO- https://github.com/llvm/circt/releases/download/firtool-1.156.0/circt-full-shared-linux-x64.tar.gz | \
     tar -xz -C /opt/circt --strip-components=1
 
 # Download and extract Pre-built Polygeist binaries
