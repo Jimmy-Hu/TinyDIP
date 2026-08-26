@@ -17,6 +17,8 @@ RUN apt-get update && apt-get install -y \
     libtbb-dev \
     libomp-dev \
     libopencv-dev \
+    libboost-dev \
+    libboost-all-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and extract Pre-built CIRCT binaries directly
