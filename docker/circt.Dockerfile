@@ -6,13 +6,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install runtime dependencies and download tools (wget, tar)
 RUN apt-get update && apt-get install -y \
+    build-essential \
     wget \
     tar \
     gzip \
     ca-certificates \
     libstdc++6 \
     cmake \
-    make \
     git \
     libtbb-dev \
     libomp-dev \
