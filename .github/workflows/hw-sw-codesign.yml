@@ -12,10 +12,22 @@ name: TinyDIP Hardware-Software Co-Design CI
 # ==============================================================================
 
 on:
+  # Trigger on standard code pushes, but strictly ignore changes in the docker folder
+  # to prevent race conditions when rebuilding the infrastructure images.
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - 'docker/**'
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - 'docker/**'
+      
+  # Trigger automatically after the CI Environment Images workflow completes.
+  workflow_run:
+    workflows: [ "Publish CI Environment Images" ]
+    types:
+      - completed
 
 jobs:
   # ------------------------------------------------------------------------------
@@ -31,6 +43,8 @@ jobs:
   software-twin-verification:
     name: CPU Software Twin Test (GCC 17)
     runs-on: ubuntu-latest
+    # Crucial safety check: Run ONLY if it's a normal push/PR, OR if the preceding Docker build succeeded.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     container:
       # Explicitly hardcoded to lowercase 'jimmy-hu' to comply with Docker registry rules
       # as GitHub expressions lack a built-in lowercase function during Job Setup.
@@ -66,6 +80,8 @@ jobs:
   hardware-synthesis:
     name: "RTL Synthesis (CIRCT)"
     runs-on: ubuntu-latest
+    # Crucial safety check applies here as well
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     container:
       # Explicitly hardcoded to lowercase 'jimmy-hu' to comply with Docker registry rules
       image: ghcr.io/jimmy-hu/circt-toolchain:latest
