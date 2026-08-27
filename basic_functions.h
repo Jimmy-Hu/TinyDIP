@@ -377,6 +377,20 @@ namespace TinyDIP
     template <typename T>
     concept arithmetic = std::is_arithmetic_v<T> or is_complex<T>::value;
 
+    namespace execution
+    {
+        //  hardware_parallel_unroll_policy struct implementation
+        // Hardware-targeted parallel unroll policy
+        struct hardware_parallel_unroll_policy
+        {
+            constexpr hardware_parallel_unroll_policy() noexcept = default;
+        };
+
+
+        // Global policy instances (similar to std::execution::par_unseq)
+        inline constexpr hardware_parallel_unroll_policy hw_unroll{};
+    }
+
     constexpr bool is_integer()
     {
         return false;
