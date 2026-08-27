@@ -50,6 +50,20 @@ namespace TinyDIP
     namespace detail
     {
 
+        //  print_value template function implementation
+        template <typename T>
+        constexpr void print_value(std::ostream& os, const T& value)
+        {
+            #if defined(__cpp_lib_print)
+            if constexpr (is_formattable_compat<T, char>)
+            {
+                std::print(os, "{}", value);
+                return;
+            }
+            #endif
+            os << value;
+        }
+        
         //  print_out_of_range function implementation
         constexpr void print_out_of_range(std::ostream& os, std::size_t index, std::size_t count)
         {
