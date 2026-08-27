@@ -3,13 +3,20 @@
 #include <concepts>
 #include <cstdlib>
 #include <execution>
-#include <iostream>
 #include <type_traits>
+
+// ---------------------------------------------------------
+// Hide Software-Only Headers from Polygeist
+// ---------------------------------------------------------
+#ifndef __POLYGEIST__
+#include <iostream>
 #include <vector>
+#endif
+
 #include "../../base_types.h"
 #include "../../basic_functions.h"
-#include "../../image.h"
 #include "../../hw_algorithms.h"
+#include "../../image.h"
 #include "../../timer.h"
 
 // ---------------------------------------------------------
@@ -126,8 +133,34 @@ void process_and_stream_image(
 }
 
 // ---------------------------------------------------------
+// Top-Level Hardware Entry Point (Synthesizable)
+// ---------------------------------------------------------
+#ifdef __POLYGEIST__
+
+// This function forces Polygeist to instantiate the template so it generates actual MLIR hardware logic.
+// We use a basic double type and sequential execution policy for the baseline hardware test.
+extern "C" void hw_top_level_kernel(
+    const double* const input_data,
+    double* const processed_data,
+    const std::size_t size,
+    FIFO<double, 16>& output_stream)
+{
+    process_and_stream_image(
+        std::execution::seq,
+        input_data,
+        processed_data,
+        size,
+        output_stream);
+}
+
+#endif // __POLYGEIST__
+
+
+// ---------------------------------------------------------
 // Unit Test and Verification
 // ---------------------------------------------------------
+
+#ifndef __POLYGEIST__
 
 void test_process_and_stream_image()
 {
@@ -167,6 +200,13 @@ void test_process_and_stream_image()
         read_count++;
     }
 
+    // Expected Output:
+    // 1.52346
+    // 3.04691
+    // 4.57037
+    // 6.09383
+    // 7.61728
+
     std::cout << "--- Unit test finished ---\n";
 }
 
@@ -175,3 +215,5 @@ int main()
     test_process_and_stream_image();
     return EXIT_SUCCESS;
 }
+
+#endif // __POLYGEIST__
