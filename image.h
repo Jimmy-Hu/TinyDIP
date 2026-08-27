@@ -3,6 +3,7 @@
 #ifndef TINYDIP_IMAGE_H       // image.h header guard, follow the suggestion from https://codereview.stackexchange.com/a/293832/231235
 #define TINYDIP_IMAGE_H
 
+#include <version>
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -17,13 +18,15 @@
 #include <iterator>
 #include <list>
 #include <numeric>
+#if defined(__cpp_lib_print)
 #include <print>
+#endif
 #include <ranges>
 #include <string>
 #include <type_traits>
 #include <variant>
 #include <vector>
-#include <version>
+
 #include "base_types.h"
 #include "basic_functions.h"
 
