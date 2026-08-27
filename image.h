@@ -474,14 +474,7 @@ namespace TinyDIP
                     os << "( ";
                     for (std::size_t i = 0; i < std::size(value.channels); ++i) 
                     {
-                        if constexpr (is_formattable_compat<decltype(+value.channels[i]), char>)
-                        {
-                            std::print(os, "{}", +value.channels[i]);
-                        }
-                        else
-                        {
-                            os << +value.channels[i];
-                        }
+                        detail::print_value(os, +value.channels[i]);
                         
                         if (i != std::size(value.channels) - 1)
                         {
@@ -494,26 +487,12 @@ namespace TinyDIP
                 {
                     // For non-fundamental types (like custom structs), try modern formatting first, 
                     // otherwise fall back to standard stream insertion safely.
-                    if constexpr (is_formattable_compat<ElementT, char>)
-                    {
-                        std::print(os, "{}", value);
-                    }
-                    else
-                    {
-                        os << value;
-                    }
+                    detail::print_value(os, value);
                 }
                 else
                 {
                     // Use unary '+' to ensure char types are printed as numbers
-                    if constexpr (is_formattable_compat<decltype(+value), char>)
-                    {
-                        std::print(os, "{}", +value);
-                    }
-                    else
-                    {
-                        os << +value;
-                    }
+                    detail::print_value(os, +value);
                 }
             };
 
