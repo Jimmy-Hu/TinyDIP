@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     libboost-dev \
     libboost-all-dev \
     verilator \
+    libz3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and extract Pre-built CIRCT binaries directly
