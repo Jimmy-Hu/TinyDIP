@@ -47,6 +47,23 @@
 
 namespace TinyDIP
 {
+    namespace detail
+    {
+
+        //  print_out_of_range function implementation
+        constexpr void print_out_of_range(std::ostream& os, std::size_t index, std::size_t count)
+        {
+            #if defined(__cpp_lib_print)
+            if constexpr (is_formattable_compat<std::size_t, char>)
+            {
+                std::print(os, "index = {}, count = {}\n", index, count);
+                return;
+            }
+            #endif
+            os << "index = " << index << ", count = " << count << '\n';
+        }
+    }
+
     //  is_streamable concept
     //  Concept to check if a type supports the << operator with std::ostream
     template<typename T>
