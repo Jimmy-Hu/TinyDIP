@@ -403,7 +403,7 @@ if(TINYDIP_BUILD_HW_KERNELS)
     # Polygeist (C++ to MLIR)
     add_custom_command(
         OUTPUT ${MLIR_OUTPUT}
-        COMMAND ${POLYGEIST_EXECUTABLE} --std=c++20 -D__POLYGEIST__ ${HW_SOURCE} -o ${MLIR_OUTPUT}
+        COMMAND ${POLYGEIST_EXECUTABLE} -S --std=c++20 -D__POLYGEIST__ ${HW_SOURCE} -o ${MLIR_OUTPUT}
         DEPENDS ${HW_SOURCE}
         COMMENT "Generating MLIR from C++ source via Polygeist..."
     )
@@ -411,8 +411,8 @@ if(TINYDIP_BUILD_HW_KERNELS)
     # CIRCT (MLIR to SystemVerilog)
     add_custom_command(
         OUTPUT ${SV_OUTPUT}
-        COMMAND ${CIRCT_OPT_EXECUTABLE} --pass-pipeline="builtin.module(hw-legalize-names,hw.module(hw-flatten-io))" ${MLIR_OUTPUT} -o ${CMAKE_BINARY_DIR}/temp.mlir
-        COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} --export-verilog ${CMAKE_BINARY_DIR}/temp.mlir -o ${SV_OUTPUT}
+        COMMAND ${CIRCT_OPT_EXECUTABLE} --pass-pipeline="builtin.module(hw-legalize-names,hw.module(hw-flatten-io))" ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.opt.mlir
+        COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} --export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${SV_OUTPUT}
         DEPENDS ${MLIR_OUTPUT}
         COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT..."
     )
