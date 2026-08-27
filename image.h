@@ -340,14 +340,7 @@ namespace TinyDIP
         {
             if (index >= count())
             {
-                if constexpr (is_formattable_compat<std::size_t, char>)
-                {
-                    std::print(os, "index = {}, count = {}\n", index, count());
-                }
-                else
-                {
-                    os << "index = " << index << ", count = " << count() << '\n';
-                }
+                detail::print_out_of_range(os, index, count());
                 throw std::out_of_range("Given index out of range!");
             }
             return image_data[index];
