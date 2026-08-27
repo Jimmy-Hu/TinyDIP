@@ -5773,7 +5773,13 @@ namespace TinyDIP
     }
 
     //  windowed_filter template function implementation
-    template<class ElementT, class ExecutionPolicy, class Filter, std::ranges::input_range SizeRange>
+    template<
+        class ElementT,
+        class ExecutionPolicy,
+        class Filter,
+        std::ranges::input_range SizeRange,
+        typename Callback = void(*)(double)
+    >
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and
              std::invocable<Filter, Image<ElementT>> and
              (std::same_as<std::ranges::range_value_t<SizeRange>, std::size_t> or
@@ -5785,7 +5791,7 @@ namespace TinyDIP
         const Filter filter,
         const BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
         const ElementT& value_for_constant_padding = ElementT{},
-        const std::function<void(double)> progress_callback = nullptr
+        Callback progress_callback = nullptr
     )
     {
         const std::size_t dim = input.getDimensionality();
