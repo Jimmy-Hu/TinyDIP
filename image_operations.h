@@ -6048,7 +6048,7 @@ namespace TinyDIP
     }
 
     //  bilateral_filter template function implementation
-    template<class ExecutionPolicy, typename ElementT, class RangeKernel, class SpatialKernel, std::ranges::input_range SizeRange>
+    template<class ExecutionPolicy, typename ElementT, class RangeKernel, class SpatialKernel, std::ranges::input_range SizeRange, typename Callback = void(*)(double)>
     requires ((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) and
               ((std::same_as<ElementT, RGB>) ||
               (std::same_as<ElementT, RGB_DOUBLE>) ||
@@ -6063,7 +6063,7 @@ namespace TinyDIP
         RangeKernel range_kernel,
         SpatialKernel spatial_kernel,
         BoundaryCondition boundaryCondition = BoundaryCondition::mirror,
-        std::function<void(double)> progress_callback = nullptr
+        Callback progress_callback = nullptr
     )
     {
         return apply_each(
