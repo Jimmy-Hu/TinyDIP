@@ -19,6 +19,16 @@
 #include <opencv2/opencv.hpp>
 #endif
 
+#if defined(__GLIBCXX__)
+namespace __pstl::execution::v1
+{
+    template <>
+    struct is_execution_policy<TinyDIP::execution::hardware_parallel_unroll_policy> : std::true_type {};
+
+    template <>
+    struct is_execution_policy<TinyDIP::execution::hardware_pipelined_policy> : std::true_type {};
+}
+#else
 namespace std
 {
     // Register custom types as valid execution policies via trait specialization
@@ -27,7 +37,11 @@ namespace std
 
     template <>
     struct is_execution_policy<TinyDIP::execution::hardware_pipelined_policy> : std::true_type {};
+}
+#endif
 
+namespace std
+{
     // Intercept std::transform for hardware parallel unroll
     template <class InputIt, class OutputIt, class UnaryOperation>
     constexpr OutputIt transform(
