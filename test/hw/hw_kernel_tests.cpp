@@ -141,12 +141,12 @@ void process_and_stream_image(
 extern "C" void hw_top_level_kernel(
     const double* const input_data,
     double* const processed_data,
+    double* const output_stream_buffer,
+    std::size_t* const out_count,
     const std::size_t size)
 {
-    // Local instantiation of the policy (lvalue)
-    constexpr TinyDIP::execution::hardware_parallel_unroll_policy hw_policy{};
+    constexpr auto hw_policy = TinyDIP::execution::hardware_parallel_unroll_policy::tag;
     
-    // Local instantiation of the FIFO (synthesizes to on-chip registers/BRAM)
     FIFO<double, 16> internal_stream;
 
     process_and_stream_image(
@@ -156,6 +156,14 @@ extern "C" void hw_top_level_kernel(
         size,
         internal_stream
     );
+        
+    std::size_t count = 0;
+    while (!internal_stream.empty())
+    {
+        output_stream_buffer[count] = internal_stream.pop();
+        count++;
+    }
+    *out_count = count;
 }
 
 #endif // __POLYGEIST__
