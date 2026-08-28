@@ -19,6 +19,17 @@
 #include <opencv2/opencv.hpp>
 #endif
 
+namespace std
+{
+    // Register custom types as valid execution policies via trait specialization
+    template <>
+    struct is_execution_policy<TinyDIP::execution::hardware_parallel_unroll_policy> : std::true_type {};
+
+    template <>
+    struct is_execution_policy<TinyDIP::execution::hardware_pipelined_policy> : std::true_type {};
+
+}
+
 namespace TinyDIP
 {
     
