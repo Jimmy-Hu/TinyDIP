@@ -403,7 +403,7 @@ if(TINYDIP_BUILD_HW_KERNELS)
     # Polygeist (C++ to MLIR)
     add_custom_command(
         OUTPUT ${MLIR_OUTPUT}
-        COMMAND ${POLYGEIST_EXECUTABLE} -S --std=c++20 -D__POLYGEIST__ ${HW_SOURCE} -o ${MLIR_OUTPUT}
+        COMMAND ${POLYGEIST_EXECUTABLE} -S -O3 --std=c++20 -D__POLYGEIST__ ${HW_SOURCE} -o ${MLIR_OUTPUT}
         DEPENDS ${HW_SOURCE}
         COMMENT "Generating MLIR from C++ source via Polygeist..."
     )
