@@ -28,6 +28,25 @@ namespace std
     template <>
     struct is_execution_policy<TinyDIP::execution::hardware_pipelined_policy> : std::true_type {};
 
+    // Intercept std::transform for hardware parallel unroll
+    template <class InputIt, class OutputIt, class UnaryOperation>
+    constexpr OutputIt transform(
+        TinyDIP::execution::hardware_parallel_unroll_policy,
+        InputIt first1,
+        InputIt last1,
+        OutputIt d_first,
+        UnaryOperation unary_op)
+    {
+        // Pragma to instruct MLIR affine/scf generation for full unrolling
+        #pragma clang loop unroll(full)
+        while (first1 != last1)
+        {
+            *d_first = unary_op(*first1);
+            ++first1;
+            ++d_first;
+        }
+        return d_first;
+    }
 }
 
 namespace TinyDIP
