@@ -20,13 +20,16 @@
 #endif
 
 #if defined(__GLIBCXX__)
-namespace __pstl::execution::v1
+namespace __pstl::execution
 {
-    template <>
-    struct is_execution_policy<TinyDIP::execution::hardware_parallel_unroll_policy> : std::true_type {};
+    inline namespace v1
+    {
+        template <>
+        struct is_execution_policy<TinyDIP::execution::hardware_parallel_unroll_policy> : std::true_type {};
 
-    template <>
-    struct is_execution_policy<TinyDIP::execution::hardware_pipelined_policy> : std::true_type {};
+        template <>
+        struct is_execution_policy<TinyDIP::execution::hardware_pipelined_policy> : std::true_type {};
+    }
 }
 #else
 namespace std
