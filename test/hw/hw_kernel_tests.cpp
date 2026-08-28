@@ -42,7 +42,7 @@ template <TinyDIP::image_element_standard_floating_point_type T, std::size_t Dep
 class FIFO
 {
 private:
-    std::array<T, Depth> buffer{};
+    std::array<T, Depth> buffer;
     std::size_t head{};
     std::size_t tail{};
     std::size_t count{};
@@ -147,7 +147,7 @@ extern "C" void hw_top_level_kernel(
     constexpr TinyDIP::execution::hardware_parallel_unroll_policy hw_policy{};
     
     // Local instantiation of the FIFO (synthesizes to on-chip registers/BRAM)
-    FIFO<double, 16> internal_stream{};
+    FIFO<double, 16> internal_stream;
 
     process_and_stream_image(
         hw_policy,
