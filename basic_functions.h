@@ -379,22 +379,11 @@ namespace TinyDIP
 
     namespace execution
     {
-        //  hardware_parallel_unroll_policy struct implementation
-        // Hardware-targeted parallel unroll policy
-        struct hardware_parallel_unroll_policy
-        {
-            constexpr hardware_parallel_unroll_policy() noexcept = default;
-        };
+        enum class hardware_parallel_unroll_policy : int { tag };
+        enum class hardware_pipelined_policy : int { tag };
 
-        // Hardware-targeted pipelined stream policy
-        struct hardware_pipelined_policy
-        {
-            constexpr hardware_pipelined_policy() noexcept = default;
-        };
-
-        // Global policy instances (similar to std::execution::par_unseq)
-        inline constexpr hardware_parallel_unroll_policy hw_unroll{};
-        inline constexpr hardware_pipelined_policy hw_pipe{};
+        inline constexpr hardware_parallel_unroll_policy hw_unroll = hardware_parallel_unroll_policy::tag;
+        inline constexpr hardware_pipelined_policy hw_pipe = hardware_pipelined_policy::tag;
     }
 
     constexpr bool is_integer()
