@@ -34,7 +34,7 @@ template <
 requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
 [[gnu::always_inline]]
 inline void process_and_stream_image(
-    const ExecutionPolicy policy,
+    [[maybe_unused]] const ExecutionPolicy policy,
     const T* const input_data,
     T* const processed_data,
     const std::size_t size,
