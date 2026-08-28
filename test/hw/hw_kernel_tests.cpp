@@ -24,6 +24,9 @@ constexpr double default_pixel_processor(const double pixel)
     return pixel * 1.5234567890123456789;
 }
 
+// ---------------------------------------------------------
+// Algorithm Kernel (Struct-Free & Pointer-Free)
+// ---------------------------------------------------------
 template <
     typename ExecutionPolicy,
     TinyDIP::image_element_standard_floating_point_type T,
@@ -36,20 +39,20 @@ inline void process_and_stream_image(
     T* const processed_data,
     const std::size_t size,
     T* const output_stream_buffer,
-    std::size_t& stream_count,
-    T (*operation)(T) = default_pixel_processor)
+    std::size_t& stream_count)
 {
-    #pragma omp parallel
+    // Abandon std::transform at the hardware boundary.
+    // Direct C++ loop ensures NO function pointers or structs are passed as arguments.
+    // Seamlessly hybridize OpenMP for CPU and clang unroll for HW.
+#ifndef __POLYGEIST__
+    #pragma omp parallel for
+#else
+    #pragma clang loop unroll(full)
+#endif
+    for (std::size_t i = 0; i < size; ++i)
     {
-        #pragma omp single nowait
-        {
-            std::transform(
-                policy,
-                input_data,
-                input_data + size,
-                processed_data,
-                operation);
-        }
+        // Direct function call synthesizes perfectly into a hardwired multiplier.
+        processed_data[i] = default_pixel_processor(input_data[i]);
     }
 
     constexpr std::size_t MAX_STREAM_ITERATIONS = 16384;
