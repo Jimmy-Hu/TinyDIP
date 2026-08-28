@@ -96,7 +96,7 @@ template <
     std::regular_invocable<T> PixelOp = DefaultPixelProcessor>
 requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
 void process_and_stream_image(
-    ExecutionPolicy&& policy,
+    const ExecutionPolicy policy,
     const T* const input_data,
     T* const processed_data,
     const std::size_t size,
@@ -111,7 +111,7 @@ void process_and_stream_image(
         #pragma omp single nowait
         {
             std::transform(
-                std::forward<ExecutionPolicy>(policy),
+                policy,
                 input_data,
                 input_data + size,
                 processed_data,
