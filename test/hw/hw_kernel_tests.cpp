@@ -145,7 +145,7 @@ extern "C" void hw_top_level_kernel(
     FIFO<double, 16>& output_stream)
 {
     process_and_stream_image(
-        TinyDIP::execution::hw_unroll,
+        TinyDIP::execution::hardware_parallel_unroll_policy{},
         input_data,
         processed_data,
         size,
