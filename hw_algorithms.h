@@ -38,7 +38,9 @@ namespace std
         UnaryOperation unary_op)
     {
         // Pragma to instruct MLIR affine/scf generation for full unrolling
+        #ifdef __POLYGEIST__
         #pragma clang loop unroll(full)
+        #endif
         while (first1 != last1)
         {
             *d_first = unary_op(*first1);
