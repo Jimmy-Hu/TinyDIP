@@ -138,7 +138,6 @@ void process_and_stream_image(
 #ifdef __POLYGEIST__
 
 // This function forces Polygeist to instantiate the template so it generates actual MLIR hardware logic.
-// We use a basic double type and sequential execution policy for the baseline hardware test.
 extern "C" void hw_top_level_kernel(
     const double* const input_data,
     double* const processed_data,
@@ -146,7 +145,7 @@ extern "C" void hw_top_level_kernel(
     FIFO<double, 16>& output_stream)
 {
     process_and_stream_image(
-        std::execution::seq,
+        TinyDIP::execution::hw_unroll,
         input_data,
         processed_data,
         size,
