@@ -386,9 +386,15 @@ namespace TinyDIP
             constexpr hardware_parallel_unroll_policy() noexcept = default;
         };
 
+        // Hardware-targeted pipelined stream policy
+        struct hardware_pipelined_policy
+        {
+            constexpr hardware_pipelined_policy() noexcept = default;
+        };
 
         // Global policy instances (similar to std::execution::par_unseq)
         inline constexpr hardware_parallel_unroll_policy hw_unroll{};
+        inline constexpr hardware_pipelined_policy hw_pipe{};
     }
 
     constexpr bool is_integer()
