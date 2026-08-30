@@ -100,5 +100,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tinydip-systemverilog-rtl
-          path: build_hw-codesign/*.sv
+          path: |
+            build_hw-codesign/*.sv
+            build_hw-codesign/*.mlir
+            build_hw-codesign/circt_passes.txt
           retention-days: 7
