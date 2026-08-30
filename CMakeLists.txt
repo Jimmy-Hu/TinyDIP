@@ -413,8 +413,8 @@ if(TINYDIP_BUILD_HW_KERNELS)
     add_custom_command(
         OUTPUT ${SV_OUTPUT}
         COMMAND ${CIRCT_OPT_EXECUTABLE} --help > ${CMAKE_CURRENT_BINARY_DIR}/circt_passes.txt
-        COMMAND echo "// SystemVerilog generation requires an external HLS scheduler " > ${SV_OUTPUT}
-        COMMAND echo "// (e.g., Bambu, Dynamatic, or Calyx Native Compiler)." >> ${SV_OUTPUT}
+        COMMAND echo "// SystemVerilog generation requires an external HLS scheduler" > ${SV_OUTPUT}
+        COMMAND echo "// such as Bambu, Dynamatic, or Calyx Native Compiler." >> ${SV_OUTPUT}
         COMMAND echo "// Please review tinydip_hw.mlir and circt_passes.txt in the artifacts." >> ${SV_OUTPUT}
         DEPENDS ${MLIR_OUTPUT}
         COMMENT "Extracting CIRCT passes and preparing MLIR artifacts for external HLS engine..."
