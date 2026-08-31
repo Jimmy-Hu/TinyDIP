@@ -32,10 +32,10 @@ RUN echo "Downloading pre-built CIRCT binaries..." && \
     wget -qO- https://github.com/llvm/circt/releases/download/firtool-1.156.0/circt-full-shared-linux-x64.tar.gz | \
     tar -xz -C /opt/circt --strip-components=1
 
-# Build Polygeist from source (Official repository does not provide pre-built binaries)
+# Build Polygeist from source (Using custom fork with brace-initialization fix)
 # This requires compiling the exact matching LLVM submodule first.
-RUN echo "Cloning and building Polygeist from source (this will take 1-2 hours)..." && \
-    git clone --recursive https://github.com/llvm/Polygeist.git /tmp/polygeist && \
+RUN echo "Cloning and building custom Polygeist from source (this will take 1-2 hours)..." && \
+    git clone -b fix-brace-init-undef --recursive https://github.com/Jimmy-Hu/Polygeist.git /tmp/polygeist && \
     mkdir -p /tmp/polygeist/llvm-project/build && cd /tmp/polygeist/llvm-project/build && \
     cmake -G Ninja ../llvm \
         -DLLVM_ENABLE_PROJECTS="clang;mlir" \
