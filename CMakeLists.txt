@@ -413,7 +413,7 @@ if(TINYDIP_BUILD_HW_KERNELS)
     add_custom_command(
         OUTPUT ${SV_OUTPUT}
         COMMAND sed -i 's/module attributes {.*} {/module {/' ${MLIR_OUTPUT}
-        COMMAND sed -i 's/llvm.linkage = \\#llvm.linkage<linkonce_odr>/llvm.linkage = \\#llvm.linkage<private>/g' ${MLIR_OUTPUT}
+        COMMAND sed -i 's/linkage<linkonce_odr>/linkage<private>/g' ${MLIR_OUTPUT}
         COMMAND ${CIRCT_OPT_EXECUTABLE} --pass-pipeline='builtin.module(symbol-dce,func.func(calyx-affine-to-scf),lower-scf-to-calyx{top-level-function=hw_top_level_kernel},lower-calyx-to-hw,hw-flatten-io)' ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.opt.mlir
         COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} -export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${SV_OUTPUT}
         DEPENDS ${MLIR_OUTPUT}
