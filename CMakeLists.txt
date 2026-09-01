@@ -412,6 +412,9 @@ if(TINYDIP_BUILD_HW_KERNELS)
     # CIRCT (MLIR to SystemVerilog)
     add_custom_command(
         OUTPUT ${SV_OUTPUT}
+        COMMAND sed -i 's/module attributes {.*} {/module {/' ${MLIR_OUTPUT}
+        COMMAND sed -i 's/"llvm.mlir.undef"() : () -> i64/"arith.constant"() <{value = 0 : i64}> : () -> i64/g' ${MLIR_OUTPUT}
+        COMMAND sed -i 's/llvm.linkage = #llvm.linkage<linkonce_odr>/llvm.linkage = #llvm.linkage<private>/g' ${MLIR_OUTPUT}
         COMMAND ${CIRCT_OPT_EXECUTABLE} --pass-pipeline='builtin.module(symbol-dce,func.func(calyx-affine-to-scf),lower-scf-to-calyx{top-level-function=hw_top_level_kernel},lower-calyx-to-hw,hw-flatten-io)' ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.opt.mlir
         COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} -export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${SV_OUTPUT}
         DEPENDS ${MLIR_OUTPUT}
