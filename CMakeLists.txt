@@ -419,6 +419,7 @@ if(TINYDIP_BUILD_HW_KERNELS)
         COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} -export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${SV_OUTPUT}
         DEPENDS ${MLIR_OUTPUT}
         COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT..."
+        VERBATIM
     )
 
     # Custom Target
