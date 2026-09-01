@@ -409,14 +409,44 @@ if(TINYDIP_BUILD_HW_KERNELS)
         COMMENT "Generating MLIR from C++ source via Polygeist..."
     )
 
+    # Generate a Python script to patch MLIR safely
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py [=[
+import sys, re
+file = sys.argv[1]
+with open(file, 'r') as f:
+    mlir = f.read()
+
+# 1. Clean up target-specific module attributes
+mlir = re.sub(r'module attributes \{.*?\} \{', 'module {', mlir)
+
+# 2. Fix the llvm.mlir.undef ghost by replacing it with a constant zero
+mlir = re.sub(r'llvm\.mlir\.undef\s*:\s*i64', 'arith.constant 0 : i64', mlir)
+
+# 3. Demote linkonce_odr to private to enable dead code elimination
+mlir = mlir.replace('linkage<linkonce_odr>', 'linkage<private>')
+
+# 4. Safely lower affine.store and affine.load to memref equivalents
+# Find all constant indices used (e.g., [0], [1])
+indices = set(re.findall(r'affine\.(?:store|load).*?\[(\d+)\]', mlir))
+injection = ''
+for idx in indices:
+    injection += f'\n    %c{idx}_idx = arith.constant {idx} : index'
+
+# Inject index constants at the start of every function
+mlir = re.sub(r'(func\.func\s+@[^{]+\{)', r'\g<1>' + injection, mlir)
+
+# Replace affine with memref and use the newly injected index constants
+mlir = re.sub(r'affine\.(store|load)(.*?)\[(\d+)\]', r'memref.\g<1>\g<2>[%c\g<3>_idx]', mlir)
+
+with open(file, 'w') as f:
+    f.write(mlir)
+]=])
+
     # CIRCT (MLIR to SystemVerilog)
     add_custom_command(
         OUTPUT ${SV_OUTPUT}
-        COMMAND sed -i "s/module attributes {.*} {/module {/" ${MLIR_OUTPUT}
-        COMMAND sed -i "s/llvm.mlir.undef : i64/arith.constant 0 : i64/g" ${MLIR_OUTPUT}
-        COMMAND sed -i "s/linkage<linkonce_odr>/linkage<private>/g" ${MLIR_OUTPUT}
-        COMMAND /opt/polygeist/bin/mlir-opt -lower-affine ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}
-        COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(symbol-dce,func.func(scf-for-to-while),lower-scf-to-calyx{top-level-function=hw_top_level_kernel},lower-calyx-to-hw,hw-flatten-io)" ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.opt.mlir
+        COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${MLIR_OUTPUT}
+        COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(symbol-dce,func.func(calyx-affine-to-scf,scf-for-to-while),lower-scf-to-calyx{top-level-function=hw_top_level_kernel},lower-calyx-to-hw,hw-flatten-io)" ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.opt.mlir
         COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} -export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${SV_OUTPUT}
         DEPENDS ${MLIR_OUTPUT}
         COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT..."
