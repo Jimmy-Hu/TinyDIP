@@ -471,6 +471,7 @@ def rewire(match):
 for mem_id in seq_mems:
     text = re.sub(fr'%({mem_id})#(\d+)\b', rewire, text)
 
+# 5. Collect ALL memory IDs (including external arguments like arg_mem_0!)
 all_mems = set(seq_mems)
 for match in re.finditer(r'%(\d+)(?::\d+)?\s*=\s*"calyx\.memory"', text):
     all_mems.add(match.group(1))
@@ -487,42 +488,36 @@ def clean_ghost_writes(match):
     return f'{header}\n{body}\n{footer}'
 text = group_pattern.sub(clean_ghost_writes, text)
 
-# 7. MULTI-CYCLE READ MERGER
+# 7. PIPELINED READ FIXER (Address Injection)
 groups_info = {m.group(2): m for m in group_pattern.finditer(text)}
+schedule_enables = re.findall(r'"calyx\.enable"\(\)\s*<[^>]*sym_name\s*=\s*"([^"]+)"[^>]*>', text)
 
-for name_A, match_A in groups_info.items():
-    body_A = match_A.group(3)
-    target_mem = None
+for i, current_name in enumerate(schedule_enables):
+    if current_name not in groups_info:
+        continue
+        
+    match_current = groups_info[current_name]
+    body_current = match_current.group(3)
+    modified = False
     
     for mem_id in all_mems:
-        has_addr = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#0\b', body_A)
-        has_wdata = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#1\b', body_A)
-        has_rdata = re.search(fr'%{mem_id}#4\b', body_A)
+        has_rdata = re.search(fr'%{mem_id}#4\b', body_current)
+        has_addr = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#0\b', body_current)
         
-        if has_addr and not has_wdata and not has_rdata:
-            target_mem = mem_id
-            break
-            
-    if target_mem:
-        pattern_A = fr'([ \t]*"calyx\.enable"[^\n]*?@{name_A}\b[^\n]*?\n)'
-        pattern_B = r'([ \t]*"calyx\.enable"[^\n]*?@([a-zA-Z0-9_]+)\b[^\n]*?\n)'
-        seq_match = re.search(pattern_A + r'\s*' + pattern_B, text)
-        
-        if seq_match:
-            full_enable_B = seq_match.group(2)
-            name_B = seq_match.group(3)
-            
-            match_B = groups_info.get(name_B)
-            if match_B:
-                body_B = match_B.group(3)
-                if re.search(fr'%{target_mem}#4\b', body_B):
-                    body_A_clean = re.sub(r'^[ \t]*"calyx\.group_done".*?\n', '', body_A, flags=re.MULTILINE)
-                    merged_body = body_A_clean + "\n" + body_B
-                    new_group_A = f'{match_A.group(1)}\n{merged_body}\n{match_A.group(4)}'
-                    
-                    text = text.replace(match_A.group(0), new_group_A, 1)
-                    text = text.replace(match_B.group(0), "", 1)
-                    text = text.replace(full_enable_B, "", 1)
+        if has_rdata and not has_addr:
+            if i > 0:
+                prev_name = schedule_enables[i-1]
+                if prev_name in groups_info:
+                    body_prev = groups_info[prev_name].group(3)
+                    addr_match = re.search(fr'^([ \t]*"calyx\.assign"\(\s*%{mem_id}#0\b.*?\n)', body_prev, flags=re.MULTILINE)
+                    if addr_match:
+                        addr_line = addr_match.group(1)
+                        body_current = addr_line + body_current
+                        modified = True
+                        
+    if modified:
+        new_group = f'{match_current.group(1)}\n{body_current}\n{match_current.group(4)}'
+        text = text.replace(match_current.group(0), new_group, 1)
 
 with open(file, 'w') as f:
     f.write(text)
