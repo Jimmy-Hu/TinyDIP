@@ -529,7 +529,7 @@ with open(file, 'w') as f:
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/tinydip_hw.sv
         # Phase 0: Polygeist C++ to MLIR
         COMMAND ${POLYGEIST_EXECUTABLE} -S -O3 --std=c++20 -D__POLYGEIST__ ${CMAKE_SOURCE_DIR}/test/hw/hw_kernel_tests.cpp -o ${MLIR_OUTPUT}
-        COMMAND sed -i 's/module attributes {.*} {/module {/' ${MLIR_OUTPUT}
+        COMMAND sed -i "s/module attributes {.*} {/module {/" ${MLIR_OUTPUT}
         
         # Phase 0.5: Fix MLIR Memory Signatures
         COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${MLIR_OUTPUT}
