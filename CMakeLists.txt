@@ -440,32 +440,67 @@ with open(file, 'w') as f:
 import sys, re
 file = sys.argv[1]
 with open(file, 'r') as f:
-    mlir = f.read()
+    lines = f.readlines()
 
-# 1. Fix the size-1 math bug (log2(1) = 0 crash)
-mlir = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', mlir)
-mlir = re.sub(r'<\[1\]\s*x\s*(\d+)>', r'<[2] x \g<1>>', mlir)
+seq_mems = set()
+out_lines = []
 
-# 2. CIRCT's CalyxToHW pass literally LACKS SUPPORT for 'calyx.seq_mem'! 
-# This epic regex rewrites the port return tuple, the operation name, and the type signature.
-mlir = re.sub(
-    r'%([a-zA-Z0-9_]+)\.addr0,\s*%\1\.clk,\s*%\1\.reset,\s*%\1\.content_en,\s*%\1\.write_en,\s*%\1\.write_data,\s*%\1\.read_data,\s*%\1\.done\s*=\s*calyx\.seq_mem\s+@\1\s+<\[(\d+)\]\s*x\s*(\d+)>\s*\[(\d+)\](?:\s*\{[^}]*\})?\s*:\s*(i\d+),\s*i1,\s*i1,\s*i1,\s*i1,\s*(i\d+),\s*(i\d+),\s*i1',
-    r'%\1.addr0, %\1.write_data, %\1.write_en, %\1.clk, %\1.read_data, %\1.done = calyx.memory @\1 <[\2] x \3> [\4] : \5, \6, i1, i1, \7, i1',
-    mlir
-)
+for line in lines:
+    # 1. Fix the size-1 math bug (log2(1) = 0 crash)
+    line = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', line)
 
-# 3. Clean up the wire assignments for the now-deleted 'reset' and 'content_en' ports
-mlir = re.sub(r'^[ \t]*calyx\.assign\s+%[a-zA-Z0-9_]+\.(?:reset|content_en)\s*=.*(?:\n|$)', '', mlir, flags=re.MULTILINE)
+    # 2. Detect seq_mem in generic format and rewrite to memory
+    match = re.search(r'%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*(.*?)\s*:\s*\(\)\s*->\s*\(i(\d+),\s*i1,\s*i1,\s*i1,\s*i1,\s*([a-z0-9]+),\s*\4,\s*i1\)', line)
+    if match:
+        mem_id = match.group(1)
+        seq_mems.add(mem_id) # Track this memory's SSA ID (e.g., '13')
+        attrs_and_props = match.group(2).replace('{external = true}', '')
+        addr_w = match.group(3)
+        data_w = match.group(4)
+        
+        new_line = f'  %{mem_id}:6 = "calyx.memory"() {attrs_and_props} : () -> (i{addr_w}, {data_w}, i1, i1, {data_w}, i1)\n'
+        out_lines.append(new_line)
+        continue
+
+    # 3. Intercept assignments and REWIRE the tuples mapping
+    if '"calyx.assign"' in line:
+        skip = False
+        for mem_id in seq_mems:
+            # If the circuit writes to the deleted 'reset'(#2) or 'content_en'(#3), cut the wire
+            if f'%{mem_id}#2' in line or f'%{mem_id}#3' in line:
+                skip = True
+                break
+        if skip:
+            continue
+            
+        for mem_id in seq_mems:
+            if f'%{mem_id}#' in line:
+                # Safe tuple remap: seq_mem (8-ports) -> memory (6-ports)
+                line = line.replace(f'%{mem_id}#7', f'%{mem_id}#_DONE_')
+                line = line.replace(f'%{mem_id}#6', f'%{mem_id}#_READ_')
+                line = line.replace(f'%{mem_id}#5', f'%{mem_id}#_WDATA_')
+                line = line.replace(f'%{mem_id}#4', f'%{mem_id}#_WEN_')
+                line = line.replace(f'%{mem_id}#1', f'%{mem_id}#_CLK_')
+                line = line.replace(f'%{mem_id}#0', f'%{mem_id}#_ADDR_')
+
+                line = line.replace(f'%{mem_id}#_DONE_', f'%{mem_id}#5')
+                line = line.replace(f'%{mem_id}#_READ_', f'%{mem_id}#4')
+                line = line.replace(f'%{mem_id}#_WDATA_', f'%{mem_id}#1')
+                line = line.replace(f'%{mem_id}#_WEN_', f'%{mem_id}#2')
+                line = line.replace(f'%{mem_id}#_CLK_', f'%{mem_id}#3')
+                line = line.replace(f'%{mem_id}#_ADDR_', f'%{mem_id}#0')
+
+    out_lines.append(line)
 
 with open(file, 'w') as f:
-    f.write(mlir)
+    f.writelines(out_lines)
 ]=])
 
     # CIRCT (MLIR to SystemVerilog)
     add_custom_command(
         OUTPUT ${SV_OUTPUT}
         COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${MLIR_OUTPUT}
-        COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(symbol-dce,func.func(calyx-affine-to-scf),lower-scf-to-calyx{top-level-function=hw_top_level_kernel})" ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.calyx.mlir
+        COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(symbol-dce,func.func(calyx-affine-to-scf),lower-scf-to-calyx{top-level-function=hw_top_level_kernel})" --mlir-print-op-generic ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.calyx.mlir
         COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py ${MLIR_OUTPUT}.calyx.mlir
         COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(lower-calyx-to-hw,hw-flatten-io)" ${MLIR_OUTPUT}.calyx.mlir -o ${MLIR_OUTPUT}.opt.mlir
         COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} -export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${SV_OUTPUT}
