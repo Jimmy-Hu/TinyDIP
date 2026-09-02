@@ -449,46 +449,40 @@ for line in lines:
     # 1. Fix the size-1 math bug (log2(1) = 0 crash)
     line = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', line)
 
-    # 2. Detect seq_mem in generic format and rewrite to memory
-    match = re.search(r'%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*(.*?)\s*:\s*\(\)\s*->\s*\(i(\d+),\s*i1,\s*i1,\s*i1,\s*i1,\s*([a-z0-9]+),\s*\4,\s*i1\)', line)
+    # 2. Detect seq_mem generic format and rewrite to old combinational memory
+    match = re.search(r'^(\s*)%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*(.*?)\s*:\s*\(\)\s*->\s*\(i(\d+),\s*i1,\s*i1,\s*i1,\s*i1,\s*([a-zA-Z0-9_]+),\s*\5,\s*i1\)', line)
     if match:
-        mem_id = match.group(1)
-        seq_mems.add(mem_id) # Track this memory's SSA ID (e.g., '13')
-        attrs_and_props = match.group(2).replace('{external = true}', '')
-        addr_w = match.group(3)
-        data_w = match.group(4)
+        indent = match.group(1)
+        mem_id = match.group(2)
+        seq_mems.add(mem_id)
+        attrs = match.group(3).replace('{external = true}', '')
+        addr_w = match.group(4)
+        data_w = match.group(5)
         
-        new_line = f'  %{mem_id}:6 = "calyx.memory"() {attrs_and_props} : () -> (i{addr_w}, {data_w}, i1, i1, {data_w}, i1)\n'
+        new_line = f'{indent}%{mem_id}:6 = "calyx.memory"() {attrs} : () -> (i{addr_w}, {data_w}, i1, i1, {data_w}, i1)\n'
         out_lines.append(new_line)
         continue
 
-    # 3. Intercept assignments and REWIRE the tuples mapping
-    if '"calyx.assign"' in line:
-        skip = False
-        for mem_id in seq_mems:
-            # If the circuit writes to the deleted 'reset'(#2) or 'content_en'(#3), cut the wire
-            if f'%{mem_id}#2' in line or f'%{mem_id}#3' in line:
-                skip = True
-                break
-        if skip:
-            continue
-            
-        for mem_id in seq_mems:
-            if f'%{mem_id}#' in line:
-                # Safe tuple remap: seq_mem (8-ports) -> memory (6-ports)
-                line = line.replace(f'%{mem_id}#7', f'%{mem_id}#_DONE_')
-                line = line.replace(f'%{mem_id}#6', f'%{mem_id}#_READ_')
-                line = line.replace(f'%{mem_id}#5', f'%{mem_id}#_WDATA_')
-                line = line.replace(f'%{mem_id}#4', f'%{mem_id}#_WEN_')
-                line = line.replace(f'%{mem_id}#1', f'%{mem_id}#_CLK_')
-                line = line.replace(f'%{mem_id}#0', f'%{mem_id}#_ADDR_')
-
-                line = line.replace(f'%{mem_id}#_DONE_', f'%{mem_id}#5')
-                line = line.replace(f'%{mem_id}#_READ_', f'%{mem_id}#4')
-                line = line.replace(f'%{mem_id}#_WDATA_', f'%{mem_id}#1')
-                line = line.replace(f'%{mem_id}#_WEN_', f'%{mem_id}#2')
-                line = line.replace(f'%{mem_id}#_CLK_', f'%{mem_id}#3')
-                line = line.replace(f'%{mem_id}#_ADDR_', f'%{mem_id}#0')
+    # 3. Drop any line that connects to the deleted 'reset'(#2) or 'content_en'(#3) ports
+    skip = False
+    for mem_id in seq_mems:
+        if re.search(fr'%{mem_id}#[23]\b', line):
+            skip = True
+            break
+    if skip:
+        continue
+        
+    # 4. Global Rewire Engine
+    for mem_id in seq_mems:
+        if re.search(fr'%{mem_id}#\d+\b', line):
+            def repl(m):
+                port = int(m.group(1))
+                # seq_mem -> memory
+                # 0(addr)->0, 1(clk)->3, 4(w_en)->2, 5(w_data)->1, 6(r_data)->4, 7(done)->5
+                mapping = {0:0, 1:3, 4:2, 5:1, 6:4, 7:5}
+                return f'%{mem_id}#{mapping[port]}'
+                
+            line = re.sub(fr'%{mem_id}#(\d+)\b', repl, line)
 
     out_lines.append(line)
 
