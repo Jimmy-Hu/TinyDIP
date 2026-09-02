@@ -431,14 +431,18 @@ if indices:
     injection = ''
     for idx in indices:
         injection += f'\n    %c{idx}_idx = arith.constant {idx} : index'
-    # Inject index constants at the start of every function body
     mlir = re.sub(r'(func\.func\s+@[^{]+(?:\{[^}]*\})?\s*\{)', r'\g<1>' + injection, mlir)
-
-# 4a. Convert affine with constant indices (e.g. [0]) to use variables
 mlir = re.sub(r'affine\.(store|load)(.*?)\[(\d+)\]', r'memref.\g<1>\g<2>[%c\g<3>_idx]', mlir)
-
-# 4b. Convert 0D scalar affine (empty brackets []) and any leftovers directly
 mlir = mlir.replace('affine.store', 'memref.store').replace('affine.load', 'memref.load')
+
+# 5. [NEW] Fix dynamic memory sizes (The -9223372036854775808 bug)
+# HW synthesis cannot synthesize unknown memory sizes. Force all dynamic '?' to a static '16384'.
+mlir = re.sub(r'memref<\?x([^>]+)>', r'memref<16384x\g<1>>', mlir)
+
+# 6. [NEW] Fix the size-1 memory address bitwidth bug in CIRCT
+# CIRCT CalyxToHW crashes on size-1 memories because ceil(log2(1)) = 0, but Calyx forces 1-bit addresses.
+# We pad all memref<1x...> to memref<2x...> so the math perfectly aligns (ceil(log2(2)) = 1).
+mlir = re.sub(r'memref<1x([^>]+)>', r'memref<2x\g<1>>', mlir)
 
 with open(file, 'w') as f:
     f.write(mlir)
