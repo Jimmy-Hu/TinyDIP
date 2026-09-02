@@ -445,11 +445,10 @@ with open(file, 'r') as f:
 seq_mems = set()
 out_lines = []
 
+# Pass 1: Line-by-line Rewiring
 for line in lines:
-    # 1. Fix the size-1 math bug (log2(1) = 0 crash)
     line = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', line)
 
-    # 2. Detect seq_mem generic format and rewrite to old combinational memory
     match = re.search(r'^(\s*)%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*(.*?)\s*:\s*\(\)\s*->\s*\(i(\d+),\s*i1,\s*i1,\s*i1,\s*i1,\s*([a-zA-Z0-9_]+),\s*\5,\s*i1\)', line)
     if match:
         indent = match.group(1)
@@ -458,36 +457,56 @@ for line in lines:
         attrs = match.group(3).replace('{external = true}', '')
         addr_w = match.group(4)
         data_w = match.group(5)
-        
         new_line = f'{indent}%{mem_id}:6 = "calyx.memory"() {attrs} : () -> (i{addr_w}, {data_w}, i1, i1, {data_w}, i1)\n'
         out_lines.append(new_line)
         continue
 
-    # 3. Drop any line that connects to the deleted 'reset'(#2) or 'content_en'(#3) ports
     skip = False
     for mem_id in seq_mems:
-        if re.search(fr'%{mem_id}#[23]\b', line):
+        if re.search(fr'"calyx\.assign"\(\s*%{mem_id}#[23]\b', line):
             skip = True
             break
     if skip:
         continue
         
-    # 4. Global Rewire Engine
     for mem_id in seq_mems:
         if re.search(fr'%{mem_id}#\d+\b', line):
             def repl(m):
                 port = int(m.group(1))
-                # seq_mem -> memory
                 # 0(addr)->0, 1(clk)->3, 4(w_en)->2, 5(w_data)->1, 6(r_data)->4, 7(done)->5
                 mapping = {0:0, 1:3, 4:2, 5:1, 6:4, 7:5}
-                return f'%{mem_id}#{mapping[port]}'
-                
+                if port in mapping:
+                    return f'%{mem_id}#{mapping[port]}'
+                return m.group(0)
             line = re.sub(fr'%{mem_id}#(\d+)\b', repl, line)
 
     out_lines.append(line)
 
+# Pass 2: Group-Aware Read/Write Protocol Fixer
+text = "".join(out_lines)
+
+def fix_group(match):
+    group_body = match.group(0)
+    for mem_id in seq_mems:
+        # Check if this group connects write_en (#2) and write_data (#1)
+        has_wen = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#2\b', group_body)
+        has_wdata = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#1\b', group_body)
+        
+        # If it has write_en but NO write_data, it's a READ operation!
+        if has_wen and not has_wdata:
+            # 1. Drop the ghost write_en line to satisfy calyx.memory
+            group_body = re.sub(fr'^[ \t]*"calyx\.assign"\(\s*%{mem_id}#2\b.*?\n', '', group_body, flags=re.MULTILINE)
+            
+            # 2. calyx.memory read is combinational (0 cycle). Force the group to finish immediately using %0 (hw.constant true).
+            group_body = re.sub(fr'"calyx\.group_done"\(\s*%{mem_id}#5\b\)', '"calyx.group_done"(%0)', group_body)
+            
+    return group_body
+
+# Find every calyx.group block and pass it to the fixer
+text = re.sub(r'"calyx\.group"[\s\S]*?\}\) : \(\) -> \(\)', fix_group, text)
+
 with open(file, 'w') as f:
-    f.writelines(out_lines)
+    f.write(text)
 ]=])
 
     # CIRCT (MLIR to SystemVerilog)
