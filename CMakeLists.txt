@@ -445,7 +445,7 @@ with open(file, 'r') as f:
 # 1. Fix size-1 math bug
 text = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', text)
 
-# 2. Convert ALL seq_mem to memory (This naturally captures arg_mem_0, mem_4, etc.)
+# 2. Convert internal seq_mem to calyx.memory
 seq_mems = set()
 def convert_mem(match):
     indent, mem_id, attrs, addr_w, data_w = match.groups()
@@ -455,11 +455,11 @@ def convert_mem(match):
 
 text = re.sub(r'^(\s*)%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*(.*?)\s*:\s*\(\)\s*->\s*\(i(\d+),\s*i1,\s*i1,\s*i1,\s*i1,\s*([a-zA-Z0-9_]+),\s*\5,\s*i1\)', convert_mem, text, flags=re.MULTILINE)
 
-# 3. Cut phantom reset(#2) and content_en(#3) wires BEFORE rewiring
+# 3. Cut phantom reset(#2) and content_en(#3) wires for internal seq_mems
 for mem_id in seq_mems:
     text = re.sub(fr'^[ \t]*"calyx\.assign"\(\s*%{mem_id}#[23]\b.*?\n', '', text, flags=re.MULTILINE)
 
-# 4. Global Rewire Engine
+# 4. Global Rewire Engine for internal seq_mems
 def rewire(match):
     mem_id = match.group(1)
     port = int(match.group(2))
@@ -471,49 +471,52 @@ def rewire(match):
 for mem_id in seq_mems:
     text = re.sub(fr'%({mem_id})#(\d+)\b', rewire, text)
 
-# 5. Clean ghost write_en (#2) AFTER rewiring
+# 5. Collect ALL memory IDs (including external args like arg_mem_0)
+all_mems = set(seq_mems)
+for match in re.finditer(r'%(\d+):6\s*=\s*"calyx\.memory"', text):
+    all_mems.add(match.group(1))
+
+# 6. Ghost Write_En Cleanup for ALL memories
+group_pattern = re.compile(r'("calyx\.group"\(\)\s*<\{sym_name\s*=\s*"([^"]+)"\}>\s*\(\{)\n(.*?)\n(\s*\}\)\s*:\s*\(\)\s*->\s*\(\))', re.DOTALL)
 def clean_ghost_writes(match):
     header, name, body, footer = match.groups()
-    for mem_id in seq_mems:
+    for mem_id in all_mems:
         has_wen = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#2\b', body)
         has_wdata = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#1\b', body)
         if has_wen and not has_wdata:
             body = re.sub(fr'^[ \t]*"calyx\.assign"\(\s*%{mem_id}#2\b.*?\n', '', body, flags=re.MULTILINE)
     return f'{header}\n{body}\n{footer}'
-
-group_pattern = re.compile(r'("calyx\.group"\(\)\s*<\{sym_name\s*=\s*"([^"]+)"\}>\s*\(\{)\n(.*?)\n(\s*\}\)\s*:\s*\(\)\s*->\s*\(\))', re.DOTALL)
 text = group_pattern.sub(clean_ghost_writes, text)
 
-# 6. Multi-cycle Read Merger (ROBUST RADAR SEARCH)
+# 7. MULTI-CYCLE READ MERGER
 groups_info = {m.group(2): m for m in group_pattern.finditer(text)}
+
 for name_A, match_A in groups_info.items():
-    if not groups_info[name_A]: continue # Skip if already merged
     body_A = match_A.group(3)
     is_read_a = False
+    target_mem = None
     
-    for mem_id in seq_mems:
+    for mem_id in all_mems:
         has_addr = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#0\b', body_A)
         has_wdata = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#1\b', body_A)
-        has_done = re.search(fr'"calyx\.group_done"\(\s*%{mem_id}#5\b', body_A)
+        has_rdata = re.search(fr'%{mem_id}#4\b', body_A)
         
-        if has_addr and has_done and not has_wdata:
+        if has_addr and not has_wdata and not has_rdata:
             is_read_a = True
+            target_mem = mem_id
             break
             
     if is_read_a:
-        # ROBUST: Find enable A, then scan forward for the VERY NEXT enable B
-        enable_A_pattern = fr'"calyx\.enable"\(\)\s*<\{{sym_name\s*=\s*"{name_A}"\}}>'
-        match_en_A = re.search(enable_A_pattern, text)
-        if match_en_A:
-            rest = text[match_en_A.end():]
-            match_en_B = re.search(r'"calyx\.enable"\(\)\s*<\{sym_name\s*=\s*"([^"]+)"\}>', rest)
-            if match_en_B:
-                name_B = match_en_B.group(1)
-                match_B = groups_info.get(name_B)
-                if match_B:
-                    body_B = match_B.group(3)
-                    
-                    # Merge bodies (Remove A's combinational done, use B's register done)
+        pattern_A = fr'"calyx\.enable"\(\)\s*<[^>]*sym_name\s*=\s*"{name_A}"[^>]*>.*?\n'
+        pattern_B = r'\s*"calyx\.enable"\(\)\s*<[^>]*sym_name\s*=\s*"([^"]+)"[^>]*>.*?\n'
+        seq_match = re.search(pattern_A + pattern_B, text)
+        
+        if seq_match:
+            name_B = seq_match.group(1)
+            match_B = groups_info.get(name_B)
+            if match_B:
+                body_B = match_B.group(3)
+                if re.search(fr'%{target_mem}#4\b', body_B):
                     body_A_clean = re.sub(r'^[ \t]*"calyx\.group_done".*?\n', '', body_A, flags=re.MULTILINE)
                     merged_body = body_A_clean + "\n" + body_B
                     new_group_A = f'{match_A.group(1)}\n{merged_body}\n{match_A.group(4)}'
@@ -521,11 +524,8 @@ for name_A, match_A in groups_info.items():
                     text = text.replace(match_A.group(0), new_group_A)
                     text = text.replace(match_B.group(0), "")
                     
-                    # Erase B from the execution schedule completely
-                    pattern_B_exact = fr'^[ \t]*"calyx\.enable"\(\)\s*<\{{sym_name\s*=\s*"{name_B}"\}}>\s*:\s*\(\)\s*->\s*\(\).*?\n'
+                    pattern_B_exact = fr'^[ \t]*"calyx\.enable"\(\)\s*<[^>]*sym_name\s*=\s*"{name_B}"[^>]*>.*?\n'
                     text = re.sub(pattern_B_exact, '', text, flags=re.MULTILINE)
-                    
-                    groups_info[name_B] = None # Mark B as consumed
 
 with open(file, 'w') as f:
     f.write(text)
