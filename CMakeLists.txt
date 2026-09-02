@@ -435,7 +435,7 @@ with open(file, 'w') as f:
     f.write(mlir)
 ]=])
 
-    # [NEW] Generate the Middle-end Python script to fix CIRCT's own bugs
+    # Generate the Middle-end Python script to fix CIRCT's own bugs
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py [=[
 import sys, re
 file = sys.argv[1]
@@ -444,7 +444,13 @@ with open(file, 'r') as f:
 
 # Fix CIRCT's bug where it blindly turns scalar arguments into size-1 memories.
 # This crashes the HW address width calculation (log2(1) = 0). We pad it to 2.
+
+# 1. Target the generic dictionary format (just in case)
 mlir = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', mlir)
+
+# 2. Target the Calyx custom assembly format (e.g., <[1] x 64>)
+# We capture the bitwidth (\d+) and rewrite it as <[2] x bitwidth>
+mlir = re.sub(r'<\[1\]\s*x\s*(\d+)>', r'<[2] x \g<1>>', mlir)
 
 with open(file, 'w') as f:
     f.write(mlir)
