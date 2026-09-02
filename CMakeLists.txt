@@ -464,6 +464,7 @@ for mem_id in seq_mems:
 def rewire(match):
     mem_id = match.group(1)
     port = int(match.group(2))
+    # 0(addr)->0, 1(clk)->3, 4(w_en)->2, 5(w_data)->1, 6(r_data)->4, 7(done)->5
     mapping = {0:0, 1:3, 4:2, 5:1, 6:4, 7:5}
     if port in mapping:
         return f'%{mem_id}#{mapping[port]}'
@@ -472,19 +473,15 @@ def rewire(match):
 for mem_id in seq_mems:
     text = re.sub(fr'%({mem_id})#(\d+)\b', rewire, text)
 
-# 5. Group-Aware Read Fixer with Dynamic SSA Radar
+# 5. Group-Aware Read Fixer
 def fix_group(match):
     group_body = match.group(0)
-    group_start = match.start()
-    true_matches = re.findall(r'%(\d+)\s*=\s*"[^"]+\.constant"\(\)\s*<\{[^}]*value\s*=\s*true[^}]*\}>\s*:\s*\(\)\s*->\s*i1', text[:group_start])
-    true_id = true_matches[-1] if true_matches else "0"
-    
     for mem_id in seq_mems:
         has_wen = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#2\b', group_body)
         has_wdata = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#1\b', group_body)
+        
         if has_wen and not has_wdata:
             group_body = re.sub(fr'^[ \t]*"calyx\.assign"\(\s*%{mem_id}#2\b.*?\n', '', group_body, flags=re.MULTILINE)
-            group_body = re.sub(fr'"calyx\.group_done"\(\s*%{mem_id}#5\b\)', f'"calyx.group_done"(%{true_id})', group_body)
             
     return group_body
 
