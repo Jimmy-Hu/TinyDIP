@@ -442,14 +442,20 @@ file = sys.argv[1]
 with open(file, 'r') as f:
     mlir = f.read()
 
-# 1. Fix the size-1 math bug (log2(1) = 0 crash) for both generic and custom formats
+# 1. Fix the size-1 math bug (log2(1) = 0 crash)
 mlir = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', mlir)
 mlir = re.sub(r'<\[1\]\s*x\s*(\d+)>', r'<[2] x \g<1>>', mlir)
 
-# 2. Fix CIRCT's missing port bug by turning external memories into internal scratchpads.
-# By deleting {external = true}, CalyxToHW synthesizes them as internal SRAM blocks 
-# instead of crashing while looking for missing I/O ports.
-mlir = re.sub(r'\{external\s*=\s*true\}', '', mlir)
+# 2. CIRCT's CalyxToHW pass literally LACKS SUPPORT for 'calyx.seq_mem'! 
+# This epic regex rewrites the port return tuple, the operation name, and the type signature.
+mlir = re.sub(
+    r'%([a-zA-Z0-9_]+)\.addr0,\s*%\1\.clk,\s*%\1\.reset,\s*%\1\.content_en,\s*%\1\.write_en,\s*%\1\.write_data,\s*%\1\.read_data,\s*%\1\.done\s*=\s*calyx\.seq_mem\s+@\1\s+<\[(\d+)\]\s*x\s*(\d+)>\s*\[(\d+)\](?:\s*\{[^}]*\})?\s*:\s*(i\d+),\s*i1,\s*i1,\s*i1,\s*i1,\s*(i\d+),\s*(i\d+),\s*i1',
+    r'%\1.addr0, %\1.write_data, %\1.write_en, %\1.clk, %\1.read_data, %\1.done = calyx.memory @\1 <[\2] x \3> [\4] : \5, \6, i1, i1, \7, i1',
+    mlir
+)
+
+# 3. Clean up the wire assignments for the now-deleted 'reset' and 'content_en' ports
+mlir = re.sub(r'^[ \t]*calyx\.assign\s+%[a-zA-Z0-9_]+\.(?:reset|content_en)\s*=.*(?:\n|$)', '', mlir, flags=re.MULTILINE)
 
 with open(file, 'w') as f:
     f.write(mlir)
