@@ -409,40 +409,42 @@ if(TINYDIP_BUILD_HW_KERNELS)
         COMMENT "Generating MLIR from C++ source via Polygeist..."
     )
 
-    # Generate a Python script to patch MLIR safely
+    # Generate the Frontend Python script to patch MLIR safely
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py [=[
 import sys, re
 file = sys.argv[1]
 with open(file, 'r') as f:
     mlir = f.read()
 
-# 1. Clean up target-specific module attributes safely
 mlir = re.sub(r'module\s+attributes\s*\{[^}]*\}\s*\{', 'module {', mlir)
-
-# 2. Fix the llvm.mlir.undef ghost by replacing it with a constant zero
 mlir = re.sub(r'llvm\.mlir\.undef\s*:\s*i64', 'arith.constant 0 : i64', mlir)
-
-# 3. Demote linkonce_odr to private to enable dead code elimination
 mlir = mlir.replace('linkage<linkonce_odr>', 'linkage<private>')
 
-# 4. Safely lower affine.store and affine.load to memref equivalents
 indices = set(re.findall(r'affine\.(?:store|load).*?\[(\d+)\]', mlir))
 if indices:
     injection = ''
     for idx in indices:
         injection += f'\n    %c{idx}_idx = arith.constant {idx} : index'
     mlir = re.sub(r'(func\.func\s+@[^{]+(?:\{[^}]*\})?\s*\{)', r'\g<1>' + injection, mlir)
+
 mlir = re.sub(r'affine\.(store|load)(.*?)\[(\d+)\]', r'memref.\g<1>\g<2>[%c\g<3>_idx]', mlir)
 mlir = mlir.replace('affine.store', 'memref.store').replace('affine.load', 'memref.load')
-
-# 5. [NEW] Fix dynamic memory sizes (The -9223372036854775808 bug)
-# HW synthesis cannot synthesize unknown memory sizes. Force all dynamic '?' to a static '16384'.
 mlir = re.sub(r'memref<\?x([^>]+)>', r'memref<16384x\g<1>>', mlir)
 
-# 6. [NEW] Fix the size-1 memory address bitwidth bug in CIRCT
-# CIRCT CalyxToHW crashes on size-1 memories because ceil(log2(1)) = 0, but Calyx forces 1-bit addresses.
-# We pad all memref<1x...> to memref<2x...> so the math perfectly aligns (ceil(log2(2)) = 1).
-mlir = re.sub(r'memref<1x([^>]+)>', r'memref<2x\g<1>>', mlir)
+with open(file, 'w') as f:
+    f.write(mlir)
+]=])
+
+    # [NEW] Generate the Middle-end Python script to fix CIRCT's own bugs
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py [=[
+import sys, re
+file = sys.argv[1]
+with open(file, 'r') as f:
+    mlir = f.read()
+
+# Fix CIRCT's bug where it blindly turns scalar arguments into size-1 memories.
+# This crashes the HW address width calculation (log2(1) = 0). We pad it to 2.
+mlir = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', mlir)
 
 with open(file, 'w') as f:
     f.write(mlir)
@@ -452,7 +454,9 @@ with open(file, 'w') as f:
     add_custom_command(
         OUTPUT ${SV_OUTPUT}
         COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${MLIR_OUTPUT}
-        COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(symbol-dce,func.func(calyx-affine-to-scf),lower-scf-to-calyx{top-level-function=hw_top_level_kernel},lower-calyx-to-hw,hw-flatten-io)" ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.opt.mlir
+        COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(symbol-dce,func.func(calyx-affine-to-scf),lower-scf-to-calyx{top-level-function=hw_top_level_kernel})" ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.calyx.mlir
+        COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py ${MLIR_OUTPUT}.calyx.mlir
+        COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(lower-calyx-to-hw,hw-flatten-io)" ${MLIR_OUTPUT}.calyx.mlir -o ${MLIR_OUTPUT}.opt.mlir
         COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} -export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${SV_OUTPUT}
         DEPENDS ${MLIR_OUTPUT}
         COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT..."
