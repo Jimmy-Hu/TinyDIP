@@ -416,8 +416,8 @@ file = sys.argv[1]
 with open(file, 'r') as f:
     mlir = f.read()
 
-# 1. Clean up target-specific module attributes
-mlir = re.sub(r'module attributes \{.*?\} \{', 'module {', mlir)
+# 1. Clean up target-specific module attributes safely
+mlir = re.sub(r'module\s+attributes\s*\{[^}]*\}\s*\{', 'module {', mlir)
 
 # 2. Fix the llvm.mlir.undef ghost by replacing it with a constant zero
 mlir = re.sub(r'llvm\.mlir\.undef\s*:\s*i64', 'arith.constant 0 : i64', mlir)
@@ -428,12 +428,18 @@ mlir = mlir.replace('linkage<linkonce_odr>', 'linkage<private>')
 # 4. Safely lower affine.store and affine.load to memref equivalents
 # Find all constant indices used (e.g., [0], [1])
 indices = set(re.findall(r'affine\.(?:store|load).*?\[(\d+)\]', mlir))
-injection = ''
-for idx in indices:
-    injection += f'\n    %c{idx}_idx = arith.constant {idx} : index'
 
-# Inject index constants at the start of every function
-mlir = re.sub(r'(func\.func\s+@[^{]+\{)', r'\g<1>' + injection, mlir)
+if indices:
+    injection = ''
+    for idx in indices:
+        injection += f'\n    %c{idx}_idx = arith.constant {idx} : index'
+
+    # Inject index constants at the start of every function body.
+    # Regex explanation:
+    # func\.func\s+@[^{]+       -> Matches "func.func @name(args) "
+    # (?:\{[^}]*\})?            -> Matches optional "attributes { ... }"
+    # \s*\{                     -> Matches the final "{" that opens the function body
+    mlir = re.sub(r'(func\.func\s+@[^{]+(?:\{[^}]*\})?\s*\{)', r'\g<1>' + injection, mlir)
 
 # Replace affine with memref and use the newly injected index constants
 mlir = re.sub(r'affine\.(store|load)(.*?)\[(\d+)\]', r'memref.\g<1>\g<2>[%c\g<3>_idx]', mlir)
