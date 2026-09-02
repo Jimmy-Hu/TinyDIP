@@ -456,15 +456,56 @@ def convert_mem(match):
 
 text = re.sub(r'^(\s*)%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*(.*?)\s*:\s*\(\)\s*->\s*\(i(\d+),\s*i1,\s*i1,\s*i1,\s*i1,\s*([a-zA-Z0-9_]+),\s*\5,\s*i1\)', convert_mem, text, flags=re.MULTILINE)
 
-# 3. Cut reset(#2) and content_en(#3) wires immediately
+# 3. State Machine Merging: Merge Read-Group A and Read-Group B into a single combinational state
+# Extract all groups
+group_pattern = re.compile(r'("calyx\.group"\(\)\s*<\{sym_name\s*=\s*"([^"]+)"\}>\s*\(\{)\n(.*?)\n(\s*\}\)\s*:\s*\(\)\s*->\s*\(\))', re.DOTALL)
+groups_info = {m.group(2): m for m in group_pattern.finditer(text)}
+
+for name_A, match_A in groups_info.items():
+    body_A = match_A.group(3)
+    is_read_a = False
+    
+    # Identify if this is Group A of a Read sequence (has content_en but NO write_data)
+    for mem_id in seq_mems:
+        has_content_en = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#3\b', body_A)
+        has_write_data = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#5\b', body_A)
+        if has_content_en and not has_write_data:
+            is_read_a = True
+            break
+            
+    if is_read_a:
+        # Find the immediately following Group B in the control schedule
+        seq_match = re.search(fr'calyx\.enable @{name_A}\n\s*calyx\.enable @([a-zA-Z0-9_]+)', text)
+        if seq_match:
+            name_B = seq_match.group(1)
+            match_B = groups_info.get(name_B)
+            if match_B:
+                body_B = match_B.group(3)
+                
+                # 1. Remove the "done" signal from Group A
+                body_A_clean = re.sub(r'^[ \t]*"calyx\.group_done".*?\n', '', body_A, flags=re.MULTILINE)
+                
+                # 2. Merge bodies: Group A (address) + Group B (read data & done)
+                merged_body = body_A_clean + "\n" + body_B
+                new_group_A = f'{match_A.group(1)}\n{merged_body}\n{match_A.group(4)}'
+                
+                # 3. Apply the merger to the MLIR code
+                text = text.replace(match_A.group(0), new_group_A)
+                text = text.replace(match_B.group(0), "") # Delete Group B
+                
+                # 4. Erase Group B from the execution schedule
+                text = re.sub(fr'^[ \t]*calyx\.enable @{name_B}\b.*?\n', '', text, flags=re.MULTILINE)
+
+# 4. Remove phantom reset(#2) and content_en(#3) wires
 for mem_id in seq_mems:
     text = re.sub(fr'^[ \t]*"calyx\.assign"\(\s*%{mem_id}#[23]\b.*?\n', '', text, flags=re.MULTILINE)
 
-# 4. Global Rewire Engine for surviving ports
+# 5. Global Rewire Engine for surviving ports
 def rewire(match):
     mem_id = match.group(1)
     port = int(match.group(2))
-    # 0(addr)->0, 1(clk)->3, 4(w_en)->2, 5(w_data)->1, 6(r_data)->4, 7(done)->5
+    # Map seq_mem ports to combinational memory ports
+    # 0:addr->0, 1:clk->3, 4:w_en->2, 5:w_data->1, 6:r_data->4, 7:done->5
     mapping = {0:0, 1:3, 4:2, 5:1, 6:4, 7:5}
     if port in mapping:
         return f'%{mem_id}#{mapping[port]}'
@@ -472,20 +513,6 @@ def rewire(match):
 
 for mem_id in seq_mems:
     text = re.sub(fr'%({mem_id})#(\d+)\b', rewire, text)
-
-# 5. Group-Aware Read Fixer
-def fix_group(match):
-    group_body = match.group(0)
-    for mem_id in seq_mems:
-        has_wen = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#2\b', group_body)
-        has_wdata = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#1\b', group_body)
-        
-        if has_wen and not has_wdata:
-            group_body = re.sub(fr'^[ \t]*"calyx\.assign"\(\s*%{mem_id}#2\b.*?\n', '', group_body, flags=re.MULTILINE)
-            
-    return group_body
-
-text = re.sub(r'"calyx\.group"[\s\S]*?\}\) : \(\) -> \(\)', fix_group, text)
 
 with open(file, 'w') as f:
     f.write(text)
