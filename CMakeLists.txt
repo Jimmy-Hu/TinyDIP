@@ -442,15 +442,14 @@ file = sys.argv[1]
 with open(file, 'r') as f:
     mlir = f.read()
 
-# Fix CIRCT's bug where it blindly turns scalar arguments into size-1 memories.
-# This crashes the HW address width calculation (log2(1) = 0). We pad it to 2.
-
-# 1. Target the generic dictionary format (just in case)
+# 1. Fix the size-1 math bug (log2(1) = 0 crash) for both generic and custom formats
 mlir = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', mlir)
-
-# 2. Target the Calyx custom assembly format (e.g., <[1] x 64>)
-# We capture the bitwidth (\d+) and rewrite it as <[2] x bitwidth>
 mlir = re.sub(r'<\[1\]\s*x\s*(\d+)>', r'<[2] x \g<1>>', mlir)
+
+# 2. Fix CIRCT's missing port bug by turning external memories into internal scratchpads.
+# By deleting {external = true}, CalyxToHW synthesizes them as internal SRAM blocks 
+# instead of crashing while looking for missing I/O ports.
+mlir = re.sub(r'\{external\s*=\s*true\}', '', mlir)
 
 with open(file, 'w') as f:
     f.write(mlir)
