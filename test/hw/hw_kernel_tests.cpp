@@ -24,6 +24,7 @@ constexpr double default_pixel_processor(const double pixel)
     return pixel * 1.5234567890123456789;
 }
 
+//  process_and_stream_image template function implementation
 // ---------------------------------------------------------
 // Algorithm Kernel (Struct-Free & Pointer-Free)
 // ---------------------------------------------------------
@@ -41,19 +42,21 @@ inline void process_and_stream_image(
     T* const output_stream_buffer,
     std::size_t& stream_count)
 {
-    // Abandon std::transform at the hardware boundary.
-    // Direct C++ loop ensures NO function pointers or structs are passed as arguments.
-    // Seamlessly hybridize OpenMP for CPU and clang unroll for HW.
-#ifndef __POLYGEIST__
+    #ifndef __POLYGEIST__
     #pragma omp parallel for
-#else
-    #pragma clang loop unroll(full)
-#endif
     for (std::size_t i = 0; i < size; ++i)
     {
-        // Direct function call synthesizes perfectly into a hardwired multiplier.
         processed_data[i] = default_pixel_processor(input_data[i]);
     }
+#else
+    std::size_t i = 0;
+    constexpr std::size_t MAX_SIZE = 16384;
+    while ((i < size) & (i < MAX_SIZE))
+    {
+        processed_data[i] = default_pixel_processor(input_data[i]);
+        i++;
+    }
+#endif
 
     constexpr std::size_t MAX_STREAM_ITERATIONS = 16384;
     std::size_t current_index{};
