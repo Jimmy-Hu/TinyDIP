@@ -471,13 +471,12 @@ def rewire(match):
 for mem_id in seq_mems:
     text = re.sub(fr'%({mem_id})#(\d+)\b', rewire, text)
 
-# 5. Collect ALL memory IDs (including external args like arg_mem_0)
 all_mems = set(seq_mems)
-for match in re.finditer(r'%(\d+):6\s*=\s*"calyx\.memory"', text):
+for match in re.finditer(r'%(\d+)(?::\d+)?\s*=\s*"calyx\.memory"', text):
     all_mems.add(match.group(1))
 
 # 6. Ghost Write_En Cleanup for ALL memories
-group_pattern = re.compile(r'("calyx\.group"\(\)\s*<\{sym_name\s*=\s*"([^"]+)"\}>\s*\(\{)\n(.*?)\n(\s*\}\)\s*:\s*\(\)\s*->\s*\(\))', re.DOTALL)
+group_pattern = re.compile(r'("calyx\.group"\(\)\s*<[^>]*sym_name\s*=\s*"([^"]+)"[^>]*>\s*\(\{)\n(.*?)\n(\s*\}\)\s*:\s*\(\)\s*->\s*\(\))', re.DOTALL)
 def clean_ghost_writes(match):
     header, name, body, footer = match.groups()
     for mem_id in all_mems:
@@ -493,7 +492,6 @@ groups_info = {m.group(2): m for m in group_pattern.finditer(text)}
 
 for name_A, match_A in groups_info.items():
     body_A = match_A.group(3)
-    is_read_a = False
     target_mem = None
     
     for mem_id in all_mems:
@@ -502,17 +500,18 @@ for name_A, match_A in groups_info.items():
         has_rdata = re.search(fr'%{mem_id}#4\b', body_A)
         
         if has_addr and not has_wdata and not has_rdata:
-            is_read_a = True
             target_mem = mem_id
             break
             
-    if is_read_a:
-        pattern_A = fr'"calyx\.enable"\(\)\s*<[^>]*sym_name\s*=\s*"{name_A}"[^>]*>.*?\n'
-        pattern_B = r'\s*"calyx\.enable"\(\)\s*<[^>]*sym_name\s*=\s*"([^"]+)"[^>]*>.*?\n'
-        seq_match = re.search(pattern_A + pattern_B, text)
+    if target_mem:
+        pattern_A = fr'([ \t]*"calyx\.enable"[^\n]*?@{name_A}\b[^\n]*?\n)'
+        pattern_B = r'([ \t]*"calyx\.enable"[^\n]*?@([a-zA-Z0-9_]+)\b[^\n]*?\n)'
+        seq_match = re.search(pattern_A + r'\s*' + pattern_B, text)
         
         if seq_match:
-            name_B = seq_match.group(1)
+            full_enable_B = seq_match.group(2)
+            name_B = seq_match.group(3)
+            
             match_B = groups_info.get(name_B)
             if match_B:
                 body_B = match_B.group(3)
@@ -521,11 +520,9 @@ for name_A, match_A in groups_info.items():
                     merged_body = body_A_clean + "\n" + body_B
                     new_group_A = f'{match_A.group(1)}\n{merged_body}\n{match_A.group(4)}'
                     
-                    text = text.replace(match_A.group(0), new_group_A)
-                    text = text.replace(match_B.group(0), "")
-                    
-                    pattern_B_exact = fr'^[ \t]*"calyx\.enable"\(\)\s*<[^>]*sym_name\s*=\s*"{name_B}"[^>]*>.*?\n'
-                    text = re.sub(pattern_B_exact, '', text, flags=re.MULTILINE)
+                    text = text.replace(match_A.group(0), new_group_A, 1)
+                    text = text.replace(match_B.group(0), "", 1)
+                    text = text.replace(full_enable_B, "", 1)
 
 with open(file, 'w') as f:
     f.write(text)
