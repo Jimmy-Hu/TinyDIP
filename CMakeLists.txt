@@ -532,13 +532,13 @@ with open(file, 'w') as f:
         COMMAND sed -i 's/module attributes {.*} {/module {/' ${MLIR_OUTPUT}
         
         # Phase 0.5: Fix MLIR Memory Signatures
-        COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${MLIR_OUTPUT}
+        COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${MLIR_OUTPUT}
         
         # Phase 1: Frontend to Middle-end (Lower SCF to Calyx)
         COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(symbol-dce,func.func(calyx-affine-to-scf),lower-scf-to-calyx{top-level-function=hw_top_level_kernel})" --mlir-print-op-generic ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.calyx.mlir
         
-        # Phase 1.5: Python Surgery (Our Time-Travel Fixer)
-        COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py ${MLIR_OUTPUT}.calyx.mlir
+        # Phase 1.5: Python Surgery
+        COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py ${MLIR_OUTPUT}.calyx.mlir
         
         COMMAND echo "================ DUMPING MODIFIED CALYX MLIR ================"
         COMMAND cat ${MLIR_OUTPUT}.calyx.mlir
@@ -552,6 +552,7 @@ with open(file, 'w') as f:
         
         DEPENDS ${CMAKE_SOURCE_DIR}/test/hw/hw_kernel_tests.cpp ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py
         COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT... (DEBUG MODE)"
+        VERBATIM
     )
 
     # Custom Target
