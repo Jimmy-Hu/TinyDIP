@@ -488,9 +488,9 @@ def clean_ghost_writes(match):
     return f'{header}\n{body}\n{footer}'
 text = group_pattern.sub(clean_ghost_writes, text)
 
-# 7. TIME-TRAVEL ADDRESS INJECTION (The Ultimate Fix for Deep Pipelines)
+# 7. TIME-TRAVEL ADDRESS INJECTION (Fixed generic syntax for calyx.enable)
 groups_info = {m.group(2): m for m in group_pattern.finditer(text)}
-schedule_enables = re.findall(r'"calyx\.enable"\(\)\s*<[^>]*sym_name\s*=\s*"([^"]+)"[^>]*>', text)
+schedule_enables = re.findall(r'"calyx\.enable"\(\)\s*<[^>]*groupName\s*=\s*@([a-zA-Z0-9_]+)[^>]*>', text)
 
 for current_name, match_current in groups_info.items():
     body_current = match_current.group(3)
@@ -537,21 +537,13 @@ with open(file, 'w') as f:
         # Phase 1: Frontend to Middle-end (Lower SCF to Calyx)
         COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(symbol-dce,func.func(calyx-affine-to-scf),lower-scf-to-calyx{top-level-function=hw_top_level_kernel})" --mlir-print-op-generic ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.calyx.mlir
         
-        # Phase 1.5: Python Surgery
         COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py ${MLIR_OUTPUT}.calyx.mlir
         
-        COMMAND echo "================ DUMPING MODIFIED CALYX MLIR ================"
-        COMMAND cat ${MLIR_OUTPUT}.calyx.mlir
-        COMMAND echo "================ END OF CALYX MLIR ================"
-        
-        # COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(lower-calyx-to-hw,hw-flatten-io)" ${MLIR_OUTPUT}.calyx.mlir -o ${MLIR_OUTPUT}.opt.mlir
-        # COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} --export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${CMAKE_CURRENT_BINARY_DIR}/tinydip_hw.sv
-        
-        COMMAND touch ${MLIR_OUTPUT}.opt.mlir
-        COMMAND touch ${CMAKE_CURRENT_BINARY_DIR}/tinydip_hw.sv
+        COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(lower-calyx-to-hw,hw-flatten-io)" ${MLIR_OUTPUT}.calyx.mlir -o ${MLIR_OUTPUT}.opt.mlir
+        COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} --export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${CMAKE_CURRENT_BINARY_DIR}/tinydip_hw.sv
         
         DEPENDS ${CMAKE_SOURCE_DIR}/test/hw/hw_kernel_tests.cpp ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py
-        COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT... (DEBUG MODE)"
+        COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT..."
         VERBATIM
     )
 
