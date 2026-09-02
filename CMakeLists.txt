@@ -426,23 +426,19 @@ mlir = re.sub(r'llvm\.mlir\.undef\s*:\s*i64', 'arith.constant 0 : i64', mlir)
 mlir = mlir.replace('linkage<linkonce_odr>', 'linkage<private>')
 
 # 4. Safely lower affine.store and affine.load to memref equivalents
-# Find all constant indices used (e.g., [0], [1])
 indices = set(re.findall(r'affine\.(?:store|load).*?\[(\d+)\]', mlir))
-
 if indices:
     injection = ''
     for idx in indices:
         injection += f'\n    %c{idx}_idx = arith.constant {idx} : index'
-
-    # Inject index constants at the start of every function body.
-    # Regex explanation:
-    # func\.func\s+@[^{]+       -> Matches "func.func @name(args) "
-    # (?:\{[^}]*\})?            -> Matches optional "attributes { ... }"
-    # \s*\{                     -> Matches the final "{" that opens the function body
+    # Inject index constants at the start of every function body
     mlir = re.sub(r'(func\.func\s+@[^{]+(?:\{[^}]*\})?\s*\{)', r'\g<1>' + injection, mlir)
 
-# Replace affine with memref and use the newly injected index constants
+# 4a. Convert affine with constant indices (e.g. [0]) to use variables
 mlir = re.sub(r'affine\.(store|load)(.*?)\[(\d+)\]', r'memref.\g<1>\g<2>[%c\g<3>_idx]', mlir)
+
+# 4b. Convert 0D scalar affine (empty brackets []) and any leftovers directly
+mlir = mlir.replace('affine.store', 'memref.store').replace('affine.load', 'memref.load')
 
 with open(file, 'w') as f:
     f.write(mlir)
@@ -452,7 +448,7 @@ with open(file, 'w') as f:
     add_custom_command(
         OUTPUT ${SV_OUTPUT}
         COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${MLIR_OUTPUT}
-        COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(symbol-dce,func.func(calyx-affine-to-scf,scf-for-to-while),lower-scf-to-calyx{top-level-function=hw_top_level_kernel},lower-calyx-to-hw,hw-flatten-io)" ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.opt.mlir
+        COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(symbol-dce,func.func(calyx-affine-to-scf),lower-scf-to-calyx{top-level-function=hw_top_level_kernel},lower-calyx-to-hw,hw-flatten-io)" ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.opt.mlir
         COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} -export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${SV_OUTPUT}
         DEPENDS ${MLIR_OUTPUT}
         COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT..."
