@@ -441,93 +441,7 @@ import sys, re
 file = sys.argv[1]
 with open(file, 'r') as f:
     text = f.read()
-
-# 1. Fix size-1 math bug
 text = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', text)
-
-# 2. Convert internal seq_mem to calyx.memory
-seq_mems = set()
-def convert_mem(match):
-    indent, mem_id, attrs, addr_w, data_w = match.groups()
-    seq_mems.add(mem_id)
-    attrs = attrs.replace('{external = true}', '')
-    return f'{indent}%{mem_id}:6 = "calyx.memory"() {attrs} : () -> (i{addr_w}, {data_w}, i1, i1, {data_w}, i1)'
-
-text = re.sub(r'^(\s*)%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*(.*?)\s*:\s*\(\)\s*->\s*\(i(\d+),\s*i1,\s*i1,\s*i1,\s*i1,\s*([a-zA-Z0-9_]+),\s*\5,\s*i1\)', convert_mem, text, flags=re.MULTILINE)
-
-# 3. Cut phantom reset(#2) and content_en(#3) wires for internal seq_mems
-for mem_id in seq_mems:
-    text = re.sub(fr'^[ \t]*"calyx\.assign"\(\s*%{mem_id}#[23]\b.*?\n', '', text, flags=re.MULTILINE)
-
-# 4. Global Rewire Engine for internal seq_mems
-def rewire(match):
-    mem_id = match.group(1)
-    port = int(match.group(2))
-    mapping = {0:0, 1:3, 4:2, 5:1, 6:4, 7:5}
-    if port in mapping:
-        return f'%{mem_id}#{mapping[port]}'
-    return match.group(0)
-
-for mem_id in seq_mems:
-    text = re.sub(fr'%({mem_id})#(\d+)\b', rewire, text)
-
-# 5. Collect ALL memory IDs (including external arguments like arg_mem_0)
-all_mems = set(seq_mems)
-for match in re.finditer(r'%(\d+)(?::\d+)?\s*=\s*"calyx\.memory"', text):
-    all_mems.add(match.group(1))
-
-# 6. Ghost Write_En Cleanup for ALL memories
-group_pattern = re.compile(r'("calyx\.group"\(\)\s*<[^>]*sym_name\s*=\s*"([^"]+)"[^>]*>\s*\(\{)\n(.*?)\n(\s*\}\)\s*:\s*\(\)\s*->\s*\(\))', re.DOTALL)
-def clean_ghost_writes(match):
-    header, name, body, footer = match.groups()
-    for mem_id in all_mems:
-        has_wen = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#2\b', body)
-        has_wdata = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#1\b', body)
-        if has_wen and not has_wdata:
-            body = re.sub(fr'^[ \t]*"calyx\.assign"\(\s*%{mem_id}#2\b.*?\n', '', body, flags=re.MULTILINE)
-    return f'{header}\n{body}\n{footer}'
-text = group_pattern.sub(clean_ghost_writes, text)
-
-# 7. TIME-TRAVEL ADDRESS INJECTION (Component-Isolated & Lossless Logic Copy)
-components = text.split('"calyx.component"')
-new_components = [components[0]]
-
-for comp in components[1:]:
-    comp_text = '"calyx.component"' + comp
-    groups_info = {m.group(2): m for m in group_pattern.finditer(comp_text)}
-    schedule_enables = re.findall(r'"calyx\.enable"\(\)\s*<[^>]*groupName\s*=\s*@([a-zA-Z0-9_]+)[^>]*>', comp_text)
-    
-    for current_name, match_current in groups_info.items():
-        body_current = match_current.group(3)
-        modified = False
-        
-        for mem_id in all_mems:
-            has_rdata = re.search(fr'%{mem_id}#4\b', body_current)
-            has_addr = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#0\b', body_current)
-            
-            if has_rdata and not has_addr:
-                try:
-                    idx = schedule_enables.index(current_name)
-                except ValueError:
-                    continue
-                    
-                for j in range(idx - 1, -1, -1):
-                    prev_name = schedule_enables[j]
-                    if prev_name in groups_info:
-                        body_prev = groups_info[prev_name].group(3)
-                        if re.search(fr'"calyx\.assign"\(\s*%{mem_id}#0\b', body_prev):
-                            assign_lines = re.findall(r'^[ \t]*"calyx\.assign".*?\n', body_prev, flags=re.MULTILINE)
-                            body_current = "".join(assign_lines) + body_current
-                            modified = True
-                            break 
-                            
-        if modified:
-            new_group = f'{match_current.group(1)}\n{body_current}\n{match_current.group(4)}'
-            comp_text = comp_text.replace(match_current.group(0), new_group, 1)
-            
-    new_components.append(comp_text)
-
-text = "".join(new_components)
 
 with open(file, 'w') as f:
     f.write(text)
@@ -535,13 +449,20 @@ with open(file, 'w') as f:
 
     # CIRCT (MLIR to SystemVerilog)
     add_custom_command(
-        OUTPUT ${SV_OUTPUT}
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/tinydip_hw.sv
+        # Phase 0: Polygeist C++ to MLIR
+        COMMAND ${POLYGEIST_EXECUTABLE} -S -O3 --std=c++20 -D__POLYGEIST__ ${CMAKE_SOURCE_DIR}/test/hw/hw_kernel_tests.cpp -o ${MLIR_OUTPUT}
+        COMMAND sed -i "s/module attributes {.*} {/module {/" ${MLIR_OUTPUT}
+        
+        # Phase 0.5: Fix MLIR Memory Signatures
         COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${MLIR_OUTPUT}
+        
+        # Phase 1: Frontend to Middle-end (Lower SCF to Calyx)
         COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(symbol-dce,func.func(calyx-affine-to-scf),lower-scf-to-calyx{top-level-function=hw_top_level_kernel})" --mlir-print-op-generic ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.calyx.mlir
         COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py ${MLIR_OUTPUT}.calyx.mlir
         COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(lower-calyx-to-hw,hw-flatten-io)" ${MLIR_OUTPUT}.calyx.mlir -o ${MLIR_OUTPUT}.opt.mlir
-        COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} -export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${SV_OUTPUT}
-        DEPENDS ${MLIR_OUTPUT}
+        COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} --export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${CMAKE_CURRENT_BINARY_DIR}/tinydip_hw.sv
+        DEPENDS ${CMAKE_SOURCE_DIR}/test/hw/hw_kernel_tests.cpp ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py
         COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT..."
         VERBATIM
     )
