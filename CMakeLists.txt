@@ -488,37 +488,46 @@ def clean_ghost_writes(match):
     return f'{header}\n{body}\n{footer}'
 text = group_pattern.sub(clean_ghost_writes, text)
 
-# 7. TIME-TRAVEL ADDRESS INJECTION (Fixed generic syntax for calyx.enable)
-groups_info = {m.group(2): m for m in group_pattern.finditer(text)}
-schedule_enables = re.findall(r'"calyx\.enable"\(\)\s*<[^>]*groupName\s*=\s*@([a-zA-Z0-9_]+)[^>]*>', text)
+# 7. TIME-TRAVEL ADDRESS INJECTION (Component-Isolated & Lossless Logic Copy)
+components = text.split('"calyx.component"')
+new_components = [components[0]]
 
-for current_name, match_current in groups_info.items():
-    body_current = match_current.group(3)
-    modified = False
+for comp in components[1:]:
+    comp_text = '"calyx.component"' + comp
+    groups_info = {m.group(2): m for m in group_pattern.finditer(comp_text)}
+    schedule_enables = re.findall(r'"calyx\.enable"\(\)\s*<[^>]*groupName\s*=\s*@([a-zA-Z0-9_]+)[^>]*>', comp_text)
     
-    for mem_id in all_mems:
-        has_rdata = re.search(fr'%{mem_id}#4\b', body_current)
-        has_addr = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#0\b', body_current)
+    for current_name, match_current in groups_info.items():
+        body_current = match_current.group(3)
+        modified = False
         
-        if has_rdata and not has_addr:
-            try:
-                idx = schedule_enables.index(current_name)
-            except ValueError:
-                continue
-                
-            for j in range(idx - 1, -1, -1):
-                prev_name = schedule_enables[j]
-                if prev_name in groups_info:
-                    body_prev = groups_info[prev_name].group(3)
-                    addr_match = re.search(fr'^([ \t]*"calyx\.assign"\(\s*%{mem_id}#0\b.*?\n)', body_prev, flags=re.MULTILINE)
-                    if addr_match:
-                        body_current = addr_match.group(1) + body_current
-                        modified = True
-                        break
-                        
-    if modified:
-        new_group = f'{match_current.group(1)}\n{body_current}\n{match_current.group(4)}'
-        text = text.replace(match_current.group(0), new_group, 1)
+        for mem_id in all_mems:
+            has_rdata = re.search(fr'%{mem_id}#4\b', body_current)
+            has_addr = re.search(fr'"calyx\.assign"\(\s*%{mem_id}#0\b', body_current)
+            
+            if has_rdata and not has_addr:
+                try:
+                    idx = schedule_enables.index(current_name)
+                except ValueError:
+                    continue
+                    
+                for j in range(idx - 1, -1, -1):
+                    prev_name = schedule_enables[j]
+                    if prev_name in groups_info:
+                        body_prev = groups_info[prev_name].group(3)
+                        if re.search(fr'"calyx\.assign"\(\s*%{mem_id}#0\b', body_prev):
+                            assign_lines = re.findall(r'^[ \t]*"calyx\.assign".*?\n', body_prev, flags=re.MULTILINE)
+                            body_current = "".join(assign_lines) + body_current
+                            modified = True
+                            break 
+                            
+        if modified:
+            new_group = f'{match_current.group(1)}\n{body_current}\n{match_current.group(4)}'
+            comp_text = comp_text.replace(match_current.group(0), new_group, 1)
+            
+    new_components.append(comp_text)
+
+text = "".join(new_components)
 
 with open(file, 'w') as f:
     f.write(text)
@@ -526,23 +535,13 @@ with open(file, 'w') as f:
 
     # CIRCT (MLIR to SystemVerilog)
     add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/tinydip_hw.sv
-        # Phase 0: Polygeist C++ to MLIR
-        COMMAND ${POLYGEIST_EXECUTABLE} -S -O3 --std=c++20 -D__POLYGEIST__ ${CMAKE_SOURCE_DIR}/test/hw/hw_kernel_tests.cpp -o ${MLIR_OUTPUT}
-        COMMAND sed -i "s/module attributes {.*} {/module {/" ${MLIR_OUTPUT}
-        
-        # Phase 0.5: Fix MLIR Memory Signatures
+        OUTPUT ${SV_OUTPUT}
         COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${MLIR_OUTPUT}
-        
-        # Phase 1: Frontend to Middle-end (Lower SCF to Calyx)
         COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(symbol-dce,func.func(calyx-affine-to-scf),lower-scf-to-calyx{top-level-function=hw_top_level_kernel})" --mlir-print-op-generic ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.calyx.mlir
-        
         COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py ${MLIR_OUTPUT}.calyx.mlir
-        
         COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(lower-calyx-to-hw,hw-flatten-io)" ${MLIR_OUTPUT}.calyx.mlir -o ${MLIR_OUTPUT}.opt.mlir
-        COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} --export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${CMAKE_CURRENT_BINARY_DIR}/tinydip_hw.sv
-        
-        DEPENDS ${CMAKE_SOURCE_DIR}/test/hw/hw_kernel_tests.cpp ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py
+        COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} -export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${SV_OUTPUT}
+        DEPENDS ${MLIR_OUTPUT}
         COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT..."
         VERBATIM
     )
