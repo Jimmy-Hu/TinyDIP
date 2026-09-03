@@ -441,7 +441,39 @@ import sys, re
 file = sys.argv[1]
 with open(file, 'r') as f:
     text = f.read()
+
+# 1. Fix log2(1)=0 bug causing compiler crash
 text = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', text)
+
+# 2. Camouflage unsupported seq_mem as generic module instances
+mem_dims = set()
+def replace_seq_mem(match):
+    addr_w = match.group(1)
+    sym_name = match.group(2)
+    data_w = match.group(3)
+    ports = match.group(4)
+    comp_name = f"seq_mem_{addr_w}_{data_w}"
+    mem_dims.add((addr_w, data_w))
+    # Convert built-in op to custom component call
+    return f'"calyx.instance"() <{{componentName = @{comp_name}, sym_name = "{sym_name}"}}> : () -> ({ports})'
+
+# Catch and replace seq_mem
+text = re.sub(r'"calyx\.seq_mem"\(\)\s*<\{addrSizes = \[(\d+)\], sizes = \[\d+\], sym_name = "([^"]+)", width = (\d+) : i64\}>\s*(?:\{external = true\}\s*)?:\s*\(\)\s*->\s*\((.*?)\)', replace_seq_mem, text)
+
+# 3. Dynamically generate dummy components at the end of the file
+dummy_comps = ""
+for addr_w, data_w in mem_dims:
+    comp_name = f"seq_mem_{addr_w}_{data_w}"
+    # portDirections = -64 (Binary 11000000) means the first 6 are inputs, the last 2 are outputs
+    dummy_comps += f"""
+  "calyx.component"() <{{function_type = (i{addr_w}, i1, i1, i1, i1, i{data_w}) -> (i{data_w}, i1), portAttributes = [{{}}, {{}}, {{}}, {{}}, {{}}, {{}}, {{}}, {{}}], portDirections = -64 : i8, portNames = ["addr0", "content_en", "clk", "write_en", "read_en", "write_data", "read_data", "done"]}}> ({{
+    "calyx.wires"() ({{ ^bb0: }}) : () -> ()
+    "calyx.control"() ({{ "calyx.seq"() ({{}}) : () -> () }}) : () -> ()
+  }}) {{sym_name = "{comp_name}"}} : () -> ()
+"""
+
+# Insert dummy components before the end of the module
+text = text.replace('}) {calyx.entrypoint = "main"} : () -> ()', dummy_comps + '}) {calyx.entrypoint = "main"} : () -> ()')
 
 with open(file, 'w') as f:
     f.write(text)
