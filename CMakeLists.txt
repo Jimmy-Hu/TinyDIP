@@ -454,7 +454,7 @@ def replace_seq_mem(match):
     sym_name = match.group(4)
     data_w = match.group(5)
     ports = match.group(6)
-    comp_name = f"seq_mem_{addr_w}_{data_w}"
+    comp_name = f"sram_blackbox_{addr_w}_{data_w}"
     mem_dims.add((addr_w, data_w))
     return f'{indent}%{ssa_id}:8 = "calyx.instance"() <{{componentName = @{comp_name}, sym_name = "{sym_name}"}}> : () -> ({ports})'
 
@@ -462,7 +462,7 @@ text = re.sub(r'^(\s*)%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*<\{addrSizes = \[(\d
 
 dummy_comps = ""
 for addr_w, data_w in mem_dims:
-    comp_name = f"seq_mem_{addr_w}_{data_w}"
+    comp_name = f"sram_blackbox_{addr_w}_{data_w}"
     dummy_comps += f"""
   "calyx.component"() <{{function_type = (i{addr_w}, i1, i1, i1, i1, i{data_w}, i{data_w}, i1) -> (), portAttributes = [{{}}, {{go}}, {{clk}}, {{}}, {{reset}}, {{}}, {{}}, {{done}}], portDirections = -64 : i8, portNames = ["addr0", "content_en", "clk", "write_en", "read_en", "write_data", "read_data", "done"]}}> ({{
   ^bb0(%addr0: i{addr_w}, %content_en: i1, %clk: i1, %write_en: i1, %read_en: i1, %write_data: i{data_w}, %read_data: i{data_w}, %done: i1):
