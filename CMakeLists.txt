@@ -460,7 +460,7 @@ with open(file, 'w') as f:
         # Phase 1: Frontend to Middle-end (Lower SCF to Calyx)
         COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(symbol-dce,func.func(calyx-affine-to-scf),lower-scf-to-calyx{top-level-function=hw_top_level_kernel})" --mlir-print-op-generic ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.calyx.mlir
         COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py ${MLIR_OUTPUT}.calyx.mlir
-        COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(lower-calyx-to-hw,hw-flatten-io)" ${MLIR_OUTPUT}.calyx.mlir -o ${MLIR_OUTPUT}.opt.mlir
+        COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(lower-calyx-to-hw,hw-flatten-io)" --mlir-print-ir-after-failure --mlir-print-op-generic ${MLIR_OUTPUT}.calyx.mlir -o ${MLIR_OUTPUT}.opt.mlir
         COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} --export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${CMAKE_CURRENT_BINARY_DIR}/tinydip_hw.sv
         DEPENDS ${CMAKE_SOURCE_DIR}/test/hw/hw_kernel_tests.cpp ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py
         COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT..."
