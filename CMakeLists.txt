@@ -464,10 +464,14 @@ dummy_comps = ""
 for addr_w, data_w in mem_dims:
     comp_name = f"seq_mem_{addr_w}_{data_w}"
     dummy_comps += f"""
-  "calyx.component"() <{{function_type = (i{addr_w}, i1, i1, i1, i1, i{data_w}) -> (i{data_w}, i1), portAttributes = [{{}}, {{go}}, {{clk}}, {{}}, {{reset}}, {{}}, {{}}, {{done}}], portDirections = -64 : i8, portNames = ["addr0", "content_en", "clk", "write_en", "read_en", "write_data", "read_data", "done"]}}> ({{
-  ^bb0(%addr0: i{addr_w}, %content_en: i1, %clk: i1, %write_en: i1, %read_en: i1, %write_data: i{data_w}):
-    "calyx.wires"() ({{ ^bb0: }}) : () -> ()
-    "calyx.control"() ({{ "calyx.seq"() ({{}}) : () -> () }}) : () -> ()
+  "calyx.component"() <{{function_type = (i{addr_w}, i1, i1, i1, i1, i{data_w}, i{data_w}, i1) -> (), portAttributes = [{{}}, {{go}}, {{clk}}, {{}}, {{reset}}, {{}}, {{}}, {{done}}], portDirections = -64 : i8, portNames = ["addr0", "content_en", "clk", "write_en", "read_en", "write_data", "read_data", "done"]}}> ({{
+  ^bb0(%addr0: i{addr_w}, %content_en: i1, %clk: i1, %write_en: i1, %read_en: i1, %write_data: i{data_w}, %read_data: i{data_w}, %done: i1):
+    "calyx.wires"() ({{
+      "calyx.assign"(%done, %content_en) : (i1, i1) -> ()
+    }}) : () -> ()
+    "calyx.control"() ({{
+      "calyx.seq"() ({{}}) : () -> ()
+    }}) : () -> ()
   }}) {{sym_name = "{comp_name}"}} : () -> ()
 """
 
