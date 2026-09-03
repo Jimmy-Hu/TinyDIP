@@ -467,6 +467,7 @@ for addr_w, data_w in mem_dims:
     # portDirections = -64 (Binary 11000000) means the first 6 are inputs, the last 2 are outputs
     dummy_comps += f"""
   "calyx.component"() <{{function_type = (i{addr_w}, i1, i1, i1, i1, i{data_w}) -> (i{data_w}, i1), portAttributes = [{{}}, {{}}, {{}}, {{}}, {{}}, {{}}, {{}}, {{}}], portDirections = -64 : i8, portNames = ["addr0", "content_en", "clk", "write_en", "read_en", "write_data", "read_data", "done"]}}> ({{
+  ^bb0(%addr0: i{addr_w}, %content_en: i1, %clk: i1, %write_en: i1, %read_en: i1, %write_data: i{data_w}):
     "calyx.wires"() ({{ ^bb0: }}) : () -> ()
     "calyx.control"() ({{ "calyx.seq"() ({{}}) : () -> () }}) : () -> ()
   }}) {{sym_name = "{comp_name}"}} : () -> ()
