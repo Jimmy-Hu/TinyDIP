@@ -446,12 +446,13 @@ with open(file, 'r') as f:
 # 1. Fix log2(1)=0 bug causing compiler crash
 text = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', text)
 
-def float_to_int(match):
-    float_val = float(match.group(1))
+def float_to_hw_constant(match):
+    ssa_id = match.group(1)
+    float_val = float(match.group(2).strip())
     int_val = struct.unpack('<Q', struct.pack('<d', float_val))[0]
-    return f'value = {int_val} : i64'
+    return f'{ssa_id} = "hw.constant"() <{{value = {int_val} : i64}}> : () -> i64'
 
-text = re.sub(r'value\s*=\s*([0-9\.]+)\s*:\s*f64', float_to_int, text)
+text = re.sub(r'(%\d+)\s*=\s*"calyx\.constant"\(\)\s*<\{sym_name\s*=\s*"[^"]+",\s*value\s*=\s*([^:]+)\s*:\s*f64\}>\s*:\s*\(\)\s*->\s*i64', float_to_hw_constant, text)
 
 mem_dims = set()
 def replace_seq_mem(match):
