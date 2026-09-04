@@ -437,7 +437,8 @@ with open(file, 'w') as f:
 
     # Generate the Middle-end Python script to fix CIRCT's own bugs
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py [=[
-import sys, re
+import sys, re, struct
+
 file = sys.argv[1]
 with open(file, 'r') as f:
     text = f.read()
@@ -445,7 +446,13 @@ with open(file, 'r') as f:
 # 1. Fix log2(1)=0 bug causing compiler crash
 text = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', text)
 
-# 2. Camouflage unsupported seq_mem as generic module instances
+def float_to_int(match):
+    float_val = float(match.group(1))
+    int_val = struct.unpack('<Q', struct.pack('<d', float_val))[0]
+    return f'value = {int_val} : i64'
+
+text = re.sub(r'value\s*=\s*([0-9\.]+)\s*:\s*f64', float_to_int, text)
+
 mem_dims = set()
 def replace_seq_mem(match):
     indent = match.group(1)
