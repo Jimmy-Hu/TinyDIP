@@ -437,7 +437,7 @@ with open(file, 'w') as f:
 
     # Generate the Middle-end Python script to fix CIRCT's own bugs
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py [=[
-import sys, re, struct
+import sys, re
 
 file = sys.argv[1]
 with open(file, 'r') as f:
@@ -445,14 +445,6 @@ with open(file, 'r') as f:
 
 # 1. Fix log2(1)=0 bug causing compiler crash
 text = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', text)
-
-def float_to_hw_constant(match):
-    ssa_id = match.group(1)
-    float_val = float(match.group(2).strip())
-    int_val = struct.unpack('<Q', struct.pack('<d', float_val))[0]
-    return f'{ssa_id} = "hw.constant"() <{{value = {int_val} : i64}}> : () -> i64'
-
-text = re.sub(r'(%\d+)\s*=\s*"calyx\.constant"\(\)\s*<\{sym_name\s*=\s*"[^"]+",\s*value\s*=\s*([^:]+)\s*:\s*f64\}>\s*:\s*\(\)\s*->\s*i64', float_to_hw_constant, text)
 
 mem_dims = set()
 def replace_seq_mem(match):
@@ -472,8 +464,8 @@ dummy_comps = ""
 for addr_w, data_w in mem_dims:
     comp_name = f"sram_blackbox_{addr_w}_{data_w}"
     dummy_comps += f"""
-  "calyx.component"() <{{function_type = (i{addr_w}, i1, i1, i1, i1, i{data_w}, i{data_w}, i1) -> (), portAttributes = [{{}}, {{go}}, {{clk}}, {{}}, {{reset}}, {{}}, {{}}, {{done}}], portDirections = -64 : i8, portNames = ["addr0", "content_en", "clk", "write_en", "read_en", "write_data", "read_data", "done"]}}> ({{
-  ^bb0(%addr0: i{addr_w}, %content_en: i1, %clk: i1, %write_en: i1, %read_en: i1, %write_data: i{data_w}, %read_data: i{data_w}, %done: i1):
+  "calyx.component"() <{{function_type = (i{addr_w}, i1, i1, i1, i1, i{data_w}, i{data_w}, i1) -> (), portAttributes = [{{}}, {{go}}, {{clk}}, {{}}, {{reset}}, {{}}, {{}}, {{done}}], portDirections = -64 : i8, portNames = ["addr0", "content_en", "clk", "write_en", "reset", "write_data", "read_data", "done"]}}> ({{
+  ^bb0(%addr0: i{addr_w}, %content_en: i1, %clk: i1, %write_en: i1, %reset: i1, %write_data: i{data_w}, %read_data: i{data_w}, %done: i1):
     "calyx.wires"() ({{
       ^bb0:
       "calyx.assign"(%done, %content_en) : (i1, i1) -> ()
@@ -492,17 +484,11 @@ terminator = '}) {calyx.entrypoint' + split_parts[1]
 components = re.split(r'^[ \t]*"calyx\.component"\(\)', body, flags=re.MULTILINE)
 module_header = components[0]
 
-main_chunk = ""
-other_chunks = []
+text = module_header + dummy_comps
 for chunk in components[1:]:
-    if '{sym_name = "main"' in chunk:
-        main_chunk = '\n  "calyx.component"()' + chunk
-    else:
-        other_chunks.append('\n  "calyx.component"()' + chunk)
+    text += '\n  "calyx.component"()' + chunk
 
-other_chunks.reverse()
-
-text = module_header + dummy_comps + "".join(other_chunks) + main_chunk + terminator
+text += terminator
 
 with open(file, 'w') as f:
     f.write(text)
