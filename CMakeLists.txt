@@ -484,6 +484,7 @@ terminator = '}) {calyx.entrypoint' + split_parts[1]
 components = re.split(r'^[ \t]*"calyx\.component"\(\)', body, flags=re.MULTILINE)
 module_header = components[0]
 comps = components[1:]
+comps.reverse()
 
 text = module_header + dummy_comps
 for c in comps:
