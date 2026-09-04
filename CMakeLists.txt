@@ -460,6 +460,12 @@ def replace_seq_mem(match):
 
 text = re.sub(r'^(\s*)%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*<\{addrSizes = \[(\d+)\], sizes = \[\d+\], sym_name = "([^"]+)", width = (\d+) : i64\}>\s*(?:\{external = true\}\s*)?:\s*\(\)\s*->\s*\((.*?)\)', replace_seq_mem, text, flags=re.MULTILINE)
 
+text = re.sub(
+    r'"calyx\.component"\(\)\s*<\{function_type = \(i32, i64, i1, i1, i1, i1\) -> \(\), portAttributes = \[\{\}, \{\}, \{clk\}, \{reset\}, \{go\}, \{done\}\], portDirections = -32 : i6, portNames = \["[^"]+", "([^"]+)", "clk", "reset", "go", "done"\]\}>\s*\(\{\s*\^bb0\(%[^:]+:\s*i32,\s*([^)]+)\):',
+    r'"calyx.component"() <{function_type = (i64, i1, i1, i1, i1) -> (), portAttributes = [{}, {clk}, {reset}, {go}, {done}], portDirections = -16 : i5, portNames = ["\1", "clk", "reset", "go", "done"]}> ({\n  ^bb0(\2):',
+    text
+)
+
 dummy_comps = ""
 for addr_w, data_w in mem_dims:
     comp_name = f"sram_blackbox_{addr_w}_{data_w}"
