@@ -500,6 +500,8 @@ for chunk in components[1:]:
     else:
         other_chunks.append('\n  "calyx.component"()' + chunk)
 
+other_chunks.reverse()
+
 text = module_header + dummy_comps + "".join(other_chunks) + main_chunk + terminator
 
 with open(file, 'w') as f:
