@@ -488,9 +488,9 @@ main_chunk = ""
 other_chunks = []
 for chunk in components[1:]:
     if '{sym_name = "main"' in chunk:
-        main_chunk = '  "calyx.component"()' + chunk
+        main_chunk = '\n  "calyx.component"()' + chunk
     else:
-        other_chunks.append('  "calyx.component"()' + chunk)
+        other_chunks.append('\n  "calyx.component"()' + chunk)
 
 text = module_header + dummy_comps + "".join(other_chunks) + main_chunk + terminator
 
