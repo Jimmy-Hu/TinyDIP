@@ -437,7 +437,7 @@ with open(file, 'w') as f:
 
     # Generate the Middle-end Python script to fix CIRCT's own bugs
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py [=[
-import sys, re
+import sys, re, struct
 
 file = sys.argv[1]
 with open(file, 'r') as f:
@@ -445,6 +445,14 @@ with open(file, 'r') as f:
 
 # 1. Fix log2(1)=0 bug causing compiler crash
 text = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', text)
+
+def float_to_hw_constant(match):
+    ssa_id = match.group(1)
+    float_val = float(match.group(2).strip())
+    int_val = struct.unpack('<Q', struct.pack('<d', float_val))[0]
+    return f'{ssa_id} = "hw.constant"() <{{value = {int_val} : i64}}> : () -> i64'
+
+text = re.sub(r'(%\d+)\s*=\s*"calyx\.constant"\(\)\s*<\{sym_name\s*=\s*"[^"]+",\s*value\s*=\s*([^:]+)\s*:\s*f64\}>\s*:\s*\(\)\s*->\s*i64', float_to_hw_constant, text)
 
 mem_dims = set()
 def replace_seq_mem(match):
@@ -459,6 +467,21 @@ def replace_seq_mem(match):
     return f'{indent}%{ssa_id}:8 = "calyx.instance"() <{{componentName = @{comp_name}, sym_name = "{sym_name}"}}> : () -> ({ports})'
 
 text = re.sub(r'^(\s*)%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*<\{addrSizes = \[(\d+)\], sizes = \[\d+\], sym_name = "([^"]+)", width = (\d+) : i64\}>\s*(?:\{external = true\}\s*)?:\s*\(\)\s*->\s*\((.*?)\)', replace_seq_mem, text, flags=re.MULTILINE)
+
+def fix_signature(match):
+    return (
+        f'"calyx.component"() <{{function_type = (i64, i1, i1, i1, i1) -> (), '
+        f'portAttributes = [{{}}, {{clk}}, {{reset}}, {{go}}, {{done}}], '
+        f'portDirections = -16 : i5, '
+        f'portNames = [{match.group(1)}, "clk", "reset", "go", "done"]}}> ({{\n'
+        f'  ^bb0({match.group(2)}):'
+    )
+
+text = re.sub(
+    r'"calyx\.component"\(\)\s*<\{function_type = \(i32, i64, i1, i1, i1, i1\) -> \(\), portAttributes = \[\{\}, \{\}, \{clk\}, \{reset\}, \{go\}, \{done\}\], portDirections = -32 : i6, portNames = \["[^"]+", ("[^"]+"), "clk", "reset", "go", "done"\]\}>\s*\(\{\s*\^bb0\(%[^:]+:\s*i32,\s*([^)]+)\):',
+    fix_signature,
+    text
+)
 
 dummy_comps = ""
 for addr_w, data_w in mem_dims:
