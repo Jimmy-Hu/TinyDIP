@@ -469,6 +469,7 @@ for addr_w, data_w in mem_dims:
     "calyx.wires"() ({{
       ^bb0:
       "calyx.group"() <{{sym_name = "dummy_group"}}> ({{
+      ^bb0:
         "calyx.assign"(%done, %content_en) : (i1, i1) -> ()
         "calyx.group_done"(%content_en) : (i1) -> ()
       }}) : () -> ()
@@ -477,7 +478,7 @@ for addr_w, data_w in mem_dims:
       ^bb0:
       "calyx.enable"() <{{groupName = @dummy_group}}> : () -> ()
     }}) : () -> ()
-  }}) {{sym_name = "{comp_name}"}} : () -> ()
+  }}) {{sym_name = "{comp_name}", external = true}} : () -> ()
 """
 
 text = text.replace('}) {calyx.entrypoint = "main"} : () -> ()', dummy_comps + '}) {calyx.entrypoint = "main"} : () -> ()')
