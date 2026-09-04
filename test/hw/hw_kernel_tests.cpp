@@ -44,7 +44,7 @@ template <
     std::size_t Depth>
 requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
 [[gnu::always_inline]]
-inline void process_and_stream_image(
+static inline void process_and_stream_image(
     [[maybe_unused]] const ExecutionPolicy policy,
     const T* const input_data,
     T* const processed_data,
