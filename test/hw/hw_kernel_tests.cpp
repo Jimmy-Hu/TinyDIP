@@ -19,9 +19,18 @@
 #include "../../image.h"
 #include "../../timer.h"
 
-constexpr double default_pixel_processor(const double pixel)
+// Define the fractional precision (e.g., 16 bits for the fractional part)
+constexpr std::uint32_t FRACTIONAL_BITS = 16;
+
+// Convert 1.5234567890123456 to a fixed-point integer
+// 1.5234567890123456 * (1 << 16) = 99841.28 -> 99841
+constexpr std::uint64_t MULTIPLIER_FIXED = 99841;
+
+// Use std::uint64_t instead of double for hardware synthesis
+constexpr std::uint64_t default_pixel_processor(const std::uint64_t pixel)
 {
-    return pixel * 1.5234567890123456789;
+    // Perform fixed-point multiplication and shift back to correct the scale
+    return (pixel * MULTIPLIER_FIXED) >> FRACTIONAL_BITS;
 }
 
 //  process_and_stream_image template function implementation
@@ -30,7 +39,7 @@ constexpr double default_pixel_processor(const double pixel)
 // ---------------------------------------------------------
 template <
     typename ExecutionPolicy,
-    TinyDIP::image_element_standard_floating_point_type T,
+    std::unsigned_integral T,
     std::size_t Depth>
 requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>
 [[gnu::always_inline]]
@@ -81,9 +90,9 @@ inline void process_and_stream_image(
 #ifdef __POLYGEIST__
 
 extern "C" void hw_top_level_kernel(
-    const double* const input_data,
-    double* const processed_data,
-    double* const output_stream_buffer,
+    const std::uint64_t* const input_data,
+    std::uint64_t* const processed_data,
+    std::uint64_t* const output_stream_buffer,
     std::size_t* const out_count,
     const std::size_t size)
 {
@@ -91,7 +100,7 @@ extern "C" void hw_top_level_kernel(
     
     std::size_t internal_count{};
 
-    process_and_stream_image<decltype(hw_policy), double, 16>(
+    process_and_stream_image<decltype(hw_policy), std::uint64_t, 16>(
         hw_policy,
         input_data,
         processed_data,
@@ -110,26 +119,26 @@ extern "C" void hw_top_level_kernel(
 // ---------------------------------------------------------
 
 #ifndef __POLYGEIST__
-
+template <typename T = std::uint64_t>
 void test_process_and_stream_image()
 {
     std::cout << "--- Starting test_process_and_stream_image ---\n";
 
     constexpr std::size_t test_size = 5;
-    std::vector<double> input_data;
+    std::vector<T> input_data;
     input_data.reserve(test_size);
 
     for (std::size_t i{}; i < test_size; ++i)
     {
-        input_data.emplace_back(static_cast<double>(i + 1));
+        input_data.emplace_back(static_cast<T>(i + 1));
     }
 
-    std::array<double, test_size> processed_data{};
+    std::array<T, test_size> processed_data{};
     
-    std::array<double, 16> pixel_stream_buffer{};
+    std::array<T, 16> pixel_stream_buffer{};
     std::size_t stream_count{};
 
-    process_and_stream_image<decltype(std::execution::par_unseq), double, 16>(
+    process_and_stream_image<decltype(std::execution::par_unseq), T, 16>(
         std::execution::par_unseq,
         input_data.data(),
         processed_data.data(),
@@ -142,13 +151,6 @@ void test_process_and_stream_image()
     {
         std::cout << pixel_stream_buffer[i] << '\n';
     }
-
-    // Expected Output:
-    // 1.52346
-    // 3.04691
-    // 4.57037
-    // 6.09383
-    // 7.61728
 
     std::cout << "--- Unit test finished ---\n";
 }
