@@ -467,14 +467,15 @@ for addr_w, data_w in mem_dims:
   "calyx.component"() <{{function_type = (i{addr_w}, i1, i1, i1, i1, i{data_w}, i{data_w}, i1) -> (), portAttributes = [{{}}, {{go}}, {{clk}}, {{}}, {{reset}}, {{}}, {{}}, {{done}}], portDirections = -64 : i8, portNames = ["addr0", "content_en", "clk", "write_en", "read_en", "write_data", "read_data", "done"]}}> ({{
   ^bb0(%addr0: i{addr_w}, %content_en: i1, %clk: i1, %write_en: i1, %read_en: i1, %write_data: i{data_w}, %read_data: i{data_w}, %done: i1):
     "calyx.wires"() ({{
-    ^bb0:
-      "calyx.assign"(%done, %content_en) : (i1, i1) -> ()
+      ^bb0:
+      "calyx.group"() <{{sym_name = "dummy_group"}}> ({{
+        "calyx.assign"(%done, %content_en) : (i1, i1) -> ()
+        "calyx.group_done"(%content_en) : (i1) -> ()
+      }}) : () -> ()
     }}) : () -> ()
     "calyx.control"() ({{
-    ^bb0:
-      "calyx.seq"() ({{
       ^bb0:
-      }}) : () -> ()
+      "calyx.enable"() <{{groupName = @dummy_group}}> : () -> ()
     }}) : () -> ()
   }}) {{sym_name = "{comp_name}"}} : () -> ()
 """
