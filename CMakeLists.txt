@@ -477,7 +477,22 @@ for addr_w, data_w in mem_dims:
   }}) {{sym_name = "{comp_name}"}} : () -> ()
 """
 
-text = text.replace('}) {calyx.entrypoint = "main"} : () -> ()', dummy_comps + '}) {calyx.entrypoint = "main"} : () -> ()')
+split_parts = text.rsplit('}) {calyx.entrypoint', 1)
+body = split_parts[0]
+terminator = '}) {calyx.entrypoint' + split_parts[1]
+
+components = re.split(r'^[ \t]*"calyx\.component"\(\)', body, flags=re.MULTILINE)
+module_header = components[0]
+
+main_chunk = ""
+other_chunks = []
+for chunk in components[1:]:
+    if '{sym_name = "main"' in chunk:
+        main_chunk = '  "calyx.component"()' + chunk
+    else:
+        other_chunks.append('  "calyx.component"()' + chunk)
+
+text = module_header + dummy_comps + "".join(other_chunks) + main_chunk + terminator
 
 with open(file, 'w') as f:
     f.write(text)
