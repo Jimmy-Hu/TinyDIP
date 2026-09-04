@@ -26,8 +26,9 @@ constexpr std::uint32_t FRACTIONAL_BITS = 16;
 // 1.5234567890123456 * (1 << 16) = 99841.28 -> 99841
 constexpr std::uint64_t MULTIPLIER_FIXED = 99841;
 
+//  default_pixel_processor function implementation
 // Use std::uint64_t instead of double for hardware synthesis
-constexpr std::uint64_t default_pixel_processor(const std::uint64_t pixel)
+static constexpr std::uint64_t default_pixel_processor(const std::uint64_t pixel)
 {
     // Perform fixed-point multiplication and shift back to correct the scale
     return (pixel * MULTIPLIER_FIXED) >> FRACTIONAL_BITS;
