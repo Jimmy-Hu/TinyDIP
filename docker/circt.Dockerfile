@@ -7,6 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install runtime dependencies and download tools (wget, tar)
 RUN apt-get update && apt-get install -y \
     aptitude \
+    ccache \
     build-essential \
     wget \
     tar \
