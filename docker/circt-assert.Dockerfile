@@ -26,6 +26,9 @@ RUN apt-get update && apt-get install -y \
     flex \
     bison \
     autoconf \
+    help2man \
+    libfl-dev \
+    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/src
