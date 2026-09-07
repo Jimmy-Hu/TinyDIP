@@ -3,7 +3,7 @@ name: Build CIRCT Assertions Image
 on:
   push:
     paths:
-      - 'Dockerfile.circt-assert'
+      - 'circt-assert.Dockerfile'
   workflow_dispatch:
 
 permissions:
