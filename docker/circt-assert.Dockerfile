@@ -55,4 +55,30 @@ RUN ninja
 RUN ln -s /opt/src/circt/build/bin/circt-opt /usr/local/bin/circt-opt && \
     ln -s /opt/src/circt/build/bin/firtool /usr/local/bin/firtool
 
+RUN echo "Cloning and building custom Polygeist from source (this will take 1-2 hours)..." && \
+    git clone -b fix-brace-init-undef --recursive https://github.com/Jimmy-Hu/Polygeist.git /tmp/polygeist && \
+    mkdir -p /tmp/polygeist/llvm-project/build && cd /tmp/polygeist/llvm-project/build && \
+    cmake -G Ninja ../llvm \
+        -DLLVM_ENABLE_PROJECTS="clang;mlir" \
+        -DLLVM_TARGETS_TO_BUILD="host" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DLLVM_ENABLE_ASSERTIONS=ON && \
+    ninja && \
+    mkdir -p /tmp/polygeist/build && cd /tmp/polygeist/build && \
+    cmake -G Ninja .. \
+        -DMLIR_DIR=/tmp/polygeist/llvm-project/build/lib/cmake/mlir \
+        -DClang_DIR=/tmp/polygeist/llvm-project/build/lib/cmake/clang \
+        -DCMAKE_BUILD_TYPE=Release && \
+    ninja && \
+    mkdir -p /opt/polygeist/bin /opt/polygeist/lib && \
+    cp bin/cgeist /opt/polygeist/bin/ && \
+    cp -r /tmp/polygeist/llvm-project/build/lib/clang /opt/polygeist/lib/ && \
+    rm -rf /tmp/polygeist
+
+# Inject the binaries into the system PATH
+ENV PATH="/opt/circt/bin:/opt/polygeist/bin:${PATH}"
+
+# Verify installations during the image build
+RUN circt-opt --version || true
+
 WORKDIR /
