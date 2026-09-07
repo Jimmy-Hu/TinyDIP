@@ -84,7 +84,7 @@ jobs:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     container:
       # Explicitly hardcoded to lowercase 'jimmy-hu' to comply with Docker registry rules
-      image: ghcr.io/jimmy-hu/circt-toolchain:latest
+      image: ghcr.io/jimmy-hu/circt-assert:latest
       
     steps:
       - name: "Checkout Source Code"
