@@ -22,11 +22,20 @@ RUN apt-get update && apt-get install -y \
     libopencv-dev \
     libboost-dev \
     libboost-all-dev \
-    verilator \
     libz3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/src
+
+RUN echo "Building modern Verilator from source..." && \
+    git clone https://github.com/verilator/verilator.git /tmp/verilator && \
+    cd /tmp/verilator && \
+    git checkout v5.022 && \
+    autoconf && \
+    ./configure && \
+    make -j$(nproc) && \
+    make install && \
+    rm -rf /tmp/verilator
 
 RUN git clone https://github.com/llvm/circt.git
 WORKDIR /opt/src/circt
