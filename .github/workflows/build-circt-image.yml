@@ -3,7 +3,7 @@ name: Build CIRCT Assertions Image
 on:
   push:
     paths:
-      - 'circt-assert.Dockerfile'
+      - 'docker/circt-assert.Dockerfile'
   workflow_dispatch:
 
 permissions:
@@ -35,6 +35,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile.circt-assert
+          file: ./docker/circt-assert.Dockerfile
           push: true
           tags: ghcr.io/${{ env.REPO_OWNER }}/circt-assert:latest
