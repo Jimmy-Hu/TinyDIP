@@ -5,13 +5,25 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     aptitude \
     build-essential \
+    ccache \
     wget \
+    tar \
+    gzip \
+    ca-certificates \
+    libstdc++6 \
     clang \
     cmake \
     ninja-build \
     git \
     python3 \
     python3-pip \
+    libtbb-dev \
+    libomp-dev \
+    libopencv-dev \
+    libboost-dev \
+    libboost-all-dev \
+    verilator \
+    libz3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/src
