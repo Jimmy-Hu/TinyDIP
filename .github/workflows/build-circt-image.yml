@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'Dockerfile.circt-assert'
+  workflow_dispatch:
 
 permissions:
   contents: read
