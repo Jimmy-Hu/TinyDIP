@@ -11,7 +11,9 @@
 #include <complex>
 #include <concepts>
 #include <exception>
+#if defined(__cpp_lib_format) && __cpp_lib_format >= 202207L && !defined(__CUDACC__)
 #include <format>
+#endif
 #include <fstream>
 #include <functional>
 #include <iostream>
