@@ -457,12 +457,14 @@ def replace_seq_mem(match):
     attributes = match.group(6)
     ports = match.group(7)
     
-    if "external" in attributes or "ref" in attributes:
+    if "external" in attributes:
         return match.group(0)
+        
+    is_ref_attr = ', is_ref = true' if 'arg_' in sym_name else ''
         
     comp_name = f"sram_blackbox_{addr_w}_{data_w}"
     mem_dims.add((addr_w, data_w))
-    return f'{indent}%{ssa_id}:8 = "calyx.instance"() <{{componentName = @{comp_name}, sym_name = "{sym_name}"}}> : () -> ({ports})'
+    return f'{indent}%{ssa_id}:8 = "calyx.instance"() <{{componentName = @{comp_name}, sym_name = "{sym_name}"{is_ref_attr}}}> : () -> ({ports})'
 
 text = re.sub(r'^(\s*)%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*<\{addrSizes = \[(\d+)\], sizes = \[\d+\], sym_name = "([^"]+)", width = (\d+) : i64\}>([^:]*):\s*\(\)\s*->\s*\((.*?)\)', replace_seq_mem, text, flags=re.MULTILINE)
 
