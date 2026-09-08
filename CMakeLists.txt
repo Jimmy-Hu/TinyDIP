@@ -457,7 +457,7 @@ def replace_seq_mem(match):
     attributes = match.group(6)
     ports = match.group(7)
     
-    if "external = true" in attributes:
+    if "external" in attributes or "ref" in attributes:
         return match.group(0)
         
     comp_name = f"sram_blackbox_{addr_w}_{data_w}"
