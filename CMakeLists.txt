@@ -446,6 +446,7 @@ with open(file, 'r') as f:
 # 1. Fix log2(1)=0 bug causing compiler crash
 text = re.sub(r'sizes\s*=\s*\[1\]', 'sizes = [2]', text)
 
+# 2. Replace calyx.seq_mem with calyx.instance 
 mem_dims = set()
 def replace_seq_mem(match):
     indent = match.group(1)
@@ -460,12 +461,14 @@ def replace_seq_mem(match):
 
 text = re.sub(r'^(\s*)%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*<\{addrSizes = \[(\d+)\], sizes = \[\d+\], sym_name = "([^"]+)", width = (\d+) : i64\}>\s*(?:\{external = true\}\s*)?:\s*\(\)\s*->\s*\((.*?)\)', replace_seq_mem, text, flags=re.MULTILINE)
 
+# 3. Cut off the ghost i32 interface port
 text = re.sub(
     r'"calyx\.component"\(\)\s*<\{function_type = \(i32, i64, i1, i1, i1, i1\) -> \(\), portAttributes = \[\{\}, \{\}, \{clk\}, \{reset\}, \{go\}, \{done\}\], portDirections = -32 : i6, portNames = \["[^"]+", "([^"]+)", "clk", "reset", "go", "done"\]\}>\s*\(\{\s*\^bb0\(%[^:]+:\s*i32,\s*([^)]+)\):',
     r'"calyx.component"() <{function_type = (i64, i1, i1, i1, i1) -> (), portAttributes = [{}, {clk}, {reset}, {go}, {done}], portDirections = -16 : i5, portNames = ["\1", "clk", "reset", "go", "done"]}> ({\n  ^bb0(\2):',
     text
 )
 
+# 4. Generate dummy components for SRAM
 dummy_comps = ""
 for addr_w, data_w in mem_dims:
     comp_name = f"sram_blackbox_{addr_w}_{data_w}"
@@ -483,6 +486,8 @@ for addr_w, data_w in mem_dims:
   }}) {{sym_name = "{comp_name}"}} : () -> ()
 """
 
+# 5. Smart Topological Sort
+# Instead of blind reverse, explicitly extract 'main' and append it at the very end
 split_parts = text.rsplit('}) {calyx.entrypoint', 1)
 body = split_parts[0]
 terminator = '}) {calyx.entrypoint' + split_parts[1]
@@ -490,11 +495,25 @@ terminator = '}) {calyx.entrypoint' + split_parts[1]
 components = re.split(r'^[ \t]*"calyx\.component"\(\)', body, flags=re.MULTILINE)
 module_header = components[0]
 comps = components[1:]
-comps.reverse()
+
+main_comp = None
+other_comps = []
+
+for c in comps:
+    # Identify the main component
+    if '{sym_name = "main"' in c:
+        main_comp = c
+    else:
+        other_comps.append(c)
 
 text = module_header + dummy_comps
-for c in comps:
+# Append all standard components first
+for c in other_comps:
     text += '\n  "calyx.component"()' + c
+
+# Append main component at the absolute bottom
+if main_comp:
+    text += '\n  "calyx.component"()' + main_comp
 
 text += terminator
 
