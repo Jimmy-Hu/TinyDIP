@@ -454,12 +454,17 @@ def replace_seq_mem(match):
     addr_w = match.group(3)
     sym_name = match.group(4)
     data_w = match.group(5)
-    ports = match.group(6)
+    attributes = match.group(6)
+    ports = match.group(7)
+    
+    if "external = true" in attributes:
+        return match.group(0)
+        
     comp_name = f"sram_blackbox_{addr_w}_{data_w}"
     mem_dims.add((addr_w, data_w))
     return f'{indent}%{ssa_id}:8 = "calyx.instance"() <{{componentName = @{comp_name}, sym_name = "{sym_name}"}}> : () -> ({ports})'
 
-text = re.sub(r'^(\s*)%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*<\{addrSizes = \[(\d+)\], sizes = \[\d+\], sym_name = "([^"]+)", width = (\d+) : i64\}>\s*(?:\{external = true\}\s*)?:\s*\(\)\s*->\s*\((.*?)\)', replace_seq_mem, text, flags=re.MULTILINE)
+text = re.sub(r'^(\s*)%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*<\{addrSizes = \[(\d+)\], sizes = \[\d+\], sym_name = "([^"]+)", width = (\d+) : i64\}>([^:]*):\s*\(\)\s*->\s*\((.*?)\)', replace_seq_mem, text, flags=re.MULTILINE)
 
 # 3. Cut off the ghost i32 interface port
 text = re.sub(
