@@ -104,4 +104,34 @@ RUN circt-opt --version && \
     firtool --version && \
     cgeist --version || true
 
+# ==============================================================================
+# Functional Sanity Checks
+# ==============================================================================
+WORKDIR /tmp/sanity_check
+
+RUN echo "Running functional sanity checks for the hardware toolchain..." && \
+    # 1. Test Polygeist Frontend (C++ to MLIR)
+    echo 'int hw_kernel(int a) { return a + 1; }' > test.cpp && \
+    cgeist -S -O3 --std=c++20 test.cpp -o test.mlir && \
+    grep -q "func.func" test.mlir && \
+    echo "[OK] Polygeist successfully compiled C++ to MLIR." && \
+    \
+    # 2. Test CIRCT Middle-end (MLIR Parsing & Optimization)
+    circt-opt --pass-pipeline="builtin.module(canonicalize)" test.mlir -o test_opt.mlir && \
+    echo "[OK] CIRCT-opt successfully parsed and optimized MLIR." && \
+    \
+    # 3. Test CIRCT Backend (FIRRTL to SystemVerilog via firtool)
+    echo 'circuit Dummy : module Dummy : input in: UInt<32> output out: UInt<32> out <= in' > test.fir && \
+    firtool test.fir -o test.sv && \
+    grep -q "module Dummy" test.sv && \
+    echo "[OK] Firtool successfully lowered FIRRTL to SystemVerilog." && \
+    \
+    # 4. Test Verilator (SystemVerilog Syntax Linting)
+    verilator --lint-only test.sv && \
+    echo "[OK] Verilator successfully validated the generated SystemVerilog." && \
+    \
+    # Cleanup
+    rm -rf /tmp/sanity_check
+
+# Reset workspace to root
 WORKDIR /
