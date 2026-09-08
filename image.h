@@ -58,13 +58,17 @@ namespace TinyDIP
     // Use standard std::formattable for modern compilers in C++23 mode (excluding CUDA nvcc)
     template<typename T, typename CharT = char>
     concept is_formattable_compat = std::formattable<T, CharT>;
-#else
-    // Fallback for older compilers, C++20 mode lacking std::formattable, or CUDA nvcc
+#elif defined(__cpp_lib_format) && !defined(__CUDACC__)
+    // Fallback for older compilers, C++20 mode lacking std::formattable
     template<typename T, typename CharT = char>
     concept is_formattable_compat = requires(std::formatter<std::remove_cvref_t<T>, CharT> f, std::basic_format_parse_context<CharT> pc)
     {
         f.parse(pc);
     };
+#else
+    // Safe fallback for environments completely lacking <format> support (e.g., Polygeist/Clang in C++20 mode)
+    template<typename T, typename CharT = char>
+    concept is_formattable_compat = false;
 #endif
 
         //  print_value template function implementation
