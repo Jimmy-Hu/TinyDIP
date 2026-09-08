@@ -99,6 +99,9 @@ RUN ln -s /opt/src/circt/build/bin/circt-opt /usr/local/bin/circt-opt && \
 ENV PATH="/opt/src/circt/build/bin:/opt/polygeist/bin:${PATH}"
 
 # Verify installations during the image build
-RUN circt-opt --version && circt-translate --version || true
+RUN circt-opt --version && \
+    circt-translate --version && \
+    firtool --version && \
+    cgeist --version || true
 
 WORKDIR /
