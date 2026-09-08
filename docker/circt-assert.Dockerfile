@@ -91,7 +91,7 @@ RUN echo "Cloning and building custom Polygeist from source (this will take 1-2 
     rm -rf /tmp/polygeist
 
 # Inject the binaries into the system PATH
-ENV PATH="/opt/circt/bin:/opt/polygeist/bin:${PATH}"
+ENV PATH="/opt/src/circt/build/bin:/opt/polygeist/bin:${PATH}"
 
 # Verify installations during the image build
 RUN circt-opt --version && circt-translate --version || true
