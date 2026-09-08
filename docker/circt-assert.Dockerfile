@@ -94,6 +94,6 @@ RUN echo "Cloning and building custom Polygeist from source (this will take 1-2 
 ENV PATH="/opt/circt/bin:/opt/polygeist/bin:${PATH}"
 
 # Verify installations during the image build
-RUN circt-opt --version || true
+RUN circt-opt --version && circt-translate --version || true
 
 WORKDIR /
