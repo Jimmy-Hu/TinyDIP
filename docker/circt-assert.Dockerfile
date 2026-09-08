@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /opt/src
 
+# Build modern Verilator from source
 RUN echo "Building modern Verilator from source..." && \
     git clone https://github.com/verilator/verilator.git /tmp/verilator && \
     cd /tmp/verilator && \
@@ -43,6 +44,7 @@ RUN echo "Building modern Verilator from source..." && \
     make install && \
     rm -rf /tmp/verilator
 
+# Clone and build CIRCT with Assertions
 RUN git clone https://github.com/llvm/circt.git
 WORKDIR /opt/src/circt
 RUN git submodule update --init
@@ -67,9 +69,7 @@ RUN cmake -G Ninja .. \
     -DCMAKE_CXX_COMPILER=clang++
 RUN ninja
 
-RUN ln -s /opt/src/circt/build/bin/circt-opt /usr/local/bin/circt-opt && \
-    ln -s /opt/src/circt/build/bin/firtool /usr/local/bin/firtool
-
+# Clone and build custom Polygeist from source
 RUN echo "Cloning and building custom Polygeist from source (this will take 1-2 hours)..." && \
     git clone -b fix-brace-init-undef --recursive https://github.com/Jimmy-Hu/Polygeist.git /tmp/polygeist && \
     mkdir -p /tmp/polygeist/llvm-project/build && cd /tmp/polygeist/llvm-project/build && \
@@ -89,6 +89,11 @@ RUN echo "Cloning and building custom Polygeist from source (this will take 1-2 
     cp bin/cgeist /opt/polygeist/bin/ && \
     cp -r /tmp/polygeist/llvm-project/build/lib/clang /opt/polygeist/lib/ && \
     rm -rf /tmp/polygeist
+
+# Create symlinks for all essential CIRCT binaries
+RUN ln -s /opt/src/circt/build/bin/circt-opt /usr/local/bin/circt-opt && \
+    ln -s /opt/src/circt/build/bin/circt-translate /usr/local/bin/circt-translate && \
+    ln -s /opt/src/circt/build/bin/firtool /usr/local/bin/firtool
 
 # Inject the binaries into the system PATH
 ENV PATH="/opt/src/circt/build/bin:/opt/polygeist/bin:${PATH}"
