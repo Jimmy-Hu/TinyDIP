@@ -45,7 +45,7 @@ RUN echo "Building modern Verilator from source..." && \
     rm -rf /tmp/verilator
 
 # Clone and build CIRCT with Assertions
-RUN git clone https://github.com/llvm/circt.git
+RUN git clone https://github.com/Jimmy-Hu/circt.git
 WORKDIR /opt/src/circt
 RUN git submodule update --init
 
