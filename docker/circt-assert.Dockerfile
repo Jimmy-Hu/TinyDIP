@@ -113,6 +113,7 @@ RUN echo "Running functional sanity checks for the hardware toolchain..." && \
     # 1. Test Polygeist Frontend (C++ to MLIR)
     echo 'int hw_kernel(int a) { return a + 1; }' > test.cpp && \
     cgeist -S -O3 --std=c++20 test.cpp -o test.mlir && \
+    sed -i "s/module attributes {.*} {/module {/" test.mlir && \
     grep -q "func.func" test.mlir && \
     echo "[OK] Polygeist successfully compiled C++ to MLIR." && \
     \
