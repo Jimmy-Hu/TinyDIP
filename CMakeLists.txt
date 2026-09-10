@@ -524,6 +524,10 @@ if main_comp:
 
 text += terminator
 
+# 6. Bypass CIRCT Compiler Bug
+# Remove the refCellsMap from calyx.invoke to prevent Null Pointer Segfault in lower-calyx-to-hw
+text = re.sub(r'\[arg_mem_[^\]]+\]', '', text)
+
 with open(file, 'w') as f:
     f.write(text)
 ]=])
