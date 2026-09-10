@@ -130,7 +130,7 @@ RUN echo "Running functional sanity checks for the hardware toolchain..." && \
     echo "[OK] CIRCT-opt successfully parsed and optimized MLIR." && \
     \
     # 3. Test CIRCT Backend (FIRRTL to SystemVerilog via firtool)
-    echo 'circuit Dummy : module Dummy : input in: UInt<32> output out: UInt<32> out <= in' > test.fir && \
+    printf "FIRRTL version 4.0.0\ncircuit Dummy :\n  module Dummy :\n    input in: UInt<32>\n    output out: UInt<32>\n    out <= in\n" > test.fir && \
     firtool test.fir -o test.sv && \
     grep -q "module Dummy" test.sv && \
     echo "[OK] Firtool successfully lowered FIRRTL to SystemVerilog." && \
