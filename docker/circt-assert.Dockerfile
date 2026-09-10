@@ -56,7 +56,9 @@ RUN cmake -G Ninja ../llvm \
     -DLLVM_ENABLE_PROJECTS="mlir" \
     -DLLVM_TARGETS_TO_BUILD="host" \
     -DCMAKE_C_COMPILER=clang \
-    -DCMAKE_CXX_COMPILER=clang++
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 RUN ninja
 
 WORKDIR /opt/src/circt/build
@@ -66,7 +68,9 @@ RUN cmake -G Ninja .. \
     -DMLIR_DIR=/opt/src/circt/llvm/build/lib/cmake/mlir \
     -DLLVM_DIR=/opt/src/circt/llvm/build/lib/cmake/llvm \
     -DCMAKE_C_COMPILER=clang \
-    -DCMAKE_CXX_COMPILER=clang++
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 RUN ninja
 
 # Clone and build custom Polygeist from source
@@ -77,13 +81,17 @@ RUN echo "Cloning and building custom Polygeist from source (this will take 1-2 
         -DLLVM_ENABLE_PROJECTS="clang;mlir" \
         -DLLVM_TARGETS_TO_BUILD="host" \
         -DCMAKE_BUILD_TYPE=Release \
-        -DLLVM_ENABLE_ASSERTIONS=ON && \
+        -DLLVM_ENABLE_ASSERTIONS=ON \
+        -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache && \
     ninja && \
     mkdir -p /tmp/polygeist/build && cd /tmp/polygeist/build && \
     cmake -G Ninja .. \
         -DMLIR_DIR=/tmp/polygeist/llvm-project/build/lib/cmake/mlir \
         -DClang_DIR=/tmp/polygeist/llvm-project/build/lib/cmake/clang \
-        -DCMAKE_BUILD_TYPE=Release && \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache && \
     ninja && \
     mkdir -p /opt/polygeist/bin /opt/polygeist/lib && \
     cp bin/cgeist /opt/polygeist/bin/ && \
