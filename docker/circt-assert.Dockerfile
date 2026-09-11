@@ -50,7 +50,8 @@ WORKDIR /opt/src/circt
 RUN git submodule update --init
 
 WORKDIR /opt/src/circt/llvm/build
-RUN cmake -G Ninja ../llvm \
+RUN --mount=type=cache,target=/root/.ccache \
+    cmake -G Ninja ../llvm \
     -DCMAKE_BUILD_TYPE=Release \
     -DLLVM_ENABLE_ASSERTIONS=ON \
     -DLLVM_ENABLE_PROJECTS="mlir" \
@@ -62,7 +63,8 @@ RUN cmake -G Ninja ../llvm \
 RUN ninja
 
 WORKDIR /opt/src/circt/build
-RUN cmake -G Ninja .. \
+RUN --mount=type=cache,target=/root/.ccache \
+    cmake -G Ninja .. \
     -DCMAKE_BUILD_TYPE=Release \
     -DLLVM_ENABLE_ASSERTIONS=ON \
     -DMLIR_DIR=/opt/src/circt/llvm/build/lib/cmake/mlir \
