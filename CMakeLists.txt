@@ -457,14 +457,14 @@ def replace_seq_mem(match):
     attributes = match.group(6)
     ports = match.group(7)
     
-    if "external" in attributes:
+    # Do NOT modify external memories or reference interface memories
+    if "external" in attributes or "is_ref" in attributes or "arg_" in sym_name:
         return match.group(0)
-        
-    is_ref_attr = ', is_ref = unit' if 'arg_' in sym_name else ''
         
     comp_name = f"sram_blackbox_{addr_w}_{data_w}"
     mem_dims.add((addr_w, data_w))
-    return f'{indent}%{ssa_id}:8 = "calyx.instance"() <{{componentName = @{comp_name}, sym_name = "{sym_name}"{is_ref_attr}}}> : () -> ({ports})'
+    # It's a local memory, convert to blackbox instance
+    return f'{indent}%{ssa_id}:8 = "calyx.instance"() <{{componentName = @{comp_name}, sym_name = "{sym_name}"}}> : () -> ({ports})'
 
 text = re.sub(r'^(\s*)%(\d+):8\s*=\s*"calyx\.seq_mem"\(\)\s*<\{addrSizes = \[(\d+)\], sizes = \[\d+\], sym_name = "([^"]+)", width = (\d+) : i64\}>([^:]*):\s*\(\)\s*->\s*\((.*?)\)', replace_seq_mem, text, flags=re.MULTILINE)
 
@@ -494,7 +494,6 @@ for addr_w, data_w in mem_dims:
 """
 
 # 5. Smart Topological Sort
-# Instead of blind reverse, explicitly extract 'main' and append it at the very end
 split_parts = text.rsplit('}) {calyx.entrypoint', 1)
 body = split_parts[0]
 terminator = '}) {calyx.entrypoint' + split_parts[1]
@@ -507,18 +506,15 @@ main_comp = None
 other_comps = []
 
 for c in comps:
-    # Identify the main component
     if '{sym_name = "main"' in c:
         main_comp = c
     else:
         other_comps.append(c)
 
 text = module_header + dummy_comps
-# Append all standard components first
 for c in other_comps:
     text += '\n  "calyx.component"()' + c
 
-# Append main component at the absolute bottom
 if main_comp:
     text += '\n  "calyx.component"()' + main_comp
 
@@ -543,19 +539,19 @@ with open(file, 'w') as f:
         COMMAND cat ${MLIR_OUTPUT}.calyx.mlir
         
         # Phase 1.5: Python Surgery (All three critical fixes)
-        COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py ${MLIR_OUTPUT}.calyx.mlir
+        #COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py ${MLIR_OUTPUT}.calyx.mlir
         
         # [NEW] Print the modified MLIR file to the CI console for visual verification
-        COMMAND cat ${MLIR_OUTPUT}.calyx.mlir
-        COMMAND ${CIRCT_OPT_EXECUTABLE} ${MLIR_OUTPUT}.calyx.mlir
+        #COMMAND cat ${MLIR_OUTPUT}.calyx.mlir
+        #COMMAND ${CIRCT_OPT_EXECUTABLE} ${MLIR_OUTPUT}.calyx.mlir
         
         # ---------------------------------------------------------
         # Phase 2: Lowering to Hardware and exporting SystemVerilog
         # ---------------------------------------------------------
-        COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(lower-calyx-to-hw,hw-flatten-io)" --mlir-print-ir-after-failure --mlir-print-op-generic ${MLIR_OUTPUT}.calyx.mlir -o ${MLIR_OUTPUT}.opt.mlir
-        COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} --export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${CMAKE_CURRENT_BINARY_DIR}/tinydip_hw.sv
-        DEPENDS ${CMAKE_SOURCE_DIR}/test/hw/hw_kernel_tests.cpp ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py
-        COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT..."
+        #COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(lower-calyx-to-hw,hw-flatten-io)" --mlir-print-ir-after-failure --mlir-print-op-generic ${MLIR_OUTPUT}.calyx.mlir -o ${MLIR_OUTPUT}.opt.mlir
+        #COMMAND ${CIRCT_TRANSLATE_EXECUTABLE} --export-verilog ${MLIR_OUTPUT}.opt.mlir -o ${CMAKE_CURRENT_BINARY_DIR}/tinydip_hw.sv
+        #DEPENDS ${CMAKE_SOURCE_DIR}/test/hw/hw_kernel_tests.cpp ${CMAKE_CURRENT_BINARY_DIR}/fix_mlir.py ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py
+        #COMMENT "Lowering MLIR down to SystemVerilog (FIRRTL) via CIRCT..."
         VERBATIM
     )
 

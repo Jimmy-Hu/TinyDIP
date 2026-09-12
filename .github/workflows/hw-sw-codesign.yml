@@ -98,10 +98,10 @@ jobs:
 
       - name: "Upload Hardware RTL Artifacts"
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: tinydip-systemverilog-rtl
+          name: mlir-debug-files
           path: |
-            build_hw-codesign/*.sv
             build_hw-codesign/*.mlir
-            build_hw-codesign/circt_passes.txt
+            build_hw-codesign/fix_calyx.py
           retention-days: 7
