@@ -460,7 +460,7 @@ def replace_seq_mem(match):
     if "external" in attributes:
         return match.group(0)
         
-    is_ref_attr = ', is_ref = true' if 'arg_' in sym_name else ''
+    is_ref_attr = ', is_ref = unit' if 'arg_' in sym_name else ''
         
     comp_name = f"sram_blackbox_{addr_w}_{data_w}"
     mem_dims.add((addr_w, data_w))
@@ -523,10 +523,6 @@ if main_comp:
     text += '\n  "calyx.component"()' + main_comp
 
 text += terminator
-
-# 6. Bypass CIRCT Compiler Bug
-# Remove the refCellsMap from calyx.invoke to prevent Null Pointer Segfault in lower-calyx-to-hw
-text = re.sub(r'\[arg_mem_[^\]]+\]', '', text)
 
 with open(file, 'w') as f:
     f.write(text)
