@@ -79,13 +79,17 @@ RUN ninja
 RUN echo "Cloning and building custom Polygeist from source (this will take 1-2 hours)..." && \
     git clone -b fix-brace-init-undef --recursive https://github.com/Jimmy-Hu/Polygeist.git /tmp/polygeist && \
     mkdir -p /tmp/polygeist/llvm-project/build && cd /tmp/polygeist/llvm-project/build && \
+    # Disable LLVM and MLIR tests to speed up CI build
     cmake -G Ninja ../llvm \
         -DLLVM_ENABLE_PROJECTS="clang;mlir" \
         -DLLVM_TARGETS_TO_BUILD="host" \
         -DCMAKE_BUILD_TYPE=Release \
         -DLLVM_ENABLE_ASSERTIONS=ON \
         -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache && \
+        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+        -DLLVM_BUILD_TESTS=OFF \
+        -DLLVM_INCLUDE_TESTS=OFF \
+        -DMLIR_INCLUDE_TESTS=OFF && \
     ninja && \
     mkdir -p /tmp/polygeist/build && cd /tmp/polygeist/build && \
     cmake -G Ninja .. \
