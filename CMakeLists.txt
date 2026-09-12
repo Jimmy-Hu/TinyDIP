@@ -540,6 +540,8 @@ with open(file, 'w') as f:
         
         # Phase 1: Frontend to Middle-end (Lower SCF to Calyx)
         COMMAND ${CIRCT_OPT_EXECUTABLE} "--pass-pipeline=builtin.module(symbol-dce,func.func(calyx-affine-to-scf),lower-scf-to-calyx{top-level-function=hw_top_level_kernel})" --mlir-print-op-generic ${MLIR_OUTPUT} -o ${MLIR_OUTPUT}.calyx.mlir
+        COMMAND cat ${MLIR_OUTPUT}.calyx.mlir
+        
         # Phase 1.5: Python Surgery (All three critical fixes)
         COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py ${MLIR_OUTPUT}.calyx.mlir
         
