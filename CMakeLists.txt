@@ -544,6 +544,7 @@ with open(file, 'w') as f:
         COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/fix_calyx.py ${MLIR_OUTPUT}.calyx.mlir
         
         # [NEW] Print the modified MLIR file to the CI console for visual verification
+        COMMAND cat ${MLIR_OUTPUT}.calyx.mlir
         COMMAND ${CIRCT_OPT_EXECUTABLE} ${MLIR_OUTPUT}.calyx.mlir
         
         # ---------------------------------------------------------
