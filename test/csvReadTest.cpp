@@ -29,6 +29,19 @@ void create_dummy_csv(const char* const filename)
     }
 }
 
+//  image_degamma template function implementation
+template<class ElementT = double>
+constexpr auto image_degamma(const TinyDIP::Image<ElementT>& input_image, const double gamma = 1.0 / 2.2)
+{
+    return TinyDIP::pixelwise_transform(
+            [&](const auto& input_pixel)
+            {
+                return std::pow(input_pixel, gamma);
+            },
+            input_image
+        );
+}
+
 int main(int argc, char* argv[])
 {
     TinyDIP::Timer timer1;
