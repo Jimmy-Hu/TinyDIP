@@ -91,14 +91,8 @@ int main(int argc, char* argv[])
         std::cout << "Read image: " << source_filename.string() << '\n';
         auto img_omp = TinyDIP::double_image::read_from_csv(source_filename.string().c_str());
         auto normalized_image = TinyDIP::normalize(img_omp);
-        const auto gamma = 1.0 / 2.2;
-        auto output_image = TinyDIP::pixelwise_transform(
-            [&](const auto& input_pixel)
-            {
-                return std::pow(input_pixel, gamma);
-            },
-            normalized_image
-        );
+        
+        auto output_image = image_degamma(normalized_image);
         output_image = TinyDIP::multiplies(output_image, 255.0);
         output_image = TinyDIP::lanczos_resample(std::execution::par, output_image, 1080, 1920);
         TinyDIP::bmp_write(destination_filename.stem().string(), TinyDIP::constructRGB(
