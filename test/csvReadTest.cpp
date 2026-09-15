@@ -74,14 +74,8 @@ int main(int argc, char* argv[])
             source_filename.stem().string() + std::string("_output.csv"),
             TinyDIP::lanczos_resample(std::execution::par, normalized_image, 1080, 1920)
         );
-        const auto gamma = 1.0 / 2.2;
-        auto output_image = TinyDIP::pixelwise_transform(
-            [&](const auto& input_pixel)
-            {
-                return std::pow(input_pixel, gamma);
-            },
-            normalized_image
-        );
+        
+        auto output_image = image_degamma(normalized_image);
         output_image = TinyDIP::multiplies(output_image, 255.0);
         output_image = TinyDIP::lanczos_resample(std::execution::par, output_image, 1080, 1920);
         TinyDIP::bmp_write(source_filename.stem().string(), TinyDIP::constructRGB(
