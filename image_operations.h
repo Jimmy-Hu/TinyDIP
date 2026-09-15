@@ -2043,6 +2043,7 @@ namespace TinyDIP
 
     //  pixelwise_transform template function implementation
     template<std::size_t unwrap_level = 1, class... Args>
+    requires(is_Image<Args>::value && ...)
     constexpr static auto pixelwise_transform(auto op, const Args&... inputs)
     {
         auto transformed_data = recursive_transform<unwrap_level>(
