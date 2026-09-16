@@ -2102,8 +2102,9 @@ namespace TinyDIP
         return pixelwise_transform(std::forward<ExPo>(execution_policy), [](HSV input) { return hsv2rgb(input); }, input);
     }
 
+    //  concat_horizontal template function implementation
     template<typename ElementT>
-    constexpr static auto concat_horizontal(Image<ElementT> input1, Image<ElementT> input2)
+    constexpr static auto concat_horizontal(const Image<ElementT>& input1, const Image<ElementT>& input2)
     {
         check_height_same(input1, input2);
         Image<ElementT> output(input1.getWidth() + input2.getWidth(), input1.getHeight());
