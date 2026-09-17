@@ -3335,6 +3335,31 @@ namespace TinyDIP
         return { A, x0, y0, sigma_x, sigma_y, rho };
     }
 
+    //  estimate_gaussian_parameters_2d template function implementation
+    template <
+        class ExecutionPolicy,
+        typename ElementT,
+        std::floating_point FloatingPointT = double
+    >
+    requires (
+        std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> 
+        && std::is_arithmetic_v<ElementT>
+    )
+    GaussianParameters2D<FloatingPointT> estimate_gaussian_parameters_2d(
+        ExecutionPolicy&& execution_policy,
+        const TinyDIP::Image<ElementT>& image,
+        const std::size_t max_iterations = 1000,
+        const FloatingPointT tolerance = static_cast<FloatingPointT>(1e-7))
+    {
+        return estimate_gaussian_parameters_2d<ExecutionPolicy, ElementT, FloatingPointT>(
+            std::forward<ExecutionPolicy>(execution_policy),
+            image,
+            ImagePixelComparator<ElementT>{ &image },
+            max_iterations,
+            tolerance
+        );
+    }
+
     template<class InputT>
     constexpr static Image<InputT> add(const Image<InputT>& input1)
     {
