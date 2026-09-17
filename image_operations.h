@@ -3151,12 +3151,18 @@ namespace TinyDIP
     template <
         class ExecutionPolicy,
         typename ElementT,
+        typename ComparatorT
         std::floating_point FloatingPointT = double
     >
-    requires (std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> && std::is_arithmetic_v<ElementT>)
+    requires (
+        std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
+        std::is_arithmetic_v<ElementT> &&
+        std::strict_weak_order<ComparatorT, std::size_t, std::size_t>
+    )
     GaussianParameters2D<FloatingPointT> estimate_gaussian_parameters_2d(
         ExecutionPolicy&& execution_policy,
         const TinyDIP::Image<ElementT>& image,
+        ComparatorT comparator,
         const std::size_t max_iterations = 1000,
         const FloatingPointT tolerance = static_cast<FloatingPointT>(1e-7))
     {
@@ -3177,10 +3183,8 @@ namespace TinyDIP
             std::forward<ExecutionPolicy>(execution_policy),
             std::ranges::begin(indices),
             std::ranges::end(indices),
-            [&image](const std::size_t a, const std::size_t b)
-            {
-                return image.get(a) < image.get(b);
-            });
+            comparator
+        );
 
         const std::size_t max_idx = *max_it;
         FloatingPointT A = static_cast<FloatingPointT>(image.get(max_idx));
