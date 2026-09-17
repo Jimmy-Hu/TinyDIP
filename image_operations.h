@@ -3170,6 +3170,7 @@ namespace TinyDIP
 	//  estimate_gaussian_profile_with_history_2d template function implementation
     //  Test1: https://godbolt.org/z/Px4KcM7d4
     template <
+        std::size_t MaxCapacity = 1000,
         class ExecutionPolicy,
         typename ElementT,
         std::floating_point FloatingPointT = double,
@@ -3184,7 +3185,7 @@ namespace TinyDIP
         ExecutionPolicy&& execution_policy,
         const TinyDIP::Image<ElementT>& image,
         ComparatorT comparator,
-        const std::size_t max_iterations = 1000,
+        const std::size_t max_iterations = MaxCapacity,
         const FloatingPointT tolerance = static_cast<FloatingPointT>(1e-7))
     {
         if (image.getDimensionality() != 2)
@@ -3192,8 +3193,7 @@ namespace TinyDIP
             throw std::invalid_argument("Input image must be 2-dimensional.");
         }
 
-        std::vector<GaussianParameters2D<FloatingPointT>> output;
-        output.reserve(max_iterations);
+        GaussianParameterHistory<MaxCapacity, FloatingPointT> history{};
         constexpr std::size_t num_params = GaussianParameters2D<FloatingPointT>::num_params;
         const std::size_t count = image.count();
         const std::size_t width = image.getWidth();
@@ -3253,9 +3253,12 @@ namespace TinyDIP
         FloatingPointT lambda = static_cast<FloatingPointT>(0.01);
         FloatingPointT current_sse = std::numeric_limits<FloatingPointT>::max();
 
-        for (std::size_t iter = 0; iter < max_iterations; ++iter)
+        const std::size_t safe_iterations = std::min(max_iterations, MaxCapacity);
+        GaussianParameters2D<FloatingPointT> current_params{ A, x0, y0, sigma_x, sigma_y, rho };
+        history.parameters[history.valid_count] = current_params;
+        history.valid_count++;
+        for (std::size_t iter = 0; iter < safe_iterations; ++iter)
         {
-            GaussianParameters2D<FloatingPointT> current_params{ A, x0, y0, sigma_x, sigma_y, rho };
             LMMapper<ElementT, FloatingPointT> mapper{ &image, current_params };
             LMReducer<FloatingPointT> reducer{};
 
@@ -3328,26 +3331,24 @@ namespace TinyDIP
 
             if (new_sse < acc.sse)
             {
-                // Accept step
-                A = new_params.amplitude;
-                x0 = new_params.x0;
-                y0 = new_params.y0;
-                sigma_x = new_params.sigma_x;
-                sigma_y = new_params.sigma_y;
-                rho = new_params.rho;
-
-                output.emplace_back(GaussianParameters2D<FloatingPointT>{ A, x0, y0, sigma_x, sigma_y, rho });
+                current_params = new_params;
                 current_sse = new_sse;
-                lambda /= static_cast<FloatingPointT>(10.0); // Decrease damping factor
+                lambda /= static_cast<FloatingPointT>(10.0);
+                
+                // Log history safely within bounds
+                if (history.valid_count < MaxCapacity)
+                {
+                    history.parameters[history.valid_count] = current_params;
+                    history.valid_count++;
+                }
             }
             else
             {
-                // Reject step, increase damping factor
                 lambda *= static_cast<FloatingPointT>(10.0);
             }
         }
 
-        return output;
+        return history;
     }
 
     //  estimate_gaussian_parameters_2d template function implementation
