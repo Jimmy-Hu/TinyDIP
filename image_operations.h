@@ -3158,10 +3158,8 @@ namespace TinyDIP
         }
     };
 
-	//  estimate_gaussian_parameters_2d template function implementation
-    //  Test1: https://godbolt.org/z/Ee6xjPETE
-    //  Test2: https://godbolt.org/z/7rcnqWff6
-    //  Test3: https://godbolt.org/z/1fjcK3jYn
+	//  estimate_gaussian_profile_with_history_2d template function implementation
+    //  Test1: https://godbolt.org/z/Px4KcM7d4
     template <
         class ExecutionPolicy,
         typename ElementT,
@@ -3173,7 +3171,7 @@ namespace TinyDIP
         std::is_arithmetic_v<ElementT> &&
         std::strict_weak_order<ComparatorT, std::size_t, std::size_t>
     )
-    GaussianParameters2D<FloatingPointT> estimate_gaussian_parameters_2d(
+    auto estimate_gaussian_profile_with_history_2d(
         ExecutionPolicy&& execution_policy,
         const TinyDIP::Image<ElementT>& image,
         ComparatorT comparator,
@@ -3185,6 +3183,8 @@ namespace TinyDIP
             throw std::invalid_argument("Input image must be 2-dimensional.");
         }
 
+        std::vector<GaussianParameters2D<FloatingPointT>> output;
+        output.reserve(max_iterations);
         constexpr std::size_t num_params = GaussianParameters2D<FloatingPointT>::num_params;
         const std::size_t count = image.count();
         const std::size_t width = image.getWidth();
@@ -3326,6 +3326,8 @@ namespace TinyDIP
                 sigma_x = new_params.sigma_x;
                 sigma_y = new_params.sigma_y;
                 rho = new_params.rho;
+
+                output.emplace_back(GaussianParameters2D<FloatingPointT>{ A, x0, y0, sigma_x, sigma_y, rho });
                 current_sse = new_sse;
                 lambda /= static_cast<FloatingPointT>(10.0); // Decrease damping factor
             }
@@ -3336,7 +3338,7 @@ namespace TinyDIP
             }
         }
 
-        return { A, x0, y0, sigma_x, sigma_y, rho };
+        return output;
     }
 
     //  estimate_gaussian_parameters_2d template function implementation
