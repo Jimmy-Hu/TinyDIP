@@ -3151,8 +3151,8 @@ namespace TinyDIP
     template <
         class ExecutionPolicy,
         typename ElementT,
-        typename ComparatorT,
-        std::floating_point FloatingPointT = double
+        std::floating_point FloatingPointT = double,
+        typename ComparatorT
     >
     requires (
         std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
