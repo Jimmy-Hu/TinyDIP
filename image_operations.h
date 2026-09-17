@@ -3151,7 +3151,7 @@ namespace TinyDIP
     template <
         class ExecutionPolicy,
         typename ElementT,
-        typename ComparatorT
+        typename ComparatorT,
         std::floating_point FloatingPointT = double
     >
     requires (
