@@ -3161,6 +3161,7 @@ namespace TinyDIP
 	//  estimate_gaussian_parameters_2d template function implementation
     //  Test1: https://godbolt.org/z/Ee6xjPETE
     //  Test2: https://godbolt.org/z/7rcnqWff6
+    //  Test3: https://godbolt.org/z/1fjcK3jYn
     template <
         class ExecutionPolicy,
         typename ElementT,
@@ -3303,17 +3304,7 @@ namespace TinyDIP
                 break;
             }
 
-            FloatingPointT new_A = A + delta[0];
-            FloatingPointT new_x0 = x0 + delta[1];
-            FloatingPointT new_y0 = y0 + delta[2];
-            FloatingPointT new_sigma_x = std::max(static_cast<FloatingPointT>(1e-6), std::abs(sigma_x + delta[3]));
-            FloatingPointT new_sigma_y = std::max(static_cast<FloatingPointT>(1e-6), std::abs(sigma_y + delta[4]));
-            FloatingPointT new_rho = rho + delta[5];
-
-            // Clamp new rho strictly inside (-1, 1) range to prevent zero division in W
-            new_rho = std::max(static_cast<FloatingPointT>(-0.999), std::min(static_cast<FloatingPointT>(0.999), new_rho));
-
-            GaussianParameters2D<FloatingPointT> new_params{ new_A, new_x0, new_y0, new_sigma_x, new_sigma_y, new_rho };
+            const GaussianParameters2D<FloatingPointT> new_params = current_params + delta;
             SSEMapper<ElementT, FloatingPointT> sse_mapper{ &image, new_params };
             SSEReducer<FloatingPointT> sse_reducer{};
 
@@ -3329,12 +3320,12 @@ namespace TinyDIP
             if (new_sse < acc.sse)
             {
                 // Accept step
-                A = new_A;
-                x0 = new_x0;
-                y0 = new_y0;
-                sigma_x = new_sigma_x;
-                sigma_y = new_sigma_y;
-                rho = new_rho;
+                A = new_params.amplitude;
+                x0 = new_params.x0;
+                y0 = new_params.y0;
+                sigma_x = new_params.sigma_x;
+                sigma_y = new_params.sigma_y;
+                rho = new_params.rho;
                 current_sse = new_sse;
                 lambda /= static_cast<FloatingPointT>(10.0); // Decrease damping factor
             }
