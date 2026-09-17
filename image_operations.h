@@ -3133,6 +3133,18 @@ namespace TinyDIP
         return x;
     }
 
+    //  ImagePixelComparator template struct implementation
+    template <typename ElementT>
+    struct ImagePixelComparator
+    {
+        const TinyDIP::Image<ElementT>* image_ptr;
+
+        constexpr bool operator()(const std::size_t a, const std::size_t b) const
+        {
+            return image_ptr->get(a) < image_ptr->get(b);
+        }
+    };
+
 	//  estimate_gaussian_parameters_2d template function implementation
     //  Test1: https://godbolt.org/z/Ee6xjPETE
     //  Test2: https://godbolt.org/z/7rcnqWff6
