@@ -3342,6 +3342,39 @@ namespace TinyDIP
     }
 
     //  estimate_gaussian_parameters_2d template function implementation
+    //  Test1: https://godbolt.org/z/Ee6xjPETE
+    //  Test2: https://godbolt.org/z/7rcnqWff6
+    //  Test3: https://godbolt.org/z/1fjcK3jYn
+    template <
+        class ExecutionPolicy,
+        typename ElementT,
+        std::floating_point FloatingPointT = double,
+        typename ComparatorT
+    >
+    requires (
+        std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
+        std::is_arithmetic_v<ElementT> &&
+        std::strict_weak_order<ComparatorT, std::size_t, std::size_t>
+    )
+    GaussianParameters2D<FloatingPointT> estimate_gaussian_parameters_2d(
+        ExecutionPolicy&& execution_policy,
+        const TinyDIP::Image<ElementT>& image,
+        ComparatorT comparator,
+        const std::size_t max_iterations = 1000,
+        const FloatingPointT tolerance = static_cast<FloatingPointT>(1e-7)
+    )
+    {
+        auto estimated_gaussian_2d = estimate_gaussian_profile_with_history_2d<ExecutionPolicy, ElementT, FloatingPointT>(
+            std::forward<ExecutionPolicy>(execution_policy),
+            image,
+            comparator,
+            max_iterations,
+            tolerance
+        );
+        return estimated_gaussian_2d[std::ranges::size(estimated_gaussian_2d) - 1];
+    }
+
+    //  estimate_gaussian_parameters_2d template function implementation
     template <
         class ExecutionPolicy,
         typename ElementT,
