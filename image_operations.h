@@ -2162,8 +2162,11 @@ namespace TinyDIP
         return output;
     }
 
-    template<typename ElementT>
-    constexpr static auto concat_vertical(const std::vector<Image<ElementT>>& input)
+    //  concat_vertical template function implementation
+    template<typename RangeT>
+    requires(std::ranges::random_access_range<RangeT> &&
+             is_Image<std::ranges::range_value_t<RangeT>>::value)
+    constexpr static auto concat_vertical(const RangeT& input)
     {
         auto output = input[0];
         for (std::size_t i = 1; i < input.size(); i++)
