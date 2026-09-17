@@ -2858,6 +2858,19 @@ namespace TinyDIP
         FloatingPointT sigma_y;
         FloatingPointT rho;
 
+        constexpr GaussianParameters2D operator+(const std::array<FloatingPointT, num_params>& delta) const
+        {
+            return GaussianParameters2D
+            {
+                amplitude + delta[0],
+                x0 + delta[1],
+                y0 + delta[2],
+                std::max(static_cast<FloatingPointT>(1e-6), std::abs(sigma_x + delta[3])),
+                std::max(static_cast<FloatingPointT>(1e-6), std::abs(sigma_y + delta[4])),
+                std::max(static_cast<FloatingPointT>(-0.999), std::min(static_cast<FloatingPointT>(0.999), rho + delta[5]))
+            };
+        }
+
         friend std::ostream& operator<<(std::ostream& os, const GaussianParameters2D& params)
         {
             os << "{ amplitude: " << params.amplitude
