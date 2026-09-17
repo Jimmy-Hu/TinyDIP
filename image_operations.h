@@ -3355,6 +3355,7 @@ namespace TinyDIP
     //  Test1: https://godbolt.org/z/Ee6xjPETE
     //  Test2: https://godbolt.org/z/7rcnqWff6
     //  Test3: https://godbolt.org/z/1fjcK3jYn
+    //  Test4: https://godbolt.org/z/rETc7dj54
     template <
         class ExecutionPolicy,
         typename ElementT,
@@ -3374,14 +3375,14 @@ namespace TinyDIP
         const FloatingPointT tolerance = static_cast<FloatingPointT>(1e-7)
     )
     {
-        auto estimated_gaussian_2d = estimate_gaussian_profile_with_history_2d<ExecutionPolicy, ElementT, FloatingPointT>(
+        auto estimated_gaussian_2d = estimate_gaussian_profile_with_history_2d<1000, ExecutionPolicy, ElementT, FloatingPointT>(
             std::forward<ExecutionPolicy>(execution_policy),
             image,
             comparator,
             max_iterations,
             tolerance
         );
-        return estimated_gaussian_2d[std::ranges::size(estimated_gaussian_2d) - 1];
+        return estimated_gaussian_2d.parameters[estimated_gaussian_2d.valid_count - 1];
     }
 
     //  estimate_gaussian_parameters_2d template function implementation
