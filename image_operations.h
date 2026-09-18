@@ -3351,6 +3351,32 @@ namespace TinyDIP
         return history;
     }
 
+    //  estimate_gaussian_profile_with_history_2d template function implementation
+    template <
+        std::size_t MaxCapacity = 1000,
+        class ExecutionPolicy,
+        typename ElementT,
+        std::floating_point FloatingPointT = double
+    >
+    requires (
+        std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
+        std::is_arithmetic_v<ElementT>
+    )
+    auto estimate_gaussian_profile_with_history_2d(
+        ExecutionPolicy&& execution_policy,
+        const TinyDIP::Image<ElementT>& image,
+        const std::size_t max_iterations = MaxCapacity,
+        const FloatingPointT tolerance = static_cast<FloatingPointT>(1e-7))
+    {
+        return estimate_gaussian_profile_with_history_2d<MaxCapacity, ExecutionPolicy, ElementT, FloatingPointT>(
+            std::forward<ExecutionPolicy>(execution_policy),
+            image,
+            ImagePixelComparator<ElementT>{ &image },
+            max_iterations,
+            tolerance
+        );
+    }
+
     //  estimate_gaussian_parameters_2d template function implementation
     //  Test1: https://godbolt.org/z/Ee6xjPETE
     //  Test2: https://godbolt.org/z/7rcnqWff6
