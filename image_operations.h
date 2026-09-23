@@ -7614,8 +7614,12 @@ namespace TinyDIP
      * This involves solving the system of linear equations Ah = 0.
      * Reference: https://engineering.purdue.edu/kak/courses-i-teach/ECE661.08/solution/hw5_s1.pdf
      */
-    template<std::floating_point FloatingType = double>
-    bool compute_homography(const std::vector<std::pair<Point<2>, Point<2>>>& points, linalg::Matrix<FloatingType>& H)
+    template<std::ranges::range PointRange, std::floating_point FloatingType = double>
+    requires(std::same_as<std::ranges::range_value_t<PointRange>, std::pair<Point<2>, Point<2>>>)
+    bool compute_homography(
+        const PointRange& points,
+        linalg::Matrix<FloatingType>& H
+    )
     {
         if (points.size() < 4)
         {
