@@ -7368,13 +7368,15 @@ namespace TinyDIP
         typename DescriptorT = SiftDescriptor,
         typename DistanceFunction = squared_euclidean_distance,
         std::ranges::input_range RangeType1 = std::vector<DescriptorT>,
-        std::ranges::input_range RangeType2 = std::vector<DescriptorT>
+        std::ranges::input_range RangeType2 = std::vector<DescriptorT>>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and
              std::invocable<DistanceFunction, DescriptorT, DescriptorT> &&
              std::convertible_to<
                  std::invoke_result_t<DistanceFunction, DescriptorT, DescriptorT>,
                  FloatingType
-             >)
+             > &&
+             std::same_as<std::ranges::range_value_t<RangeType1>, DescriptorT> &&
+             std::same_as<std::ranges::range_value_t<RangeType2>, DescriptorT>)
     std::vector<std::pair<std::size_t, std::size_t>> find_keypoint_matches(
         ExecutionPolicy&& policy,
         const RangeType1& descriptors1,
