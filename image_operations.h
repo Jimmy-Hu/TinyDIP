@@ -7367,8 +7367,8 @@ namespace TinyDIP
 		class FloatingType = double,
         typename DescriptorT = SiftDescriptor,
         typename DistanceFunction = squared_euclidean_distance,
-        typename RangeType1 = std::vector<DescriptorT>,
-        typename RangeType2 = std::vector<DescriptorT>
+        std::ranges::input_range RangeType1 = std::vector<DescriptorT>,
+        std::ranges::input_range RangeType2 = std::vector<DescriptorT>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and
              std::invocable<DistanceFunction, DescriptorT, DescriptorT> &&
              std::convertible_to<
