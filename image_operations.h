@@ -7366,7 +7366,9 @@ namespace TinyDIP
         class ExecutionPolicy,
 		class FloatingType = double,
         typename DescriptorT = SiftDescriptor,
-        typename DistanceFunction = squared_euclidean_distance>
+        typename DistanceFunction = squared_euclidean_distance,
+        typename RangeType1 = std::vector<DescriptorT>,
+        typename RangeType2 = std::vector<DescriptorT>
     requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and
              std::invocable<DistanceFunction, DescriptorT, DescriptorT> &&
              std::convertible_to<
@@ -7375,8 +7377,8 @@ namespace TinyDIP
              >)
     std::vector<std::pair<std::size_t, std::size_t>> find_keypoint_matches(
         ExecutionPolicy&& policy,
-        const std::vector<SiftDescriptor>& descriptors1,
-        const std::vector<SiftDescriptor>& descriptors2,
+        const RangeType1& descriptors1,
+        const RangeType2& descriptors2,
         const FloatingType ratio_threshold,
         DistanceFunction&& dist_func = DistanceFunction{}
         )
