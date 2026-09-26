@@ -7888,7 +7888,7 @@ namespace TinyDIP
         }
 
         linalg::Matrix<FloatingType> refined_H(3, 3);
-        if (compute_homography<FloatingType>(all_inliers, refined_H))
+        if (compute_homography<decltype(all_inliers), FloatingType>(all_inliers, refined_H))
         {
             std::cout << "Refined homography with " << all_inliers.size() << " inliers.\n";
             return refined_H;
