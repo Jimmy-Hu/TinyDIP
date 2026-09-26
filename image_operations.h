@@ -7760,7 +7760,7 @@ namespace TinyDIP
                 }
                 
                 linalg::Matrix<FloatingType> H_candidate(3, 3);
-                if (!compute_homography<FloatingType>(sample_points, H_candidate))
+                if (!compute_homography<decltype(sample_points), FloatingType>(sample_points, H_candidate))
                 {
                     continue;
                 }
