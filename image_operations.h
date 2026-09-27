@@ -8428,6 +8428,8 @@ namespace TinyDIP
         std::ranges::input_range KeypointsRange1,
         std::ranges::input_range KeypointsRange2
     >
+    requires (std::same_as<std::ranges::range_value_t<KeypointsRange1>, Point<2>>) &&
+             (std::same_as<std::ranges::range_value_t<KeypointsRange2>, Point<2>>)
     auto draw_matches(
         const Image<RGB>& img1, 
         const Image<RGB>& img2,
