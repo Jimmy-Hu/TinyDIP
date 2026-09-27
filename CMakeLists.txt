@@ -76,8 +76,31 @@ if(ENABLE_CUDA)
     message(STATUS "CUDA is enabled. Configuring CUDA support...")
 
     # === ADDED: Explicitly set the CUDA compiler (nvcc) path ===
-    set(CMAKE_CUDA_COMPILER "/usr/local/cuda-13.3/bin/nvcc")
-    message(STATUS "Setting CUDA compiler (nvcc) to ${CMAKE_CUDA_COMPILER}")
+    # Define a list of potential nvcc paths in descending order of preference
+    set(POTENTIAL_NVCC_PATHS
+        "/usr/local/cuda-13.4/bin/nvcc"
+        "/usr/local/cuda-13.3/bin/nvcc"
+        "/usr/local/cuda-13.2/bin/nvcc"
+        "/usr/local/cuda-13.1/bin/nvcc"
+        "/usr/local/cuda-13.0/bin/nvcc"
+        "/usr/local/cuda-12.8/bin/nvcc"
+        "/usr/local/cuda/bin/nvcc" # Fallback to default symlink
+    )
+
+    set(NVCC_FOUND FALSE)
+    foreach(NVCC_PATH IN LISTS POTENTIAL_NVCC_PATHS)
+        # Check if the specific nvcc executable exists
+        if(EXISTS "${NVCC_PATH}")
+            set(CMAKE_CUDA_COMPILER "${NVCC_PATH}")
+            message(STATUS "Setting CUDA compiler (nvcc) to ${CMAKE_CUDA_COMPILER}")
+            set(NVCC_FOUND TRUE)
+            break() # Stop searching once the highest available version is found
+        endif()
+    endforeach()
+
+    if(NOT NVCC_FOUND)
+        message(WARNING "Could not find nvcc in the predefined paths. CMake will rely on system environment variables.")
+    endif()
     # === END ADDED SECTION ===
 
     # === ADDED: Explicitly set the host compiler nvcc should use ===
