@@ -8426,21 +8426,25 @@ namespace TinyDIP
     template<
         std::floating_point FloatingType = double,
         std::ranges::input_range KeypointsRange1,
-        std::ranges::input_range KeypointsRange2
+        std::ranges::input_range KeypointsRange2,
+        typename ResamplingFunc = default_lanczos_resample<RGB>
     >
-    requires (std::same_as<std::ranges::range_value_t<KeypointsRange1>, Point<2>>) &&
-             (std::same_as<std::ranges::range_value_t<KeypointsRange2>, Point<2>>)
+    requires ((std::same_as<std::ranges::range_value_t<KeypointsRange1>, Point<2>>) &&
+              (std::same_as<std::ranges::range_value_t<KeypointsRange2>, Point<2>>) &&
+              (std::invocable<ResamplingFunc, const Image<RGB>&, std::size_t, std::size_t>))
     auto draw_matches(
         const Image<RGB>& img1, 
         const Image<RGB>& img2,
         const KeypointsRange1& keypoints1,
         const KeypointsRange2& keypoints2,
-        const std::vector<std::pair<std::size_t, std::size_t>>& matches)
+        const std::vector<std::pair<std::size_t, std::size_t>>& matches,
+        ResamplingFunc&& resample_func = {}
+    )
     {
         // For simplicity, make both images the same height
         const std::size_t max_height = std::max(img1.getHeight(), img2.getHeight());
-        auto resized_img1 = copyResizeBicubic(img1, img1.getWidth(), max_height);
-        auto resized_img2 = copyResizeBicubic(img2, img2.getWidth(), max_height);
+        auto resized_img1 = std::invoke(resample_func, img1, img1.getWidth(), max_height);
+        auto resized_img2 = std::invoke(resample_func, img2, img2.getWidth(), max_height);
 
         Image<RGB> canvas = concat_horizontal(resized_img1, resized_img2);
 
