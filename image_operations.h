@@ -8423,12 +8423,16 @@ namespace TinyDIP
     * draw_matches template function implementation
     * @brief Draws lines between matching keypoints on a side-by-side image canvas.
     */
-    template<std::floating_point FloatingType = double>
+    template<
+        std::floating_point FloatingType = double,
+        std::ranges::input_range KeypointsRange1,
+        std::ranges::input_range KeypointsRange2
+    >
     auto draw_matches(
         const Image<RGB>& img1, 
         const Image<RGB>& img2,
-        const std::vector<Point<2>>& keypoints1,
-        const std::vector<Point<2>>& keypoints2,
+        const KeypointsRange1& keypoints1,
+        const KeypointsRange2& keypoints2,
         const std::vector<std::pair<std::size_t, std::size_t>>& matches)
     {
         // For simplicity, make both images the same height
