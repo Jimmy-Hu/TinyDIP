@@ -8337,7 +8337,9 @@ namespace TinyDIP
         typename InterpolationFunc = default_bicubic_interpolator<RGB, FloatingType>,
         typename WarpPerspectiveFunc = warp_perspective<RGB, FloatingType, InterpolationFunc>
     >
-    requires(std::is_execution_policy_v<CleanExecutionPolicy>)
+    requires(std::is_execution_policy_v<CleanExecutionPolicy> and
+             std::invocable<WarpPerspectiveFunc, const Image<RGB>&, const linalg::Matrix<FloatingType>&, std::size_t, std::size_t, InterpolationFunc> and
+             std::invocable<InterpolationFunc, const Image<RGB>&, FloatingType, FloatingType>)
     auto create_stitched_image(
         ExecutionPolicy&& policy,
         const Image<RGB>& img1,
