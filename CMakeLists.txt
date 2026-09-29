@@ -365,6 +365,11 @@ foreach(TEST_NAME IN LISTS TINYDIP_TESTS)
     add_executable(${TEST_NAME} test/${TEST_NAME}.cpp image_io.cpp)
     # FIX: Ensure ALL tests link against OpenCV, TBB, and other necessary libraries
     target_link_libraries(${TEST_NAME} PUBLIC TBB::tbb ${OpenCV_LIBS})
+
+    if(OPENMP_FOUND)
+        target_link_libraries(${TEST_NAME} PUBLIC OpenMP::OpenMP_CXX)
+    endif()
+    
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
         target_link_libraries(${TEST_NAME} PUBLIC stdc++fs)
     endif()
