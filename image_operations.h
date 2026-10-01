@@ -7870,12 +7870,17 @@ namespace TinyDIP
 
 
     /**
+     * refine_homography template function implementation
      * @brief Refines a homography by re-computing it using all inlier matches.
      */
-    template<std::floating_point FloatingType = double>
+    template<
+        std::floating_point FloatingType = double,
+        std::ranges::input_range RangeType1 = std::vector<Point<2>>,
+        std::ranges::input_range RangeType2 = std::vector<Point<2>>
+    >
     [[nodiscard]] linalg::Matrix<FloatingType> refine_homography(
-        const std::vector<Point<2>>& keypoints1,
-        const std::vector<Point<2>>& keypoints2,
+        const RangeType1& keypoints1,
+        const RangeType2& keypoints2,
         const std::vector<std::pair<std::size_t, std::size_t>>& matches,
         const linalg::Matrix<FloatingType>& initial_H,
         const FloatingType inlier_threshold)
