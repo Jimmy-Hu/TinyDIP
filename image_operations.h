@@ -6921,7 +6921,8 @@ namespace TinyDIP
                     #ifdef __cpp_lib_containers_ranges
                     output.append_range(local_output);
                     #else
-                    output.insert(output.end(), local_output.begin(), local_output.end());
+                    output.insert(std::ranges::end(output), std::ranges::begin(local_output),
+                                  std::ranges::end(local_output));
                     #endif
                 }
             }
