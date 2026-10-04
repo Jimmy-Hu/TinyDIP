@@ -7877,14 +7877,15 @@ namespace TinyDIP
     template<
         std::floating_point FloatingType = double,
         std::ranges::input_range RangeType1 = std::vector<Point<2>>,
-        std::ranges::input_range RangeType2 = std::vector<Point<2>>
+        std::ranges::input_range RangeType2 = std::vector<Point<2>>,
+        std::ranges::input_range RangeTypeForMatches = std::vector<std::pair<std::size_t, std::size_t>>
     >
     requires(std::same_as<std::ranges::range_value_t<RangeType1>, Point<2>> &&
              std::same_as<std::ranges::range_value_t<RangeType2>, Point<2>>)
     [[nodiscard]] linalg::Matrix<FloatingType> refine_homography(
         const RangeType1& keypoints1,
         const RangeType2& keypoints2,
-        const std::vector<std::pair<std::size_t, std::size_t>>& matches,
+        const RangeTypeForMatches& matches,
         const linalg::Matrix<FloatingType>& initial_H,
         const FloatingType inlier_threshold)
     {
