@@ -3477,8 +3477,13 @@ namespace TinyDIP
     }
 
     //  subtract Template Function Implementation
-    template<class InputT>
-    static auto subtract(const std::vector<Image<InputT>>& input1, const std::vector<Image<InputT>>& input2)
+    template<
+        std::ranges::input_range RangeT1,
+        std::ranges::input_range RangeT2
+    >
+    requires(is_Image<std::ranges::range_value_t<RangeT1>>::value and
+             is_Image<std::ranges::range_value_t<RangeT2>>::value)
+    static auto subtract(const RangeT1& input1, const RangeT2& input2)
     {
         if (input1.size() != input2.size())
         {
