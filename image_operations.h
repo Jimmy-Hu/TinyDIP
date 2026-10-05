@@ -7755,7 +7755,7 @@ namespace TinyDIP
             IsRobustScorer<FloatingType> Scorer,
             std::ranges::input_range RangeType,
             class URBG,
-            std::ranges::input_range RangeTypeForMatches = std::vector<std::pair<std::size_t, std::size_t>
+            std::ranges::input_range RangeTypeForMatches = std::vector<std::pair<std::size_t, std::size_t>>
         >
         requires(std::uniform_random_bit_generator<std::remove_reference_t<URBG>> and
                  std::same_as<std::ranges::range_value_t<RangeType>, Point<2>> and
