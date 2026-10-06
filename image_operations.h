@@ -3026,51 +3026,94 @@ namespace TinyDIP
         }
     };
 
-	//  LMMapper template struct implementation
-    template <typename ElementT, std::floating_point FloatingPointT = double>
-    struct LMMapper
+	//  UniversalLMMapper template struct implementation
+    template <
+        typename ElementT, 
+        std::floating_point FloatingPointT = double, 
+        typename ParaT = SuperGaussianParameters2D<FloatingPointT>
+    >
+    requires (gaussian_parameter_model<ParaT, FloatingPointT>)
+    struct UniversalLMMapper
     {
-        static constexpr std::size_t num_params = GaussianParameters2D<FloatingPointT>::num_params;
+        static constexpr std::size_t num_params{ ParaT::num_params };
 
         const TinyDIP::Image<ElementT>* image_ptr;
-        GaussianParameters2D<FloatingPointT> parameters;
+        ParaT parameters;
 
-        LMAccumulator<FloatingPointT> operator()(const std::size_t idx) const
+        LMAccumulator<num_params, FloatingPointT> operator()(const std::size_t idx) const
         {
-            const std::size_t width = image_ptr->getWidth();
-            const FloatingPointT x = static_cast<FloatingPointT>(idx % width);
-            const FloatingPointT y = static_cast<FloatingPointT>(idx / width);
-            const FloatingPointT z = static_cast<FloatingPointT>(image_ptr->get(idx));
+            const std::size_t width{ image_ptr->getWidth() };
+            const FloatingPointT x{ static_cast<FloatingPointT>(idx % width) };
+            const FloatingPointT y{ static_cast<FloatingPointT>(idx / width) };
+            const FloatingPointT z{ static_cast<FloatingPointT>(image_ptr->get(idx)) };
 
-            const FloatingPointT dx = x - parameters.x0;
-            const FloatingPointT dy = y - parameters.y0;
+            const FloatingPointT dx{ x - parameters.x0 };
+            const FloatingPointT dy{ y - parameters.y0 };
             
-            const FloatingPointT W = static_cast<FloatingPointT>(1.0) / (static_cast<FloatingPointT>(1.0) - parameters.rho * parameters.rho);
+            const FloatingPointT W{ static_cast<FloatingPointT>(1.0) / (static_cast<FloatingPointT>(1.0) - parameters.rho * parameters.rho) };
             
-            // Adjusted parameterization: treating sigma_x and sigma_y as standard deviation
-            const FloatingPointT Z_eq = (dx * dx) / (parameters.sigma_x * parameters.sigma_x) 
-                                      - (static_cast<FloatingPointT>(2.0) * parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y) 
-                                      + (dy * dy) / (parameters.sigma_y * parameters.sigma_y);
-            
-            const FloatingPointT exp_term = std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_eq);
-            const FloatingPointT f_val = parameters.amplitude * exp_term;
+            const FloatingPointT Z_eq{ (dx * dx) / (parameters.sigma_x * parameters.sigma_x) 
+                                     - (static_cast<FloatingPointT>(2.0) * parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y) 
+                                     + (dy * dy) / (parameters.sigma_y * parameters.sigma_y) };
 
-            const FloatingPointT r = z - f_val;
+            // Compile-time branching: Zero runtime overhead!
+            if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<FloatingPointT>>)
+            {
+                // Super-Gaussian specific logic (7 parameters)
+                const FloatingPointT safe_Z_eq{ std::max(static_cast<FloatingPointT>(1e-12), Z_eq) };
+                const FloatingPointT Z_pow_P{ std::pow(safe_Z_eq, parameters.P) };
+                const FloatingPointT Z_pow_P_minus_1{ std::pow(safe_Z_eq, parameters.P - static_cast<FloatingPointT>(1.0)) };
 
-            std::array<FloatingPointT, num_params> J{};
-            J[0] = exp_term;
-            J[1] = f_val * W * ((dx / (parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dy) / (parameters.sigma_x * parameters.sigma_y));
-            J[2] = f_val * W * ((dy / (parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx) / (parameters.sigma_x * parameters.sigma_y));
-            J[3] = f_val * W * (((dx * dx) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_y));
-            J[4] = f_val * W * (((dy * dy) / (parameters.sigma_y * parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y * parameters.sigma_y));
-            J[5] = f_val * W * (((dx * dy) / (parameters.sigma_x * parameters.sigma_y)) - parameters.rho * W * Z_eq);
+                const FloatingPointT exp_term{ std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_pow_P) };
+                const FloatingPointT f_val{ parameters.amplitude * exp_term };
+                const FloatingPointT r{ z - f_val };
 
-            LMAccumulator<FloatingPointT> acc;
+                const FloatingPointT chain_multiplier{ parameters.P * Z_pow_P_minus_1 };
+
+                std::array<FloatingPointT, num_params> J{};
+                J[0] = exp_term;
+                J[1] = f_val * W * chain_multiplier * ((dx / (parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dy) / (parameters.sigma_x * parameters.sigma_y));
+                J[2] = f_val * W * chain_multiplier * ((dy / (parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx) / (parameters.sigma_x * parameters.sigma_y));
+                J[3] = f_val * W * chain_multiplier * (((dx * dx) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_y));
+                J[4] = f_val * W * chain_multiplier * (((dy * dy) / (parameters.sigma_y * parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y * parameters.sigma_y));
+                J[5] = f_val * (((parameters.rho * W * W * Z_pow_P) * static_cast<FloatingPointT>(-1.0)) + (W * chain_multiplier * ((dx * dy) / (parameters.sigma_x * parameters.sigma_y))));
+                J[6] = f_val * (static_cast<FloatingPointT>(-0.5) * W * Z_pow_P * std::log(safe_Z_eq));
+
+                return build_accumulator(r, J);
+            }
+            else
+            {
+                // Standard Gaussian specific logic (6 parameters)
+                const FloatingPointT exp_term{ std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_eq) };
+                const FloatingPointT f_val{ parameters.amplitude * exp_term };
+                const FloatingPointT r{ z - f_val };
+
+                std::array<FloatingPointT, num_params> J{};
+                J[0] = exp_term;
+                J[1] = f_val * W * ((dx / (parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dy) / (parameters.sigma_x * parameters.sigma_y));
+                J[2] = f_val * W * ((dy / (parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx) / (parameters.sigma_x * parameters.sigma_y));
+                J[3] = f_val * W * (((dx * dx) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_y));
+                J[4] = f_val * W * (((dy * dy) / (parameters.sigma_y * parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y * parameters.sigma_y));
+                J[5] = f_val * W * (((dx * dy) / (parameters.sigma_x * parameters.sigma_y)) - parameters.rho * W * Z_eq);
+
+                return build_accumulator(r, J);
+            }
+        }
+
+    private:
+        //  Helper to populate the accumulator
+        constexpr LMAccumulator<num_params, FloatingPointT> build_accumulator(
+            const FloatingPointT r, 
+            const std::array<FloatingPointT, num_params>& J) const
+        {
+            LMAccumulator<num_params, FloatingPointT> acc;
             acc.sse = r * r;
-            for (std::size_t i = 0; i < num_params; ++i)
+            
+            for (std::size_t i{ 0 }; i < num_params; ++i)
             {
                 acc.g[i] = J[i] * r;
-                for (std::size_t j = 0; j < num_params; ++j)
+                
+                for (std::size_t j{ 0 }; j < num_params; ++j)
                 {
                     acc.H[i][j] = J[i] * J[j];
                 }
