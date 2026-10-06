@@ -3268,10 +3268,14 @@ namespace TinyDIP
 
     //  GaussianParameterHistory struct implementation
     //  A fixed-capacity container to track the accepted LM steps without dynamic memory allocation.
-    template <std::size_t MaxIterations, std::floating_point FloatingPointT = double>
+    template <
+        std::size_t MaxIterations,
+        std::floating_point FloatingPointT = double,
+        typename ParaT = SuperGaussianParameters2D<FloatingPointT>
+    >
     struct GaussianParameterHistory
     {
-        std::array<GaussianParameters2D<FloatingPointT>, MaxIterations> parameters{};
+        std::array<ParaT, MaxIterations> parameters{};
         std::size_t valid_count{ 0 };
     };
 
