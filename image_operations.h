@@ -2946,11 +2946,11 @@ namespace TinyDIP
     }
 
     //  LMAccumulator struct implementation
-    template <std::floating_point FloatingPointT = double, class ExPo = decltype(std::execution::seq)>
+    template <std::size_t NumParams, std::floating_point FloatingPointT = double, class ExPo = decltype(std::execution::seq)>
     requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
     struct LMAccumulator
     {
-        static constexpr std::size_t num_params = GaussianParameters2D<FloatingPointT>::num_params;
+        static constexpr std::size_t num_params{ NumParams };
 
         std::remove_cvref_t<ExPo> execution_policy{};
         FloatingPointT sse{ 0.0 };
@@ -3041,13 +3041,13 @@ namespace TinyDIP
     template <
         std::size_t NumParams = 6,
         std::floating_point FloatingPointT = double,
-        typename LMAccumulatorT = LMAccumulator<FloatingPointT>,
+        typename LMAccumulatorT = LMAccumulator<NumParams, FloatingPointT>,
         typename F = std::plus<std::common_type_t<LMAccumulatorT, LMAccumulatorT>>
     >
     requires(std::invocable<F, LMAccumulatorT, LMAccumulatorT>)
     struct LMReducer
     {
-        LMAccumulator<FloatingPointT> operator()(const LMAccumulatorT& a, const LMAccumulatorT& b) const
+        auto operator()(const LMAccumulatorT& a, const LMAccumulatorT& b) const
         {
             return std::invoke(F{}, a, b);
         }
