@@ -3469,11 +3469,12 @@ namespace TinyDIP
     }
 
     //  subtract Template Function Implementation
-    template<class InputT>
-    static Image<InputT> subtract(const Image<InputT>& input1, const Image<InputT>& input2)
+    template<class InputT, typename F = std::minus<std::common_type_t<InputT, InputT>>>
+    requires(std::regular_invocable<F, InputT, InputT>)
+    static Image<InputT> subtract(const Image<InputT>& input1, const Image<InputT>& input2, F f = {})
     {
         check_size_same(input1, input2);
-        return pixelwise_transform(std::minus<>{}, input1, input2);
+        return pixelwise_transform(f, input1, input2);
     }
 
     //  subtract Template Function Implementation
