@@ -3039,14 +3039,15 @@ namespace TinyDIP
 
 	//  LMReducer template struct implementation
     template <
-        std::size_t NumParams,
+        std::size_t NumParams = 6,
         std::floating_point FloatingPointT = double,
-        typename F = std::plus<std::common_type_t<FloatingPointT, FloatingPointT>>
+        typename LMAccumulatorT = LMAccumulator<FloatingPointT>,
+        typename F = std::plus<std::common_type_t<LMAccumulatorT, LMAccumulatorT>>
     >
-    requires(std::invocable<F, FloatingPointT, FloatingPointT>)
+    requires(std::invocable<F, LMAccumulatorT, LMAccumulatorT>)
     struct LMReducer
     {
-        LMAccumulator<FloatingPointT> operator()(const LMAccumulator<FloatingPointT>& a, const LMAccumulator<FloatingPointT>& b) const
+        LMAccumulator<FloatingPointT> operator()(const LMAccumulatorT& a, const LMAccumulatorT& b) const
         {
             return std::invoke(F{}, a, b);
         }
