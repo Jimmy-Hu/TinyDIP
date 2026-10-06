@@ -3175,6 +3175,7 @@ namespace TinyDIP
 	//  estimate_gaussian_profile_with_history_2d template function implementation
     //  Test1: https://godbolt.org/z/Px4KcM7d4
     template <
+        std::size_t NumParams,
         std::size_t MaxCapacity = 1000,
         class ExecutionPolicy,
         typename ElementT,
@@ -3265,7 +3266,7 @@ namespace TinyDIP
         for (std::size_t iter = 0; iter < safe_iterations; ++iter)
         {
             LMMapper<ElementT, FloatingPointT> mapper{ &image, current_params };
-            LMReducer<FloatingPointT> reducer{};
+            LMReducer<NumParams, FloatingPointT> reducer{};
 
             // Multithreaded execution evaluating Jacobian and Residuals simultaneously
             LMAccumulator<FloatingPointT> acc = std::transform_reduce(
