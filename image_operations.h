@@ -3359,6 +3359,7 @@ namespace TinyDIP
 
     //  estimate_gaussian_profile_with_history_2d template function implementation
     template <
+        std::size_t NumParams,
         std::size_t MaxCapacity = 1000,
         class ExecutionPolicy,
         typename ElementT,
@@ -3374,7 +3375,7 @@ namespace TinyDIP
         const std::size_t max_iterations = MaxCapacity,
         const FloatingPointT tolerance = static_cast<FloatingPointT>(1e-7))
     {
-        return estimate_gaussian_profile_with_history_2d<MaxCapacity, ExecutionPolicy, ElementT, FloatingPointT>(
+        return estimate_gaussian_profile_with_history_2d<NumParams, MaxCapacity, ExecutionPolicy, ElementT, FloatingPointT>(
             std::forward<ExecutionPolicy>(execution_policy),
             image,
             ImagePixelComparator<ElementT>{ &image },
