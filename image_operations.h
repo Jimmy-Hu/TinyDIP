@@ -2884,6 +2884,34 @@ namespace TinyDIP
         }
     };
 
+    //  SuperGaussianParameters2D struct implementation
+    template <std::floating_point FloatingPointT = double>
+    struct SuperGaussianParameters2D
+    {
+        static constexpr std::size_t num_params{ 7 };
+
+        FloatingPointT amplitude;
+        FloatingPointT x0;
+        FloatingPointT y0;
+        FloatingPointT sigma_x;
+        FloatingPointT sigma_y;
+        FloatingPointT rho;
+        FloatingPointT P;
+
+        friend std::ostream& operator<<(std::ostream& os, const SuperGaussianParameters2D& params)
+        {
+            os << "{ amplitude: " << params.amplitude
+               << ", x0: " << params.x0
+               << ", y0: " << params.y0
+               << ", sigma_x: " << params.sigma_x
+               << ", sigma_y: " << params.sigma_y
+               << ", rho: " << params.rho
+               << ", P: " << params.P
+               << " }";
+            return os;
+        }
+    };
+
     //  gaussianFigure2D Template Function Implementation (with Execution Policy, GaussianParameters2D)
     //  General two-dimensional elliptical Gaussian
     //  https://fabiandablander.com/statistics/Two-Properties.html
