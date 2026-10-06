@@ -3282,11 +3282,11 @@ namespace TinyDIP
 	//  estimate_gaussian_profile_with_history_2d template function implementation
     //  Test1: https://godbolt.org/z/Px4KcM7d4
     template <
-        std::size_t NumParams,
         std::size_t MaxCapacity = 1000,
         class ExecutionPolicy,
         typename ElementT,
         std::floating_point FloatingPointT = double,
+        typename ParaT = SuperGaussianParameters2D<FloatingPointT>,
         typename ComparatorT
     >
     requires (
@@ -3307,7 +3307,7 @@ namespace TinyDIP
         }
 
         GaussianParameterHistory<MaxCapacity, FloatingPointT> history{};
-        constexpr std::size_t num_params = GaussianParameters2D<FloatingPointT>::num_params;
+        constexpr std::size_t num_params = ParaT::num_params;
         const std::size_t count = image.count();
         const std::size_t width = image.getWidth();
         
@@ -3362,25 +3362,27 @@ namespace TinyDIP
         // Clamp initial rho to valid bound
         rho = std::max(static_cast<FloatingPointT>(-0.99), std::min(static_cast<FloatingPointT>(0.99), rho));
 
+        FloatingPointT P{ static_cast<FloatingPointT>(1.0) };
+
         // Levenberg-Marquardt Optimization Loop
         FloatingPointT lambda = static_cast<FloatingPointT>(0.01);
         FloatingPointT current_sse = std::numeric_limits<FloatingPointT>::max();
 
         const std::size_t safe_iterations = std::min(max_iterations, MaxCapacity);
-        GaussianParameters2D<FloatingPointT> current_params{ A, x0, y0, sigma_x, sigma_y, rho };
+        ParaT current_params{};
         history.parameters[history.valid_count] = current_params;
         history.valid_count++;
         for (std::size_t iter = 0; iter < safe_iterations; ++iter)
         {
-            LMMapper<ElementT, FloatingPointT> mapper{ &image, current_params };
-            LMReducer<NumParams, FloatingPointT> reducer{};
+            UniversalLMMapper<ElementT, FloatingPointT, decltype(current_params)> mapper{ &image, current_params };
+            LMReducer<ParaT::num_params, FloatingPointT> reducer{};
 
             // Multithreaded execution evaluating Jacobian and Residuals simultaneously
-            LMAccumulator<FloatingPointT> acc = std::transform_reduce(
+            LMAccumulator<ParaT::num_params, FloatingPointT> acc = std::transform_reduce(
                 std::forward<ExecutionPolicy>(execution_policy),
                 std::ranges::begin(indices),
                 std::ranges::end(indices),
-                LMAccumulator<FloatingPointT>{},
+                LMAccumulator<ParaT::num_params, FloatingPointT>{},
                 reducer,
                 mapper
             );
@@ -3429,8 +3431,8 @@ namespace TinyDIP
                 break;
             }
 
-            const GaussianParameters2D<FloatingPointT> new_params = current_params + delta;
-            SSEMapper<ElementT, FloatingPointT> sse_mapper{ &image, new_params };
+            const auto new_params = current_params + delta;
+            UniversalSSEMapper<ElementT, FloatingPointT, ParaT> sse_mapper{ &image, new_params };
             SSEReducer<FloatingPointT> sse_reducer{};
 
             FloatingPointT new_sse = std::transform_reduce(
