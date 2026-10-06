@@ -2845,6 +2845,19 @@ namespace TinyDIP
         return output;
     }
 
+    //  Concept to constrain the parameter type securely
+    template <typename T, typename FloatingPointT>
+    concept gaussian_parameter_model = requires(T param)
+    {
+        { T::num_params } -> std::convertible_to<std::size_t>;
+        { param.amplitude } -> std::convertible_to<FloatingPointT>;
+        { param.x0 } -> std::convertible_to<FloatingPointT>;
+        { param.y0 } -> std::convertible_to<FloatingPointT>;
+        { param.sigma_x } -> std::convertible_to<FloatingPointT>;
+        { param.sigma_y } -> std::convertible_to<FloatingPointT>;
+        { param.rho } -> std::convertible_to<FloatingPointT>;
+    };    
+
     //  GaussianParameters2D struct implementation
     template <std::floating_point FloatingPointT = double>
     struct GaussianParameters2D
