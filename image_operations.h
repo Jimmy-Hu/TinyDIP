@@ -3370,6 +3370,14 @@ namespace TinyDIP
 
         const std::size_t safe_iterations = std::min(max_iterations, MaxCapacity);
         ParaT current_params{};
+        if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<FloatingPointT>>)
+        {
+            current_params = ParaT{ A, x0, y0, sigma_x, sigma_y, rho, P };
+        }
+        else
+        {
+            current_params = ParaT{ A, x0, y0, sigma_x, sigma_y, rho };
+        }
         history.parameters[history.valid_count] = current_params;
         history.valid_count++;
         for (std::size_t iter = 0; iter < safe_iterations; ++iter)
