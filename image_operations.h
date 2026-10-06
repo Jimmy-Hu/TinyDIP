@@ -3505,7 +3505,7 @@ namespace TinyDIP
         const std::size_t max_iterations = MaxCapacity,
         const FloatingPointT tolerance = static_cast<FloatingPointT>(1e-7))
     {
-        return estimate_gaussian_profile_with_history_2d<NumParams, MaxCapacity, ExecutionPolicy, ElementT, FloatingPointT>(
+        return estimate_gaussian_profile_with_history_2d<MaxCapacity, ExecutionPolicy, ElementT, FloatingPointT>(
             std::forward<ExecutionPolicy>(execution_policy),
             image,
             ImagePixelComparator<ElementT>{ &image },
@@ -3539,7 +3539,7 @@ namespace TinyDIP
         const FloatingPointT tolerance = static_cast<FloatingPointT>(1e-7)
     )
     {
-        auto estimated_gaussian_2d = estimate_gaussian_profile_with_history_2d<NumParams, 1000, ExecutionPolicy, ElementT, FloatingPointT>(
+        auto estimated_gaussian_2d = estimate_gaussian_profile_with_history_2d<1000, ExecutionPolicy, ElementT, FloatingPointT>(
             std::forward<ExecutionPolicy>(execution_policy),
             image,
             comparator,
