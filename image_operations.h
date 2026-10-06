@@ -3444,7 +3444,7 @@ namespace TinyDIP
         std::is_arithmetic_v<ElementT> &&
         std::strict_weak_order<ComparatorT, std::size_t, std::size_t>
     )
-    GaussianParameters2D<FloatingPointT> estimate_gaussian_parameters_2d(
+    auto estimate_gaussian_parameters_2d(
         ExecutionPolicy&& execution_policy,
         const TinyDIP::Image<ElementT>& image,
         ComparatorT comparator,
