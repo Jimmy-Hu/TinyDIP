@@ -3389,6 +3389,7 @@ namespace TinyDIP
     //  Test3: https://godbolt.org/z/1fjcK3jYn
     //  Test4: https://godbolt.org/z/rETc7dj54
     template <
+        std::size_t NumParams = 6,
         class ExecutionPolicy,
         typename ElementT,
         std::floating_point FloatingPointT = double,
@@ -3407,7 +3408,7 @@ namespace TinyDIP
         const FloatingPointT tolerance = static_cast<FloatingPointT>(1e-7)
     )
     {
-        auto estimated_gaussian_2d = estimate_gaussian_profile_with_history_2d<1000, ExecutionPolicy, ElementT, FloatingPointT>(
+        auto estimated_gaussian_2d = estimate_gaussian_profile_with_history_2d<NumParams, 1000, ExecutionPolicy, ElementT, FloatingPointT>(
             std::forward<ExecutionPolicy>(execution_policy),
             image,
             comparator,
