@@ -3419,6 +3419,7 @@ namespace TinyDIP
 
     //  estimate_gaussian_parameters_2d template function implementation
     template <
+        std::size_t NumParams = 6,
         class ExecutionPolicy,
         typename ElementT,
         std::floating_point FloatingPointT = double
@@ -3433,7 +3434,7 @@ namespace TinyDIP
         const std::size_t max_iterations = 1000,
         const FloatingPointT tolerance = static_cast<FloatingPointT>(1e-7))
     {
-        return estimate_gaussian_parameters_2d<ExecutionPolicy, ElementT, FloatingPointT>(
+        return estimate_gaussian_parameters_2d<NumParams, ExecutionPolicy, ElementT, FloatingPointT>(
             std::forward<ExecutionPolicy>(execution_policy),
             image,
             ImagePixelComparator<ElementT>{ &image },
