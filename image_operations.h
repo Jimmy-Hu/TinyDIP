@@ -2942,42 +2942,67 @@ namespace TinyDIP
     //  gaussianFigure2D Template Function Implementation (with Execution Policy, GaussianParameters2D)
     //  General two-dimensional elliptical Gaussian
     //  https://fabiandablander.com/statistics/Two-Properties.html
-    template<class ExPo, class InputT = double>
-    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
+    template<
+        class ExPo, 
+        class InputT = double, 
+        typename ParaT = GaussianParameters2D<InputT>
+    >
+    requires (
+        std::is_execution_policy_v<std::remove_cvref_t<ExPo>> and 
+        gaussian_parameter_model<ParaT, InputT>
+    )
     constexpr static auto gaussianFigure2D(
         ExPo&& execution_policy,
         const std::size_t xsize, const std::size_t ysize,
-        const GaussianParameters2D<InputT> params,
-        const InputT normalize_factor_input = 1.0
-        )
+        const ParaT params,
+        const InputT normalize_factor_input = static_cast<InputT>(1.0)
+    )
     {
         Image<InputT> output(xsize, ysize);
-        auto sigma1_2 = params.sigma_x * params.sigma_x;
-        auto sigma2_2 = params.sigma_y * params.sigma_y;
-        auto normalize_factor =
-            normalize_factor_input / (static_cast<InputT>(2.0) * std::numbers::pi_v<InputT> *params.sigma_x * params.sigma_y * std::sqrt(static_cast<InputT>(1.0) - std::pow(params.rho, static_cast<InputT>(2.0))));
+        
+        const InputT sigma1_2{ params.sigma_x * params.sigma_x };
+        const InputT sigma2_2{ params.sigma_y * params.sigma_y };
+        
+        const InputT W{ static_cast<InputT>(1.0) / (static_cast<InputT>(1.0) - params.rho * params.rho) };
+        
+        const InputT normalize_factor{
+            normalize_factor_input / (static_cast<InputT>(2.0) * std::numbers::pi_v<InputT> * params.sigma_x * params.sigma_y * std::sqrt(static_cast<InputT>(1.0) - params.rho * params.rho))
+        };
 
-        auto exp_para = static_cast<InputT>(-1.0) / (static_cast<InputT>(2.0) * sigma1_2 * sigma2_2 * (static_cast<InputT>(1.0) - std::pow(params.rho, static_cast<InputT>(2.0))));
         auto indices = std::views::iota(std::size_t{ 0 }, ysize);
+        
         std::for_each(
             std::forward<ExPo>(execution_policy),
             std::ranges::begin(indices),
             std::ranges::end(indices),
-            [&](const std::size_t y) {
-                auto x2 = static_cast<InputT>(y) - params.y0;
-                auto x2_2 = x2 * x2;
-                for (std::size_t x = 0; x < xsize; ++x)
+            [&](const std::size_t y)
+            {
+                const InputT dy{ static_cast<InputT>(y) - params.y0 };
+                const InputT dy_2{ dy * dy };
+                
+                for (std::size_t x{ 0 }; x < xsize; ++x)
                 {
-                    auto x1 = static_cast<InputT>(x) - params.x0;
-                    auto x1_2 = x1 * x1;
-                    output.at(x, y) = normalize_factor *
-                        std::exp(
-                            exp_para * (
-                                sigma2_2 * x1_2 -
-                                (static_cast<InputT>(2) * params.rho * params.sigma_x * params.sigma_y * x1 * x2) +
-                                sigma1_2 * x2_2
-                                )
-                        );
+                    const InputT dx{ static_cast<InputT>(x) - params.x0 };
+                    const InputT dx_2{ dx * dx };
+                    
+                    const InputT Z_eq{ (dx_2 / sigma1_2) 
+                                     - (static_cast<InputT>(2.0) * params.rho * dx * dy / (params.sigma_x * params.sigma_y)) 
+                                     + (dy_2 / sigma2_2) };
+
+                    InputT final_exponent_val{};
+
+                    // Compile-time branching for Super-Gaussian vs Standard Gaussian
+                    if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<InputT>>)
+                    {
+                        const InputT safe_Z_eq{ std::max(static_cast<InputT>(1e-12), Z_eq) };
+                        final_exponent_val = static_cast<InputT>(-0.5) * W * std::pow(safe_Z_eq, params.P);
+                    }
+                    else
+                    {
+                        final_exponent_val = static_cast<InputT>(-0.5) * W * Z_eq;
+                    }
+
+                    output.at(x, y) = normalize_factor * std::exp(final_exponent_val);
                 }
             }
         );
