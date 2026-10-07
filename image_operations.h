@@ -3558,15 +3558,18 @@ namespace TinyDIP
     //  Test3: https://godbolt.org/z/1fjcK3jYn
     //  Test4: https://godbolt.org/z/rETc7dj54
     //  Test5: https://godbolt.org/z/TqK93rnP4
+    //  Test6: https://godbolt.org/z/4ra1n8deW
     template <
         class ExecutionPolicy,
         typename ElementT,
         std::floating_point FloatingPointT = double,
+        typename ParaT = SuperGaussianParameters2D<FloatingPointT>,
         typename ComparatorT
     >
     requires (
         std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
         std::is_arithmetic_v<ElementT> &&
+        gaussian_parameter_model<ParaT, FloatingPointT> &&
         std::strict_weak_order<ComparatorT, std::size_t, std::size_t>
     )
     auto estimate_gaussian_parameters_2d(
@@ -3577,7 +3580,13 @@ namespace TinyDIP
         const FloatingPointT tolerance = static_cast<FloatingPointT>(1e-7)
     )
     {
-        auto estimated_gaussian_2d = estimate_gaussian_profile_with_history_2d<1000, ExecutionPolicy, ElementT, FloatingPointT>(
+        auto estimated_gaussian_2d = estimate_gaussian_profile_with_history_2d<
+                1000,
+                ExecutionPolicy,
+                ElementT,
+                FloatingPointT,
+                ParaT
+            >(
             std::forward<ExecutionPolicy>(execution_policy),
             image,
             comparator,
