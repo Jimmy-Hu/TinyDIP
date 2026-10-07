@@ -3336,6 +3336,7 @@ namespace TinyDIP
     requires (
         std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
         std::is_arithmetic_v<ElementT> &&
+        gaussian_parameter_model<ParaT, FloatingPointT> &&
         std::strict_weak_order<ComparatorT, std::size_t, std::size_t>
     )
     auto estimate_gaussian_profile_with_history_2d(
