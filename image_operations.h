@@ -3010,16 +3010,21 @@ namespace TinyDIP
     }
 
     //  gaussianFigure2D Template Function Implementation (with GaussianParameters2D)
-    template<class InputT = double>
+    template<
+        class InputT = double,
+        typename ParaT = GaussianParameters2D<InputT>
+    >
+    requires (gaussian_parameter_model<ParaT, InputT>)
     constexpr static auto gaussianFigure2D(
         const std::size_t xsize, const std::size_t ysize,
-        const GaussianParameters2D<InputT> params,
-        const InputT normalize_factor_input = 1.0
+        const ParaT params,
+        const InputT normalize_factor_input = static_cast<InputT>(1.0)
     )
     {
         return gaussianFigure2D(
             std::execution::seq,
-            xsize, ysize,
+            xsize,
+            ysize,
             params,
             normalize_factor_input
         );
