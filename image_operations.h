@@ -3316,6 +3316,7 @@ namespace TinyDIP
         std::floating_point FloatingPointT = double,
         typename ParaT = SuperGaussianParameters2D<FloatingPointT>
     >
+    requires (gaussian_parameter_model<ParaT, FloatingPointT>)
     struct GaussianParameterHistory
     {
         std::array<ParaT, MaxIterations> parameters{};
