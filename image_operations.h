@@ -3684,14 +3684,14 @@ namespace TinyDIP
     }
 
     //  pixelwise_multiplies Template Function Implementation
-    template<class InputT1, class InputT2>
-    constexpr static auto pixelwise_multiplies(const Image<InputT1>& input1, const Image<InputT2>& input2)
+    template<class InputT1, class InputT2, typename F = std::multiplies<std::common_type_t<InputT1, InputT2>>>
+    constexpr static auto pixelwise_multiplies(const Image<InputT1>& input1, const Image<InputT2>& input2, F f = {})
     {
         if (input1.getSize() != input2.getSize())
         {
             throw std::runtime_error("Size mismatched!");
         }
-        return pixelwise_transform(std::multiplies<>{}, input1, input2);
+        return pixelwise_transform(f, input1, input2);
     }
 
     //  multiplies Template Function Implementation
