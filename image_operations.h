@@ -3025,7 +3025,7 @@ namespace TinyDIP
                 std::plus<>{}
             );
             
-            for (std::size_t i = 0; i < H.size(); ++i)
+            for (std::size_t i{ 0 }; i < H.size(); ++i)
             {
                 std::transform(
                     execution_policy, 
