@@ -3443,7 +3443,7 @@ namespace TinyDIP
             throw std::invalid_argument("Input image must be 2-dimensional.");
         }
 
-        GaussianParameterHistory<MaxCapacity, FloatingPointT> history{};
+        GaussianParameterHistory<MaxCapacity, FloatingPointT, ParaT> history{};
         constexpr std::size_t num_params = ParaT::num_params;
         const std::size_t count = image.count();
         const std::size_t width = image.getWidth();
