@@ -4630,12 +4630,29 @@ namespace TinyDIP
         return std::reduce(std::forward<ExecutionPolicy>(execution_policy), std::ranges::cbegin(image_data), std::ranges::cend(image_data), ElementT{}, f);
     }
 
-    //  mean template function implementation
-    template<typename ElementT = double, typename F = std::plus<std::common_type_t<ElementT, ElementT>>>
-    requires(std::regular_invocable<F, ElementT, ElementT>)
-    constexpr static auto mean(const Image<ElementT>& input, F f = {})
+    // mean template function implementation
+    template<
+        typename ElementT = double,
+        typename F_PLUS = std::plus<>,
+        typename F_DIVIDES = std::divides<>
+    >
+    requires (
+        std::regular_invocable<F_PLUS, ElementT, ElementT> and
+        std::regular_invocable<F_DIVIDES, ElementT, std::conditional_t<std::is_floating_point_v<ElementT>, ElementT, double>>
+    )
+    constexpr static auto mean(
+        const Image<ElementT>& input,
+        F_PLUS f_plus = {},
+        F_DIVIDES f_divides = {}
+    )
     {
-        return std::invoke(std::divides<>(), sum(input), input.count());
+        // Determine the optimal floating-point type to ensure maximum precision
+        using PrecisionT = std::conditional_t<std::is_floating_point_v<ElementT>, ElementT, double>;
+        
+        // Cast the count to avoid integer division truncation using brace initialization
+        PrecisionT divisor{ static_cast<PrecisionT>(input.count()) };
+        
+        return std::invoke(f_divides, sum(input, f_plus), divisor);
     }
 
     //  mean template function implementation
