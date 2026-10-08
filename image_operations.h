@@ -4963,7 +4963,8 @@ namespace TinyDIP
         class ExecutionPolicy,
         arithmetic ElementT,
         std::floating_point FloatingType = double,
-        typename RootFinder = GaussianFisheyeInverseRootFinder<FloatingType>
+        typename RootFinder = GaussianFisheyeInverseRootFinder<FloatingType>,
+        typename FisheyePixelMapperT = FisheyePixelMapper<ElementT, FloatingType, RootFinder>
     >
     requires std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
              std::invocable<RootFinder, FloatingType, FloatingType>
@@ -4984,7 +4985,7 @@ namespace TinyDIP
         std::vector<std::size_t> indices(output.count());
         std::ranges::iota(indices, 0);
 
-        FisheyePixelMapper<ElementT, FloatingType, RootFinder> mapper{input, output, D0, root_finder};
+        FisheyePixelMapperT mapper{input, output, D0, root_finder};
 
         std::for_each(
             std::forward<ExecutionPolicy>(policy),
