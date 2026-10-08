@@ -3522,6 +3522,8 @@ namespace TinyDIP
         rho = std::max(static_cast<FloatingPointT>(-0.99), std::min(static_cast<FloatingPointT>(0.99), rho));
 
         FloatingPointT P{ static_cast<FloatingPointT>(1.0) };
+        FloatingPointT P_x{ static_cast<FloatingPointT>(1.0) };
+        FloatingPointT P_y{ static_cast<FloatingPointT>(1.0) };
 
         // Levenberg-Marquardt Optimization Loop
         FloatingPointT lambda = static_cast<FloatingPointT>(0.01);
@@ -3529,7 +3531,11 @@ namespace TinyDIP
 
         const std::size_t safe_iterations = std::min(max_iterations, MaxCapacity);
         ParaT current_params{};
-        if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<FloatingPointT>>)
+        if constexpr (std::is_same_v<ParaT, AsymmetricSuperGaussianParameters2D<FloatingPointT>>)
+        {
+            current_params = ParaT{ A, x0, y0, sigma_x, sigma_y, rho, P_x, P_y };
+        }
+        else if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<FloatingPointT>>)
         {
             current_params = ParaT{ A, x0, y0, sigma_x, sigma_y, rho, P };
         }
