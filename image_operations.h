@@ -4656,12 +4656,30 @@ namespace TinyDIP
     }
 
     //  mean template function implementation
-    template<class ExecutionPolicy, typename ElementT = double, typename F = std::plus<std::common_type_t<ElementT, ElementT>>>
-    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
-             std::regular_invocable<F, ElementT, ElementT>)
-    constexpr static auto mean(ExecutionPolicy&& execution_policy, const Image<ElementT>& input, F f = {})
+    template<
+        class ExecutionPolicy,
+        typename ElementT = double,
+        typename F_PLUS = std::plus<>,
+        typename F_DIVIDES = std::divides<>
+    >
+    requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and
+             std::regular_invocable<F_PLUS, ElementT, ElementT> and
+             std::regular_invocable<F_DIVIDES, ElementT, std::conditional_t<std::is_floating_point_v<ElementT>, ElementT, double>>
+    )
+    constexpr static auto mean(
+        ExecutionPolicy&& execution_policy,
+        const Image<ElementT>& input,
+        F_PLUS f_plus = {},
+        F_DIVIDES f_divides = {}
+    )
     {
-        return std::invoke(std::divides<>(), sum(std::forward<ExecutionPolicy>(execution_policy), input), input.count());
+        // Determine the optimal floating-point type to ensure maximum precision
+        using PrecisionT = std::conditional_t<std::is_floating_point_v<ElementT>, ElementT, double>;
+        
+        // Cast the count to avoid integer division truncation using brace initialization
+        PrecisionT divisor{ static_cast<PrecisionT>(input.count()) };
+        
+        return std::invoke(f_divides, sum(std::forward<ExecutionPolicy>(execution_policy), input, f_plus), divisor);
     }
 
     //  min template function implementation
