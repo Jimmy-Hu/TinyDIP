@@ -3659,17 +3659,18 @@ namespace TinyDIP
         const FloatingPointT tolerance = static_cast<FloatingPointT>(1e-7))
     {
         return estimate_gaussian_profile_with_history_2d<
+                MaxCapacity,
                 ExecutionPolicy,
                 ElementT,
                 FloatingPointT,
                 ParaT
             >(
-            std::forward<ExecutionPolicy>(execution_policy),
-            image,
-            ImagePixelComparator<ElementT>{ &image },
-            max_iterations,
-            tolerance
-        );
+                std::forward<ExecutionPolicy>(execution_policy),
+                image,
+                ImagePixelComparator<ElementT>{ &image },
+                max_iterations,
+                tolerance
+            );
     }
 
     //  estimate_gaussian_parameters_2d template function implementation
