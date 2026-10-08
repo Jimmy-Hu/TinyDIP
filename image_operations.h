@@ -3304,7 +3304,29 @@ namespace TinyDIP
             FloatingPointT f_val{};
 
             // Compile-time branching: Zero runtime overhead!
-            if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<FloatingPointT>>)
+            if constexpr (std::is_same_v<ParaT, AsymmetricSuperGaussianParameters2D<FloatingPointT>>)
+            {
+                // Separate the X and Y geometric components
+                const FloatingPointT Z_x{ (dx * dx) / (parameters.sigma_x * parameters.sigma_x) };
+                const FloatingPointT Z_y{ (dy * dy) / (parameters.sigma_y * parameters.sigma_y) };
+                
+                // Apply safe boundaries to avoid NaN in std::pow
+                const FloatingPointT safe_Z_x{ std::max(static_cast<FloatingPointT>(1e-12), Z_x) };
+                const FloatingPointT safe_Z_y{ std::max(static_cast<FloatingPointT>(1e-12), Z_y) };
+                
+                // Apply independent shape parameters P_x and P_y
+                const FloatingPointT Z_pow_P_x{ std::pow(safe_Z_x, parameters.P_x) };
+                const FloatingPointT Z_pow_P_y{ std::pow(safe_Z_y, parameters.P_y) };
+                
+                // Calculate the cross term separately
+                const FloatingPointT cross_term{ (static_cast<FloatingPointT>(2.0) * parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y) };
+                
+                // Combine into the asymmetric equivalent Z
+                const FloatingPointT Z_eq_asym{ Z_pow_P_x - cross_term + Z_pow_P_y };
+                
+                f_val = parameters.amplitude * std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_eq_asym);
+            }
+            else if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<FloatingPointT>>)
             {
                 const FloatingPointT safe_Z_eq{ std::max(static_cast<FloatingPointT>(1e-12), Z_eq) };
                 const FloatingPointT Z_pow_P{ std::pow(safe_Z_eq, parameters.P) };
