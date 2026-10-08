@@ -2950,6 +2950,51 @@ namespace TinyDIP
         }
     };
 
+    //  AsymmetricSuperGaussianParameters2D struct implementation
+    template <std::floating_point FloatingPointT = double>
+    struct AsymmetricSuperGaussianParameters2D
+    {
+        static constexpr std::size_t num_params{ 8 };
+
+        FloatingPointT amplitude;
+        FloatingPointT x0;
+        FloatingPointT y0;
+        FloatingPointT sigma_x;
+        FloatingPointT sigma_y;
+        FloatingPointT rho;
+        FloatingPointT P_x;
+        FloatingPointT P_y;
+
+        friend std::ostream& operator<<(std::ostream& os, const AsymmetricSuperGaussianParameters2D& params)
+        {
+            os << "{ amplitude: " << params.amplitude
+               << ", x0: " << params.x0
+               << ", y0: " << params.y0
+               << ", sigma_x: " << params.sigma_x
+               << ", sigma_y: " << params.sigma_y
+               << ", rho: " << params.rho
+               << ", P_x: " << params.P_x
+               << ", P_y: " << params.P_y
+               << " }";
+            return os;
+        }
+
+        constexpr AsymmetricSuperGaussianParameters2D operator+(const std::array<FloatingPointT, num_params>& delta) const
+        {
+            return AsymmetricSuperGaussianParameters2D
+            {
+                amplitude + delta[0],
+                x0 + delta[1],
+                y0 + delta[2],
+                std::max(static_cast<FloatingPointT>(1e-6), std::abs(sigma_x + delta[3])),
+                std::max(static_cast<FloatingPointT>(1e-6), std::abs(sigma_y + delta[4])),
+                std::max(static_cast<FloatingPointT>(-0.999), std::min(static_cast<FloatingPointT>(0.999), rho + delta[5])),
+                std::max(static_cast<FloatingPointT>(0.1), std::min(static_cast<FloatingPointT>(10.0), P_x + delta[6])),
+                std::max(static_cast<FloatingPointT>(0.1), std::min(static_cast<FloatingPointT>(10.0), P_y + delta[7]))
+            };
+        }
+    };
+
     //  gaussianFigure2D Template Function Implementation (with Execution Policy, GaussianParameters2D)
     //  General two-dimensional elliptical Gaussian
     //  https://fabiandablander.com/statistics/Two-Properties.html
