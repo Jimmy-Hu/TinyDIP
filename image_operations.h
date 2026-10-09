@@ -3102,10 +3102,10 @@ namespace TinyDIP
         return output;
     }
 
-    //  gaussianFigure2D Template Function Implementation (with GaussianParameters2D)
+    //  gaussianFigure2D Template Function Implementation (with AsymmetricSuperGaussianParameters2D)
     template<
         class InputT = double,
-        typename ParaT = GaussianParameters2D<InputT>
+        typename ParaT = AsymmetricSuperGaussianParameters2D<InputT>
     >
     requires (gaussian_parameter_model<ParaT, InputT>)
     constexpr static auto gaussianFigure2D(
