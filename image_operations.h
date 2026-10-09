@@ -2866,8 +2866,13 @@ namespace TinyDIP
         { param.y0 } -> std::convertible_to<FloatingPointT>;
         { param.sigma_x } -> std::convertible_to<FloatingPointT>;
         { param.sigma_y } -> std::convertible_to<FloatingPointT>;
-        { param.rho } -> std::convertible_to<FloatingPointT>;
-    };    
+    } 
+    and 
+    (
+        requires(T param) { { param.rho } -> std::convertible_to<FloatingPointT>; }
+        or 
+        requires(T param) { { param.theta } -> std::convertible_to<FloatingPointT>; }
+    );
 
     //  GaussianParameters2D struct implementation
     template <std::floating_point FloatingPointT = double>
