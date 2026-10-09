@@ -3198,87 +3198,106 @@ namespace TinyDIP
 
             const FloatingPointT dx{ x - parameters.x0 };
             const FloatingPointT dy{ y - parameters.y0 };
-            
-            const FloatingPointT W{ static_cast<FloatingPointT>(1.0) / (static_cast<FloatingPointT>(1.0) - parameters.rho * parameters.rho) };
-            
-            const FloatingPointT Z_eq{ (dx * dx) / (parameters.sigma_x * parameters.sigma_x) 
-                                     - (static_cast<FloatingPointT>(2.0) * parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y) 
-                                     + (dy * dy) / (parameters.sigma_y * parameters.sigma_y) };
 
             // Compile-time branching: Zero runtime overhead!
             if constexpr (std::is_same_v<ParaT, AsymmetricSuperGaussianParameters2D<FloatingPointT>>)
             {
-                const FloatingPointT Z_x{ (dx * dx) / (parameters.sigma_x * parameters.sigma_x) };
-                const FloatingPointT Z_y{ (dy * dy) / (parameters.sigma_y * parameters.sigma_y) };
+                // Coordinate transformation (Rigid Body Rotation)
+                const FloatingPointT u{ dx * cos_t - dy * sin_t };
+                const FloatingPointT v{ dx * sin_t + dy * cos_t };
+
+                // Normalized distances along principal axes
+                const FloatingPointT Z_u{ (u * u) / (parameters.sigma_x * parameters.sigma_x) };
+                const FloatingPointT Z_v{ (v * v) / (parameters.sigma_y * parameters.sigma_y) };
                 
-                const FloatingPointT safe_Z_x{ std::max(static_cast<FloatingPointT>(1e-12), Z_x) };
-                const FloatingPointT safe_Z_y{ std::max(static_cast<FloatingPointT>(1e-12), Z_y) };
+                // Safe bounds to prevent NaN
+                const FloatingPointT safe_Z_u{ std::max(static_cast<FloatingPointT>(1e-12), Z_u) };
+                const FloatingPointT safe_Z_v{ std::max(static_cast<FloatingPointT>(1e-12), Z_v) };
 
-                const FloatingPointT Z_pow_Px{ std::pow(safe_Z_x, parameters.P_x) };
-                const FloatingPointT Z_pow_Py{ std::pow(safe_Z_y, parameters.P_y) };
+                // Apply independent shape parameters
+                const FloatingPointT Z_pow_Px{ std::pow(safe_Z_u, parameters.P_x) };
+                const FloatingPointT Z_pow_Py{ std::pow(safe_Z_v, parameters.P_y) };
 
-                const FloatingPointT Z_x_pow_Px_minus_1{ std::pow(safe_Z_x, parameters.P_x - static_cast<FloatingPointT>(1.0)) };
-                const FloatingPointT Z_y_pow_Py_minus_1{ std::pow(safe_Z_y, parameters.P_y - static_cast<FloatingPointT>(1.0)) };
+                // Precompute terms for Chain Rule (avoiding pow if P=1 for speed is handled well by modern compilers)
+                const FloatingPointT Z_u_pow_Px_minus_1{ std::pow(safe_Z_u, parameters.P_x - static_cast<FloatingPointT>(1.0)) };
+                const FloatingPointT Z_v_pow_Py_minus_1{ std::pow(safe_Z_v, parameters.P_y - static_cast<FloatingPointT>(1.0)) };
 
-                const FloatingPointT W_asym{ static_cast<FloatingPointT>(1.0) };
+                // Energy Function (No W required as axes are decoupled)
                 const FloatingPointT Z_eq_asym{ Z_pow_Px + Z_pow_Py };
-
-                const FloatingPointT exp_term{ std::exp(-static_cast<FloatingPointT>(0.5) * W_asym * Z_eq_asym) };
+                const FloatingPointT exp_term{ std::exp(-static_cast<FloatingPointT>(0.5) * Z_eq_asym) };
                 const FloatingPointT f_val{ parameters.amplitude * exp_term };
                 const FloatingPointT r{ z - f_val };
 
+                // Jacobian Calculation
                 std::array<FloatingPointT, num_params> J{};
-                J[0] = exp_term;
-                J[1] = f_val * (parameters.P_x * Z_x_pow_Px_minus_1 * (dx / (parameters.sigma_x * parameters.sigma_x)));
-                J[2] = f_val * (parameters.P_y * Z_y_pow_Py_minus_1 * (dy / (parameters.sigma_y * parameters.sigma_y)));
-                J[3] = f_val * ((parameters.P_x * Z_pow_Px) / parameters.sigma_x);
-                J[4] = f_val * ((parameters.P_y * Z_pow_Py) / parameters.sigma_y);
-                J[5] = static_cast<FloatingPointT>(0.0);
-                J[6] = f_val * (static_cast<FloatingPointT>(-0.5) * Z_pow_Px * std::log(safe_Z_x));
-                J[7] = f_val * (static_cast<FloatingPointT>(-0.5) * Z_pow_Py * std::log(safe_Z_y));
+                J[0] = exp_term; // dA
+                
+                // Auxiliary derivatives for u and v (Chain Rule setup)
+                const FloatingPointT dE_du{ f_val * parameters.P_x * Z_u_pow_Px_minus_1 * (u / (parameters.sigma_x * parameters.sigma_x)) };
+                const FloatingPointT dE_dv{ f_val * parameters.P_y * Z_v_pow_Py_minus_1 * (v / (parameters.sigma_y * parameters.sigma_y)) };
+
+                // dx = x - x0, dy = y - y0
+                J[1] = dE_du * (-cos_t) + dE_dv * (-sin_t);   // dx0
+                J[2] = dE_du * (sin_t) + dE_dv * (-cos_t);    // dy0
+                J[3] = f_val * ((parameters.P_x * Z_pow_Px) / parameters.sigma_x); // dsigma_x
+                J[4] = f_val * ((parameters.P_y * Z_pow_Py) / parameters.sigma_y); // dsigma_y
+                J[5] = -v * dE_du + u * dE_dv;                // dtheta
+                J[6] = f_val * (static_cast<FloatingPointT>(-0.5) * Z_pow_Px * std::log(safe_Z_u)); // dP_x
+                J[7] = f_val * (static_cast<FloatingPointT>(-0.5) * Z_pow_Py * std::log(safe_Z_v)); // dP_y
 
                 return build_accumulator(r, J);
             }
-            else if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<FloatingPointT>>)
+            else // Standard & Super Gaussian
             {
-                // Super-Gaussian specific logic (7 parameters)
-                const FloatingPointT safe_Z_eq{ std::max(static_cast<FloatingPointT>(1e-12), Z_eq) };
-                const FloatingPointT Z_pow_P{ std::pow(safe_Z_eq, parameters.P) };
-                const FloatingPointT Z_pow_P_minus_1{ std::pow(safe_Z_eq, parameters.P - static_cast<FloatingPointT>(1.0)) };
+                // W and Z_eq calculation must be deferred here to avoid compile-time failure 
+                // when AsymmetricSuperGaussianParameters2D (which lacks 'rho') is passed.
+                const FloatingPointT W{ static_cast<FloatingPointT>(1.0) / (static_cast<FloatingPointT>(1.0) - parameters.rho * parameters.rho) };
+                
+                const FloatingPointT Z_eq{ (dx * dx) / (parameters.sigma_x * parameters.sigma_x) 
+                                         - (static_cast<FloatingPointT>(2.0) * parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y) 
+                                         + (dy * dy) / (parameters.sigma_y * parameters.sigma_y) };
 
-                const FloatingPointT exp_term{ std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_pow_P) };
-                const FloatingPointT f_val{ parameters.amplitude * exp_term };
-                const FloatingPointT r{ z - f_val };
+                if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<FloatingPointT>>)
+                {
+                    // Super-Gaussian specific logic (7 parameters)
+                    const FloatingPointT safe_Z_eq{ std::max(static_cast<FloatingPointT>(1e-12), Z_eq) };
+                    const FloatingPointT Z_pow_P{ std::pow(safe_Z_eq, parameters.P) };
+                    const FloatingPointT Z_pow_P_minus_1{ std::pow(safe_Z_eq, parameters.P - static_cast<FloatingPointT>(1.0)) };
 
-                const FloatingPointT chain_multiplier{ parameters.P * Z_pow_P_minus_1 };
+                    const FloatingPointT exp_term{ std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_pow_P) };
+                    const FloatingPointT f_val{ parameters.amplitude * exp_term };
+                    const FloatingPointT r{ z - f_val };
 
-                std::array<FloatingPointT, num_params> J{};
-                J[0] = exp_term;
-                J[1] = f_val * W * chain_multiplier * ((dx / (parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dy) / (parameters.sigma_x * parameters.sigma_y));
-                J[2] = f_val * W * chain_multiplier * ((dy / (parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx) / (parameters.sigma_x * parameters.sigma_y));
-                J[3] = f_val * W * chain_multiplier * (((dx * dx) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_y));
-                J[4] = f_val * W * chain_multiplier * (((dy * dy) / (parameters.sigma_y * parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y * parameters.sigma_y));
-                J[5] = f_val * (((parameters.rho * W * W * Z_pow_P) * static_cast<FloatingPointT>(-1.0)) + (W * chain_multiplier * ((dx * dy) / (parameters.sigma_x * parameters.sigma_y))));
-                J[6] = f_val * (static_cast<FloatingPointT>(-0.5) * W * Z_pow_P * std::log(safe_Z_eq));
+                    const FloatingPointT chain_multiplier{ parameters.P * Z_pow_P_minus_1 };
 
-                return build_accumulator(r, J);
-            }
-            else
-            {
-                // Standard Gaussian specific logic (6 parameters)
-                const FloatingPointT exp_term{ std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_eq) };
-                const FloatingPointT f_val{ parameters.amplitude * exp_term };
-                const FloatingPointT r{ z - f_val };
+                    std::array<FloatingPointT, num_params> J{};
+                    J[0] = exp_term;
+                    J[1] = f_val * W * chain_multiplier * ((dx / (parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dy) / (parameters.sigma_x * parameters.sigma_y));
+                    J[2] = f_val * W * chain_multiplier * ((dy / (parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx) / (parameters.sigma_x * parameters.sigma_y));
+                    J[3] = f_val * W * chain_multiplier * (((dx * dx) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_y));
+                    J[4] = f_val * W * chain_multiplier * (((dy * dy) / (parameters.sigma_y * parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y * parameters.sigma_y));
+                    J[5] = f_val * (((parameters.rho * W * W * Z_pow_P) * static_cast<FloatingPointT>(-1.0)) + (W * chain_multiplier * ((dx * dy) / (parameters.sigma_x * parameters.sigma_y))));
+                    J[6] = f_val * (static_cast<FloatingPointT>(-0.5) * W * Z_pow_P * std::log(safe_Z_eq));
 
-                std::array<FloatingPointT, num_params> J{};
-                J[0] = exp_term;
-                J[1] = f_val * W * ((dx / (parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dy) / (parameters.sigma_x * parameters.sigma_y));
-                J[2] = f_val * W * ((dy / (parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx) / (parameters.sigma_x * parameters.sigma_y));
-                J[3] = f_val * W * (((dx * dx) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_y));
-                J[4] = f_val * W * (((dy * dy) / (parameters.sigma_y * parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y * parameters.sigma_y));
-                J[5] = f_val * W * (((dx * dy) / (parameters.sigma_x * parameters.sigma_y)) - parameters.rho * W * Z_eq);
+                    return build_accumulator(r, J);
+                }
+                else
+                {
+                    // Standard Gaussian specific logic (6 parameters)
+                    const FloatingPointT exp_term{ std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_eq) };
+                    const FloatingPointT f_val{ parameters.amplitude * exp_term };
+                    const FloatingPointT r{ z - f_val };
 
-                return build_accumulator(r, J);
+                    std::array<FloatingPointT, num_params> J{};
+                    J[0] = exp_term;
+                    J[1] = f_val * W * ((dx / (parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dy) / (parameters.sigma_x * parameters.sigma_y));
+                    J[2] = f_val * W * ((dy / (parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx) / (parameters.sigma_x * parameters.sigma_y));
+                    J[3] = f_val * W * (((dx * dx) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_y));
+                    J[4] = f_val * W * (((dy * dy) / (parameters.sigma_y * parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y * parameters.sigma_y));
+                    J[5] = f_val * W * (((dx * dy) / (parameters.sigma_x * parameters.sigma_y)) - parameters.rho * W * Z_eq);
+
+                    return build_accumulator(r, J);
+                }
             }
         }
 
