@@ -3163,32 +3163,29 @@ namespace TinyDIP
                 
                 const FloatingPointT safe_Z_x{ std::max(static_cast<FloatingPointT>(1e-12), Z_x) };
                 const FloatingPointT safe_Z_y{ std::max(static_cast<FloatingPointT>(1e-12), Z_y) };
-                
-                const FloatingPointT Z_x_pow_Px{ std::pow(safe_Z_x, parameters.P_x) };
-                const FloatingPointT Z_y_pow_Py{ std::pow(safe_Z_y, parameters.P_y) };
-                
+
+                const FloatingPointT Z_pow_Px{ std::pow(safe_Z_x, parameters.P_x) };
+                const FloatingPointT Z_pow_Py{ std::pow(safe_Z_y, parameters.P_y) };
+
                 const FloatingPointT Z_x_pow_Px_minus_1{ std::pow(safe_Z_x, parameters.P_x - static_cast<FloatingPointT>(1.0)) };
                 const FloatingPointT Z_y_pow_Py_minus_1{ std::pow(safe_Z_y, parameters.P_y - static_cast<FloatingPointT>(1.0)) };
-                
-                const FloatingPointT cross_term{ (static_cast<FloatingPointT>(2.0) * parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y) };
-                
-                const FloatingPointT Z_eq_asym{ Z_x_pow_Px - cross_term + Z_y_pow_Py };
-                
-                const FloatingPointT exp_term{ std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_eq_asym) };
+
+                const FloatingPointT W_asym{ static_cast<FloatingPointT>(1.0) };
+                const FloatingPointT Z_eq_asym{ Z_pow_Px + Z_pow_Py };
+
+                const FloatingPointT exp_term{ std::exp(-static_cast<FloatingPointT>(0.5) * W_asym * Z_eq_asym) };
                 const FloatingPointT f_val{ parameters.amplitude * exp_term };
                 const FloatingPointT r{ z - f_val };
 
                 std::array<FloatingPointT, num_params> J{};
                 J[0] = exp_term;
-                J[1] = f_val * W * (parameters.P_x * Z_x_pow_Px_minus_1 * (dx / (parameters.sigma_x * parameters.sigma_x)) - (parameters.rho * dy) / (parameters.sigma_x * parameters.sigma_y));
-                J[2] = f_val * W * (parameters.P_y * Z_y_pow_Py_minus_1 * (dy / (parameters.sigma_y * parameters.sigma_y)) - (parameters.rho * dx) / (parameters.sigma_x * parameters.sigma_y));
-                
-                J[3] = f_val * W * ((parameters.P_x * Z_x_pow_Px) / parameters.sigma_x - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_x * parameters.sigma_y));
-                J[4] = f_val * W * ((parameters.P_y * Z_y_pow_Py) / parameters.sigma_y - (parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y * parameters.sigma_y));
-                
-                J[5] = f_val * (((parameters.rho * W * W * Z_eq_asym) * static_cast<FloatingPointT>(-1.0)) + (W * ((dx * dy) / (parameters.sigma_x * parameters.sigma_y))));
-                J[6] = f_val * (static_cast<FloatingPointT>(-0.5) * W * Z_x_pow_Px * std::log(safe_Z_x));
-                J[7] = f_val * (static_cast<FloatingPointT>(-0.5) * W * Z_y_pow_Py * std::log(safe_Z_y));
+                J[1] = f_val * (parameters.P_x * Z_x_pow_Px_minus_1 * (dx / (parameters.sigma_x * parameters.sigma_x)));
+                J[2] = f_val * (parameters.P_y * Z_y_pow_Py_minus_1 * (dy / (parameters.sigma_y * parameters.sigma_y)));
+                J[3] = f_val * ((parameters.P_x * Z_pow_Px) / parameters.sigma_x);
+                J[4] = f_val * ((parameters.P_y * Z_pow_Py) / parameters.sigma_y);
+                J[5] = static_cast<FloatingPointT>(0.0);
+                J[6] = f_val * (static_cast<FloatingPointT>(-0.5) * Z_pow_Px * std::log(safe_Z_x));
+                J[7] = f_val * (static_cast<FloatingPointT>(-0.5) * Z_pow_Py * std::log(safe_Z_y));
 
                 return build_accumulator(r, J);
             }
