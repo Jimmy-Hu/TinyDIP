@@ -3351,6 +3351,19 @@ namespace TinyDIP
         const TinyDIP::Image<ElementT>* image_ptr;
         ParaT parameters;
 
+        FloatingPointT cos_t{ static_cast<FloatingPointT>(1.0) };
+        FloatingPointT sin_t{ static_cast<FloatingPointT>(0.0) };
+
+        UniversalSSEMapper(const TinyDIP::Image<ElementT>* img, const ParaT& params_in)
+            : image_ptr(img), parameters(params_in)
+        {
+            if constexpr (std::is_same_v<ParaT, AsymmetricSuperGaussianParameters2D<FloatingPointT>>)
+            {
+                cos_t = std::cos(parameters.theta);
+                sin_t = std::sin(parameters.theta);
+            }
+        }
+
         constexpr FloatingPointT operator()(const std::size_t idx) const
         {
             const std::size_t width{ image_ptr->getWidth() };
@@ -3361,43 +3374,45 @@ namespace TinyDIP
             const FloatingPointT dx{ x - parameters.x0 };
             const FloatingPointT dy{ y - parameters.y0 };
 
-            const FloatingPointT W{ static_cast<FloatingPointT>(1.0) / (static_cast<FloatingPointT>(1.0) - parameters.rho * parameters.rho) };
-            
-            const FloatingPointT Z_eq{ (dx * dx) / (parameters.sigma_x * parameters.sigma_x) 
-                                     - (static_cast<FloatingPointT>(2.0) * parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y) 
-                                     + (dy * dy) / (parameters.sigma_y * parameters.sigma_y) };
-
             FloatingPointT f_val{};
 
             // Compile-time branching: Zero runtime overhead!
             if constexpr (std::is_same_v<ParaT, AsymmetricSuperGaussianParameters2D<FloatingPointT>>)
             {
-                // Separate the X and Y geometric components
-                const FloatingPointT Z_x{ (dx * dx) / (parameters.sigma_x * parameters.sigma_x) };
-                const FloatingPointT Z_y{ (dy * dy) / (parameters.sigma_y * parameters.sigma_y) };
-                
-                // Apply safe boundaries to avoid NaN in std::pow
-                const FloatingPointT safe_Z_x{ std::max(static_cast<FloatingPointT>(1e-12), Z_x) };
-                const FloatingPointT safe_Z_y{ std::max(static_cast<FloatingPointT>(1e-12), Z_y) };
-                
-                // Apply independent shape parameters P_x and P_y
-                const FloatingPointT Z_pow_P_x{ std::pow(safe_Z_x, parameters.P_x) };
-                const FloatingPointT Z_pow_P_y{ std::pow(safe_Z_y, parameters.P_y) };
+                const FloatingPointT u{ dx * cos_t - dy * sin_t };
+                const FloatingPointT v{ dx * sin_t + dy * cos_t };
 
-                // Combine into the asymmetric equivalent Z
+                const FloatingPointT Z_u{ (u * u) / (parameters.sigma_x * parameters.sigma_x) };
+                const FloatingPointT Z_v{ (v * v) / (parameters.sigma_y * parameters.sigma_y) };
+
+                const FloatingPointT safe_Z_u{ std::max(static_cast<FloatingPointT>(1e-12), Z_u) };
+                const FloatingPointT safe_Z_v{ std::max(static_cast<FloatingPointT>(1e-12), Z_v) };
+
+                const FloatingPointT Z_pow_P_x{ std::pow(safe_Z_u, parameters.P_x) };
+                const FloatingPointT Z_pow_P_y{ std::pow(safe_Z_v, parameters.P_y) };
+
                 const FloatingPointT Z_eq_asym{ Z_pow_P_x + Z_pow_P_y };
 
                 f_val = parameters.amplitude * std::exp(-static_cast<FloatingPointT>(0.5) * Z_eq_asym);
             }
-            else if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<FloatingPointT>>)
-            {
-                const FloatingPointT safe_Z_eq{ std::max(static_cast<FloatingPointT>(1e-12), Z_eq) };
-                const FloatingPointT Z_pow_P{ std::pow(safe_Z_eq, parameters.P) };
-                f_val = parameters.amplitude * std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_pow_P);
-            }
             else
             {
-                f_val = parameters.amplitude * std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_eq);
+                const FloatingPointT W{ static_cast<FloatingPointT>(1.0) / (static_cast<FloatingPointT>(1.0) - parameters.rho * parameters.rho) };
+                
+                const FloatingPointT Z_eq{ (dx * dx) / (parameters.sigma_x * parameters.sigma_x) 
+                                         - (static_cast<FloatingPointT>(2.0) * parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y) 
+                                         + (dy * dy) / (parameters.sigma_y * parameters.sigma_y) };
+
+                if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<FloatingPointT>>)
+                {
+                    const FloatingPointT safe_Z_eq{ std::max(static_cast<FloatingPointT>(1e-12), Z_eq) };
+                    const FloatingPointT Z_pow_P{ std::pow(safe_Z_eq, parameters.P) };
+                    f_val = parameters.amplitude * std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_pow_P);
+                }
+                else
+                {
+                    f_val = parameters.amplitude * std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_eq);
+                }
             }
 
             const FloatingPointT r{ z - f_val };
