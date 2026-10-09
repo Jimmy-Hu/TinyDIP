@@ -3232,18 +3232,16 @@ namespace TinyDIP
                 std::array<FloatingPointT, num_params> J{};
                 J[0] = exp_term; // dA
                 
-                // Auxiliary derivatives for u and v (Chain Rule setup)
-                const FloatingPointT dE_du{ f_val * parameters.P_x * Z_u_pow_Px_minus_1 * (u / (parameters.sigma_x * parameters.sigma_x)) };
-                const FloatingPointT dE_dv{ f_val * parameters.P_y * Z_v_pow_Py_minus_1 * (v / (parameters.sigma_y * parameters.sigma_y)) };
+                const FloatingPointT dU{ f_val * parameters.P_x * Z_u_pow_Px_minus_1 * (u / (parameters.sigma_x * parameters.sigma_x)) };
+                const FloatingPointT dV{ f_val * parameters.P_y * Z_v_pow_Py_minus_1 * (v / (parameters.sigma_y * parameters.sigma_y)) };
 
-                // dx = x - x0, dy = y - y0
-                J[1] = dE_du * (-cos_t) + dE_dv * (-sin_t);   // dx0
-                J[2] = dE_du * (sin_t) + dE_dv * (-cos_t);    // dy0
-                J[3] = f_val * ((parameters.P_x * Z_pow_Px) / parameters.sigma_x); // dsigma_x
-                J[4] = f_val * ((parameters.P_y * Z_pow_Py) / parameters.sigma_y); // dsigma_y
-                J[5] = -v * dE_du + u * dE_dv;                // dtheta
-                J[6] = f_val * (static_cast<FloatingPointT>(-0.5) * Z_pow_Px * std::log(safe_Z_u)); // dP_x
-                J[7] = f_val * (static_cast<FloatingPointT>(-0.5) * Z_pow_Py * std::log(safe_Z_v)); // dP_y
+                J[1] = dU * cos_t + dV * sin_t;
+                J[2] = dU * (-sin_t) + dV * cos_t;
+                J[3] = f_val * ((parameters.P_x * Z_pow_Px) / parameters.sigma_x);
+                J[4] = f_val * ((parameters.P_y * Z_pow_Py) / parameters.sigma_y);
+                J[5] = dU * v - dV * u;
+                J[6] = f_val * (static_cast<FloatingPointT>(-0.5) * Z_pow_Px * std::log(safe_Z_u));
+                J[7] = f_val * (static_cast<FloatingPointT>(-0.5) * Z_pow_Py * std::log(safe_Z_v));
 
                 return build_accumulator(r, J);
             }
