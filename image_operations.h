@@ -3317,14 +3317,11 @@ namespace TinyDIP
                 // Apply independent shape parameters P_x and P_y
                 const FloatingPointT Z_pow_P_x{ std::pow(safe_Z_x, parameters.P_x) };
                 const FloatingPointT Z_pow_P_y{ std::pow(safe_Z_y, parameters.P_y) };
-                
-                // Calculate the cross term separately
-                const FloatingPointT cross_term{ (static_cast<FloatingPointT>(2.0) * parameters.rho * dx * dy) / (parameters.sigma_x * parameters.sigma_y) };
-                
+
                 // Combine into the asymmetric equivalent Z
-                const FloatingPointT Z_eq_asym{ Z_pow_P_x - cross_term + Z_pow_P_y };
-                
-                f_val = parameters.amplitude * std::exp(-static_cast<FloatingPointT>(0.5) * W * Z_eq_asym);
+                const FloatingPointT Z_eq_asym{ Z_pow_P_x + Z_pow_P_y };
+
+                f_val = parameters.amplitude * std::exp(-static_cast<FloatingPointT>(0.5) * Z_eq_asym);
             }
             else if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<FloatingPointT>>)
             {
