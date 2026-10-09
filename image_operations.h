@@ -3157,7 +3157,7 @@ namespace TinyDIP
             }
         }
 
-        LMAccumulator<num_params, FloatingPointT> operator()(const std::size_t idx) const
+        constexpr LMAccumulator<num_params, FloatingPointT> operator()(const std::size_t idx) const
         {
             const std::size_t width{ image_ptr->getWidth() };
             const FloatingPointT x{ static_cast<FloatingPointT>(idx % width) };
