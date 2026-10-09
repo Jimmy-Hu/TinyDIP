@@ -3000,13 +3000,13 @@ namespace TinyDIP
         }
     };
 
-    //  gaussianFigure2D Template Function Implementation (with Execution Policy, GaussianParameters2D)
+    //  gaussianFigure2D Template Function Implementation (with Execution Policy, AsymmetricSuperGaussianParameters2D)
     //  General two-dimensional elliptical Gaussian
     //  https://fabiandablander.com/statistics/Two-Properties.html
     template<
         class ExPo, 
         class InputT = double, 
-        typename ParaT = GaussianParameters2D<InputT>
+        typename ParaT = AsymmetricSuperGaussianParameters2D<InputT>
     >
     requires (
         std::is_execution_policy_v<std::remove_cvref_t<ExPo>> and 
