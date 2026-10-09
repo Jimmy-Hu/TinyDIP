@@ -3144,6 +3144,19 @@ namespace TinyDIP
         const TinyDIP::Image<ElementT>* image_ptr;
         ParaT parameters;
 
+        FloatingPointT cos_t{ static_cast<FloatingPointT>(1.0) };
+        FloatingPointT sin_t{ static_cast<FloatingPointT>(0.0) };
+
+        UniversalLMMapper(const TinyDIP::Image<ElementT>* img, const ParaT& params_in)
+            : image_ptr(img), parameters(params_in)
+        {
+            if constexpr (std::is_same_v<ParaT, AsymmetricSuperGaussianParameters2D<FloatingPointT>>)
+            {
+                cos_t = std::cos(parameters.theta);
+                sin_t = std::sin(parameters.theta);
+            }
+        }
+
         LMAccumulator<num_params, FloatingPointT> operator()(const std::size_t idx) const
         {
             const std::size_t width{ image_ptr->getWidth() };
