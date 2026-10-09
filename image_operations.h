@@ -2966,7 +2966,7 @@ namespace TinyDIP
         FloatingPointT y0;
         FloatingPointT sigma_x;
         FloatingPointT sigma_y;
-        FloatingPointT rho;
+        FloatingPointT theta;
         FloatingPointT P_x;
         FloatingPointT P_y;
 
@@ -2977,7 +2977,7 @@ namespace TinyDIP
                << ", y0: " << params.y0
                << ", sigma_x: " << params.sigma_x
                << ", sigma_y: " << params.sigma_y
-               << ", rho: " << params.rho
+               << ", theta: " << params.theta
                << ", P_x: " << params.P_x
                << ", P_y: " << params.P_y
                << " }";
@@ -2993,7 +2993,7 @@ namespace TinyDIP
                 y0 + delta[2],
                 std::max(static_cast<FloatingPointT>(1e-6), std::abs(sigma_x + delta[3])),
                 std::max(static_cast<FloatingPointT>(1e-6), std::abs(sigma_y + delta[4])),
-                std::max(static_cast<FloatingPointT>(-0.999), std::min(static_cast<FloatingPointT>(0.999), rho + delta[5])),
+                std::max(-std::numbers::pi_v<FloatingPointT>, std::min(std::numbers::pi_v<FloatingPointT>, theta + delta[5])),
                 std::max(static_cast<FloatingPointT>(0.1), std::min(static_cast<FloatingPointT>(10.0), P_x + delta[6])),
                 std::max(static_cast<FloatingPointT>(0.1), std::min(static_cast<FloatingPointT>(10.0), P_y + delta[7]))
             };
