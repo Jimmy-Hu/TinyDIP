@@ -3515,6 +3515,7 @@ namespace TinyDIP
 
 	//  estimate_gaussian_profile_with_history_2d template function implementation
     //  Test1: https://godbolt.org/z/Px4KcM7d4
+    //  Test2: https://godbolt.org/z/vKs1rfnba
     template <
         std::size_t MaxCapacity = 1000,
         class ExecutionPolicy,
@@ -3597,6 +3598,10 @@ namespace TinyDIP
         // Clamp initial rho to valid bound
         rho = std::max(static_cast<FloatingPointT>(-0.99), std::min(static_cast<FloatingPointT>(0.99), rho));
 
+        FloatingPointT theta = (sum_z > static_cast<FloatingPointT>(0.0)) ? 
+            (static_cast<FloatingPointT>(0.5) * std::atan2(static_cast<FloatingPointT>(2.0) * sum_dxdy_z, sum_dx2_z - sum_dy2_z)) : 
+            static_cast<FloatingPointT>(0.0);
+
         FloatingPointT P{ static_cast<FloatingPointT>(1.0) };
         FloatingPointT P_x{ static_cast<FloatingPointT>(1.0) };
         FloatingPointT P_y{ static_cast<FloatingPointT>(1.0) };
@@ -3609,7 +3614,7 @@ namespace TinyDIP
         ParaT current_params{};
         if constexpr (std::is_same_v<ParaT, AsymmetricSuperGaussianParameters2D<FloatingPointT>>)
         {
-            current_params = ParaT{ A, x0, y0, sigma_x, sigma_y, rho, P_x, P_y };
+            current_params = ParaT{ A, x0, y0, sigma_x, sigma_y, theta, P_x, P_y };
         }
         else if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<FloatingPointT>>)
         {
