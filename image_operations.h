@@ -3024,11 +3024,19 @@ namespace TinyDIP
         const InputT sigma1_2{ params.sigma_x * params.sigma_x };
         const InputT sigma2_2{ params.sigma_y * params.sigma_y };
         
-        const InputT W{ static_cast<InputT>(1.0) / (static_cast<InputT>(1.0) - params.rho * params.rho) };
-        
-        const InputT normalize_factor{
-            normalize_factor_input / (static_cast<InputT>(2.0) * std::numbers::pi_v<InputT> * params.sigma_x * params.sigma_y * std::sqrt(static_cast<InputT>(1.0) - params.rho * params.rho))
-        };
+        InputT W{};
+        InputT normalize_factor{};
+
+        if constexpr (std::is_same_v<ParaT, AsymmetricSuperGaussianParameters2D<InputT>>)
+        {
+            W = static_cast<InputT>(1.0);
+            normalize_factor = normalize_factor_input / (static_cast<InputT>(2.0) * std::numbers::pi_v<InputT> * params.sigma_x * params.sigma_y);
+        }
+        else
+        {
+            W = static_cast<InputT>(1.0) / (static_cast<InputT>(1.0) - params.rho * params.rho);
+            normalize_factor = normalize_factor_input / (static_cast<InputT>(2.0) * std::numbers::pi_v<InputT> * params.sigma_x * params.sigma_y * std::sqrt(static_cast<InputT>(1.0) - params.rho * params.rho));
+        }
 
         auto indices = std::views::iota(std::size_t{ 0 }, ysize);
         
@@ -3045,21 +3053,45 @@ namespace TinyDIP
                 {
                     const InputT dx{ static_cast<InputT>(x) - params.x0 };
                     const InputT dx_2{ dx * dx };
-                    
-                    const InputT Z_eq{ (dx_2 / sigma1_2) 
-                                     - (static_cast<InputT>(2.0) * params.rho * dx * dy / (params.sigma_x * params.sigma_y)) 
-                                     + (dy_2 / sigma2_2) };
 
                     InputT final_exponent_val{};
 
-                    // Compile-time branching for Super-Gaussian vs Standard Gaussian
-                    if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<InputT>>)
+                    if constexpr (std::is_same_v<ParaT, AsymmetricSuperGaussianParameters2D<InputT>>)
                     {
+                        const InputT cos_t{ std::cos(params.theta) };
+                        const InputT sin_t{ std::sin(params.theta) };
+                        
+                        const InputT u{ dx * cos_t - dy * sin_t };
+                        const InputT v{ dx * sin_t + dy * cos_t };
+
+                        const InputT Z_u{ (u * u) / sigma1_2 };
+                        const InputT Z_v{ (v * v) / sigma2_2 };
+                        
+                        const InputT safe_Z_u{ std::max(static_cast<InputT>(1e-12), Z_u) };
+                        const InputT safe_Z_v{ std::max(static_cast<InputT>(1e-12), Z_v) };
+                        
+                        const InputT Z_pow_P_x{ std::pow(safe_Z_u, params.P_x) };
+                        const InputT Z_pow_P_y{ std::pow(safe_Z_v, params.P_y) };
+                        
+                        const InputT Z_eq_asym{ Z_pow_P_x + Z_pow_P_y };
+                        
+                        final_exponent_val = static_cast<InputT>(-0.5) * Z_eq_asym;
+                    }
+                    else if constexpr (std::is_same_v<ParaT, SuperGaussianParameters2D<InputT>>)
+                    {
+                        const InputT Z_eq{ (dx_2 / sigma1_2) 
+                                         - (static_cast<InputT>(2.0) * params.rho * dx * dy / (params.sigma_x * params.sigma_y)) 
+                                         + (dy_2 / sigma2_2) };
+                                         
                         const InputT safe_Z_eq{ std::max(static_cast<InputT>(1e-12), Z_eq) };
                         final_exponent_val = static_cast<InputT>(-0.5) * W * std::pow(safe_Z_eq, params.P);
                     }
                     else
                     {
+                        const InputT Z_eq{ (dx_2 / sigma1_2) 
+                                         - (static_cast<InputT>(2.0) * params.rho * dx * dy / (params.sigma_x * params.sigma_y)) 
+                                         + (dy_2 / sigma2_2) };
+                                         
                         final_exponent_val = static_cast<InputT>(-0.5) * W * Z_eq;
                     }
 
