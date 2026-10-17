@@ -4061,8 +4061,8 @@ namespace TinyDIP
         return pixelwise_transform(std::forward<ExPo>(execution_policy), std::multiplies<>{}, input1, pixelwise_multiplies(inputs...));
     }
 
-    template<class InputT, class... Args>
-    constexpr static auto pixelwise_multiplies(const std::vector<Image<InputT>>& input1, const Args&... inputs)
+    template<image_random_access_range RangeT, class... Args>
+    constexpr static auto pixelwise_multiplies(const RangeT& input1, const Args&... inputs)
     {
         return recursive_transform<1>(
             [](auto&& input1_element, auto&&... inputs_element)
