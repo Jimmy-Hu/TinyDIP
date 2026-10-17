@@ -4062,6 +4062,7 @@ namespace TinyDIP
     }
 
     template<image_random_access_range RangeT, class... Args>
+    requires (sizeof...(Args) > 0)
     constexpr static auto pixelwise_multiplies(const RangeT& input1, const Args&... inputs)
     {
         return recursive_transform<1>(
