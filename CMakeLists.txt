@@ -682,7 +682,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_math_abs
         plugin_math_add
         plugin_math_max
-        tinydip_replace
+        plugin_replace
     )
     
     foreach(PLUGIN_SOURCE_FILE IN LISTS PLUGIN_SOURCE_FILES)
