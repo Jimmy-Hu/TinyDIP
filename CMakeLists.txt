@@ -677,34 +677,25 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/plugins)
 set_target_properties(TinyDIP PROPERTIES ENABLE_EXPORTS TRUE)
 
 if(TINYDIP_FULL_BUILD)
-    # Add Math Plugin Module
-    add_library(plugin_math MODULE plugin_math.cpp)
-    set_target_properties(plugin_math PROPERTIES
-        PREFIX ""
-        OUTPUT_NAME "tinydip_math"
+    set(PLUGIN_SOURCE_FILES
+        plugin_math
+        plugin_math_abs
+        plugin_math_add
+        tinydip_replace
     )
+    
+    foreach(PLUGIN_SOURCE_FILE IN LISTS PLUGIN_SOURCE_FILES)
+        # Add Math Plugin Module
+        add_library(${PLUGIN_SOURCE_FILE} MODULE plugins/${PLUGIN_SOURCE_FILE}.cpp)
+        set_target_properties(${PLUGIN_SOURCE_FILE} PROPERTIES
+            PREFIX ""
+            OUTPUT_NAME ${PLUGIN_SOURCE_FILE}
+        )
 
-    # Ensure the plugin correctly links against TBB if multithreading handlers are invoked,
-    # AND explicitly link to TinyDIP to resolve host-level C++ symbols natively!
-    target_link_libraries(plugin_math PRIVATE tbb TinyDIP)
-
-    # Add Math (Add) Plugin Module
-    add_library(plugin_math_add MODULE plugin_math_add.cpp)
-    set_target_properties(plugin_math_add PROPERTIES
-        PREFIX ""
-        OUTPUT_NAME "tinydip_math_add"
-    )
-
-    target_link_libraries(plugin_math_add PRIVATE tbb TinyDIP)
-
-    # Add Replace Plugin Module
-    add_library(plugin_replace MODULE plugin_replace.cpp)
-    set_target_properties(plugin_replace PROPERTIES
-        PREFIX ""
-        OUTPUT_NAME "tinydip_replace"
-    )
-
-    target_link_libraries(plugin_replace PRIVATE tbb TinyDIP)
+        # Ensure the plugin correctly links against TBB if multithreading handlers are invoked,
+        # AND explicitly link to TinyDIP to resolve host-level C++ symbols natively!
+        target_link_libraries(${PLUGIN_SOURCE_FILE} PRIVATE tbb TinyDIP)
+    endforeach()
 else()
     message(STATUS "Skipping plugin builds due to TINYDIP_FULL_BUILD being OFF.")
 endif()
