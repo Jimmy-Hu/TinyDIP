@@ -1460,12 +1460,6 @@ int main(int argc, char* argv[])
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"constructRGB", "Merge separate R, G, and B planes into an RGB image.", IndependentSchema, 
-            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
-            {
-                handlers::construct_rgb(workspace, args, os);
-            }
-        },
         CommandBundle{"copy", "Copy a memory variable in the workspace to a new variable.", IndependentSchema,
             handlers::copy
         },

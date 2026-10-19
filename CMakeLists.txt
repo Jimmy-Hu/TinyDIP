@@ -680,6 +680,7 @@ if(TINYDIP_FULL_BUILD)
     set(PLUGIN_SOURCE_FILES
         plugin_append_element
         plugin_bicubic_resize
+        plugin_constructRGB
         plugin_math
         plugin_math_abs
         plugin_math_add
