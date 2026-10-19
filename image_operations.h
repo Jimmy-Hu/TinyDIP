@@ -4045,10 +4045,10 @@ namespace TinyDIP
     }
 
     //  pixelwise_multiplies Template Function Implementation
-    template<class InputT, class... Args>
+    template<class InputT, typename F = std::multiplies<>, class... Args>
     constexpr static auto pixelwise_multiplies(const Image<InputT>& input1, const Args&... inputs)
     {
-        return pixelwise_transform(std::multiplies<>{}, input1, pixelwise_multiplies(inputs...));
+        return pixelwise_transform(F{}, input1, pixelwise_multiplies(inputs...));
     }
 
     //  pixelwise_multiplies Template Function Implementation
