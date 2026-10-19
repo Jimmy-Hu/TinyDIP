@@ -1460,9 +1460,6 @@ int main(int argc, char* argv[])
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"copy", "Copy a memory variable in the workspace to a new variable.", IndependentSchema,
-            handlers::copy
-        },
         CommandBundle{"create_container", "Create a std::vector container initialized with the provided prototype element.", TransformerSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
