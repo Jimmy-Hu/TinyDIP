@@ -1604,6 +1604,12 @@ int main(int argc, char* argv[])
             handlers::to_complex
         },
         CommandBundle{"vars", "List all currently allocated memory variables.", IndependentSchema, handlers::vars },
+        CommandBundle{"version", "Display version of the software.", IndependentSchema, 
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                std::cout << "v0.1.0\n";
+            }
+        },
         CommandBundle{"write", "Write a memory variable out to a disk file.", TerminatorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
