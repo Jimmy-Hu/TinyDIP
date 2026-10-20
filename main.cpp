@@ -1460,12 +1460,6 @@ int main(int argc, char* argv[])
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"create_container", "Create a std::vector container initialized with the provided prototype element.", TransformerSchema, 
-            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
-            {
-                handlers::create_container(workspace, args, os);
-            }
-        },
         CommandBundle{"dct2", "Calculate Discrete Cosine Transformation for an image.", TransformerSchema, 
             handlers::dct2
         },

@@ -681,6 +681,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_append_element
         plugin_bicubic_resize
         plugin_constructRGB
+        plugin_create_container
         plugin_copy
         plugin_math
         plugin_math_abs
