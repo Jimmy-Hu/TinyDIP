@@ -1460,9 +1460,6 @@ int main(int argc, char* argv[])
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"dct3", "Calculate three-dimensional Discrete Cosine Transformation for an image.", TransformerSchema, 
-            handlers::dct3
-        },
         CommandBundle{"erase_element", "Erase an element from a container by index.", TransformerSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
