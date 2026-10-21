@@ -2221,10 +2221,8 @@ namespace handlers
 
         os << "Creating container based on type of " << input_arg << "...\n";
 
-        auto process_create = [&]<typename CandidateType>(CandidateType&& candidate)
+        auto process_create = [&]<typename CandidateType, typename DecayedT = std::remove_cvref_t<CandidateType>>(CandidateType&& candidate)
         {
-            using DecayedT = std::remove_cvref_t<CandidateType>;
-            
             std::vector<DecayedT> new_vec;
             // Utilizing emplace_back to insert the initial candidate prototype safely and efficiently
             new_vec.emplace_back(std::forward<CandidateType>(candidate));
