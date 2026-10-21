@@ -4548,14 +4548,17 @@ namespace TinyDIP
         template <
             class ExecutionPolicy,
             std::ranges::forward_range R1,
-            std::ranges::forward_range R2>
+            std::ranges::forward_range R2,
+            typename F = std::plus<>
+        >
         requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> &&
                 arithmetic<std::ranges::range_value_t<R1>> &&
                 std::same_as<std::ranges::range_value_t<R1>, std::ranges::range_value_t<R2>>)
         auto operator()(
             ExecutionPolicy&& execution_policy,
             const R1& range1,
-            const R2& range2)
+            const R2& range2,
+            F f = {})
         {
             using ValueType = std::ranges::range_value_t<R1>;
             using ResultType = get_underlying_real_type_t<ValueType>;
@@ -4571,7 +4574,7 @@ namespace TinyDIP
                 std::ranges::cend(range1),
                 std::ranges::cbegin(range2),
                 ResultType{ 0 },
-                std::plus<>{},
+                f,
                 [](const ValueType& val1, const ValueType& val2)
                 {
                     const auto diff = val1 - val2;
