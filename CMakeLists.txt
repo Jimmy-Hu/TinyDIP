@@ -686,6 +686,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_dct2
         plugin_dct3
         plugin_erase_element
+        plugin_gaussian_figure_2d
         plugin_math
         plugin_math_abs
         plugin_math_add

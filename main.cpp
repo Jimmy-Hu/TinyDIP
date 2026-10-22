@@ -1460,12 +1460,6 @@ int main(int argc, char* argv[])
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"gaussian_figure_2d", "Generate a 2D Gaussian figure image.", GeneratorSchema, 
-            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
-            {
-                handlers::gaussian_figure_2d(workspace, args, os);
-            }
-        },
         CommandBundle{"get_element", "Extract an element from a container (e.g., an octave vector) by index.", TransformerSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
