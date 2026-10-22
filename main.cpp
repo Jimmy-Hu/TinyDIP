@@ -1460,12 +1460,6 @@ int main(int argc, char* argv[])
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"get_element", "Extract an element from a container (e.g., an octave vector) by index.", TransformerSchema, 
-            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
-            {
-                handlers::get_element(workspace, args, os);
-            }
-        },
         CommandBundle{"getBplane", "Extract the Blue plane (channel 2) from a multi-channel image.", TransformerSchema,
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
