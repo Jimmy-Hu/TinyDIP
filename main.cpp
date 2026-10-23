@@ -1460,12 +1460,6 @@ int main(int argc, char* argv[])
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"getGplane", "Extract the Green plane (channel 1) from a multi-channel image.", TransformerSchema,
-            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
-            {
-                handlers::getPlane(workspace, args, os, 1);
-            }
-        },
         CommandBundle{"getRplane", "Extract the Red plane (channel 0) from a multi-channel image.", TransformerSchema,
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
