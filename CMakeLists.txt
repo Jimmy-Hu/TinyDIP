@@ -688,6 +688,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_erase_element
         plugin_gaussian_figure_2d
         plugin_get_element
+        plugin_getBplane
         plugin_math
         plugin_math_abs
         plugin_math_add
