@@ -2853,7 +2853,7 @@ namespace handlers
     {
         if (channel_index == 0)
         {
-            "getRplane [execution_policy] <input_img | $var> <output_img | $var>";
+            return "getRplane [execution_policy] <input_img | $var> <output_img | $var>";
         }
         else if (channel_index == 1)
         {
