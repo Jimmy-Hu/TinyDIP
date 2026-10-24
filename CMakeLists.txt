@@ -686,6 +686,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_dct2
         plugin_dct3
         plugin_erase_element
+        plugin_find
         plugin_gaussian_figure_2d
         plugin_get_element
         plugin_getBplane
