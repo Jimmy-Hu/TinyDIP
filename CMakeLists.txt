@@ -690,6 +690,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_get_element
         plugin_getBplane
         plugin_getGplane
+        plugin_getRplane
         plugin_math
         plugin_math_abs
         plugin_math_add
