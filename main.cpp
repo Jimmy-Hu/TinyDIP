@@ -1460,9 +1460,6 @@ int main(int argc, char* argv[])
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"hsv2rgb", "Convert an HSV image or container to RGB color space.", TransformerSchema,
-            handlers::hsv2rgb
-        },
         CommandBundle{"idct2", "Calculate Inverse Discrete Cosine Transformation for an image.", TransformerSchema,
             handlers::idct2 
         },
