@@ -691,6 +691,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_getBplane
         plugin_getGplane
         plugin_getRplane
+        plugin_get_sift_potential_keypoint
         plugin_math
         plugin_math_abs
         plugin_math_add

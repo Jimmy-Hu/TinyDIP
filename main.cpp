@@ -1460,12 +1460,6 @@ int main(int argc, char* argv[])
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"get_sift_potential_keypoint", "Extract SIFT potential keypoints from an image.", TransformerSchema, 
-            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
-            {
-                handlers::get_sift_potential_keypoint(workspace, args, os);
-            }
-        },
         CommandBundle{"grid", "Generate a grid image.", GeneratorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
