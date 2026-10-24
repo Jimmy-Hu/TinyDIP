@@ -2468,10 +2468,8 @@ namespace handlers
 
         os << "Erasing element at index " << index << " from " << input_arg << "...\n";
 
-        auto process_erase = [&]<typename CandidateType>(CandidateType&& candidate)
+        auto process_erase = [&]<typename CandidateType, typename DecayedT = std::remove_cvref_t<CandidateType>>(CandidateType&& candidate)
         {
-            using DecayedT = std::remove_cvref_t<CandidateType>;
-
             // Mathematically verify that the type is a registered container that supports erase
             if constexpr (is_vector_v<DecayedT> || is_deque_v<DecayedT> || is_list_v<DecayedT>)
             {
