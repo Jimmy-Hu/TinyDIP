@@ -1460,12 +1460,6 @@ int main(int argc, char* argv[])
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"grid", "Generate a grid image.", GeneratorSchema, 
-            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
-            {
-                handlers::grid_generator(workspace, args, os);
-            }
-        },
         CommandBundle{"hsv2rgb", "Convert an HSV image or container to RGB color space.", TransformerSchema,
             handlers::hsv2rgb
         },
