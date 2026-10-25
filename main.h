@@ -829,9 +829,11 @@ public:
 
     std::optional<IOSchema> get_schema(const std::string_view command_name) const
     {
-        if (auto it = commands.find(std::string(command_name)); it != std::ranges::end(commands))
+        auto range = commands.equal_range(std::string(command_name));
+
+        if (range.first != range.second)
         {
-            return it->second.schema;
+            return range.first->second.schema;
         }
         return std::nullopt;
     }
