@@ -695,6 +695,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_get_sift_potential_keypoint
         plugin_grid
         plugin_hsv2rgb
+        plugin_idct2
         plugin_math
         plugin_math_abs
         plugin_math_add
