@@ -813,7 +813,7 @@ public:
     };
 
 private:
-    std::map<std::string, CommandInfo> commands;
+    std::multimap<std::string, CommandInfo> commands;
 
 public:
     void register_command(const std::string_view name, const std::string_view description, const IOSchema schema, CommandHandler handler)
