@@ -184,7 +184,7 @@ namespace TinyDIP
     template <typename T, typename A> struct get_deep_scalar<std::list<T, A>> { using type = typename get_deep_scalar<T>::type; };
     template <typename T, std::size_t N> struct get_deep_scalar<std::array<T, N>> { using type = typename get_deep_scalar<T>::type; };
 
-    template <typename T> using get_deep_scalar_t = typename get_deep_scalar<T>::type;
+    template <typename T> using get_deep_scalar_t = typename get_deep_scalar<std::remove_cvref_t<T>>::type;
 
     //  complex_or_floating_point concept implementation
     template <typename T>
