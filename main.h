@@ -850,21 +850,38 @@ public:
 
     void execute(Workspace& workspace, const std::string& command_name, std::span<const std::string_view> args, std::ostream& os = std::cout) const
     {
-        if (auto it = commands.find(command_name); it != std::ranges::end(commands))
+        auto range = commands.equal_range(command_name);
+        
+        if (range.first == range.second)
+        {
+            os << "Unknown command: " << command_name << "\n";
+            list_commands(os); 
+            return;
+        }
+
+        bool handled = false;
+        for (auto it = range.first; it != range.second; ++it)
         {
             try
             {
                 it->second.handler(workspace, args, os);
+                handled = true;
+                break;
+            }
+            catch (const std::invalid_argument& e)
+            {
+                os << "  [Chain] Handler skipped: " << e.what() << " - Trying next...\n";
             }
             catch (const std::exception& e)
             {
                 os << "Error executing command '" << command_name << "': " << e.what() << "\n";
+                break; 
             }
         }
-        else
+
+        if (!handled)
         {
-            os << "Unknown command: " << command_name << "\n";
-            list_commands(os); 
+            os << "Error: All handlers in the chain failed or rejected command '" << command_name << "'.\n";
         }
     }
 };
