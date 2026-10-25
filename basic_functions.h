@@ -1632,6 +1632,25 @@ namespace TinyDIP
         return root_mean_square(std::execution::seq, input);
     }
 
+    //  DefaultProjection struct implementation
+    //  Default functor with call operator for element projection or type casting
+    template<typename TargetT = void>
+    struct DefaultProjection
+    {
+        template<typename T>
+        constexpr auto operator()(T&& value) const
+        {
+            if constexpr (std::same_as<TargetT, void>)
+            {
+                return std::forward<T>(value);
+            }
+            else
+            {
+                return static_cast<TargetT>(std::forward<T>(value));
+            }
+        }
+    };
+
     template<std::size_t dim, class T>
     constexpr auto n_dim_vector_generator(T input, std::size_t times)
     {
