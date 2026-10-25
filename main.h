@@ -841,7 +841,7 @@ public:
     void list_commands(std::ostream& os = std::cout) const
     {
         os << "Available Commands:\n";
-        for (const auto& [name, info] : commands)
+        for (const auto &[name, info] : TinyDIP::to_map(commands))
         {
             os << "  " << std::left << std::setw(15) << name << " : " << info.description << "\n";
         }
