@@ -6,6 +6,13 @@
 
 namespace handlers
 {
+    //   extract_container_element type trait implementation
+    template <typename T>
+    struct extract_container_element
+    {
+        using type = TinyDIP::get_deep_scalar_t<T>;
+    };
+
     //  replace template function implementation
     template <
         std::ranges::input_range RangeT,
