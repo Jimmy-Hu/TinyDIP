@@ -230,19 +230,25 @@ namespace TinyDIP
         using type = T;
     };
 
-    template<std::ranges::input_range Range, typename... Ts>
-    struct recursive_unwrap_type<1, Range, Ts...>
-    {
-        using type = std::ranges::range_value_t<Range>;
-    };
-
-    template<std::size_t unwrap_level, std::ranges::input_range Range, typename... Ts>
-    requires (unwrap_level > 1 && requires { typename recursive_unwrap_type<unwrap_level - 1, std::ranges::range_value_t<Range>>::type; })
-    struct recursive_unwrap_type<unwrap_level, Range, Ts...>
+    //  Recursive step: unwrap_level > 0
+    template<std::size_t unwrap_level, std::ranges::input_range Range, std::ranges::input_range... RestRanges>
+    requires (
+        (unwrap_level > 0) and
+        requires
+        {
+            typename recursive_unwrap_type<
+                unwrap_level - 1,
+                std::ranges::range_value_t<Range>,
+                std::ranges::range_value_t<RestRanges>...
+            >::type;
+        }
+    )
+    struct recursive_unwrap_type<unwrap_level, Range, RestRanges...>
     {
         using type = typename recursive_unwrap_type<
-            unwrap_level - 1, 
-            std::ranges::range_value_t<Range>
+            unwrap_level - 1,
+            std::ranges::range_value_t<Range>,
+            std::ranges::range_value_t<RestRanges>...
         >::type;
     };
 
