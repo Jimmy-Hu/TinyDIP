@@ -220,34 +220,30 @@ namespace TinyDIP
     {
     };
 
-    //  recursive_unwrap_type_t struct implementation
-    template<std::size_t, typename, typename...>
+    //  recursive_unwrap_type_t struct implementation (Modern C++20 Concept based)
+    template<std::size_t unwrap_level, typename T, typename... Ts>
     struct recursive_unwrap_type { };
 
-    template<class T>
-    struct recursive_unwrap_type<0, T>
+    template<typename T, typename... Ts>
+    struct recursive_unwrap_type<0, T, Ts...>
     {
         using type = T;
     };
 
-    template<class...Ts1, template<class...>class Container1, typename... Ts>
-    struct recursive_unwrap_type<1, Container1<Ts1...>, Ts...>
+    template<std::ranges::input_range Range, typename... Ts>
+    struct recursive_unwrap_type<1, Range, Ts...>
     {
-        using type = std::ranges::range_value_t<Container1<Ts1...>>;
+        using type = std::ranges::range_value_t<Range>;
     };
 
-    template<std::size_t unwrap_level, class...Ts1, template<class...>class Container1, typename... Ts>
-    requires (  std::ranges::input_range<Container1<Ts1...>> &&
-                requires { typename recursive_unwrap_type<
-                                        unwrap_level - 1,
-                                        std::ranges::range_value_t<Container1<Ts1...>>,
-                                        std::ranges::range_value_t<Ts>...>::type; })                //  The rest arguments are ranges
-    struct recursive_unwrap_type<unwrap_level, Container1<Ts1...>, Ts...>
+    template<std::size_t unwrap_level, std::ranges::input_range Range, typename... Ts>
+    requires (unwrap_level > 1 && requires { typename recursive_unwrap_type<unwrap_level - 1, std::ranges::range_value_t<Range>>::type; })
+    struct recursive_unwrap_type<unwrap_level, Range, Ts...>
     {
         using type = typename recursive_unwrap_type<
-            unwrap_level - 1,
-            std::ranges::range_value_t<Container1<Ts1...>>
-            >::type;
+            unwrap_level - 1, 
+            std::ranges::range_value_t<Range>
+        >::type;
     };
 
     template<std::size_t unwrap_level, typename T1, typename... Ts>
