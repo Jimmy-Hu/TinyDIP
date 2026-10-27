@@ -290,6 +290,15 @@ namespace TinyDIP
     using rebind_container_t =
         typename rebind_container<std::remove_cvref_t<Container>, NewType>::type;
 
+    //  rebindable_range concept definition
+    template<typename Range, typename NewType>
+    concept rebindable_range =
+        std::ranges::input_range<Range> and
+        requires
+        {
+            typename rebind_container_t<Range, NewType>;
+        };
+
     //  recursive_invoke_result_t implementation
     template<std::size_t, typename, typename>
     struct recursive_invoke_result { };
