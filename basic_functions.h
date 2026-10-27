@@ -303,6 +303,7 @@ namespace TinyDIP
     template<std::size_t unwrap_level, typename F, typename T1, typename... Ts>
     struct recursive_variadic_invoke_result { };
 
+    //  Base case: unwrap_level is 0
     template<typename F, typename T1, typename... Ts>
     requires(std::invocable<F, T1, Ts...>)
     struct recursive_variadic_invoke_result<0, F, T1, Ts...>
@@ -310,31 +311,44 @@ namespace TinyDIP
         using type = std::invoke_result_t<F, T1, Ts...>;
     };
 
-    template<std::copy_constructible F, class...Ts1, template<class...>class Container1, typename... Ts>
-    requires std::invocable<F, std::ranges::range_value_t<Container1<Ts1...>>, std::ranges::range_value_t<Ts>...>
-    struct recursive_variadic_invoke_result<1, F, Container1<Ts1...>, Ts...>
-    {
-        using type = Container1<std::invoke_result_t<F,
-            std::ranges::range_value_t<Container1<Ts1...>>,
-            std::ranges::range_value_t<Ts>...>>;
-    };
-
-    template<std::size_t unwrap_level, std::copy_constructible F, class...Ts1, template<class...>class Container1, typename... Ts>
-    requires (  std::ranges::input_range<Container1<Ts1...>> &&
-                requires { typename recursive_variadic_invoke_result<
-                                        unwrap_level - 1,
-                                        F,
-                                        std::ranges::range_value_t<Container1<Ts1...>>,
-                                        std::ranges::range_value_t<Ts>...>::type; })                //  The rest arguments are ranges
-    struct recursive_variadic_invoke_result<unwrap_level, F, Container1<Ts1...>, Ts...>
-    {
-        using type = Container1<
+    //  Recursive step: unwrap_level > 0
+    template<
+        std::size_t unwrap_level,
+        std::copy_constructible F,
+        std::ranges::input_range Range1,
+        std::ranges::input_range... RestRanges
+    >
+    requires (
+        (unwrap_level > 0) and
+        requires
+        {
             typename recursive_variadic_invoke_result<
+                unwrap_level - 1,
+                F,
+                std::ranges::range_value_t<Range1>,
+                std::ranges::range_value_t<RestRanges>...
+            >::type;
+        } and
+        rebindable_range<
+            Range1,
+            typename recursive_variadic_invoke_result<
+                unwrap_level - 1,
+                F,
+                std::ranges::range_value_t<Range1>,
+                std::ranges::range_value_t<RestRanges>...
+            >::type
+        >
+    )
+    struct recursive_variadic_invoke_result<unwrap_level, F, Range1, RestRanges...>
+    {
+        using inner_result_t = typename recursive_variadic_invoke_result<
             unwrap_level - 1,
             F,
-            std::ranges::range_value_t<Container1<Ts1...>>,
-            std::ranges::range_value_t<Ts>...
-            >::type>;
+            std::ranges::range_value_t<Range1>,
+            std::ranges::range_value_t<RestRanges>...
+        >::type;
+
+        using type = rebind_container_t<Range1, inner_result_t>;
     };
 
     template<std::size_t unwrap_level, std::copy_constructible F, typename T1, typename... Ts>
