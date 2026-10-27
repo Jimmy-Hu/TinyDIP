@@ -545,6 +545,14 @@ namespace TinyDIP
         return recursive_invocable<unwrap_level, F, Args...>;
     }
 
+    //  is_recursive_project_invocable template function implementation
+    //  (Backward-compatible wrapper)
+    template<std::size_t unwrap_level, class Proj, class F, class... Args>
+    static constexpr bool is_recursive_project_invocable() noexcept
+    {
+        return recursive_project_invocable<unwrap_level, Proj, F, Args...>;
+    }
+
     /*  recursive_all_of template function implementation with unwrap level
     */
     template<std::size_t unwrap_level, class T, class Proj = std::identity, class UnaryPredicate>
