@@ -255,6 +255,11 @@ namespace TinyDIP
     template<std::size_t unwrap_level, typename T1, typename... Ts>
     using recursive_unwrap_type_t = typename recursive_unwrap_type<unwrap_level, T1, Ts...>::type;
     
+    //  rebind_container struct implementation
+    //  Replaces the value_type of a container while preserving its outer template structure
+    template<typename Container, typename NewType>
+    struct rebind_container;
+
     //  recursive_invoke_result_t implementation
     template<std::size_t, typename, typename>
     struct recursive_invoke_result { };
