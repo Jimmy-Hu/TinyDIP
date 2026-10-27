@@ -286,6 +286,10 @@ namespace TinyDIP
         using type = Container<NewType, N>;
     };
 
+    template<typename Container, typename NewType>
+    using rebind_container_t =
+        typename rebind_container<std::remove_cvref_t<Container>, NewType>::type;
+
     //  recursive_invoke_result_t implementation
     template<std::size_t, typename, typename>
     struct recursive_invoke_result { };
