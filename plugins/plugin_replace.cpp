@@ -228,6 +228,19 @@ using custom_and_multichannel_image_types = tuple_cat_t<
     tuple_map_t<image_t, all_custom_scalar_types>,
     tuple_map_t<image_t, all_multichannel_types>
 >;
+using complex_image_types = tuple_cat_t<
+    tuple_map_t<image_t, all_complex_types>,
+    tuple_map_t<image_t, all_complex_multichannel_types>
+>;
+
+// Sliced Container Tuples
+using sequence_container_types = tuple_cat_t<
+    all_vector_types,
+    all_deque_types,
+    all_list_types,
+    all_array_types
+>;
+
 extern "C" TINYDIP_PLUGIN_EXPORT void register_plugin_commands(CommandRegistry& registry)
 {
     // Define human-readable pipeline schema routing constants locally
