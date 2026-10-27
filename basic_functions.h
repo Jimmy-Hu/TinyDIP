@@ -254,6 +254,16 @@ namespace TinyDIP
 
     template<std::size_t unwrap_level, typename T1, typename... Ts>
     using recursive_unwrap_type_t = typename recursive_unwrap_type<unwrap_level, T1, Ts...>::type;
+
+    //  recursive_invocable concept implementation (Powered by recursive_unwrap_type_t)
+    template<std::size_t unwrap_level, typename F, typename... Args>
+    concept recursive_invocable =
+        (sizeof...(Args) > 0) and
+        requires
+        {
+            typename std::tuple<recursive_unwrap_type_t<unwrap_level, Args>...>;
+        } and
+        std::invocable<F, recursive_unwrap_type_t<unwrap_level, Args>...>;
     
     //  rebind_container struct implementation
     //  Replaces the value_type of a container while preserving its outer template structure
@@ -547,26 +557,6 @@ namespace TinyDIP
     {
         return recursive_depth<T_Base, std::ranges::range_value_t<Range>>() + std::size_t{1};
     }
-
-    //  is_recursive_invocable template function implementation
-    template<std::size_t unwrap_level, class F, class... T>
-    requires(unwrap_level <= recursive_depth<T...>())
-    static constexpr bool is_recursive_invocable()
-    {
-        if constexpr (unwrap_level == 0) {
-            return std::invocable<F, T...>;
-        } else {
-            return is_recursive_invocable<
-                        unwrap_level - 1,
-                        F,
-                        std::ranges::range_value_t<T>...>();
-        }
-    }
-
-    //  recursive_invocable concept
-    template<std::size_t unwrap_level, class F, class... T>
-    concept recursive_invocable =
-            is_recursive_invocable<unwrap_level, F, T...>();
 
     //  is_recursive_project_invocable template function implementation
     template<std::size_t unwrap_level, class Proj, class F, class... T>
