@@ -260,6 +260,19 @@ namespace TinyDIP
     template<typename Container, typename NewType>
     struct rebind_container;
 
+    //  Specialization for standard type-parameterized containers
+    // (e.g., std::vector, std::deque, std::list)
+    template<
+        template<typename...> class Container,
+        typename OldType,
+        typename... RestArgs,
+        typename NewType
+    >
+    struct rebind_container<Container<OldType, RestArgs...>, NewType>
+    {
+        using type = Container<NewType>;
+    };
+
     //  recursive_invoke_result_t implementation
     template<std::size_t, typename, typename>
     struct recursive_invoke_result { };
