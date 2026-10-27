@@ -529,6 +529,15 @@ namespace TinyDIP
             std::invoke_result_t<Proj, recursive_unwrap_type_t<unwrap_level, Args>...>
         >;
 
+    //  recursive_regular_project_invocable concept implementation
+    template<std::size_t unwrap_level, typename Proj, typename F, typename... Args>
+    concept recursive_regular_project_invocable =
+        recursive_regular_invocable<unwrap_level, Proj, Args...> and
+        std::regular_invocable<
+            F,
+            std::invoke_result_t<Proj, recursive_unwrap_type_t<unwrap_level, Args>...>
+        >;
+
     /*  recursive_all_of template function implementation with unwrap level
     */
     template<std::size_t unwrap_level, class T, class Proj = std::identity, class UnaryPredicate>
