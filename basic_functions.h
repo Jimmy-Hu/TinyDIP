@@ -299,25 +299,6 @@ namespace TinyDIP
             typename rebind_container_t<Range, NewType>;
         };
 
-    //  recursive_invoke_result_t implementation
-    template<std::size_t, typename, typename>
-    struct recursive_invoke_result { };
-
-    template<typename T, typename F>
-    requires(std::invocable<F, T>)
-    struct recursive_invoke_result<0, F, T> { using type = std::invoke_result_t<F, T>; };
-
-    template<std::size_t unwrap_level, std::copy_constructible F, template<typename...> typename Container, typename... Ts>
-    requires (std::ranges::input_range<Container<Ts...>> &&
-            requires { typename recursive_invoke_result<unwrap_level - 1, F, std::ranges::range_value_t<Container<Ts...>>>::type; })
-    struct recursive_invoke_result<unwrap_level, F, Container<Ts...>>
-    {
-        using type = Container<typename recursive_invoke_result<unwrap_level - 1, F, std::ranges::range_value_t<Container<Ts...>>>::type>;
-    };
-
-    template<std::size_t unwrap_level, std::copy_constructible F, typename T>
-    using recursive_invoke_result_t = typename recursive_invoke_result<unwrap_level, F, T>::type;
-
     //  recursive_variadic_invoke_result_t implementation
     template<std::size_t, typename, typename, typename...>
     struct recursive_variadic_invoke_result { };
@@ -358,6 +339,14 @@ namespace TinyDIP
 
     template<std::size_t unwrap_level, std::copy_constructible F, typename T1, typename... Ts>
     using recursive_variadic_invoke_result_t = typename recursive_variadic_invoke_result<unwrap_level, F, T1, Ts...>::type;
+
+    //  recursive_invoke_result alias implementation (Merged into recursive_variadic_invoke_result)
+    template<std::size_t unwrap_level, std::copy_constructible F, typename T>
+    using recursive_invoke_result = recursive_variadic_invoke_result<unwrap_level, F, T>;
+
+    template<std::size_t unwrap_level, std::copy_constructible F, typename T>
+    using recursive_invoke_result_t =
+        recursive_variadic_invoke_result_t<unwrap_level, F, T>;
 
     //  recursive_array_invoke_result struct implementation
     template<std::size_t, typename, typename, typename...>
