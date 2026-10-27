@@ -299,8 +299,8 @@ namespace TinyDIP
             typename rebind_container_t<Range, NewType>;
         };
 
-    //  recursive_variadic_invoke_result_t implementation
-    template<std::size_t, typename, typename, typename...>
+    //  recursive_variadic_invoke_result struct implementation (Unified C++20 Concept version)
+    template<std::size_t unwrap_level, typename F, typename T1, typename... Ts>
     struct recursive_variadic_invoke_result { };
 
     template<typename F, typename T1, typename... Ts>
