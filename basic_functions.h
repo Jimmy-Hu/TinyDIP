@@ -321,7 +321,7 @@ namespace TinyDIP
 
     //  Base case: unwrap_level is 0
     template<typename F, typename T1, typename... Ts>
-    requires(std::invocable<F, T1, Ts...>)
+    requires(recursive_invocable<0, F, T1, Ts...>)
     struct recursive_variadic_invoke_result<0, F, T1, Ts...>
     {
         using type = std::invoke_result_t<F, T1, Ts...>;
@@ -336,15 +336,7 @@ namespace TinyDIP
     >
     requires (
         (unwrap_level > 0) and
-        requires
-        {
-            typename recursive_variadic_invoke_result<
-                unwrap_level - 1,
-                F,
-                std::ranges::range_value_t<Range1>,
-                std::ranges::range_value_t<RestRanges>...
-            >::type;
-        } and
+        recursive_invocable<unwrap_level, F, Range1, RestRanges...> and
         rebindable_range<
             Range1,
             typename recursive_variadic_invoke_result<
