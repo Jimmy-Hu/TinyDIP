@@ -273,6 +273,19 @@ namespace TinyDIP
         using type = Container<NewType>;
     };
 
+    //  Specialization for fixed-size NTTP containers
+    // (e.g., std::array<T, N>, MultiChannel<T, N>)
+    template<
+        template<typename, std::size_t> class Container,
+        typename OldType,
+        std::size_t N,
+        typename NewType
+    >
+    struct rebind_container<Container<OldType, N>, NewType>
+    {
+        using type = Container<NewType, N>;
+    };
+
     //  recursive_invoke_result_t implementation
     template<std::size_t, typename, typename>
     struct recursive_invoke_result { };
