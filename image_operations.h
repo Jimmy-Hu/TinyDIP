@@ -4605,12 +4605,15 @@ namespace TinyDIP
          */
         template <
             std::ranges::input_range R1,
-            std::ranges::input_range R2>
+            std::ranges::input_range R2,
+            typename F = std::plus<>
+        >
         requires(arithmetic<std::ranges::range_value_t<R1>> &&
                 std::same_as<std::ranges::range_value_t<R1>, std::ranges::range_value_t<R2>>)
         constexpr auto operator()(
             const R1& range1,
-            const R2& range2)
+            const R2& range2,
+            F f = {})
         {
             // For input_range, a manual loop is the most reliable approach, as std::distance can be O(n)
             // and we need to iterate anyway.
@@ -4628,11 +4631,11 @@ namespace TinyDIP
                 const auto diff = *it1 - *it2;
                 if constexpr (is_complex<ValueType>::value)
                 {
-                    sum_of_squares += std::norm(diff);
+                    sum_of_squares = std::invoke(f, sum_of_squares, std::norm(diff));
                 }
                 else
                 {
-                    sum_of_squares += diff * diff;
+                    sum_of_squares = std::invoke(f, sum_of_squares, diff * diff);
                 }
                 ++it1;
                 ++it2;
