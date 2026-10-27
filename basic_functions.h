@@ -264,6 +264,12 @@ namespace TinyDIP
             typename std::tuple<recursive_unwrap_type_t<unwrap_level, Args>...>;
         } and
         std::invocable<F, recursive_unwrap_type_t<unwrap_level, Args>...>;
+
+    //  recursive_regular_invocable concept implementation
+    template<std::size_t unwrap_level, typename F, typename... Args>
+    concept recursive_regular_invocable =
+        recursive_invocable<unwrap_level, F, Args...> and
+        std::regular_invocable<F, recursive_unwrap_type_t<unwrap_level, Args>...>;
     
     //  rebind_container struct implementation
     //  Replaces the value_type of a container while preserving its outer template structure
