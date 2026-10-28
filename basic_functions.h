@@ -506,18 +506,29 @@ namespace TinyDIP
         return recursive_depth<std::ranges::range_value_t<Range>>() + std::size_t{1};
     }
 
-    //  recursive_depth template function implementation with target type
-    template<typename T_Base, typename T>
-    constexpr std::size_t recursive_depth()
+    //  recursive_depth_to template function implementation
+    //  Unified single-function implementation using if constexpr
+    template<typename T_Base, typename T, typename... Rest>
+    constexpr std::size_t recursive_depth_to()
     {
-        return std::size_t{0};
-    }
-
-    template<typename T_Base, std::ranges::input_range Range>
-    requires (!std::same_as<Range, T_Base>)
-    constexpr std::size_t recursive_depth()
-    {
-        return recursive_depth<T_Base, std::ranges::range_value_t<Range>>() + std::size_t{1};
+        if constexpr (sizeof...(Rest) > 0)
+        {
+            return std::min({
+                recursive_depth_to<T_Base, T>(),
+                recursive_depth_to<T_Base, Rest>()...
+            });
+        }
+        else if constexpr (
+            std::ranges::input_range<T> and
+            not std::same_as<std::remove_cvref_t<T>, std::remove_cvref_t<T_Base>>
+        )
+        {
+            return recursive_depth_to<T_Base, std::ranges::range_value_t<T>>() + std::size_t{ 1 };
+        }
+        else
+        {
+            return std::size_t{ 0 };
+        }
     }
 
     //  recursive_project_invocable concept implementation (Non-recursive C++20 version)
