@@ -57,11 +57,17 @@ namespace TinyDIP
     template <typename ElementT>
     class Image;
 
+    //  is_back_inserterable concept implementation
+    //  Verifies that the container actually supports
+    //  push_back as required by std::back_insert_iterator
     template<typename T>
-    concept is_back_inserterable = requires(T x)
-    {
-        std::back_inserter(x);
-    };
+    concept is_back_inserterable =
+        std::ranges::range<T> and
+        requires(T& x, std::ranges::range_value_t<T> v)
+        {
+            x.push_back(v);
+            std::back_inserter(x);
+        };
 
     template<typename T>
     concept is_inserterable = requires(T x)
