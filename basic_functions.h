@@ -493,19 +493,6 @@ namespace TinyDIP
         print_tuple(_tup, std::make_index_sequence<sizeof...(T)>());
     }
 
-    //  recursive_depth template function implementation
-    template<typename T>
-    constexpr std::size_t recursive_depth()
-    {
-        return std::size_t{0};
-    }
-
-    template<std::ranges::input_range Range>
-    constexpr std::size_t recursive_depth()
-    {
-        return recursive_depth<std::ranges::range_value_t<Range>>() + std::size_t{1};
-    }
-
     //  recursive_depth_to template function implementation
     //  Unified single-function implementation using if constexpr
     template<typename T_Base, typename T, typename... Rest>
@@ -529,6 +516,14 @@ namespace TinyDIP
         {
             return std::size_t{ 0 };
         }
+    }
+
+    //  recursive_depth template function implementation
+    //  Delegates directly to recursive_depth_to with void as an unreachable base type
+    template<typename T, typename... Rest>
+    constexpr std::size_t recursive_depth()
+    {
+        return recursive_depth_to<void, T, Rest...>();
     }
 
     //  recursive_project_invocable concept implementation (Non-recursive C++20 version)
