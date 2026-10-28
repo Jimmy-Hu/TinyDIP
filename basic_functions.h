@@ -69,11 +69,17 @@ namespace TinyDIP
             std::back_inserter(x);
         };
 
+    //  is_inserterable concept implementation
+    //  Verifies that the container actually supports
+    //  two-argument insert as required by std::insert_iterator
     template<typename T>
-    concept is_inserterable = requires(T x)
-    {
-        std::inserter(x, std::ranges::end(x));
-    };
+    concept is_inserterable =
+        std::ranges::range<T> and
+        requires(T& x, std::ranges::range_value_t<T> v)
+        {
+            x.insert(std::ranges::end(x), v);
+            std::inserter(x, std::ranges::end(x));
+        };
 
     template<typename T>
     concept is_minusable = requires(T x) { x - x; };
