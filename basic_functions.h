@@ -599,15 +599,15 @@ namespace TinyDIP
     template<std::size_t unwrap_level, class ExecutionPolicy, class R, class T, class Proj = std::identity>
     requires(recursive_invocable<unwrap_level, Proj, R>&&
             std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
-    constexpr auto recursive_find(ExecutionPolicy execution_policy, R&& range, T&& target, Proj&& proj = {})
+    constexpr auto recursive_find(ExecutionPolicy&& execution_policy, R&& range, T&& target, Proj&& proj = {})
     {
         if constexpr (unwrap_level)
         {
-            return std::find_if(execution_policy,
+            return std::find_if(std::forward<ExecutionPolicy>(execution_policy),
                         std::ranges::begin(range),
                         std::ranges::end(range),
                         [&](auto& element) {
-                return recursive_find<unwrap_level - 1>(execution_policy, element, target, proj);
+                return recursive_find<unwrap_level - 1>(std::forward<ExecutionPolicy>(execution_policy), element, target, proj);
             }) != std::ranges::end(range);
         }
         else
