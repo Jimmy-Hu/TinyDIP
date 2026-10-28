@@ -232,40 +232,41 @@ namespace TinyDIP
     {
     };
 
-    //  recursive_unwrap_type_t struct implementation (Modern C++20 Concept based)
-    template<std::size_t unwrap_level, typename T, typename... Ts>
-    struct recursive_unwrap_type { };
+    // Single-type recursive_unwrap_type implementation
+    template<std::size_t unwrap_level, typename T>
+    struct recursive_unwrap_type
+    {
+    };
 
-    template<typename T, typename... Ts>
-    struct recursive_unwrap_type<0, T, Ts...>
+    // Base case: unwrap_level is 0
+    template<typename T>
+    struct recursive_unwrap_type<0, T>
     {
         using type = T;
     };
 
-    //  Recursive step: unwrap_level > 0
-    template<std::size_t unwrap_level, std::ranges::input_range Range, std::ranges::input_range... RestRanges>
+    // Recursive step: unwrap_level > 0 for any input_range
+    template<std::size_t unwrap_level, std::ranges::input_range Range>
     requires (
         (unwrap_level > 0) and
         requires
         {
             typename recursive_unwrap_type<
                 unwrap_level - 1,
-                std::ranges::range_value_t<Range>,
-                std::ranges::range_value_t<RestRanges>...
+                std::ranges::range_value_t<Range>
             >::type;
         }
     )
-    struct recursive_unwrap_type<unwrap_level, Range, RestRanges...>
+    struct recursive_unwrap_type<unwrap_level, Range>
     {
         using type = typename recursive_unwrap_type<
             unwrap_level - 1,
-            std::ranges::range_value_t<Range>,
-            std::ranges::range_value_t<RestRanges>...
+            std::ranges::range_value_t<Range>
         >::type;
     };
 
-    template<std::size_t unwrap_level, typename T1, typename... Ts>
-    using recursive_unwrap_type_t = typename recursive_unwrap_type<unwrap_level, T1, Ts...>::type;
+    template<std::size_t unwrap_level, typename T>
+    using recursive_unwrap_type_t = typename recursive_unwrap_type<unwrap_level, T>::type;
 
     //  recursive_invocable concept implementation (Powered by recursive_unwrap_type_t)
     template<std::size_t unwrap_level, typename F, typename... Args>
