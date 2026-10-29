@@ -745,6 +745,23 @@ namespace TinyDIP
         }
     }
 
+    template<typename Pred, typename T>
+    static constexpr bool is_auto_recursive_predicate()
+    {
+        if constexpr (std::predicate<Pred, const T&>)
+        {
+            return true;
+        }
+        else if constexpr (std::ranges::input_range<T>)
+        {
+            return is_auto_recursive_predicate<Pred, std::ranges::range_value_t<T>>();
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     //  recursive_count_if implementation
     template<class T, std::invocable<T> Pred>
     constexpr std::size_t recursive_count_if(const T& input, const Pred& predicate)
