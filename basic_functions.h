@@ -1233,11 +1233,39 @@ namespace TinyDIP
         }
     };
 
-    template<typename OutputIt, std::copy_constructible NAryOperation, typename InputIt, typename... InputIts>
-    constexpr OutputIt transform(OutputIt d_first, NAryOperation op, InputIt first, InputIt last, InputIts... rest)
+    //  transform template function implementation (Sequential version)
+    template<
+        typename OutputIt,
+        std::copy_constructible NAryOperation = DefaultTransformOp,
+        std::input_iterator InputIt,
+        std::input_iterator... InputIts
+    >
+    requires (
+        std::regular_invocable<
+            NAryOperation&,
+            std::iter_reference_t<InputIt>,
+            std::iter_reference_t<InputIts>...
+        > and
+        std::output_iterator<
+            OutputIt,
+            std::invoke_result_t<
+                NAryOperation&,
+                std::iter_reference_t<InputIt>,
+                std::iter_reference_t<InputIts>...
+            >
+        >
+    )
+    constexpr OutputIt transform(
+        OutputIt d_first,
+        NAryOperation op,
+        InputIt first,
+        const InputIt last,
+        InputIts... rest
+    )
     {
-        while (first != last) {
-            *d_first++ = op(*first++, (*rest++)...);
+        while (first != last)
+        {
+            *d_first++ = std::invoke(op, *first++, (*rest++)...);
         }
         return d_first;
     }
