@@ -763,36 +763,27 @@ namespace TinyDIP
     }
 
     //  recursive_count_if implementation
-    template<class T, std::invocable<T> Pred>
+    template<typename T, typename Pred>
+    requires(is_auto_recursive_predicate<Pred, T>())
     constexpr std::size_t recursive_count_if(const T& input, const Pred& predicate)
     {
-        return predicate(input) ? std::size_t{1} : std::size_t{0};
-    }
-
-    template<std::ranges::input_range Range, class Pred>
-    requires (!std::invocable<Pred, Range>)
-    constexpr auto recursive_count_if(const Range& input, const Pred& predicate)
-    {
-        return std::transform_reduce(std::ranges::cbegin(input), std::ranges::cend(input), std::size_t{}, std::plus<std::size_t>(), [predicate](auto&& element) {
-            return recursive_count_if(element, predicate);
-            });
-    }
-
-    template<std::size_t unwrap_level, class T, class Pred>
-    requires(unwrap_level <= recursive_depth<T>())
-    constexpr auto recursive_count_if(const T& input, const Pred& predicate)
-    {
-        if constexpr (unwrap_level > 0)
+        if constexpr (std::predicate<Pred, const T&>)
         {
-            return std::transform_reduce(std::ranges::cbegin(input), std::ranges::cend(input), std::size_t{}, std::plus<std::size_t>(), [predicate](auto&& element) {
-                return recursive_count_if<unwrap_level - 1>(element, predicate);
-                });
+            return std::invoke(predicate, input) ? std::size_t{ 1 } : std::size_t{ 0 };
         }
         else
         {
-            return predicate(input) ? 1 : 0;
+            return std::transform_reduce(
+                std::ranges::cbegin(input),
+                std::ranges::cend(input),
+                std::size_t{ 0 },
+                std::plus<std::size_t>{},
+                [&predicate](const auto& element)
+                {
+                    return recursive_count_if(element, predicate);
+                }
+            );
         }
-        
     }
 
     //  recursive_count_if implementation (with execution policy)
