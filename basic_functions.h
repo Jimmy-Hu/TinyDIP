@@ -1215,6 +1215,24 @@ namespace TinyDIP
         return recursive_remove_copy_if<unwrap_level>(execution_policy, input, [&](auto&& element) { return element == value; });
     }
 
+    //  DefaultTransformOp struct implementation
+    //  Default functor with call operator returning the first argument or sum of arguments
+    struct DefaultTransformOp
+    {
+        template<typename T, typename... Rest>
+        constexpr auto operator()(T&& first, Rest&&... rest) const
+        {
+            if constexpr (sizeof...(Rest) == 0)
+            {
+                return std::forward<T>(first);
+            }
+            else
+            {
+                return (std::forward<T>(first) + ... + std::forward<Rest>(rest));
+            }
+        }
+    };
+
     template<typename OutputIt, std::copy_constructible NAryOperation, typename InputIt, typename... InputIts>
     constexpr OutputIt transform(OutputIt d_first, NAryOperation op, InputIt first, InputIt last, InputIts... rest)
     {
