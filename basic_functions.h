@@ -914,25 +914,35 @@ namespace TinyDIP
         constexpr std::size_t operator()(const ElementT& element) const;
     };
 
-    //  recursive_size template function implementation
-    template<class T> requires (!std::ranges::range<T>)
-    constexpr auto recursive_size(const T& input)
+    //  recursive_size template function implementation (Unified automatic unwrapping)
+    template<typename T>
+    constexpr std::size_t recursive_size(const T& input)
     {
-        return std::size_t{1};
-    }
-
-    template<std::ranges::range Range> requires (!(std::ranges::input_range<std::ranges::range_value_t<Range>>))
-    constexpr auto recursive_size(const Range& input)
-    {
-        return std::ranges::size(input);
-    }
-
-    template<std::ranges::range Range> requires (std::ranges::input_range<std::ranges::range_value_t<Range>>)
-    constexpr auto recursive_size(const Range& input)
-    {
-        return std::transform_reduce(std::ranges::begin(input), std::ranges::end(input), std::size_t{}, std::plus<std::size_t>(), [](auto& element) {
-            return recursive_size(element);
-            });
+        if constexpr (not std::ranges::input_range<T>)
+        {
+            return std::size_t{ 1 };
+        }
+        else if constexpr (not std::ranges::input_range<std::ranges::range_value_t<T>>)
+        {
+            if constexpr (std::ranges::sized_range<const T>)
+            {
+                return std::ranges::size(input);
+            }
+            else
+            {
+                return static_cast<std::size_t>(std::ranges::distance(input));
+            }
+        }
+        else
+        {
+            return std::transform_reduce(
+                std::ranges::cbegin(input),
+                std::ranges::cend(input),
+                std::size_t{ 0 },
+                std::plus<std::size_t>{},
+                RecursiveSizeCalculator{}
+            );
+        }
     }
 
     //  recursive_size template function implementation (the version with unwrap_level)
