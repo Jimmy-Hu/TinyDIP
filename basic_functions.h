@@ -945,18 +945,33 @@ namespace TinyDIP
         }
     }
 
-    //  recursive_size template function implementation (the version with unwrap_level)
-    template<std::size_t unwrap_level, std::ranges::range T>
+    //  recursive_size template function implementation (with unwrap_level)
+    template<std::size_t unwrap_level, std::ranges::input_range T>
     requires(unwrap_level <= recursive_depth<T>())
-    constexpr auto recursive_size(const T input)
+    constexpr auto recursive_size(const T& input)
     {
-        if constexpr (unwrap_level > 1)
+        if constexpr (unwrap_level == 0)
         {
-            return recursive_size<unwrap_level - 1>(input.at(0));
+            return std::size_t{ 1 };
+        }
+        else if constexpr (unwrap_level > 1)
+        {
+            if (std::ranges::empty(input))
+            {
+                return std::size_t{ 0 };
+            }
+            return recursive_size<unwrap_level - 1>(*std::ranges::cbegin(input));
         }
         else
         {
-            return std::ranges::size(input);
+            if constexpr (std::ranges::sized_range<const T>)
+            {
+                return std::ranges::size(input);
+            }
+            else
+            {
+                return static_cast<std::size_t>(std::ranges::distance(input));
+            }
         }
     }
     
