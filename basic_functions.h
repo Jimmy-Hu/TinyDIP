@@ -1270,6 +1270,89 @@ namespace TinyDIP
         return d_first;
     }
 
+    //  transform template function implementation (Parallel ExecutionPolicy & OpenMP version)
+    //  Supports N-ary random access iterators beyond std::transform's 2-range limit
+    template<
+        class ExecutionPolicy,
+        std::random_access_iterator OutputIt,
+        std::copy_constructible NAryOperation = DefaultTransformOp,
+        std::random_access_iterator InputIt,
+        std::random_access_iterator... InputIts
+    >
+    requires (
+        std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and
+        std::regular_invocable<
+            const NAryOperation&,
+            std::iter_reference_t<InputIt>,
+            std::iter_reference_t<InputIts>...
+        > and
+        std::indirectly_writable<
+            OutputIt,
+            std::invoke_result_t<
+                const NAryOperation&,
+                std::iter_reference_t<InputIt>,
+                std::iter_reference_t<InputIts>...
+            >
+        >
+    )
+    constexpr OutputIt transform(
+        ExecutionPolicy&& execution_policy,
+        const OutputIt d_first,
+        const NAryOperation op,
+        const InputIt first,
+        const InputIt last,
+        const InputIts... rest
+    )
+    {
+        const auto count = last - first;
+        if (count <= 0)
+        {
+            return d_first;
+        }
+
+        const auto indices = std::views::iota(
+            static_cast<std::iter_difference_t<InputIt>>(0),
+            count
+        );
+
+        if constexpr (
+            std::same_as<
+                std::remove_cvref_t<ExecutionPolicy>,
+                std::execution::sequenced_policy
+            >
+        )
+        {
+            std::for_each(
+                std::forward<ExecutionPolicy>(execution_policy),
+                std::ranges::cbegin(indices),
+                std::ranges::cend(indices),
+                [&](const auto idx)
+                {
+                    *(d_first + idx) = std::invoke(
+                        op,
+                        *(first + idx),
+                        *(rest + idx)...
+                    );
+                }
+            );
+        }
+        else
+        {
+            #pragma omp parallel for
+            for (std::ptrdiff_t idx = 0; idx < static_cast<std::ptrdiff_t>(count); ++idx)
+            {
+                const auto offset = static_cast<std::iter_difference_t<InputIt>>(idx);
+                *(d_first + offset) = std::invoke(
+                    op,
+                    *(first + offset),
+                    *(rest + offset)...
+                );
+            }
+        }
+
+        return d_first + count;
+    }
+
     //  recursive_transform template function implementation (Unified for all containers and std::array)
     template<std::size_t unwrap_level = 1, std::copy_constructible F, class Arg1, class... Args>
     requires (
