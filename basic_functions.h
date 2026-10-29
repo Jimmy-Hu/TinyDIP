@@ -268,6 +268,12 @@ namespace TinyDIP
     template<std::size_t unwrap_level, typename T>
     using recursive_unwrap_type_t = typename recursive_unwrap_type<unwrap_level, T>::type;
 
+    //  Concept verifying that one or more types can all be unwrapped to unwrap_level
+    template<std::size_t unwrap_level, typename... Ts>
+    concept recursively_unwrappable =
+        (sizeof...(Ts) > 0) and
+        (requires { typename recursive_unwrap_type_t<unwrap_level, Ts>; } and ...);
+
     //  recursive_invocable concept implementation (Powered by recursive_unwrap_type_t)
     template<std::size_t unwrap_level, typename F, typename... Args>
     concept recursive_invocable =
