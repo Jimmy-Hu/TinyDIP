@@ -906,6 +906,14 @@ namespace TinyDIP
         });
     }
 
+    //  RecursiveSizeCalculator struct implementation
+    //  Default functor with call operator for recursive size accumulation
+    struct RecursiveSizeCalculator
+    {
+        template<typename ElementT>
+        constexpr std::size_t operator()(const ElementT& element) const;
+    };
+
     //  recursive_size template function implementation
     template<class T> requires (!std::ranges::range<T>)
     constexpr auto recursive_size(const T& input)
