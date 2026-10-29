@@ -911,10 +911,20 @@ namespace TinyDIP
     struct RecursiveSizeCalculator
     {
         template<typename ElementT>
-        constexpr std::size_t operator()(const ElementT& element) const;
+        constexpr auto operator()(const ElementT& element) const;
     };
 
     //  recursive_size template function implementation (Unified automatic unwrapping)
+    /*
+    * Usage:
+    const std::vector<std::array<int, 4>> mixed_nested{
+        std::array<int, 4>{ 1, 2, 3, 4 },
+        std::array<int, 4>{ 5, 6, 7, 8 }
+    };
+
+    TinyDIP::recursive_size(mixed_nested); //    output is 8
+    * 
+    */
     template<typename T>
     constexpr std::size_t recursive_size(const T& input)
     {
@@ -943,6 +953,12 @@ namespace TinyDIP
                 RecursiveSizeCalculator{}
             );
         }
+    }
+
+    template<typename ElementT>
+    constexpr auto RecursiveSizeCalculator::operator()(const ElementT& element) const
+    {
+        return recursive_size(element);
     }
 
     //  recursive_size template function implementation (with unwrap_level)
