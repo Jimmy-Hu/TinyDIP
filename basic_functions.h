@@ -1270,7 +1270,7 @@ namespace TinyDIP
         return d_first;
     }
 
-    //  transform template function implementation (Parallel ExecutionPolicy & OpenMP version)
+    //  transform template function implementation (Parallel ExecutionPolicy)
     //  Supports N-ary random access iterators beyond std::transform's 2-range limit
     template<
         class ExecutionPolicy,
@@ -1315,14 +1315,7 @@ namespace TinyDIP
             count
         );
 
-        if constexpr (
-            std::same_as<
-                std::remove_cvref_t<ExecutionPolicy>,
-                std::execution::sequenced_policy
-            >
-        )
-        {
-            std::for_each(
+        std::for_each(
                 std::forward<ExecutionPolicy>(execution_policy),
                 std::ranges::cbegin(indices),
                 std::ranges::cend(indices),
@@ -1335,21 +1328,6 @@ namespace TinyDIP
                     );
                 }
             );
-        }
-        else
-        {
-            #pragma omp parallel for
-            for (std::ptrdiff_t idx = 0; idx < static_cast<std::ptrdiff_t>(count); ++idx)
-            {
-                const auto offset = static_cast<std::iter_difference_t<InputIt>>(idx);
-                *(d_first + offset) = std::invoke(
-                    op,
-                    *(first + offset),
-                    *(rest + offset)...
-                );
-            }
-        }
-
         return d_first + count;
     }
 
