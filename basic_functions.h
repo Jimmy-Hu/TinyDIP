@@ -274,14 +274,21 @@ namespace TinyDIP
         (sizeof...(Ts) > 0) and
         (requires { typename recursive_unwrap_type_t<unwrap_level, Ts>; } and ...);
 
-    //  recursive_invocable concept implementation (Powered by recursive_unwrap_type_t)
+    // Multi-type unwrapping struct returning a std::tuple of all unwrapped types
+    template<std::size_t unwrap_level, typename... Ts>
+    requires recursively_unwrappable<unwrap_level, Ts...>
+    struct recursive_unwrap_types
+    {
+        using type = std::tuple<recursive_unwrap_type_t<unwrap_level, Ts>...>;
+    };
+
+    template<std::size_t unwrap_level, typename... Ts>
+    using recursive_unwrap_types_t = typename recursive_unwrap_types<unwrap_level, Ts...>::type;
+
+    // Realistic use case: Checking if an N-ary functor is invocable at a given unwrap_level
     template<std::size_t unwrap_level, typename F, typename... Args>
     concept recursive_invocable =
-        (sizeof...(Args) > 0) and
-        requires
-        {
-            typename std::tuple<recursive_unwrap_type_t<unwrap_level, Args>...>;
-        } and
+        recursively_unwrappable<unwrap_level, Args...> and
         std::invocable<F, recursive_unwrap_type_t<unwrap_level, Args>...>;
 
     //  recursive_regular_invocable concept implementation
