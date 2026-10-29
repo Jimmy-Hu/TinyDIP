@@ -1210,22 +1210,53 @@ namespace TinyDIP
         return d_first;
     }
 
-    //  recursive_transform template function for the multiple parameters cases (the version with unwrap_level)
+    //  recursive_transform template function implementation (Unified for all containers and std::array)
     template<std::size_t unwrap_level = 1, std::copy_constructible F, class Arg1, class... Args>
-    requires(unwrap_level <= recursive_depth<Arg1>() &&
-             requires { typename recursive_variadic_invoke_result_t<unwrap_level, F, Arg1, Args...>; })
+    requires (
+        (unwrap_level <= recursive_depth<Arg1, Args...>()) and
+        recursive_regular_invocable<unwrap_level, F, Arg1, Args...>
+    )
     constexpr auto recursive_transform(const F& f, const Arg1& arg1, const Args&... args)
     {
         if constexpr (unwrap_level > 0)
         {
-            recursive_variadic_invoke_result_t<unwrap_level, F, Arg1, Args...> output{};
-            transform(
-                std::inserter(output, std::ranges::end(output)),
-                [&f](auto&& element1, auto&&... elements) { return recursive_transform<unwrap_level - 1>(f, element1, elements...); },
-                std::ranges::cbegin(arg1),
-                std::ranges::cend(arg1),
-                std::ranges::cbegin(args)...
-            );
+            using OutputContainerT =
+                recursive_variadic_invoke_result_t<unwrap_level, F, Arg1, Args...>;
+            OutputContainerT output{};
+
+            if constexpr (
+                std::ranges::sized_range<Arg1> and
+                requires(OutputContainerT& c, std::size_t n) { c.reserve(n); }
+            )
+            {
+                output.reserve(std::ranges::size(arg1));
+            }
+
+            auto child_transform = [&f](const auto& element1, const auto&... elements)
+            {
+                return recursive_transform<unwrap_level - 1>(f, element1, elements...);
+            };
+
+            if constexpr (is_inserterable<OutputContainerT>)
+            {
+                transform(
+                    std::inserter(output, std::ranges::end(output)),
+                    child_transform,
+                    std::ranges::cbegin(arg1),
+                    std::ranges::cend(arg1),
+                    std::ranges::cbegin(args)...
+                );
+            }
+            else
+            {
+                transform(
+                    std::ranges::begin(output),
+                    child_transform,
+                    std::ranges::cbegin(arg1),
+                    std::ranges::cend(arg1),
+                    std::ranges::cbegin(args)...
+                );
+            }
             return output;
         }
         else if constexpr (std::regular_invocable<F, Arg1, Args...>)
@@ -1234,43 +1265,11 @@ namespace TinyDIP
         }
         else
         {
-            static_assert(!std::regular_invocable<F, Arg1, Args...>, "The function passed to recursive_transform() cannot be invoked"
-                                                                     "with the element types at the given recursion level.");
-        }
-    }
-
-    //  recursive_transform template function for std::array (the version with unwrap_level)
-    template< std::size_t unwrap_level = 1,
-                template<class, std::size_t> class Container,
-                typename T,
-                std::size_t N,
-                typename F,
-                class... Args>
-    requires (std::ranges::input_range<Container<T, N>> &&
-              requires { typename recursive_array_invoke_result_t<unwrap_level, F, Container, T, N, Args...>; })
-    constexpr auto recursive_transform(const F& f, const Container<T, N>& arg1, const Args&... args)
-    {
-        if constexpr (unwrap_level > 0)
-        {
-            recursive_array_invoke_result_t<unwrap_level, F, Container, T, N, Args...> output{};
-            
-            transform(
-                std::ranges::begin(output),
-                [&f](auto&& element1, auto&&... elements) { return recursive_transform<unwrap_level - 1>(f, element1, elements...); },
-                std::ranges::cbegin(arg1),
-                std::ranges::cend(arg1),
-                std::ranges::cbegin(args)...
+            static_assert(
+                std::regular_invocable<F, Arg1, Args...>,
+                "The function passed to recursive_transform() cannot be invoked "
+                "with the element types at the given recursion level."
             );
-            return output;
-        }
-        else if constexpr(std::regular_invocable<F, Container<T, N>, Args...>)
-        {
-            return std::invoke(f, arg1, args...);
-        }
-        else
-        {
-            static_assert(!std::regular_invocable<F, Container<T, N>, Args...>, "The function passed to recursive_transform() cannot be invoked"
-                                                                                "with the element types at the given recursion level.");
         }
     }
 
