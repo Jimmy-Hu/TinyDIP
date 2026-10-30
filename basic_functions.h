@@ -855,6 +855,58 @@ namespace TinyDIP
         }
     }
 
+    //  recursive_count_if template function implementation (the version with unwrap_level and execution policy)
+    template<std::size_t unwrap_level, class ExecutionPolicy, typename T, typename Pred>
+    requires (
+        std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and
+        (unwrap_level <= recursive_depth<T>()) and
+        recursive_invocable<unwrap_level, Pred, const T&>
+    )
+    constexpr std::size_t recursive_count_if(
+        ExecutionPolicy&& execution_policy,
+        const T& input,
+        const Pred& predicate
+    )
+    {
+        if constexpr (unwrap_level == 0)
+        {
+            return std::invoke(predicate, input) ? std::size_t{ 1 } : std::size_t{ 0 };
+        }
+        else if constexpr (unwrap_level == 1 and std::ranges::forward_range<const T>)
+        {
+            return static_cast<std::size_t>(
+                std::count_if(
+                    std::forward<ExecutionPolicy>(execution_policy),
+                    std::ranges::cbegin(input),
+                    std::ranges::cend(input),
+                    predicate
+                )
+            );
+        }
+        else if constexpr (unwrap_level > 1 and std::ranges::forward_range<const T>)
+        {
+            return std::transform_reduce(
+                std::forward<ExecutionPolicy>(execution_policy),
+                std::ranges::cbegin(input),
+                std::ranges::cend(input),
+                std::size_t{ 0 },
+                std::plus<std::size_t>{},
+                [&execution_policy, &predicate](const auto& element)
+                {
+                    return recursive_count_if<unwrap_level - 1>(
+                        execution_policy,
+                        element,
+                        predicate
+                    );
+                }
+            );
+        }
+        else
+        {
+            return recursive_count_if<unwrap_level>(input, predicate);
+        }
+    }
+
     //  batch_recursive_count_if implementation (the version with unwrap_level)
     template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred1>
     requires(unwrap_level <= recursive_depth<T>())
