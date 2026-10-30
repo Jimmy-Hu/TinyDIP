@@ -823,19 +823,35 @@ namespace TinyDIP
     }
 
     //  recursive_count_if implementation (the version with unwrap_level)
-    template<std::size_t unwrap_level = 1, std::ranges::range T, class Pred>
-    requires(unwrap_level <= recursive_depth<T>())
-    constexpr auto recursive_count_if(const T& input, const Pred& predicate)
+    template<std::size_t unwrap_level, typename T, typename Pred>
+    requires (
+        (unwrap_level <= recursive_depth<T>()) and
+        recursive_invocable<unwrap_level, Pred, const T&>
+    )
+    constexpr std::size_t recursive_count_if(const T& input, const Pred& predicate)
     {
-        if constexpr (unwrap_level > 1)
+        if constexpr (unwrap_level == 0)
         {
-            return std::transform_reduce(std::ranges::cbegin(input), std::ranges::cend(input), std::size_t{}, std::plus<std::size_t>(), [predicate](auto&& element) {
-                return recursive_count_if<unwrap_level - 1>(element, predicate);
-                });
+            return std::invoke(predicate, input) ? std::size_t{ 1 } : std::size_t{ 0 };
+        }
+        else if constexpr (unwrap_level == 1)
+        {
+            return static_cast<std::size_t>(
+                std::ranges::count_if(input, predicate)
+            );
         }
         else
         {
-            return std::count_if(std::ranges::cbegin(input), std::ranges::cend(input), predicate);
+            return std::transform_reduce(
+                std::ranges::cbegin(input),
+                std::ranges::cend(input),
+                std::size_t{ 0 },
+                std::plus<std::size_t>{},
+                [&predicate](const auto& element)
+                {
+                    return recursive_count_if<unwrap_level - 1>(element, predicate);
+                }
+            );
         }
     }
 
