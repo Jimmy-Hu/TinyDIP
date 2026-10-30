@@ -787,20 +787,39 @@ namespace TinyDIP
     }
 
     //  recursive_count_if implementation (with execution policy)
-    template<class ExPo, class T, std::invocable<T> Pred>
-    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>>)
-    constexpr std::size_t recursive_count_if(ExPo execution_policy, const T& input, const Pred& predicate)
+    template<class ExecutionPolicy, typename T, typename Pred>
+    requires (
+        std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and
+        is_auto_recursive_predicate<Pred, T>()
+    )
+    constexpr std::size_t recursive_count_if(
+        ExecutionPolicy&& execution_policy,
+        const T& input,
+        const Pred& predicate
+    )
     {
-        return predicate(input) ? std::size_t{1} : 0;
-    }
-
-    template<class ExPo, std::ranges::input_range Range, class Pred>
-    requires ((std::is_execution_policy_v<std::remove_cvref_t<ExPo>>) && (!std::invocable<Pred, Range>))
-    constexpr auto recursive_count_if(ExPo execution_policy, const Range& input, const Pred& predicate)
-    {
-        return std::transform_reduce(execution_policy, std::ranges::cbegin(input), std::ranges::cend(input), std::size_t{}, std::plus<std::size_t>(), [predicate](auto&& element) {
-            return recursive_count_if(element, predicate);
-            });
+        if constexpr (std::predicate<Pred, const T&>)
+        {
+            return std::invoke(predicate, input) ? std::size_t{ 1 } : std::size_t{ 0 };
+        }
+        else if constexpr (std::ranges::forward_range<const T>)
+        {
+            return std::transform_reduce(
+                std::forward<ExecutionPolicy>(execution_policy),
+                std::ranges::cbegin(input),
+                std::ranges::cend(input),
+                std::size_t{ 0 },
+                std::plus<std::size_t>{},
+                [&execution_policy, &predicate](const auto& element)
+                {
+                    return recursive_count_if(execution_policy, element, predicate);
+                }
+            );
+        }
+        else
+        {
+            return recursive_count_if(input, predicate);
+        }
     }
 
     //  recursive_count_if implementation (the version with unwrap_level)
