@@ -697,6 +697,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_hsv2rgb
         plugin_idct2
         plugin_im2double
+        plugin_im2uint8
         plugin_math
         plugin_math_abs
         plugin_math_add
