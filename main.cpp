@@ -1460,9 +1460,6 @@ int main(int argc, char* argv[])
     
     // Register commands directly with context-injected instances using generic variadic bundles
     CommandRegistry registry = command_registration(
-        CommandBundle{"im2uint8", "Convert an image or container to 8-bit unsigned integers.", TransformerSchema,
-            handlers::im2uint8
-        },
         CommandBundle{"info", "Display basic information about an image.", TerminatorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
