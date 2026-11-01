@@ -1417,12 +1417,6 @@ int main(int argc, char* argv[])
                 handlers::multiply(workspace, args, os);
             }
         },
-        CommandBundle{"normalize", "Normalize an image or container.", TransformerSchema,
-            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
-            {
-                handlers::normalize(workspace, args, os);
-            }
-        },
         CommandBundle{"ones", "Generate an image filled with ones.", GeneratorSchema, 
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
