@@ -706,6 +706,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_math_min
         plugin_math_sum
         plugin_normalize
+        plugin_rand
         plugin_replace
     )
     
