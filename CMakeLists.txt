@@ -708,6 +708,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_normalize
         plugin_rand
         plugin_replace
+        plugin_rotate
     )
     
     foreach(PLUGIN_SOURCE_FILE IN LISTS PLUGIN_SOURCE_FILES)

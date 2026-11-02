@@ -457,65 +457,6 @@ namespace handlers
         }
     }
 
-    //  rotate function implementation
-    constexpr void rotate(
-        Workspace& workspace,
-        std::span<const std::string_view> args,
-        std::ostream& os = std::cout)
-    {
-        auto transform_handler = make_meta_transform_handler<3>(
-            "rotate [execution_policy] <input_img | $var> <output_img | $var> <angle>", 
-            [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
-            {
-                const double angle = parse_arg<double>(filtered_args[2]);
-
-                os << "Rotating " << filtered_args[0] << " by " << angle;
-                if (!std::ranges::empty(policy_str))
-                {
-                    os << " (Policy: " << policy_str << ")";
-                }
-                os << "...\n";
-
-                return [angle, policy_str, &os]<typename ImageType>(ImageType&& img) -> std::any
-                {
-                    auto exec_default = [&]() -> std::any
-                    {
-                        if constexpr (requires { TinyDIP::rotate_detail_shear_transformation(std::forward<ImageType>(img), angle); })
-                        {
-                            return TinyDIP::rotate_detail_shear_transformation(std::forward<ImageType>(img), angle);
-                        }
-                        else
-                        {
-                            throw std::invalid_argument("Input image type does not support rotate_detail_shear_transformation.");
-                            return std::any{};
-                        }
-                    };
-
-                    auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
-                        requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
-                    {
-                        if constexpr (requires { TinyDIP::rotate_detail_shear_transformation(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), angle); })
-                        {
-                            return TinyDIP::rotate_detail_shear_transformation(std::forward<ExecPolicy>(exec_policy), std::forward<ImageType>(img), angle);
-                        }
-                        else
-                        {
-                            if (!std::ranges::empty(policy_str))
-                            {
-                                os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
-                            }
-                            return exec_default();
-                        }
-                    };
-
-                    return dispatch_policy_string(policy_str, exec_policy, exec_default, os);
-                };
-            }
-        );
-
-        transform_handler(workspace, args, os);
-    }
-
     //  sift_generate_octave template function implementation
     template <
         typename ImageLoaderFun = MetaImageIO::Loader
@@ -1321,9 +1262,6 @@ int main(int argc, char* argv[])
         },
         CommandBundle{"remove", "Remove memory variables from the workspace (or 'all' to clear).", IndependentSchema, handlers::remove },
         CommandBundle{"rename", "Rename a memory variable in the workspace.", IndependentSchema, handlers::rename },
-        CommandBundle{"rotate", "Rotate an image using shear transformations.", TransformerSchema,
-            handlers::rotate
-        },
         CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IndependentSchema,
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
