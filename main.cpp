@@ -368,21 +368,6 @@ namespace handlers
         }
     }
 
-    //  RandomGenerator template struct implementation
-    template <typename Urbg, typename Dist>
-    requires (std::uniform_random_bit_generator<std::remove_reference_t<Urbg>> &&
-              std::invocable<Dist&, Urbg&>)
-    struct RandomGenerator
-    {
-        Urbg& urbg_;
-        Dist& dist_;
-
-        constexpr auto operator()()
-        {
-            return dist_(urbg_);
-        }
-    };
-
     void remove(
         Workspace& workspace,
         std::span<const std::string_view> args,
