@@ -709,6 +709,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_rand
         plugin_replace
         plugin_rotate
+        plugin_sift_generate_octave
     )
     
     foreach(PLUGIN_SOURCE_FILE IN LISTS PLUGIN_SOURCE_FILES)
