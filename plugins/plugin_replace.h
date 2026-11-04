@@ -29,33 +29,41 @@ namespace handlers
     template <typename T>
     using extract_container_element_t = typename extract_container_element<std::remove_cvref_t<T>>::type;
 
-    //  replace template function implementation
+    //  replace template function implementation (Optimized for Chain of Responsibility)
     template <
+        typename CheckingDataTypes = master_data_types,
+        typename CheckingScalarTypes = core_numeric_types,
         std::ranges::input_range RangeT,
         typename ImageLoaderFun = MetaImageIO::Loader,
         typename ImageSaverFun = MetaImageIO::Saver
     >
-    requires ((std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string_view> or
-               std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string> or
-               std::convertible_to<std::ranges::range_value_t<RangeT>, std::string_view> or
-               std::convertible_to<std::ranges::range_value_t<RangeT>, std::string>) and
-              std::invocable<ImageLoaderFun, const std::string_view, Workspace&> &&
-              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> &&
-              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<double>&&> &&
-              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::HSV>&&>)
+    requires (
+        (std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string_view> or
+         std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string> or
+         std::convertible_to<std::ranges::range_value_t<RangeT>, std::string_view> or
+         std::convertible_to<std::ranges::range_value_t<RangeT>, std::string>) and
+        std::invocable<ImageLoaderFun, const std::string_view, Workspace&> and
+        std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> and
+        std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<double>&&> and
+        std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::HSV>&&>
+    )
     constexpr void replace(
         Workspace& workspace,
         const RangeT& args,
         std::ostream& os = std::cout,
         ImageLoaderFun&& image_loader_fun = ImageLoaderFun{},
-        ImageSaverFun&& image_saver_fun = ImageSaverFun{})
+        ImageSaverFun&& image_saver_fun = ImageSaverFun{}
+    )
     {
         const std::string_view policy_str = extract_policy_string(args);
         const auto filtered_args = args_filter(args);
 
         if (std::ranges::size(filtered_args) < 4)
         {
-            std::print(os, "Usage: replace [execution_policy] <input_data | $var> <target_value | $var> <new_value | $var> <output_var | $var>\n");
+            std::print(
+                os,
+                "Usage: replace [execution_policy] <input_data | $var> <target_value | $var> <new_value | $var> <output_var | $var>\n"
+            );
             return;
         }
 
@@ -64,176 +72,172 @@ namespace handlers
         const std::string_view new_val_arg = filtered_args[2];
         const std::string_view output_arg = filtered_args[3];
 
-        std::print(os, "Replacing occurrences of {} with {} in {}", target_arg, new_val_arg, input_arg);
-        if (!std::ranges::empty(policy_str))
+        auto process_input = [&]<typename DataT>(DataT&& data)
         {
-            std::print(os, " (Policy: {})", policy_str);
-        }
-        std::print(os, "...\n");
+            using DecayedT = std::remove_cvref_t<DataT>;
+            using ActualElementT = extract_container_element_t<DecayedT>;
 
-        auto process_input =
-            [&]<typename DataT,
-                typename DecayedT = std::remove_cvref_t<DataT>,
-                typename ElementT = TinyDIP::get_deep_scalar_t<DecayedT>
-        >(DataT &&data)
-        {
-            auto execute_replace = [&]<
-                typename TargetT,
-                typename NewT,
-                typename TargetDecayedT = std::remove_cvref_t<TargetT>,
-                typename NewDecayedT = std::remove_cvref_t<NewT>
-            >(TargetT&& target_val, NewT&& new_val)
+            if constexpr (not std::equality_comparable<ActualElementT>)
             {
-                // Core SFINAE Firewall immunizing unconstrained PSTL algorithms from undefined operator overloads
-                if constexpr (requires(const ElementT& e, const TargetDecayedT& t) { { e == t } -> std::convertible_to<bool>; } &&
-                              std::convertible_to<NewDecayedT, ElementT>)
-                {
-                    auto exec_default = [&]() -> std::any
-                    {
-                        if constexpr ((TinyDIP::is_Image<DecayedT>::value) && (requires { TinyDIP::replace(std::forward<DataT>(data), std::forward<TargetT>(target_val), std::forward<NewT>(new_val)); }))
-                        {
-                            return TinyDIP::replace(std::forward<DataT>(data), std::forward<TargetT>(target_val), std::forward<NewT>(new_val));
-                        }
-                        else if constexpr ((std::ranges::input_range<DecayedT>) && (requires { std::ranges::replace(std::declval<DecayedT&>(), std::forward<TargetT>(target_val), std::forward<NewT>(new_val)); }))
-                        {
-                            DecayedT result = data;
-                            std::ranges::replace(result, std::forward<TargetT>(target_val), std::forward<NewT>(new_val));
-                            return result;
-                        }
-                        else
-                        {
-                            throw std::invalid_argument("Input type does not support sequential replacement natively.");
-                            return std::any{};
-                        }
-                    };
-
-                    auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
-                        requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
-                    {
-                        if constexpr ((TinyDIP::is_Image<DecayedT>::value) && (requires { TinyDIP::replace(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), std::forward<TargetT>(target_val), std::forward<NewT>(new_val)); }))
-                        {
-                            return TinyDIP::replace(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), std::forward<TargetT>(target_val), std::forward<NewT>(new_val));
-                        }
-                        else if constexpr ((std::ranges::input_range<DecayedT>) && (requires { std::replace(std::forward<ExecPolicy>(exec_policy), std::declval<DecayedT&>().begin(), std::declval<DecayedT&>().end(), std::forward<TargetT>(target_val), std::forward<NewT>(new_val)); }))
-                        {
-                            DecayedT result = data;
-                            std::replace(std::forward<ExecPolicy>(exec_policy), std::ranges::begin(result), std::ranges::end(result), std::forward<TargetT>(target_val), std::forward<NewT>(new_val));
-                            return result;
-                        }
-                        else
-                        {
-                            throw std::invalid_argument("Input type does not support execution-policy multi-threaded replacement natively.");
-                            return std::any{};
-                        }
-                    };
-
-                    try
-                    {
-                        std::any result = dispatch_policy_string(policy_str, exec_policy, exec_default, os);
-
-                        if (!result.has_value()) return;
-
-                        bool handled = false;
-                        auto try_save_output = [&]<typename OutT>() -> bool
-                        {
-                            if (result.type() == typeid(OutT))
-                            {
-                                image_saver_fun(output_arg, workspace, std::move(std::any_cast<OutT&>(result)));
-                                std::print(os, "Saved to {}\n", output_arg);
-                                handled = true;
-                                return true;
-                            }
-                            return false;
-                        };
-
-                        if (!match_any_type<master_data_types>(try_save_output))
-                        {
-                            std::print(os, "Error: Output type from processor is unknown or unsupported. Type Name: [{}]\n", result.type().name());
-                        }
-                    }
-                    catch (const std::exception& e)
-                    {
-                        std::print(os, "Error calculating replace: {}\n", e.what());
-                    }
-                }
-                else
-                {
-                    std::print(os, "Error: Cannot mathematically compare or assign [{}] with target [{}] and new value [{}].\n", 
-                               get_type_name<ElementT>(), get_type_name<TargetDecayedT>(), get_type_name<NewDecayedT>());
-                }
-            };
-
-            // Safely cascades argument parsing for the new value payload
-            auto evaluate_args = [&]<typename TupleT1, typename TargetT>(TargetT&& target_val)
-            {
-                if (new_val_arg.starts_with('$'))
-                {
-                    bool found_new = false;
-                    auto try_new_var = [&]<typename NewT>() -> bool
-                    {
-                        if (auto* ptr = workspace.template retrieve<NewT>(new_val_arg.substr(1)))
-                        {
-                            execute_replace(std::forward<TargetT>(target_val), *ptr);
-                            return true;
-                        }
-                        return false;
-                    };
-                    found_new = match_any_type<TupleT1>(try_new_var);
-                    if (!found_new)
-                    {
-                        std::print(os, "Error: New value variable not found or unsupported type: {}\n", new_val_arg);
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        ElementT parsed_new = parse_arg<ElementT>(new_val_arg);
-                        execute_replace(std::forward<TargetT>(target_val), parsed_new);
-                    }
-                    catch (const std::exception& e)
-                    {
-                        std::print(os, "Error parsing new value '{}' as scalar: {}\n", new_val_arg, e.what());
-                    }
-                }
-            };
-
-            // Bootstraps argument parsing with the target payload
-            if (target_arg.starts_with('$'))
-            {
-                bool found_target = false;
-                auto try_target_var = [&]<typename TargetT>() -> bool
-                {
-                    if (auto* ptr = workspace.template retrieve<TargetT>(target_arg.substr(1)))
-                    {
-                        evaluate_args.template operator()<core_numeric_types>(*ptr);
-                        return true;
-                    }
-                    return false;
-                };
-                found_target = match_any_type<master_scalar_types>(try_target_var);
-                if (!found_target)
-                {
-                    std::print(os, "Error: Target variable not found or unsupported type: {}\n", target_arg);
-                }
+                throw std::invalid_argument(
+                    std::string("Element type [") +
+                    std::string(get_type_name<ActualElementT>()) +
+                    "] is not equality comparable."
+                );
             }
             else
             {
-                try
+                // Decoupled 1D scalar resolver: avoids O(M^2) nested template instantiations
+                auto resolve_scalar_arg = [&](const std::string_view arg_sv) -> ActualElementT
                 {
-                    ElementT parsed_target = parse_arg<ElementT>(target_arg);
-                    evaluate_args.template operator()<core_numeric_types>(parsed_target);
+                    if (arg_sv.starts_with('$'))
+                    {
+                        const std::string_view var_name = arg_sv.substr(1);
+
+                        // Fast path: exact element type match (handles RGB, MultiChannel, Complex, etc. in O(1))
+                        if (const auto* exact_ptr = workspace.template retrieve<ActualElementT>(var_name))
+                        {
+                            return *exact_ptr;
+                        }
+
+                        // Fallback path: convertible numeric scalar match in O(M)
+                        ActualElementT converted_val{};
+                        bool matched = match_any_type<CheckingScalarTypes>(
+                            [&]<typename ScalarT>() -> bool
+                            {
+                                if constexpr (std::convertible_to<ScalarT, ActualElementT>)
+                                {
+                                    if (const auto* ptr = workspace.template retrieve<ScalarT>(var_name))
+                                    {
+                                        converted_val = static_cast<ActualElementT>(*ptr);
+                                        return true;
+                                    }
+                                }
+                                return false;
+                            }
+                        );
+
+                        if (matched)
+                        {
+                            return converted_val;
+                        }
+
+                        throw std::runtime_error(
+                            std::string("Variable ") + std::string(arg_sv) +
+                            " not found or not convertible to [" +
+                            std::string(get_type_name<ActualElementT>()) + "]."
+                        );
+                    }
+                    else
+                    {
+                        return parse_arg<ActualElementT>(arg_sv);
+                    }
+                };
+
+                const ActualElementT target_val = resolve_scalar_arg(target_arg);
+                const ActualElementT new_val = resolve_scalar_arg(new_val_arg);
+
+                std::print(
+                    os,
+                    "Replacing occurrences of {} with {} in {}",
+                    target_arg,
+                    new_val_arg,
+                    input_arg
+                );
+                if (not std::ranges::empty(policy_str))
+                {
+                    std::print(os, " (Policy: {})", policy_str);
                 }
-                catch (const std::exception& e)
+                std::print(os, "...\n");
+
+                auto exec_default = [&]() -> std::any
                 {
-                    std::print(os, "Error parsing target value '{}' as scalar: {}\n", target_arg, e.what());
+                    if constexpr (
+                        TinyDIP::is_Image<DecayedT>::value and
+                        requires { TinyDIP::replace(std::forward<DataT>(data), target_val, new_val); }
+                    )
+                    {
+                        return TinyDIP::replace(std::forward<DataT>(data), target_val, new_val);
+                    }
+                    else if constexpr (
+                        std::ranges::input_range<DecayedT> and
+                        requires(DecayedT& r) { std::ranges::replace(r, target_val, new_val); }
+                    )
+                    {
+                        DecayedT result = data;
+                        std::ranges::replace(result, target_val, new_val);
+                        return result;
+                    }
+                    else
+                    {
+                        throw std::invalid_argument("Input type does not support sequential replacement.");
+                    }
+                };
+
+                auto exec_policy = [&]<typename ExecPolicy>(ExecPolicy&& exec_policy) -> std::any
+                    requires std::is_execution_policy_v<std::remove_cvref_t<ExecPolicy>>
+                {
+                    if constexpr (
+                        TinyDIP::is_Image<DecayedT>::value and
+                        requires { TinyDIP::replace(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), target_val, new_val); }
+                    )
+                    {
+                        return TinyDIP::replace(
+                            std::forward<ExecPolicy>(exec_policy),
+                            std::forward<DataT>(data),
+                            target_val,
+                            new_val
+                        );
+                    }
+                    else if constexpr (
+                        std::ranges::input_range<DecayedT> and
+                        requires(DecayedT& r)
+                        {
+                            std::replace(
+                                std::forward<ExecPolicy>(exec_policy),
+                                std::ranges::begin(r),
+                                std::ranges::end(r),
+                                target_val,
+                                new_val
+                            );
+                        }
+                    )
+                    {
+                        DecayedT result = data;
+                        std::replace(
+                            std::forward<ExecPolicy>(exec_policy),
+                            std::ranges::begin(result),
+                            std::ranges::end(result),
+                            target_val,
+                            new_val
+                        );
+                        return result;
+                    }
+                    else
+                    {
+                        throw std::invalid_argument(
+                            "Input type does not support execution-policy multi-threaded replacement."
+                        );
+                    }
+                };
+
+                std::any result = dispatch_policy_string(policy_str, exec_policy, exec_default, os);
+                if (result.has_value())
+                {
+                    // Output type is guaranteed to be DecayedT; no O(N) lookup needed
+                    image_saver_fun(output_arg, workspace, std::move(std::any_cast<DecayedT&>(result)));
+                    std::print(os, "Saved to {}\n", output_arg);
                 }
             }
         };
 
-        if (!dispatch_data_operation<master_data_types>(input_arg, workspace, image_loader_fun, process_input))
+        if (not dispatch_data_operation<CheckingDataTypes>(input_arg, workspace, image_loader_fun, process_input))
         {
-            std::print(os, "Error: Memory variable not found or unsupported type for input: {}\n", input_arg);
+            // Throw std::invalid_argument so CommandRegistry::execute advances to the next handler in the chain
+            throw std::invalid_argument(
+                std::string("Input '") + std::string(input_arg) +
+                "' is not handled by this type slice."
+            );
         }
     }
 }
