@@ -2030,6 +2030,48 @@ namespace TinyDIP
         }
     }
 
+    //  to_vector template function implementation (with Execution Policy)
+    template<
+        typename TargetElementT = void,
+        class ExecutionPolicy,
+        std::ranges::forward_range RangeT,
+        typename Proj = DefaultProjection<TargetElementT>
+    >
+    requires (
+        std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>> and
+        std::regular_invocable<Proj, std::ranges::range_reference_t<const RangeT>>
+    )
+    constexpr static auto to_vector(
+        ExecutionPolicy&& execution_policy,
+        const RangeT& input_range,
+        const Proj proj = Proj{}
+    )
+    {
+        using RawResultT = std::invoke_result_t<
+            Proj,
+            std::ranges::range_reference_t<const RangeT>
+        >;
+        using ValueT = std::remove_cvref_t<RawResultT>;
+
+        const auto count = static_cast<std::size_t>(
+            std::ranges::distance(input_range)
+        );
+        std::vector<ValueT> output(count);
+
+        std::transform(
+            std::forward<ExecutionPolicy>(execution_policy),
+            std::ranges::cbegin(input_range),
+            std::ranges::cend(input_range),
+            std::ranges::begin(output),
+            [&proj](const auto& element)
+            {
+                return std::invoke(proj, element);
+            }
+        );
+
+        return output;
+    }
+
     template<std::size_t dim, std::size_t times, class T>
     constexpr auto n_dim_array_generator(T input)
     {
