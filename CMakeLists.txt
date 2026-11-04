@@ -682,6 +682,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_bicubic_resize
         plugin_constructRGB
         plugin_copy
+        plugin_count
         plugin_create_container
         plugin_dct2
         plugin_dct3
