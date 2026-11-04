@@ -2041,6 +2041,17 @@ namespace TinyDIP
         return output;
     }
 
+    // Default functor struct with call operator achieving maximum precision
+    struct DefaultPixelwiseSumOp
+    {
+        template<arithmetic... Ts>
+        requires (sizeof...(Ts) >= 1)
+        constexpr long double operator()(const Ts&... values) const noexcept
+        {
+            return (static_cast<long double>(values) + ...);
+        }
+    };
+
     //  pixelwise_transform template function implementation
     template<std::size_t unwrap_level = 1, class... Args>
     requires(is_Image<Args>::value && ...)
