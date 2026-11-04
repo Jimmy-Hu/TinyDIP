@@ -2052,6 +2052,55 @@ namespace TinyDIP
         }
     };
 
+    namespace detail
+    {
+        template<
+            std::ranges::random_access_range OutRange,
+            std::copy_constructible PixelOp = DefaultPixelwiseSumOp,
+            std::ranges::random_access_range FirstRange,
+            std::ranges::random_access_range... RestRanges
+        >
+        requires (
+            std::ranges::sized_range<OutRange> and
+            std::ranges::sized_range<FirstRange> and
+            (std::ranges::sized_range<RestRanges> and ...) and
+            std::regular_invocable<
+                const PixelOp&,
+                std::ranges::range_reference_t<const FirstRange>,
+                std::ranges::range_reference_t<const RestRanges>...
+            > and
+            std::indirectly_writable<
+                std::ranges::iterator_t<OutRange>,
+                std::invoke_result_t<
+                    const PixelOp&,
+                    std::ranges::range_reference_t<const FirstRange>,
+                    std::ranges::range_reference_t<const RestRanges>...
+                >
+            >
+        )
+        void pixelwise_transform_omp_impl(
+            OutRange& out_range,
+            const PixelOp& op,
+            const FirstRange& first_range,
+            const RestRanges&... rest_ranges
+        )
+        {
+            const auto signed_total =
+                static_cast<std::ptrdiff_t>(std::ranges::size(out_range));
+
+            #pragma omp parallel for
+            for (std::ptrdiff_t i = 0; i < signed_total; ++i)
+            {
+                const auto idx = static_cast<std::size_t>(i);
+                out_range[idx] = std::invoke(
+                    op,
+                    first_range[idx],
+                    rest_ranges[idx]...
+                );
+            }
+        }
+    }
+
     //  pixelwise_transform template function implementation
     template<std::size_t unwrap_level = 1, class... Args>
     requires(is_Image<Args>::value && ...)
