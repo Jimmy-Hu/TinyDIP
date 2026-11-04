@@ -1946,6 +1946,60 @@ namespace TinyDIP
         }
     };
 
+    //  to_container template function implementation (Sequential)
+    //  Converts any input_range into the specified template container
+    template<
+        template<typename...> class Container,
+        typename TargetElementT = void,
+        std::ranges::input_range RangeT,
+        typename Proj = DefaultProjection<TargetElementT>
+    >
+    requires(std::regular_invocable<Proj, std::ranges::range_reference_t<const RangeT>>)
+    constexpr static auto to_container(
+        const RangeT& input_range,
+        const Proj proj = Proj{}
+    )
+    {
+        using RawResultT = std::invoke_result_t<
+            Proj,
+            std::ranges::range_reference_t<const RangeT>
+        >;
+        using ValueT = std::remove_cvref_t<RawResultT>;
+        using OutputContainerT = Container<ValueT>;
+
+        OutputContainerT output{};
+
+        if constexpr (
+            std::ranges::sized_range<const RangeT> and
+            requires(OutputContainerT& c, std::size_t n) { c.reserve(n); }
+        )
+        {
+            output.reserve(std::ranges::size(input_range));
+        }
+
+        for (const auto& element : input_range)
+        {
+            if constexpr (
+                requires(OutputContainerT& c, ValueT v) { c.emplace_back(std::move(v)); }
+            )
+            {
+                output.emplace_back(std::invoke(proj, element));
+            }
+            else if constexpr (
+                requires(OutputContainerT& c, ValueT v) { c.emplace(std::move(v)); }
+            )
+            {
+                output.emplace(std::invoke(proj, element));
+            }
+            else
+            {
+                output.insert(std::ranges::end(output), std::invoke(proj, element));
+            }
+        }
+
+        return output;
+    }
+
     template<std::size_t dim, class T>
     constexpr auto n_dim_vector_generator(T input, std::size_t times)
     {
