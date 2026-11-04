@@ -2072,6 +2072,42 @@ namespace TinyDIP
         return output;
     }
 
+    //  to_vector_openmp template function implementation
+    template<
+        typename TargetElementT = void,
+        std::ranges::random_access_range RangeT,
+        typename Proj = DefaultProjection<TargetElementT>
+    >
+    requires (
+        std::ranges::sized_range<const RangeT> and
+        std::regular_invocable<Proj, std::ranges::range_reference_t<const RangeT>>
+    )
+    static auto to_vector_openmp(
+        const RangeT& input_range,
+        const Proj proj = Proj{}
+    )
+    {
+        using RawResultT = std::invoke_result_t<
+            Proj,
+            std::ranges::range_reference_t<const RangeT>
+        >;
+        using ValueT = std::remove_cvref_t<RawResultT>;
+
+        const auto count = static_cast<std::ptrdiff_t>(
+            std::ranges::size(input_range)
+        );
+        std::vector<ValueT> output(static_cast<std::size_t>(count));
+        const auto begin_it = std::ranges::cbegin(input_range);
+
+        #pragma omp parallel for
+        for (std::ptrdiff_t i = 0; i < count; ++i)
+        {
+            output[static_cast<std::size_t>(i)] = std::invoke(proj, *(begin_it + i));
+        }
+
+        return output;
+    }
+
     template<std::size_t dim, std::size_t times, class T>
     constexpr auto n_dim_array_generator(T input)
     {
