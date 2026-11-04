@@ -19,6 +19,16 @@ namespace handlers
         using type = ElemT;
     };
 
+    template <std::ranges::input_range RangeT>
+    requires (not TinyDIP::is_Image<RangeT>::value)
+    struct extract_container_element<RangeT>
+    {
+        using type = std::ranges::range_value_t<RangeT>;
+    };
+
+    template <typename T>
+    using extract_container_element_t = typename extract_container_element<std::remove_cvref_t<T>>::type;
+
     //  replace template function implementation
     template <
         std::ranges::input_range RangeT,
