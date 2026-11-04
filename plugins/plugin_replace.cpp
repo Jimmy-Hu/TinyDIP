@@ -13,6 +13,12 @@ namespace handlers
         using type = TinyDIP::get_deep_scalar_t<T>;
     };
 
+    template <typename ElemT>
+    struct extract_container_element<TinyDIP::Image<ElemT>>
+    {
+        using type = ElemT;
+    };
+
     //  replace template function implementation
     template <
         std::ranges::input_range RangeT,
