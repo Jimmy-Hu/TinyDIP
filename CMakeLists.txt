@@ -78,6 +78,7 @@ if(ENABLE_CUDA)
     # === ADDED: Explicitly set the CUDA compiler (nvcc) path ===
     # Define a list of potential nvcc paths in descending order of preference
     set(POTENTIAL_NVCC_PATHS
+        "/usr/local/cuda-13.5/bin/nvcc"
         "/usr/local/cuda-13.4/bin/nvcc"
         "/usr/local/cuda-13.3/bin/nvcc"
         "/usr/local/cuda-13.2/bin/nvcc"
