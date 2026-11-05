@@ -2123,6 +2123,21 @@ namespace TinyDIP
         return to_container<std::deque, TargetElementT>(input_range, proj);
     }
 
+    //  to_list template function implementation
+    template<
+        typename TargetElementT = void,
+        std::ranges::input_range RangeT,
+        typename Proj = DefaultProjection<TargetElementT>
+    >
+    requires(std::regular_invocable<Proj, std::ranges::range_reference_t<const RangeT>>)
+    constexpr static auto to_list(
+        const RangeT& input_range,
+        const Proj proj = Proj{}
+    )
+    {
+        return to_container<std::list, TargetElementT>(input_range, proj);
+    }
+
     template<std::size_t dim, std::size_t times, class T>
     constexpr auto n_dim_array_generator(T input)
     {
