@@ -3876,17 +3876,19 @@ namespace TinyDIP
         Formatter& operator = (Formatter&);
     };
 
-    //  to_map template function implementation
-    //  Converts a std::multimap to a std::map, preserving only the first inserted value for each key,
-    //  while inheriting the original comparator and allocator.
-    template <typename Key, typename T, typename Compare, typename Allocator>
+    //  to_map template function implementation (from std::multimap)
+    //  Converts a std::multimap to a std::map, preserving the first inserted value
+    //  for each key along with the original comparator and allocator.
+    template<typename Key, typename T, typename Compare, typename Allocator>
     requires(std::strict_weak_order<Compare, Key, Key>)
-    static auto to_map(const std::multimap<Key, T, Compare, Allocator>& multi_map)
+    constexpr static auto to_map(
+        const std::multimap<Key, T, Compare, Allocator>& multi_map
+    )
     {
         return std::map<Key, T, Compare, Allocator>(
-            std::ranges::cbegin(multi_map), 
-            std::ranges::cend(multi_map), 
-            multi_map.key_comp(), 
+            std::ranges::cbegin(multi_map),
+            std::ranges::cend(multi_map),
+            multi_map.key_comp(),
             multi_map.get_allocator()
         );
     }
