@@ -60,7 +60,7 @@ namespace handlers
                     {
                         if constexpr (TinyDIP::is_Image<DecayedT>::value && requires { TinyDIP::count(std::forward<DataT>(data), std::forward<TargetT>(target_val)); })
                         {
-                            return TinyDIP::count(std::forward<DataT>(data), std::forward<TargetT>(target_val));
+                            return static_cast<std::size_t>(TinyDIP::count(std::forward<DataT>(data), std::forward<TargetT>(target_val)));
                         }
                         else if constexpr (std::ranges::input_range<DecayedT> && requires { std::ranges::count(std::forward<DataT>(data), std::forward<TargetT>(target_val)); })
                         {
@@ -78,7 +78,7 @@ namespace handlers
                     {
                         if constexpr (TinyDIP::is_Image<DecayedT>::value && requires { TinyDIP::count(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), std::forward<TargetT>(target_val)); })
                         {
-                            return TinyDIP::count(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), std::forward<TargetT>(target_val));
+                            return static_cast<std::size_t>(TinyDIP::count(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data), std::forward<TargetT>(target_val)));
                         }
                         else if constexpr (std::ranges::input_range<DecayedT> && requires { std::count(std::forward<ExecPolicy>(exec_policy), std::ranges::begin(data), std::ranges::end(data), std::forward<TargetT>(target_val)); })
                         {
