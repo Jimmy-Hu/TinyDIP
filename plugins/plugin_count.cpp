@@ -23,7 +23,7 @@ namespace handlers
         ImageLoaderFun&& image_loader_fun = ImageLoaderFun{})
     {
         const std::string_view policy_str = extract_policy_string(args);
-        const auto filtered_args = args_filter(args);
+        const auto filtered_args = merge_braced_args(args);
 
         if (std::ranges::size(filtered_args) < 2)
         {
@@ -33,7 +33,7 @@ namespace handlers
 
         const std::string_view input_arg = filtered_args[0];
         const std::string_view target_arg = filtered_args[1];
-        const std::string_view output_arg = std::ranges::size(filtered_args) > 2 ? filtered_args[2] : "";
+        const std::string_view output_arg = std::ranges::size(filtered_args) > 2 ? std::string_view(filtered_args[2]) : std::string_view{};
 
         std::print(os, "Counting occurrences of {} in {}", target_arg, input_arg);
         if (!std::ranges::empty(policy_str))
@@ -46,8 +46,8 @@ namespace handlers
         {
             using DecayedT = std::remove_cvref_t<DataT>;
             
-            // Extract the deep mathematical scalar natively avoiding template evaluation ambiguity
-            using ElementT = TinyDIP::get_deep_scalar_t<DecayedT>;
+            // Extract the direct pixel/element type (e.g. TinyDIP::RGB, MultiChannel, or fundamental scalar)
+            using ElementT = TinyDIP::get_element_type_t<DecayedT>;
 
             auto execute_count = [&]<typename TargetT>(TargetT&& target_val)
             {
