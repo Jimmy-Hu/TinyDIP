@@ -45,6 +45,10 @@
 #include "image_operations.h"
 #include "timer.h"
 
+template <typename T> struct is_std_complex : std::false_type {};
+template <typename T> struct is_std_complex<std::complex<T>> : std::true_type {};
+template <typename T> inline constexpr bool is_std_complex_v = is_std_complex<std::remove_cvref_t<T>>::value;
+
 //  sanitize_string_view function implementation
 //  Helper for safely sanitizing cross-platform path strings and REPL tokens natively with zero allocations
 constexpr std::string_view sanitize_string_view(std::string_view sv)
