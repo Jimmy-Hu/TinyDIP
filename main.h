@@ -77,23 +77,27 @@ constexpr bool iequals(const std::string_view a, const std::string_view b)
 }
 
 //  parse_arg template function implementation
-//  Helper for converting string_view to numeric types safely using std::from_chars (C++17 High Performance)
+//  Helper for converting string_view to numeric or multi-channel types safely using std::from_chars (C++17/C++20 High Performance)
 template <typename T>
 T parse_arg(const std::string_view sv)
 {
     const std::string_view clean_sv = sanitize_string_view(sv);
     T result{};
-    
-    // Explicitly intercept bool since std::is_arithmetic_v<bool> is true, 
-    // but std::from_chars absolutely does NOT support boolean types!
     if constexpr (std::same_as<T, bool>)
     {
-        if (clean_sv == "1" || iequals(clean_sv, "true")) return true;
-        if (clean_sv == "0" || iequals(clean_sv, "false")) return false;
-        
-        throw std::invalid_argument(std::string("Error parsing boolean argument: ") + std::string(clean_sv));
+        if (clean_sv == "1" || iequals(clean_sv, "true"))
+        {
+            return true;
+        }
+        else if (clean_sv == "0" || iequals(clean_sv, "false"))
+        {
+            return false;
+        }
+        else
+        {
+            throw std::invalid_argument(std::string("Error parsing boolean argument (expected true/false/1/0): ") + std::string(clean_sv));
+        }
     }
-    // High-performance numeric parsing for ints, floats, doubles
     else if constexpr (std::is_arithmetic_v<T>)
     {
         auto [ptr, ec] = std::from_chars(clean_sv.data(), clean_sv.data() + std::ranges::size(clean_sv), result);
@@ -102,7 +106,83 @@ T parse_arg(const std::string_view sv)
             throw std::invalid_argument(std::string("Error parsing argument: ") + std::string(clean_sv));
         }
     }
-    // Fallback for objects that natively support stream extraction via C++20 concepts
+    else if constexpr (requires { result.channels[0]; std::ranges::size(result.channels); })
+    {
+        using ChannelT = std::remove_cvref_t<decltype(result.channels[0])>;
+        if constexpr (std::is_arithmetic_v<ChannelT>)
+        {
+            constexpr std::size_t num_channels = std::ranges::size(result.channels);
+
+            std::string_view inner_sv = clean_sv;
+            if (inner_sv.starts_with('{') && inner_sv.ends_with('}'))
+            {
+                inner_sv = sanitize_string_view(inner_sv.substr(1, inner_sv.size() - 2));
+            }
+
+            std::size_t channel_idx = 0;
+            for (const auto part : std::views::split(inner_sv, ','))
+            {
+                if (channel_idx >= num_channels)
+                {
+                    throw std::invalid_argument(std::string("Too many channel values in argument: ") + std::string(clean_sv));
+                }
+                const std::string_view token(std::ranges::begin(part), std::ranges::end(part));
+                result.channels[channel_idx] = parse_arg<ChannelT>(token);
+                ++channel_idx;
+            }
+
+            if (channel_idx != num_channels)
+            {
+                throw std::invalid_argument(std::string("Incomplete channel values in argument (expected ") + std::to_string(num_channels) + "): " + std::string(clean_sv));
+            }
+        }
+        else
+        {
+            throw std::invalid_argument("Parsing raw string literals into this non-arithmetic multi-channel data type is unsupported. Please use a memory variable ($var) instead.");
+        }
+    }
+    else if constexpr (is_std_complex_v<T>)
+    {
+        using ValueT = typename T::value_type;
+        if constexpr (std::is_arithmetic_v<ValueT>)
+        {
+            std::string_view inner_sv = clean_sv;
+            if (inner_sv.starts_with('{') && inner_sv.ends_with('}'))
+            {
+                inner_sv = sanitize_string_view(inner_sv.substr(1, inner_sv.size() - 2));
+            }
+
+            std::array<ValueT, 2> parts{};
+            std::size_t idx = 0;
+            for (const auto part : std::views::split(inner_sv, ','))
+            {
+                if (idx >= 2)
+                {
+                    throw std::invalid_argument(std::string("Too many complex components in argument: ") + std::string(clean_sv));
+                }
+                const std::string_view token(std::ranges::begin(part), std::ranges::end(part));
+                parts[idx] = parse_arg<ValueT>(token);
+                ++idx;
+            }
+
+            if (idx == 1)
+            {
+                result = T(parts[0], ValueT{});
+            }
+            else if (idx == 2)
+            {
+                result = T(parts[0], parts[1]);
+            }
+            else
+            {
+                throw std::invalid_argument(std::string("Error parsing complex argument: ") + std::string(clean_sv));
+            }
+        }
+        else
+        {
+            throw std::invalid_argument("Parsing raw string literals into this complex data type is unsupported. Please use a memory variable ($var) instead.");
+        }
+    }
     else if constexpr (requires(std::stringstream& stream) { stream >> result; })
     {
         std::string temp(clean_sv);
@@ -112,12 +192,10 @@ T parse_arg(const std::string_view sv)
             throw std::invalid_argument(std::string("Error parsing argument: ") + temp);
         }
     }
-    // Compile-time firewall for complex abstract types (e.g. TinyDIP::RGB)
     else
     {
-        throw std::invalid_argument(std::string("Parsing raw string literals into this complex data type is unsupported. Please use a memory variable ($var) instead."));
+        throw std::invalid_argument("Parsing raw string literals into this complex data type is unsupported. Please use a memory variable ($var) instead.");
     }
-    
     return result;
 }
 
