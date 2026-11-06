@@ -198,6 +198,16 @@ namespace TinyDIP
 
     template <typename T> using get_deep_scalar_t = typename get_deep_scalar<std::remove_cvref_t<T>>::type;
 
+    //  Direct Element Type Detection Trait (preserves MultiChannel, RGB, and std::complex pixel types)
+    template <typename T> struct get_element_type { using type = std::remove_cvref_t<T>; };
+    template <typename T> struct get_element_type<TinyDIP::Image<T>> { using type = T; };
+    template <typename T, typename A> struct get_element_type<std::vector<T, A>> { using type = T; };
+    template <typename T, typename A> struct get_element_type<std::deque<T, A>> { using type = T; };
+    template <typename T, typename A> struct get_element_type<std::list<T, A>> { using type = T; };
+    template <typename T, std::size_t N> struct get_element_type<std::array<T, N>> { using type = T; };
+
+    template <typename T> using get_element_type_t = typename get_element_type<std::remove_cvref_t<T>>::type;
+
     //  complex_or_floating_point concept implementation
     template <typename T>
     concept complex_or_floating_point =
