@@ -3892,6 +3892,33 @@ namespace TinyDIP
             multi_map.get_allocator()
         );
     }
+
+    //  to_map template function implementation (from generic key-value range)
+    //  Converts any non-associative input_range of pair-like elements into a std::map
+    template<
+        std::ranges::input_range RangeT,
+        typename ElementT = std::remove_cvref_t<std::ranges::range_value_t<RangeT>>,
+        typename Key = std::remove_const_t<typename ElementT::first_type>,
+        typename T = typename ElementT::second_type,
+        typename Compare = std::less<Key>
+    >
+    requires (
+        (not requires { typename std::remove_cvref_t<RangeT>::key_compare; }) and
+        requires(const ElementT& e) { e.first; e.second; } and
+        std::strict_weak_order<Compare, Key, Key>
+    )
+    constexpr static auto to_map(
+        const RangeT& input_range,
+        const Compare comp = Compare{}
+    )
+    {
+        std::map<Key, T, Compare> output(comp);
+        for (const auto& element : input_range)
+        {
+            output.emplace(element.first, element.second);
+        }
+        return output;
+    }
 }
 
 #endif
