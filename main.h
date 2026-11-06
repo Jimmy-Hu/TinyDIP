@@ -76,6 +76,57 @@ constexpr bool iequals(const std::string_view a, const std::string_view b)
         });
 }
 
+//  Helper to reassemble brace-enclosed multi-channel tokens (e.g., "{0,", "0,", "0}" -> "{0, 0, 0}")
+template <std::ranges::input_range RangeT>
+requires (std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string_view> or
+          std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string> or
+          std::convertible_to<std::ranges::range_value_t<RangeT>, std::string_view> or
+          std::convertible_to<std::ranges::range_value_t<RangeT>, std::string>)
+constexpr std::vector<std::string> merge_braced_args(const RangeT& args)
+{
+    const auto raw_filtered = args_filter(args);
+    std::vector<std::string> merged_args;
+    merged_args.reserve(std::ranges::size(raw_filtered));
+
+    bool in_braces = false;
+    std::string current_braced;
+
+    for (const auto& sv : raw_filtered)
+    {
+        const std::string_view clean_tok = sanitize_string_view(sv);
+        if (!in_braces)
+        {
+            if (clean_tok.starts_with('{') && !clean_tok.ends_with('}'))
+            {
+                in_braces = true;
+                current_braced = std::string(clean_tok);
+            }
+            else
+            {
+                merged_args.emplace_back(clean_tok);
+            }
+        }
+        else
+        {
+            current_braced += " ";
+            current_braced += std::string(clean_tok);
+            if (clean_tok.ends_with('}'))
+            {
+                in_braces = false;
+                merged_args.emplace_back(std::move(current_braced));
+                current_braced.clear();
+            }
+        }
+    }
+
+    if (in_braces && !current_braced.empty())
+    {
+        merged_args.emplace_back(std::move(current_braced));
+    }
+
+    return merged_args;
+}
+
 //  parse_arg template function implementation
 //  Helper for converting string_view to numeric or multi-channel types safely using std::from_chars (C++17/C++20 High Performance)
 template <typename T>
