@@ -2055,6 +2055,40 @@ namespace TinyDIP
 
     namespace detail
     {
+
+        template<
+            std::size_t unwrap_level,
+            typename PixelOp,
+            typename FirstElementT,
+            typename... RestElementTs
+        >
+        concept valid_pixelwise_op =
+            (unwrap_level >= 1) and
+            ((unwrap_level - 1) <= recursive_depth<FirstElementT, RestElementTs...>()) and
+            recursive_regular_invocable<
+                unwrap_level - 1,
+                PixelOp,
+                FirstElementT,
+                RestElementTs...
+            > and
+            requires
+            {
+                typename recursive_variadic_invoke_result_t<
+                    unwrap_level - 1,
+                    PixelOp,
+                    FirstElementT,
+                    RestElementTs...
+                >;
+            } and
+            (not std::is_void_v<
+                recursive_variadic_invoke_result_t<
+                    unwrap_level - 1,
+                    PixelOp,
+                    FirstElementT,
+                    RestElementTs...
+                >
+            >);
+
         template<
             std::ranges::random_access_range OutRange,
             std::copy_constructible PixelOp = DefaultPixelwiseSumOp<>,
