@@ -340,7 +340,10 @@ namespace TinyDIP
     >
     struct rebind_container<Container<OldType, RestArgs...>, NewType>
     {
-        using type = Container<NewType>;
+        using type = Container<
+            NewType,
+            typename rebind_container_arg<RestArgs, OldType, NewType>::type...
+        >;
     };
 
     //  Specialization for fixed-size NTTP containers
