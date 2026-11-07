@@ -307,6 +307,24 @@ namespace TinyDIP
         recursive_invocable<unwrap_level, F, Args...> and
         std::regular_invocable<F, recursive_unwrap_type_t<unwrap_level, Args>...>;
     
+    // Helper trait to rebind allocator or dependent arguments inside RestArgs...
+    template<typename Arg, typename OldType, typename NewType>
+    struct rebind_container_arg
+    {
+        using type = Arg;
+    };
+
+    template<typename Alloc, typename OldType, typename NewType>
+    requires requires
+    {
+        typename std::allocator_traits<Alloc>::template rebind_alloc<NewType>;
+    }
+    struct rebind_container_arg<Alloc, OldType, NewType>
+    {
+        using type =
+            typename std::allocator_traits<Alloc>::template rebind_alloc<NewType>;
+    };
+
     //  rebind_container struct implementation
     //  Replaces the value_type of a container while preserving its outer template structure
     template<typename Container, typename NewType>
