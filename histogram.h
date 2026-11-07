@@ -24,6 +24,8 @@ namespace TinyDIP
         static constexpr bool is_dense = (std::same_as<ElementT, std::uint8_t>) or
                                          (std::same_as<ElementT, std::uint16_t>);
     public:
+        static constexpr bool is_dense_v = is_dense;
+
         // Histogram constructor
         // Explicitly initialize based on ElementT type
         Histogram()
