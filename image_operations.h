@@ -2057,7 +2057,7 @@ namespace TinyDIP
     {
         template<
             std::ranges::random_access_range OutRange,
-            std::copy_constructible PixelOp = DefaultPixelwiseSumOp,
+            std::copy_constructible PixelOp = DefaultPixelwiseSumOp<>,
             std::ranges::random_access_range FirstRange,
             std::ranges::random_access_range... RestRanges
         >
