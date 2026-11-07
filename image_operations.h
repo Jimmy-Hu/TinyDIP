@@ -2090,6 +2090,7 @@ namespace TinyDIP
             >);
 
         template<
+            std::size_t unwrap_level = 1,
             std::ranges::random_access_range OutRange,
             std::copy_constructible PixelOp = DefaultPixelwiseSumOp<>,
             std::ranges::random_access_range FirstRange,
@@ -2099,18 +2100,11 @@ namespace TinyDIP
             std::ranges::sized_range<OutRange> and
             std::ranges::sized_range<FirstRange> and
             (std::ranges::sized_range<RestRanges> and ...) and
-            std::regular_invocable<
-                const PixelOp&,
-                std::ranges::range_reference_t<const FirstRange>,
-                std::ranges::range_reference_t<const RestRanges>...
-            > and
-            std::indirectly_writable<
-                std::ranges::iterator_t<OutRange>,
-                std::invoke_result_t<
-                    const PixelOp&,
-                    std::ranges::range_reference_t<const FirstRange>,
-                    std::ranges::range_reference_t<const RestRanges>...
-                >
+            valid_pixelwise_op<
+                unwrap_level,
+                PixelOp,
+                std::remove_cvref_t<std::ranges::range_value_t<FirstRange>>,
+                std::remove_cvref_t<std::ranges::range_value_t<RestRanges>>...
             >
         )
         void pixelwise_transform_omp_impl(
@@ -2127,7 +2121,7 @@ namespace TinyDIP
             for (std::ptrdiff_t i = 0; i < signed_total; ++i)
             {
                 const auto idx = static_cast<std::size_t>(i);
-                out_range[idx] = std::invoke(
+                out_range[idx] = recursive_transform<unwrap_level - 1>(
                     op,
                     first_range[idx],
                     rest_ranges[idx]...
