@@ -376,6 +376,13 @@ using image_t = TinyDIP::Image<T>;
 template <typename T>
 using gaussian_params_t = TinyDIP::GaussianParameters2D<T>;
 
+// Helper aliases to bridge TinyDIP::Histogram for tuple mapping
+template <typename T>
+using histogram_t = TinyDIP::Histogram<T, std::size_t>;
+
+template <typename T>
+using histogram_prob_t = TinyDIP::Histogram<T, double>;
+
 // Exhaustive Derived Type Auto-Generation
 using all_multichannel_types = tuple_map_t<multichannel_t, core_numeric_types>;
 using all_complex_types = tuple_map_t<std::complex, core_floating_point_types>;
