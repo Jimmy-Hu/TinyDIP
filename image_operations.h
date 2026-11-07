@@ -2042,13 +2042,14 @@ namespace TinyDIP
     }
 
     // Default functor struct with call operator achieving maximum precision
+    template<arithmetic OutputT = long double>
     struct DefaultPixelwiseSumOp
     {
         template<arithmetic... Ts>
         requires (sizeof...(Ts) >= 1)
-        constexpr long double operator()(const Ts&... values) const noexcept
+        constexpr OutputT operator()(const Ts&... values) const noexcept
         {
-            return (static_cast<long double>(values) + ...);
+            return (static_cast<OutputT>(values) + ...);
         }
     };
 
