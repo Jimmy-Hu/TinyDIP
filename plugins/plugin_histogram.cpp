@@ -44,7 +44,7 @@ namespace handlers
         auto process_input = [&]<typename DataT>(DataT&& input_img)
         {
             using DecayedT = std::remove_cvref_t<DataT>;
-            using ElementT = get_element_type_t<DecayedT>;
+            using ElementT = TinyDIP::get_element_type_t<DecayedT>;
 
             if constexpr (TinyDIP::is_Image<DecayedT>::value)
             {
