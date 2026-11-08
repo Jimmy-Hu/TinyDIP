@@ -25,6 +25,9 @@ namespace TinyDIP
         requires std::totally_ordered<std::remove_cvref_t<decltype(a.channels[0])>>;
     };
 
+    template<class T>
+    concept histogram_element = std::totally_ordered<T> || multi_channel_totally_ordered<T>;
+
     template<class ElementT, class CountT = std::size_t>
     requires(std::totally_ordered<ElementT>)
     class Histogram
