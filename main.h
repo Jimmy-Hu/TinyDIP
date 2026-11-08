@@ -721,6 +721,20 @@ struct Workspace
             {
                 // Handled successfully by try_print_image_container short-circuit logic
             }
+            else if (match_any_type<master_histogram_types>([&]<typename T>() -> bool
+            {
+                if (value.type() == typeid(T))
+                {
+                    print_prefix.template operator()<T>();
+                    const auto* hist_ptr = std::any_cast<T>(&value);
+                    std::print(os, ", bins = {}, total count = {}", hist_ptr->size(), hist_ptr->getCountSum());
+                    return true;
+                }
+                return false;
+            }))
+            {
+                // Handled successfully by master_histogram_types short-circuit logic
+            }
             else if (match_any_type<complex_scalar_types_for_printing>(try_print_complex_scalar))
             {
                 // Handled successfully by try_print_complex_scalar short-circuit logic
