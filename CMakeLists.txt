@@ -696,6 +696,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_getRplane
         plugin_get_sift_potential_keypoint
         plugin_grid
+        plugin_histogram
         plugin_hsv2rgb
         plugin_idct2
         plugin_im2double
