@@ -28,6 +28,24 @@ namespace TinyDIP
     template<class T>
     concept histogram_element = std::totally_ordered<T> || multi_channel_totally_ordered<T>;
 
+    // Comparator supporting both scalar totally_ordered types and multi-channel pixel types
+    template<class ElementT>
+    requires histogram_element<ElementT>
+    struct HistogramKeyLess
+    {
+        constexpr bool operator()(const ElementT& a, const ElementT& b) const noexcept
+        {
+            if constexpr (std::totally_ordered<ElementT>)
+            {
+                return a < b;
+            }
+            else if constexpr (multi_channel_totally_ordered<ElementT>)
+            {
+                return std::ranges::lexicographical_compare(a.channels, b.channels);
+            }
+        }
+    };
+
     template<class ElementT, class CountT = std::size_t>
     requires(histogram_element<ElementT>)
     class Histogram
