@@ -48,7 +48,7 @@ namespace handlers
 
             if constexpr (TinyDIP::is_Image<DecayedT>::value)
             {
-                if constexpr (std::totally_ordered<ElementT>)
+                if constexpr (TinyDIP::histogram_element<ElementT>)
                 {
                     try
                     {
@@ -93,6 +93,27 @@ namespace handlers
                                         {
                                             std::print(os, "  [{}] : {}\n", +key, c);
                                         }
+                                        else if constexpr (requires { key.channels[0]; std::ranges::size(key.channels); })
+                                        {
+                                            std::print(os, "  [{{");
+                                            for (std::size_t ch = 0; ch < std::ranges::size(key.channels); ++ch)
+                                            {
+                                                if (ch > 0)
+                                                {
+                                                    std::print(os, ", ");
+                                                }
+                                                using ChT = std::remove_cvref_t<decltype(key.channels[ch])>;
+                                                if constexpr (sizeof(ChT) == 1 && std::is_integral_v<ChT>)
+                                                {
+                                                    std::print(os, "{}", +key.channels[ch]);
+                                                }
+                                                else
+                                                {
+                                                    std::print(os, "{}", key.channels[ch]);
+                                                }
+                                            }
+                                            std::print(os, "}}] : {}\n", c);
+                                        }
                                         else
                                         {
                                             std::print(os, "  [{}] : {}\n", key, c);
@@ -111,7 +132,7 @@ namespace handlers
                 }
                 else
                 {
-                    std::print(os, "Error: Image element type [{}] does not support ordering (<) required for Histogram. Please use a single-channel numeric image.\n", get_type_name<ElementT>());
+                    std::print(os, "Error: Image element type [{}] does not support ordering (<) required for Histogram.\n", get_type_name<ElementT>());
                 }
             }
             else
