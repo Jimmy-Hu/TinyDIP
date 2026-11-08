@@ -393,8 +393,13 @@ using all_list_types = tuple_map_t<std::list, core_numeric_types>;
 using all_array_types = generate_arrays_t<core_numeric_types, 3, 4>;
 using all_custom_scalar_types = std::tuple<TinyDIP::RGB, TinyDIP::RGB_DOUBLE, TinyDIP::HSV>;
 using all_gaussian_params_types = tuple_map_t<gaussian_params_t, core_floating_point_types>;
-using all_histogram_types = tuple_map_t<histogram_t, core_numeric_types>;
-using all_histogram_prob_types = tuple_map_t<histogram_prob_t, core_numeric_types>;
+using histogram_capable_types = tuple_cat_t<
+    core_numeric_types,
+    all_custom_scalar_types,
+    all_multichannel_types
+>;
+using all_histogram_types = tuple_map_t<histogram_t, histogram_capable_types>;
+using all_histogram_prob_types = tuple_map_t<histogram_prob_t, histogram_capable_types>;
 
 using master_histogram_types = tuple_cat_t<
     all_histogram_types,
