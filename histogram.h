@@ -33,7 +33,8 @@ namespace TinyDIP
         {
             if constexpr (is_dense)
             {
-                histogram.template emplace<std::vector<CountT>>(std::numeric_limits<ElementT>::max() + 1, 0);
+                histogram.template emplace<std::vector<CountT>>(
+                    static_cast<std::size_t>(std::numeric_limits<ElementT>::max()) + 1, CountT{0});
             }
             else
             {
@@ -51,12 +52,13 @@ namespace TinyDIP
             histogram = input;
         }
 
-        //  Histogram constructor
+        //  Histogram constructor from Image
         Histogram(const Image<ElementT>& input)
         {
             if constexpr (is_dense)
             {
-                histogram.template emplace<std::vector<CountT>>(std::numeric_limits<ElementT>::max() + 1, 0);
+                histogram.template emplace<std::vector<CountT>>(
+                    static_cast<std::size_t>(std::numeric_limits<ElementT>::max()) + 1, CountT{0});
             }
             else
             {
@@ -74,7 +76,7 @@ namespace TinyDIP
         {
             if constexpr (is_dense)
             {
-                return std::get<std::vector<CountT>>(histogram).at(input);
+                return std::get<std::vector<CountT>>(histogram).at(static_cast<std::size_t>(input));
             }
             else
             {
@@ -150,7 +152,7 @@ namespace TinyDIP
             auto count_sum = static_cast<ProbabilityType>(getCountSum(std::forward<ExecutionPolicy>(execution_policy)));
             if constexpr (is_dense)
             {
-                std::vector<ProbabilityType> output(std::numeric_limits<ElementT>::max() + 1);
+                std::vector<ProbabilityType> output(static_cast<std::size_t>(std::numeric_limits<ElementT>::max()) + 1);
                 const auto& get_result = std::get<std::vector<CountT>>(histogram);
                 for (std::size_t i = 0; i < get_result.size(); ++i)
                 {
@@ -201,8 +203,8 @@ namespace TinyDIP
             std::vector<FloatingType> probabilities;
             if constexpr (is_dense)
             {
-                probabilities.resize(std::numeric_limits<ElementT>::max() + 1);
-                std::size_t total_count = getCountSum(std::forward<ExecutionPolicy>(execution_policy));
+                probabilities.resize(static_cast<std::size_t>(std::numeric_limits<ElementT>::max()) + 1);
+                auto total_count = getCountSum(std::forward<ExecutionPolicy>(execution_policy));
                 for (std::size_t i = 0; i < probabilities.size(); ++i)
                 {
                     probabilities[i] =
