@@ -16,6 +16,15 @@
 
 namespace TinyDIP
 {
+    // Concept checking if a multi-channel pixel struct has totally ordered channel elements
+    template<class T>
+    concept multi_channel_totally_ordered = requires(const T& a)
+    {
+        a.channels[0];
+        std::ranges::size(a.channels);
+        requires std::totally_ordered<std::remove_cvref_t<decltype(a.channels[0])>>;
+    };
+
     template<class ElementT, class CountT = std::size_t>
     requires(std::totally_ordered<ElementT>)
     class Histogram
