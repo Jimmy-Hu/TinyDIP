@@ -64,7 +64,7 @@ namespace TinyDIP
             {
                 histogram.template emplace<std::map<ElementT, CountT>>();
             }
-            auto image_data = input.getImageData();
+            const auto& image_data = input.getImageData();
             for (std::size_t i = 0; i < image_data.size(); ++i)
             {
                 addCount(image_data[i]);
@@ -80,8 +80,8 @@ namespace TinyDIP
             }
             else
             {
-                if (auto search = std::get<std::map<ElementT, CountT>>(histogram).find(input);
-                    search != std::get<std::map<ElementT, CountT>>(histogram).end())
+                const auto& map_ref = std::get<std::map<ElementT, CountT>>(histogram);
+                if (auto search = map_ref.find(input); search != map_ref.end())
                 {
                     return search->second;
                 }
@@ -109,11 +109,12 @@ namespace TinyDIP
             }
             else
             {
-                const auto& data = std::get<std::map<ElementT, CountT>>(histogram) | std::views::values;
+                const auto& map_ref = std::get<std::map<ElementT, CountT>>(histogram);
+                auto values_view = map_ref | std::views::values;
                 return std::reduce(
                     std::forward<ExecutionPolicy>(execution_policy),
-                    std::ranges::cbegin(data),
-                    std::ranges::cend(data),
+                    std::ranges::cbegin(values_view),
+                    std::ranges::cend(values_view),
                     output);
             }
         }
@@ -124,30 +125,27 @@ namespace TinyDIP
             return getCountSum(std::execution::seq);
         }
 
-        //  addCount member function
+        //  addCount member function (In-place O(1) update)
         constexpr Histogram& addCount(const ElementT& input)
         {
             if constexpr (is_dense)
             {
-                auto get_result = std::get<std::vector<CountT>>(histogram);
-                ++get_result[input];
-                histogram = get_result;
+                auto& get_result = std::get<std::vector<CountT>>(histogram);
+                ++get_result[static_cast<std::size_t>(input)];
                 return *this;
             }
             else
             {
-                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
                 ++get_result[input];
-                histogram = get_result;
                 return *this;
             }
-            
         }
 
         //  normalize Template Function Implementation with Execution Policy
         template<class ExecutionPolicy, class ProbabilityType = double>
         requires(std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>)
-        constexpr auto normalize(ExecutionPolicy&& execution_policy)
+        constexpr auto normalize(ExecutionPolicy&& execution_policy) const
         {
             auto count_sum = static_cast<ProbabilityType>(getCountSum(std::forward<ExecutionPolicy>(execution_policy)));
             if constexpr (is_dense)
@@ -156,17 +154,21 @@ namespace TinyDIP
                 const auto& get_result = std::get<std::vector<CountT>>(histogram);
                 for (std::size_t i = 0; i < get_result.size(); ++i)
                 {
-                    output[i] = static_cast<ProbabilityType>(get_result[i]) / count_sum;
+                    output[i] = (count_sum != ProbabilityType{0})
+                        ? static_cast<ProbabilityType>(get_result[i]) / count_sum
+                        : ProbabilityType{0};
                 }
                 return Histogram<ElementT, ProbabilityType>{output};
             }
             else
             {
                 std::map<ElementT, ProbabilityType> output;
-                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
                 for (const auto& [key, value] : get_result)
                 {
-                    output.emplace(key, static_cast<ProbabilityType>(value) / count_sum);
+                    output.emplace(key, (count_sum != ProbabilityType{0})
+                        ? static_cast<ProbabilityType>(value) / count_sum
+                        : ProbabilityType{0});
                 }
                 return Histogram<ElementT, ProbabilityType>{output};
             }
@@ -174,22 +176,21 @@ namespace TinyDIP
 
         //  normalize Template Function Implementation without Execution Policy
         template<class ProbabilityType = double>
-        constexpr auto normalize()
+        constexpr auto normalize() const
         {
-            return normalize<const std::execution::sequenced_policy, ProbabilityType>(std::move(std::execution::seq));
+            return normalize<const std::execution::sequenced_policy&, ProbabilityType>(std::execution::seq);
         }
-
 
         constexpr auto size() const
         {
             if constexpr (is_dense)
             {
-                auto get_result = std::get<std::vector<CountT>>(histogram);
+                const auto& get_result = std::get<std::vector<CountT>>(histogram);
                 return get_result.size();
             }
             else
             {
-                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
                 return get_result.size();
             }
         }
@@ -207,26 +208,33 @@ namespace TinyDIP
                 auto total_count = getCountSum(std::forward<ExecutionPolicy>(execution_policy));
                 for (std::size_t i = 0; i < probabilities.size(); ++i)
                 {
-                    probabilities[i] =
-                        static_cast<FloatingType>(getCount(static_cast<ElementT>(i))) /
-                        static_cast<FloatingType>(total_count);
+                    probabilities[i] = (total_count != CountT{0})
+                        ? static_cast<FloatingType>(getCount(static_cast<ElementT>(i))) / static_cast<FloatingType>(total_count)
+                        : FloatingType{0};
                 }
             }
             else
             {
-                std::vector<std::pair<ElementT, double>> probability_vector(size());
+                std::vector<std::pair<ElementT, FloatingType>> probability_vector;
+                probability_vector.reserve(size());
                 auto total_count = getCountSum(std::forward<ExecutionPolicy>(execution_policy));
                 for (const auto& [key, value] : *this)
                 {
                     probability_vector.emplace_back(
-                        { key, static_cast<FloatingType>(value) / static_cast<FloatingType>(total_count) });
+                        key,
+                        (total_count != CountT{0})
+                            ? static_cast<FloatingType>(value) / static_cast<FloatingType>(total_count)
+                            : FloatingType{0});
                 }
-                std::sort(std::forward<ExecutionPolicy>(execution_policy), probability_vector.begin(), probability_vector.end(),
-                    [&](const auto& a, const auto& b) { return a.first < b.first; });
-                probabilities.resize(probability_vector.back().first + 1, 0.0);
-                for (const auto& pair : probability_vector)
+                if (!probability_vector.empty())
                 {
-                    probabilities[pair.first] = pair.second;
+                    std::sort(std::forward<ExecutionPolicy>(execution_policy), probability_vector.begin(), probability_vector.end(),
+                        [](const auto& a, const auto& b) { return a.first < b.first; });
+                    probabilities.resize( static_cast<std::size_t>(probability_vector.back().first) + 1, FloatingType{0});
+                    for (const auto& pair : probability_vector)
+                    {
+                        probabilities[static_cast<std::size_t>(pair.first)] = pair.second;
+                    }
                 }
             }
             return probabilities;
@@ -237,115 +245,117 @@ namespace TinyDIP
         requires(std::floating_point<FloatingType>)
         constexpr std::vector<FloatingType> to_probabilities_vector() const
         {
-            return to_probabilities_vector(std::execution::seq);
+            return to_probabilities_vector<const std::execution::sequenced_policy&, FloatingType>(std::execution::seq);
         }
 
-        auto cbegin() const 
+        auto cbegin() const
         {
             if constexpr (is_dense)
             {
-                auto get_result = std::get<std::vector<CountT>>(histogram);
+                const auto& get_result = std::get<std::vector<CountT>>(histogram);
                 return get_result.cbegin();
             }
             else
             {
-                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
                 return get_result.cbegin();
             }
         }
+
         auto cend() const
         {
             if constexpr (is_dense)
             {
-                auto get_result = std::get<std::vector<CountT>>(histogram);
+                const auto& get_result = std::get<std::vector<CountT>>(histogram);
                 return get_result.cend();
             }
             else
             {
-                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
                 return get_result.cend();
             }
         }
+
         auto begin() const
         {
             if constexpr (is_dense)
             {
-                auto get_result = std::get<std::vector<CountT>>(histogram);
+                const auto& get_result = std::get<std::vector<CountT>>(histogram);
                 return get_result.cbegin();
             }
             else
             {
-                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
                 return get_result.cbegin();
             }
         }
+
         auto end() const
         {
             if constexpr (is_dense)
             {
-                auto get_result = std::get<std::vector<CountT>>(histogram);
+                const auto& get_result = std::get<std::vector<CountT>>(histogram);
                 return get_result.cend();
             }
             else
             {
-                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
                 return get_result.cend();
             }
         }
+
         auto begin()
         {
             if constexpr (is_dense)
             {
-                auto get_result = std::get<std::vector<CountT>>(histogram);
+                auto& get_result = std::get<std::vector<CountT>>(histogram);
                 return get_result.begin();
             }
             else
             {
-                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
                 return get_result.begin();
             }
         }
+
         auto end()
         {
             if constexpr (is_dense)
             {
-                auto get_result = std::get<std::vector<CountT>>(histogram);
+                auto& get_result = std::get<std::vector<CountT>>(histogram);
                 return get_result.end();
             }
             else
             {
-                auto get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
                 return get_result.end();
             }
         }
 
         // += operator to add two Histograms
-        Histogram& operator+=(const Histogram& other) const
+        Histogram& operator+=(const Histogram& other)
         {
             if constexpr (is_dense)
             {
                 auto& get_result = std::get<std::vector<CountT>>(histogram);
-                const auto& get_result_other = std::get<const std::vector<CountT>>(other.histogram);
+                const auto& get_result_other = std::get<std::vector<CountT>>(other.histogram);
                 if (get_result.size() != get_result_other.size())
                 {
                     throw std::runtime_error("Size mismatched for vector-based histograms!");
                 }
-                for (std::size_t i = 0; i < get_result.size(); i++)
+                for (std::size_t i = 0; i < get_result.size(); ++i)
                 {
                     get_result[i] += get_result_other[i];
                 }
-                histogram = get_result;
-                
             }
             else
             {
                 auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
-                const auto get_result_other = std::get<const std::map<ElementT, CountT>>(other.histogram);
+                const auto& get_result_other = std::get<std::map<ElementT, CountT>>(other.histogram);
                 for (const auto& [key, value] : get_result_other)
                 {
                     get_result[key] += value;
                 }
-                histogram = get_result;
             }
             return *this;
         }
@@ -359,51 +369,48 @@ namespace TinyDIP
         }
 
         // -= operator to subtract two Histograms
-        Histogram& operator-=(const Histogram& other) const
+        Histogram& operator-=(const Histogram& other)
         {
             if constexpr (is_dense)
             {
                 auto& get_result = std::get<std::vector<CountT>>(histogram);
-                const auto& get_result_other = std::get<const std::vector<CountT>>(other.histogram);
+                const auto& get_result_other = std::get<std::vector<CountT>>(other.histogram);
                 if (get_result.size() != get_result_other.size())
                 {
                     throw std::runtime_error("Size mismatched!");
                 }
-                std::vector<CountT> result_data = get_result;
-                for (std::size_t i = 0; i < result_data.size(); i++)
+                for (std::size_t i = 0; i < get_result.size(); ++i)
                 {
-                    if (result_data[i] >= get_result_other[i])
+                    if (get_result[i] >= get_result_other[i])
                     {
-                        result_data[i] -= get_result_other[i];
+                        get_result[i] -= get_result_other[i];
                     }
                     else
                     {
-                        result_data[i] = 0;
+                        get_result[i] = 0;
                     }
                 }
-                return Histogram<ElementT, CountT>{ result_data };
             }
             else
             {
                 auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
-                const auto& get_result_other = std::get<const std::map<ElementT, CountT>>(other.histogram);
-                std::map<ElementT, CountT> result_data = get_result;
+                const auto& get_result_other = std::get<std::map<ElementT, CountT>>(other.histogram);
                 for (const auto& [key, value] : get_result_other)
                 {
-                    if (result_data.contains(key))
+                    if (get_result.contains(key))
                     {
-                        if (result_data.at(key) >= value)
+                        if (get_result.at(key) >= value)
                         {
-                            result_data[key] -= value;
+                            get_result[key] -= value;
                         }
                         else
                         {
-                            result_data[key] = 0;
+                            get_result[key] = 0;
                         }
                     }
                 }
-                return Histogram<ElementT, CountT>{ result_data };
             }
+            return *this;
         }
 
         // operator- (using operator-=)
@@ -420,8 +427,7 @@ namespace TinyDIP
             if constexpr (is_dense)
             {
                 auto& get_result = std::get<std::vector<CountT>>(histogram);
-                if (static_cast<std::size_t>(key) >=
-                    get_result.size())
+                if (static_cast<std::size_t>(key) >= get_result.size())
                 {
                     std::cerr << "key = " << +key << '\n';
                     throw std::out_of_range("Index out of range");
@@ -461,7 +467,6 @@ namespace TinyDIP
                 }
             }
         }
-        
     };
 }
 
