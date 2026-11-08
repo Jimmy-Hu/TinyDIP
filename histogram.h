@@ -50,13 +50,16 @@ namespace TinyDIP
     requires(histogram_element<ElementT>)
     class Histogram
     {
-    private:
-        std::variant<std::vector<CountT>, std::map<ElementT, CountT>> histogram;
-        static constexpr bool is_dense = (std::same_as<ElementT, std::uint8_t>) or
-                                         (std::same_as<ElementT, std::uint16_t>);
     public:
-        static constexpr bool is_dense_v = is_dense;
+        using map_type = std::map<ElementT, CountT, HistogramKeyLess<ElementT>>;
+        static constexpr bool is_dense_v = (std::same_as<ElementT, std::uint8_t>) or
+                                           (std::same_as<ElementT, std::uint16_t>);
 
+    private:
+        static constexpr bool is_dense = is_dense_v;
+        std::variant<std::vector<CountT>, map_type> histogram;
+
+    public:
         // Histogram constructor
         // Explicitly initialize based on ElementT type
         Histogram()
@@ -68,13 +71,25 @@ namespace TinyDIP
             }
             else
             {
-                histogram.template emplace<std::map<ElementT, CountT>>();
+                histogram.template emplace<map_type>();
             }
         }
 
-        Histogram(const std::map<ElementT, CountT>& input)
+        Histogram(const map_type& input)
         {
             histogram = input;
+        }
+
+        template<class Comp>
+        requires (!std::same_as<Comp, HistogramKeyLess<ElementT>>)
+        Histogram(const std::map<ElementT, CountT, Comp>& input)
+        {
+            map_type converted;
+            for (const auto& [k, v] : input)
+            {
+                converted.emplace(k, v);
+            }
+            histogram = std::move(converted);
         }
 
         Histogram(const std::vector<CountT>& input)
@@ -92,7 +107,7 @@ namespace TinyDIP
             }
             else
             {
-                histogram.template emplace<std::map<ElementT, CountT>>();
+                histogram.template emplace<map_type>();
             }
             const auto& image_data = input.getImageData();
             for (std::size_t i = 0; i < image_data.size(); ++i)
@@ -110,7 +125,7 @@ namespace TinyDIP
             }
             else
             {
-                const auto& map_ref = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& map_ref = std::get<map_type>(histogram);
                 if (auto search = map_ref.find(input); search != map_ref.end())
                 {
                     return search->second;
@@ -139,7 +154,7 @@ namespace TinyDIP
             }
             else
             {
-                const auto& map_ref = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& map_ref = std::get<map_type>(histogram);
                 auto values_view = map_ref | std::views::values;
                 return std::reduce(
                     std::forward<ExecutionPolicy>(execution_policy),
@@ -166,7 +181,7 @@ namespace TinyDIP
             }
             else
             {
-                auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                auto& get_result = std::get<map_type>(histogram);
                 ++get_result[input];
                 return *this;
             }
@@ -192,8 +207,8 @@ namespace TinyDIP
             }
             else
             {
-                std::map<ElementT, ProbabilityType> output;
-                const auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                typename Histogram<ElementT, ProbabilityType>::map_type output;
+                const auto& get_result = std::get<map_type>(histogram);
                 for (const auto& [key, value] : get_result)
                 {
                     output.emplace(key, (count_sum != ProbabilityType{0})
@@ -220,7 +235,7 @@ namespace TinyDIP
             }
             else
             {
-                const auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& get_result = std::get<map_type>(histogram);
                 return get_result.size();
             }
         }
@@ -228,7 +243,8 @@ namespace TinyDIP
         //  to_probabilities_vector member function with execution policy
         template<class ExecutionPolicy, class FloatingType = double>
         requires((std::is_execution_policy_v<std::remove_cvref_t<ExecutionPolicy>>) and
-                 (std::floating_point<FloatingType>))
+                 (std::floating_point<FloatingType>) and
+                 (std::convertible_to<ElementT, std::size_t>))
         constexpr std::vector<FloatingType> to_probabilities_vector(ExecutionPolicy&& execution_policy) const
         {
             std::vector<FloatingType> probabilities;
@@ -259,8 +275,8 @@ namespace TinyDIP
                 if (!probability_vector.empty())
                 {
                     std::sort(std::forward<ExecutionPolicy>(execution_policy), probability_vector.begin(), probability_vector.end(),
-                        [](const auto& a, const auto& b) { return a.first < b.first; });
-                    probabilities.resize( static_cast<std::size_t>(probability_vector.back().first) + 1, FloatingType{0});
+                        [](const auto& a, const auto& b) { return HistogramKeyLess<ElementT>{}(a.first, b.first); });
+                    probabilities.resize(static_cast<std::size_t>(probability_vector.back().first) + 1, FloatingType{0});
                     for (const auto& pair : probability_vector)
                     {
                         probabilities[static_cast<std::size_t>(pair.first)] = pair.second;
@@ -272,7 +288,7 @@ namespace TinyDIP
 
         //  to_probabilities_vector member function without execution policy
         template<class FloatingType = double>
-        requires(std::floating_point<FloatingType>)
+        requires(std::floating_point<FloatingType> and std::convertible_to<ElementT, std::size_t>)
         constexpr std::vector<FloatingType> to_probabilities_vector() const
         {
             return to_probabilities_vector<const std::execution::sequenced_policy&, FloatingType>(std::execution::seq);
@@ -287,7 +303,7 @@ namespace TinyDIP
             }
             else
             {
-                const auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& get_result = std::get<map_type>(histogram);
                 return get_result.cbegin();
             }
         }
@@ -301,7 +317,7 @@ namespace TinyDIP
             }
             else
             {
-                const auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& get_result = std::get<map_type>(histogram);
                 return get_result.cend();
             }
         }
@@ -315,7 +331,7 @@ namespace TinyDIP
             }
             else
             {
-                const auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& get_result = std::get<map_type>(histogram);
                 return get_result.cbegin();
             }
         }
@@ -329,7 +345,7 @@ namespace TinyDIP
             }
             else
             {
-                const auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& get_result = std::get<map_type>(histogram);
                 return get_result.cend();
             }
         }
@@ -343,7 +359,7 @@ namespace TinyDIP
             }
             else
             {
-                auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                auto& get_result = std::get<map_type>(histogram);
                 return get_result.begin();
             }
         }
@@ -357,7 +373,7 @@ namespace TinyDIP
             }
             else
             {
-                auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                auto& get_result = std::get<map_type>(histogram);
                 return get_result.end();
             }
         }
@@ -380,8 +396,8 @@ namespace TinyDIP
             }
             else
             {
-                auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
-                const auto& get_result_other = std::get<std::map<ElementT, CountT>>(other.histogram);
+                auto& get_result = std::get<map_type>(histogram);
+                const auto& get_result_other = std::get<map_type>(other.histogram);
                 for (const auto& [key, value] : get_result_other)
                 {
                     get_result[key] += value;
@@ -423,8 +439,8 @@ namespace TinyDIP
             }
             else
             {
-                auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
-                const auto& get_result_other = std::get<std::map<ElementT, CountT>>(other.histogram);
+                auto& get_result = std::get<map_type>(histogram);
+                const auto& get_result_other = std::get<map_type>(other.histogram);
                 for (const auto& [key, value] : get_result_other)
                 {
                     if (get_result.contains(key))
@@ -466,7 +482,7 @@ namespace TinyDIP
             }
             else
             {
-                return std::get<std::map<ElementT, CountT>>(histogram)[key];
+                return std::get<map_type>(histogram)[key];
             }
         }
 
@@ -485,7 +501,7 @@ namespace TinyDIP
             }
             else
             {
-                const auto& get_result = std::get<std::map<ElementT, CountT>>(histogram);
+                const auto& get_result = std::get<map_type>(histogram);
                 if (auto it = get_result.find(key); it != get_result.end())
                 {
                     return it->second;
