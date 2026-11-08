@@ -396,6 +396,11 @@ using all_gaussian_params_types = tuple_map_t<gaussian_params_t, core_floating_p
 using all_histogram_types = tuple_map_t<histogram_t, core_numeric_types>;
 using all_histogram_prob_types = tuple_map_t<histogram_prob_t, core_numeric_types>;
 
+using master_histogram_types = tuple_cat_t<
+    all_histogram_types,
+    all_histogram_prob_types
+>;
+
 // Master Scalar Tuple (Exhaustively includes ALL valid scalar and container output types)
 using master_scalar_types = tuple_cat_t<
     core_numeric_types,
