@@ -17,6 +17,7 @@
 namespace TinyDIP
 {
     template<class ElementT, class CountT = std::size_t>
+    requires(std::totally_ordered<ElementT>)
     class Histogram
     {
     private:
