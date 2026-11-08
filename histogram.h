@@ -29,7 +29,7 @@ namespace TinyDIP
     concept histogram_element = std::totally_ordered<T> || multi_channel_totally_ordered<T>;
 
     template<class ElementT, class CountT = std::size_t>
-    requires(std::totally_ordered<ElementT>)
+    requires(histogram_element<ElementT>)
     class Histogram
     {
     private:
