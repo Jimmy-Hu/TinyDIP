@@ -18,10 +18,13 @@ extern "C" TINYDIP_PLUGIN_EXPORT void register_plugin_commands(CommandRegistry& 
     constexpr std::string_view cmd_desc =
         "Replace occurrences of a target value with a new value in an image or container.";
 
-    registry.register_command(cmd_name, cmd_desc, IOSchema{0, 3},
-        [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+    registry.register_command(
+        cmd_name,
+        cmd_desc,
+        IOSchema{0, 3},
+        [&](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
         {
-            handlers::replace(workspace, args, os);
+            handlers::replace<image_types, core_numeric_types>(workspace, args, os);
         }
     );
 }
