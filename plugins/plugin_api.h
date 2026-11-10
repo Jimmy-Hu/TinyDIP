@@ -5,6 +5,7 @@
 #define TINYDIP_PLUGIN_API_H
 
 #include "../main.h" // Includes CommandRegistry, Workspace, and core logic
+#include "command_usage_registry.h"
 
 //  Cross-platform DLL/SO Export Macros
 #ifdef _WIN32
