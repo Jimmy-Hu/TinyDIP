@@ -9,7 +9,11 @@
 namespace handlers
 {
     //  abs template function implementation
-    template <std::ranges::input_range RangeT>
+    template <
+        typename CheckingTypes = master_data_types,
+        typename OutputCheckingTypes = CheckingTypes,
+        std::ranges::input_range RangeT = std::span<const std::string_view>
+    >
     requires (std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string_view> or
               std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string> or
               std::convertible_to<std::ranges::range_value_t<RangeT>, std::string_view> or
@@ -20,16 +24,16 @@ namespace handlers
         std::ostream& os = std::cout
     )
     {
-        auto transform_handler = make_meta_transform_handler<2, master_data_types>(
-            "abs [execution_policy] <input_data | $var> <output_var | $var>",
+        auto transform_handler = make_meta_transform_handler<2, CheckingTypes, OutputCheckingTypes>(
+            "abs",
             [](std::span<const std::string_view> filtered_args, const std::string_view policy_str, std::ostream& os)
             {
-                os << "Calculating abs of " << filtered_args[0];
-                if (!std::ranges::empty(policy_str))
+                std::print(os, "Calculating abs of {}", filtered_args[0]);
+                if (not std::ranges::empty(policy_str))
                 {
-                    os << " (Policy: " << policy_str << ")";
+                    std::print(os, " (Policy: {})", policy_str);
                 }
-                os << "...\n";
+                std::print(os, "...\n");
 
                 return [policy_str, &os]<typename DataT>(DataT&& data) -> std::any
                 {
@@ -51,8 +55,8 @@ namespace handlers
                         else if constexpr (std::ranges::input_range<DecayedDataT>)
                         {
                             return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
-                                [](auto&& element) 
-                                { 
+                                [](auto&& element)
+                                {
                                     return TinyDIP::generic_abs(std::forward<decltype(element)>(element));
                                 },
                                 std::forward<DataT>(data)
@@ -62,7 +66,7 @@ namespace handlers
                         {
                             return TinyDIP::generic_abs(std::forward<DataT>(data));
                         }
-                    
+
                         return std::any{};
                     };
 
@@ -77,9 +81,9 @@ namespace handlers
                             }
                             else
                             {
-                                if (!std::ranges::empty(policy_str))
+                                if (not std::ranges::empty(policy_str))
                                 {
-                                    os << "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n";
+                                    std::print(os, "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n");
                                 }
                                 return exec_default();
                             }
@@ -88,8 +92,8 @@ namespace handlers
                         {
                             return TinyDIP::recursive_transform<TinyDIP::recursive_depth<DecayedDataT>()>(
                                 std::forward<ExecPolicy>(exec_policy),
-                                [](auto&& element) 
-                                { 
+                                [](auto&& element)
+                                {
                                     return TinyDIP::generic_abs(std::forward<decltype(element)>(element));
                                 },
                                 std::forward<DataT>(data)
@@ -97,9 +101,9 @@ namespace handlers
                         }
                         else
                         {
-                            if (!std::ranges::empty(policy_str))
+                            if (not std::ranges::empty(policy_str))
                             {
-                                os << "Warning: Execution policy requested but not supported for this data type/operation. Falling back to default.\n";
+                                std::print(os, "Warning: Execution policy requested but not supported for this data type/operation. Falling back to default.\n");
                             }
                             return exec_default();
                         }
