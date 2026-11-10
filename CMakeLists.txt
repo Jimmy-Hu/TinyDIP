@@ -711,6 +711,7 @@ if(TINYDIP_FULL_BUILD)
         plugin_normalize
         plugin_rand
         plugin_replace_part1
+        plugin_replace_part2
         plugin_rotate
         plugin_sift_generate_octave
     )
