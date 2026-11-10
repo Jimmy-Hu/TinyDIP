@@ -679,6 +679,7 @@ set_target_properties(TinyDIP PROPERTIES ENABLE_EXPORTS TRUE)
 
 if(TINYDIP_FULL_BUILD)
     set(PLUGIN_SOURCE_FILES
+        plugin_abs_part1
         plugin_append_element
         plugin_bicubic_resize
         plugin_constructRGB
