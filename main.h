@@ -1561,12 +1561,13 @@ template <
     std::size_t MinArgs,
     typename SetupFun,
     typename ArgsContainer = std::vector<std::string_view>,
-    typename CheckingTypes = master_image_types
+    typename CheckingTypes = master_image_types,
+    typename OutputCheckingTypes = CheckingTypes
 >
 requires(std::invocable<SetupFun, const ArgsContainer&, const std::string_view, std::ostream&>)
 struct MetaTransformHandler
 {
-    std::string_view usage_string_;
+    std::string_view command_name_or_usage_;
     SetupFun setup_fun_;
 
     template <
@@ -1589,31 +1590,28 @@ struct MetaTransformHandler
 
         if (std::ranges::size(filtered_args) < MinArgs)
         {
-            os << "Usage: " << usage_string_ << "\n";
-            if (usage_string_.find("[execution_policy]") != std::string_view::npos)
-            {
-                os << "       Optional Execution policies: seq, par, par_unseq, unseq\n";
-            }
+            print_command_usage(os, command_name_or_usage_);
             return;
         }
 
         const std::string_view input_arg = filtered_args[0];
         const std::string_view output_arg = filtered_args[1];
 
-        // Parse trailing args, output initial message, and retrieve dedicated transformation process
-        auto core_processor = setup_fun_(filtered_args, policy_str, os);
-
         std::optional<std::any> final_result_opt{};
 
         auto process_wrapper = [&]<typename ImageType>(ImageType&& input_img)
         {
+            // Invoke setup_fun_ only after input type is matched so skipped chain handlers do not print premature logs
+            auto core_processor = setup_fun_(filtered_args, policy_str, os);
             final_result_opt = core_processor(std::forward<ImageType>(input_img));
         };
 
         if (!dispatch_data_operation<CheckingTypes>(input_arg, workspace, image_loader_fun, process_wrapper))
         {
-            os << "Error: Memory variable not found or unsupported type.\n";
-            return;
+            throw std::invalid_argument(
+                std::string("Input '") + std::string(input_arg) +
+                "' is not handled by this type slice or variable not found."
+            );
         }
 
         if (final_result_opt.has_value())
@@ -1633,7 +1631,7 @@ struct MetaTransformHandler
                 return false;
             };
 
-            if (!match_any_type<CheckingTypes>(try_save_output))
+            if (!match_any_type<OutputCheckingTypes>(try_save_output))
             {
                 os << "Error: Output type from processor is unknown or unsupported. Type Name: [" 
                    << output_any.type().name() << "]\n";
