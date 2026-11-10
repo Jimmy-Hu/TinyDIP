@@ -1432,7 +1432,7 @@ template <
 requires(std::invocable<SetupFun, const ArgsContainer&, const std::string_view, std::ostream&>)
 struct MetaScalarHandler
 {
-    std::string_view usage_string_;
+    std::string_view command_name_or_usage_;
     std::string_view op_name_;
     std::string_view capitalized_op_name_;
     SetupFun setup_fun_;
@@ -1443,30 +1443,12 @@ struct MetaScalarHandler
     requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
     constexpr void operator()(Workspace& workspace, std::span<const std::string_view> args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}) const
     {
-        std::string_view policy_str = "";
-        ArgsContainer filtered_args;
-        filtered_args.reserve(std::ranges::size(args));
-
-        for (const auto& arg : args)
-        {
-            const std::string_view sv_arg = arg;
-            if (sv_arg == "seq" || sv_arg == "par" || sv_arg == "par_unseq" || sv_arg == "unseq")
-            {
-                policy_str = sv_arg;
-            }
-            else
-            {
-                filtered_args.emplace_back(sv_arg);
-            }
-        }
+        const std::string_view policy_str = extract_policy_string(args);
+        const ArgsContainer filtered_args = args_filter<ArgsContainer>(args);
 
         if (std::ranges::size(filtered_args) < MinArgs)
         {
-            os << "Usage: " << usage_string_ << "\n";
-            if (usage_string_.find("[execution_policy]") != std::string_view::npos)
-            {
-                os << "       Optional Execution policies: seq, par, par_unseq, unseq\n";
-            }
+            print_command_usage(os, command_name_or_usage_);
             return;
         }
 
@@ -1478,13 +1460,12 @@ struct MetaScalarHandler
             output_arg = filtered_args[1];
         }
 
-        auto core_processor = setup_fun_(filtered_args, policy_str, os);
-
         std::optional<std::any> final_result_opt;
 
         // Polymorphic lambda to cleanly execute the algorithm dynamically independent of data type
         auto process_scalar = [&]<typename DataT>(DataT&& input_data)
         {
+            auto core_processor = setup_fun_(filtered_args, policy_str, os);
             final_result_opt = core_processor(std::forward<DataT>(input_data));
         };
 
