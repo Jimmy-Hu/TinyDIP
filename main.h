@@ -44,6 +44,7 @@
 #include "image_io.h"
 #include "image_operations.h"
 #include "timer.h"
+#include "plugins/command_usage_registry.h"
 
 template <typename T> struct is_std_complex : std::false_type {};
 template <typename T> struct is_std_complex<std::complex<T>> : std::true_type {};
