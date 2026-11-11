@@ -704,7 +704,6 @@ if(TINYDIP_FULL_BUILD)
         plugin_im2uint8
         plugin_lanczos_resample
         plugin_math
-        plugin_math_abs
         plugin_math_add
         plugin_math_max
         plugin_math_min
