@@ -514,6 +514,16 @@ namespace TinyDIP
             }
         }
     };
+
+    template <typename T>
+    struct is_Histogram : std::false_type {};
+
+    template <typename ElementT, typename CountT>
+    struct is_Histogram<Histogram<ElementT, CountT>> : std::true_type {};
+
+    template <typename T>
+    inline constexpr bool is_Histogram_v = is_Histogram<std::remove_cvref_t<T>>::value;
+
 }
 
 #endif
