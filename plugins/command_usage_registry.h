@@ -21,7 +21,7 @@ private:
 public:
     CommandUsageRegistry()
     {
-        all_description_.emplace("abs", "abs [execution_policy] <input_image | $var> <output_image | $var>");
+        all_description_.emplace("abs", "abs [execution_policy] <input_data | $var> <output_var | $var>");
         all_description_.emplace("add", "add [execution_policy] <input1_data | $var> <input2_data | $var> <output_var | $var>");
         all_description_.emplace("append_element", "append_element <target_container_var> <value_or_$var...>");
         all_description_.emplace("bicubic_resize", "bicubic_resize [execution_policy] <input_image | $var> <output_image | $var> <new_width> <new_height>");
