@@ -3,14 +3,19 @@
 
 #include "plugin_abs.h"
 
-void register_abs_part1(CommandRegistry& registry)
+extern "C" TINYDIP_PLUGIN_EXPORT void register_plugin_commands(CommandRegistry &registry)
 {
+    // Define human-readable pipeline schema routing constants locally
+    constexpr auto GeneratorSchema = IOSchema{ -1, 1 };
+    constexpr auto TerminatorSchema = IOSchema{ 0, -1 };
+    constexpr auto TransformerSchema = IOSchema{ 0, 1 };
+    constexpr auto CombinerSchema = IOSchema{ 0, 2 };
+    constexpr auto IndependentSchema = IOSchema{ -1, -1 };
+
     // 1. Fundamental numeric images slice
     registry.register_command(
-        "abs",
-        "Calculate the absolute value of an image or container.",
-        TransformerSchema,
-        [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+        "abs", "Calculate the absolute value of an image or container.", TransformerSchema,
+        [](Workspace &workspace, std::span<const std::string_view> args, std::ostream &os)
         {
             handlers::abs<image_types>(workspace, args, os);
         }
