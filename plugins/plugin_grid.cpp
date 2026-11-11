@@ -13,6 +13,11 @@ extern "C" TINYDIP_PLUGIN_EXPORT void register_plugin_commands(CommandRegistry& 
     constexpr auto CombinerSchema = IOSchema{ 0, 2 };
     constexpr auto IndependentSchema = IOSchema{ -1, -1 };
 
+    get_command_usage_registry().register_usage(
+        "grid",
+        "grid [execution_policy] <output_bmp | $var> <width> <height> [grid_size=10]"
+    );
+
     registry.register_command("grid", "Generate a grid image.", GeneratorSchema, 
         [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
         {
