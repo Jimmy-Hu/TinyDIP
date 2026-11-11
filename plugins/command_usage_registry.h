@@ -31,7 +31,7 @@ public:
         all_description_.emplace("dct2", "dct2 [execution_policy] <input_image | $var> <output_image | $var>");
         all_description_.emplace("find", "find [execution_policy] <input_container | $var> <target_value | $var> [output_var | $var]");
         all_description_.emplace("help", "help [command_name]");
-        all_description_.emplace("histogram", "histogram [execution_policy] <input_image | $var> [output_var | $var]");
+        all_description_.emplace("histogram", "histogram [execution_policy] <input_image | $var> [output_var | $var] [count_type]");
         all_description_.emplace("idct2", "idct2 [execution_policy] <input_image | $var> <output_image | $var>");
         all_description_.emplace("lanczos_resample", "lanczos_resample [execution_policy] <input_image | $var> <output_image | $var> <new_width> <new_height> [a]");
         all_description_.emplace("max", "max [execution_policy] <input_data | $var> [output_var | $var]");
