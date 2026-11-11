@@ -934,18 +934,31 @@ constexpr bool dispatch_data_operation(
 
         if (ext == ".dbmp" || ext == ".csv")
         {
-            processor(image_loader.template operator()<TinyDIP::Image<double>>(clean_arg, workspace));
+            if constexpr (TinyDIP::check_tuple_element_type<TinyDIP::Image<double>, CheckingTypes>::value)
+            {
+                processor(image_loader.template operator()<TinyDIP::Image<double>>(clean_arg, workspace));
+                return true;
+            }
+            return false;
         }
         else if (ext == ".hsv")
         {
-            processor(image_loader.template operator()<TinyDIP::Image<TinyDIP::HSV>>(clean_arg, workspace));
+            if constexpr (TinyDIP::check_tuple_element_type<TinyDIP::Image<TinyDIP::HSV>, CheckingTypes>::value)
+            {
+                processor(image_loader.template operator()<TinyDIP::Image<TinyDIP::HSV>>(clean_arg, workspace));
+                return true;
+            }
+            return false;
         }
         else
         {
-            processor(image_loader.template operator()<TinyDIP::Image<TinyDIP::RGB>>(clean_arg, workspace));
+            if constexpr (TinyDIP::check_tuple_element_type<TinyDIP::Image<TinyDIP::RGB>, CheckingTypes>::value)
+            {
+                processor(image_loader.template operator()<TinyDIP::Image<TinyDIP::RGB>>(clean_arg, workspace));
+                return true;
+            }
+            return false;
         }
-        
-        return true;
     }
 }
 
