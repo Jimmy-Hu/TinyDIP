@@ -86,8 +86,8 @@ namespace handlers
             }
         };
 
-        // Leverage tuple_cat_t to flawlessly support both scalar containers and newly registered image containers!
-        using AllContainerTypes = tuple_cat_t<master_data_types, master_image_container_types>;
+        // Leverage tuple_cat_t to flawlessly support scalar, 1-level image, and 2-level nested containers!
+        using AllContainerTypes = tuple_cat_t<master_data_types, master_image_container_types, master_nested_container_types>;
 
         if (!dispatch_data_operation<AllContainerTypes>(input_arg, workspace, image_loader_fun, process_append))
         {
