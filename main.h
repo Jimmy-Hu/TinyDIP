@@ -289,7 +289,7 @@ constexpr bool match_any_type(FunT&& func)
 #ifndef TINYDIP_FULL_BUILD
 
 using core_numeric_types = std::tuple<
-    bool, unsigned char, int, double, std::size_t
+    bool, unsigned char, int, float, double, std::size_t
 >;
 
 #else
