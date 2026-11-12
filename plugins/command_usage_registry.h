@@ -23,7 +23,7 @@ public:
     {
         all_description_.emplace("abs", "abs [execution_policy] <input_data | $var> <output_var | $var>");
         all_description_.emplace("add", "add [execution_policy] <input1_data | $var> <input2_data | $var> <output_var | $var>");
-        all_description_.emplace("append_element", "append_element <input_container | $var> <$element_var> <$output_var>");
+        all_description_.emplace("append_element", "append_element <input_container | $var> <element_val | $var> <$output_var>");
         all_description_.emplace("batch_add_zeros", "batch_add_zeros <input_dir> <output_dir>");
         all_description_.emplace("bicubic_resize", "bicubic_resize [execution_policy] <input_image | $var> <output_image | $var> <new_width> <new_height>");
         all_description_.emplace("clear", "clear");
