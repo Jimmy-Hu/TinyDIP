@@ -98,6 +98,8 @@ namespace TinyDIP
             out << '{' << +_myStruct.channels[0] << ", " << +_myStruct.channels[1] << ", " << +_myStruct.channels[2] << '}';
             return out;
         }
+
+        bool operator==(const RGB_DOUBLE& other) const = default;
     };
 
     using GrayScale = std::uint8_t;
