@@ -43,29 +43,41 @@ namespace handlers
             {
                 using ElementT = typename DecayedT::value_type;
                 
-                if (!elem_arg.starts_with('$'))
+                if (elem_arg.starts_with('$'))
                 {
-                    os << "Error: Element must be a memory variable starting with '$'.\n";
-                    return;
-                }
-
-                const std::string_view elem_name = elem_arg.substr(1);
-                
-                // Directly retrieve the perfectly matched complex object from the workspace
-                if (const ElementT* element_ptr = workspace.template retrieve<ElementT>(elem_name))
-                {
-                    DecayedT new_container = candidate; // Copy original container completely independently
+                    const std::string_view elem_name = elem_arg.substr(1);
                     
-                    // Utilizing emplace_back to directly construct the complex object in place
-                    // optimizing memory allocation and avoiding unnecessary temporary copies natively.
-                    new_container.emplace_back(*element_ptr);
-                    
-                    workspace.store(output_arg.substr(1), std::move(new_container));
-                    os << "Saved updated container to " << output_arg << ".\n";
+                    // Directly retrieve the perfectly matched complex object from the workspace
+                    if (const ElementT* element_ptr = workspace.template retrieve<ElementT>(elem_name))
+                    {
+                        DecayedT new_container = candidate; // Copy original container completely independently
+                        
+                        // Utilizing emplace_back to directly construct the complex object in place
+                        // optimizing memory allocation and avoiding unnecessary temporary copies natively.
+                        new_container.emplace_back(*element_ptr);
+                        
+                        workspace.store(output_arg.substr(1), std::move(new_container));
+                        os << "Saved updated container to " << output_arg << ".\n";
+                    }
+                    else
+                    {
+                        os << "Error: Element variable $" << elem_name << " not found or type mismatch. Expected exact type: [" << get_type_name<ElementT>() << "].\n";
+                    }
                 }
                 else
                 {
-                    os << "Error: Element variable $" << elem_name << " not found or type mismatch. Expected exact type: [" << get_type_name<ElementT>() << "].\n";
+                    try
+                    {
+                        ElementT parsed_elem = parse_arg<ElementT>(elem_arg);
+                        DecayedT new_container = candidate;
+                        new_container.emplace_back(std::move(parsed_elem));
+                        workspace.store(output_arg.substr(1), std::move(new_container));
+                        os << "Saved updated container to " << output_arg << ".\n";
+                    }
+                    catch (const std::exception&)
+                    {
+                        os << "Error: Element must be a memory variable starting with '$' or a valid literal for [" << get_type_name<ElementT>() << "].\n";
+                    }
                 }
             }
             else
@@ -95,7 +107,7 @@ extern "C" TINYDIP_PLUGIN_EXPORT void register_plugin_commands(CommandRegistry& 
 
     get_command_usage_registry().register_usage(
         "append_element",
-        "append_element <input_container | $var> <$element_var> <$output_var>"
+        "append_element <input_container | $var> <element_val | $var> <$output_var>"
     );
 
     registry.register_command("append_element", "Append an element to the back of a container using emplace_back.", CombinerSchema, 
