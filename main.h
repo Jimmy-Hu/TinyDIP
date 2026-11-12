@@ -465,6 +465,25 @@ using master_image_container_types = tuple_cat_t<
     all_list_image_types
 >;
 
+//  2-level nested image container types (e.g., std::vector<std::vector<TinyDIP::Image<T>>>)
+using master_nested_image_container_types = tuple_cat_t<
+    tuple_map_t<std::vector, master_image_container_types>,
+    tuple_map_t<std::deque, all_vector_image_types>,
+    tuple_map_t<std::list, all_vector_image_types>
+>;
+
+//  2-level nested scalar container types (e.g., std::vector<std::vector<T>>)
+using master_nested_scalar_container_types = tuple_map_t<
+    std::vector,
+    tuple_cat_t<all_vector_types, all_deque_types, all_list_types, all_array_types>
+>;
+
+//  Master 2-level nested container registry
+using master_nested_container_types = tuple_cat_t<
+    master_nested_image_container_types,
+    master_nested_scalar_container_types
+>;
+
 //  get_type_name template function implementation
 //  Generic compile-time helper to automatically extract exact human-readable string views for any type.
 //  This utilizes compile-time SFINAE reflection over compiler signature macros.
