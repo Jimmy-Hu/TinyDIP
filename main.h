@@ -406,6 +406,9 @@ template <typename T>
 using histogram_t = TinyDIP::Histogram<T, std::size_t>;
 
 template <typename T>
+using histogram_int_t = TinyDIP::Histogram<T, int>;
+
+template <typename T>
 using histogram_prob_t = TinyDIP::Histogram<T, double>;
 
 // Exhaustive Derived Type Auto-Generation
