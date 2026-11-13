@@ -324,6 +324,30 @@ using tuple_map_t = typename tuple_map<Wrapper, Tuple>::type;
 template <typename... Tuples>
 using tuple_cat_t = decltype(std::tuple_cat(std::declval<Tuples>()...));
 
+// Deduplicate types in a std::tuple to prevent redundant template instantiations across platform typedef aliases
+template <typename AccTuple, typename RemainingTuple>
+struct tuple_unique_impl;
+
+template <typename AccTuple>
+struct tuple_unique_impl<AccTuple, std::tuple<>>
+{
+    using type = AccTuple;
+};
+
+template <typename... AccTs, typename HeadT, typename... TailTs>
+struct tuple_unique_impl<std::tuple<AccTs...>, std::tuple<HeadT, TailTs...>>
+{
+    using next_acc = std::conditional_t<
+        (std::is_same_v<HeadT, AccTs> || ...),
+        std::tuple<AccTs...>,
+        std::tuple<AccTs..., HeadT>
+    >;
+    using type = typename tuple_unique_impl<next_acc, std::tuple<TailTs...>>::type;
+};
+
+template <typename Tuple>
+using tuple_unique_t = typename tuple_unique_impl<std::tuple<>, Tuple>::type;
+
 // -----------------------------------------------------------------------------
 // Advanced NTTP Metaprogramming: Dynamic Array Size Generation
 // -----------------------------------------------------------------------------
