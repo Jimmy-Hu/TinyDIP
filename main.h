@@ -411,6 +411,27 @@ using histogram_int_t = TinyDIP::Histogram<T, int>;
 template <typename T>
 using histogram_prob_t = TinyDIP::Histogram<T, double>;
 
+template <typename ElementTuple, typename CountT>
+struct make_histogram_tuple;
+
+template <typename... ElementTs, typename CountT>
+struct make_histogram_tuple<std::tuple<ElementTs...>, CountT>
+{
+    using type = std::tuple<TinyDIP::Histogram<ElementTs, CountT>...>;
+};
+
+template <typename ElementTuple, typename CountTuple>
+struct generate_histograms_impl;
+
+template <typename ElementTuple, typename... CountTs>
+struct generate_histograms_impl<ElementTuple, std::tuple<CountTs...>>
+{
+    using type = tuple_cat_t<typename make_histogram_tuple<ElementTuple, CountTs>::type...>;
+};
+
+template <typename ElementTuple, typename CountTuple>
+using generate_histograms_t = typename generate_histograms_impl<ElementTuple, CountTuple>::type;
+
 // Exhaustive Derived Type Auto-Generation
 using all_multichannel_types = tuple_map_t<multichannel_t, core_numeric_types>;
 using all_complex_types = tuple_map_t<std::complex, core_floating_point_types>;
