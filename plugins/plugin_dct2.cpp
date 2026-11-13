@@ -71,6 +71,11 @@ extern "C" TINYDIP_PLUGIN_EXPORT void register_plugin_commands(CommandRegistry& 
     constexpr auto CombinerSchema = IOSchema{ 0, 2 };
     constexpr auto IndependentSchema = IOSchema{ -1, -1 };
 
+    get_command_usage_registry().register_usage(
+        "dct2",
+        "dct2 [execution_policy] <input_image | $var> <output_image | $var>"
+    );
+
     registry.register_command("dct2", "Calculate Discrete Cosine Transformation for an image.", TransformerSchema, 
         handlers::dct2
     );
