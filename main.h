@@ -427,11 +427,12 @@ using histogram_capable_types = tuple_cat_t<
     all_multichannel_types
 >;
 using all_histogram_types = tuple_map_t<histogram_t, histogram_capable_types>;
+using all_histogram_int_types = tuple_map_t<histogram_int_t, histogram_capable_types>;
 using all_histogram_prob_types = tuple_map_t<histogram_prob_t, histogram_capable_types>;
 
-using master_histogram_types = tuple_cat_t<
-    all_histogram_types,
-    all_histogram_prob_types
+using master_histogram_types = generate_histograms_t<
+    tuple_unique_t<histogram_capable_types>,
+    histogram_count_types
 >;
 
 // Master Scalar Tuple (Exhaustively includes ALL valid scalar and container output types)
