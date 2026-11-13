@@ -21,7 +21,7 @@ extern "C" TINYDIP_PLUGIN_EXPORT void register_plugin_commands(CommandRegistry& 
     // 1. Fundamental numeric images slice
     registry.register_command(
         "abs",
-        "Calculate the absolute value of an image or container.",
+        "Calculate the absolute value of an image, histogram, or container.",
         TransformerSchema,
         [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
         {
