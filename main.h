@@ -1065,6 +1065,7 @@ struct IOSchema
 };
 
 //  Define human-readable pipeline schema routing constants globally
+constexpr auto DirectGeneratorSchema = IOSchema{ -1, 0 };
 constexpr auto GeneratorSchema = IOSchema{ -1, 1 };
 constexpr auto TerminatorSchema = IOSchema{ 0, -1 };
 constexpr auto TransformerSchema = IOSchema{ 0, 1 };
