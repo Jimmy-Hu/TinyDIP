@@ -1732,6 +1732,14 @@ namespace TinyDIP
         return input.cast<GrayScale>();
     }
 
+    //  cast template function implementation
+    template<typename TargetT, typename ElementT>
+    requires (requires(const Image<ElementT>& input) { input.template cast<TargetT>(); })
+    constexpr auto cast(const Image<ElementT>& input)
+    {
+        return input.template cast<TargetT>();
+    }
+
     //  print_with_latex function implementation
     inline void print_with_latex(Image<RGB> input)
     {
