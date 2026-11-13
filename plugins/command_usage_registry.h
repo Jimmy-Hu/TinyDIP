@@ -26,10 +26,12 @@ public:
         all_description_.emplace("append_element", "append_element <input_container | $var> <element_val | $var> <$output_var>");
         all_description_.emplace("batch_add_zeros", "batch_add_zeros <input_dir> <output_dir>");
         all_description_.emplace("bicubic_resize", "bicubic_resize [execution_policy] <input_image | $var> <output_image | $var> <new_width> <new_height>");
+        all_description_.emplace("cast", "cast [execution_policy] <input_data | $var> <output_var | $var> <target_type>");
         all_description_.emplace("clear", "clear");
         all_description_.emplace("constructRGB", "constructRGB [execution_policy] <R_img | $var> <G_img | $var> <B_img | $var> <output_img | $var>");
         all_description_.emplace("copy", "copy <$src_var> <$dst_var>");
         all_description_.emplace("count", "count [execution_policy] <input_data | $var> <target_value | $var> [output_var | $var]");
+        all_description_.emplace("create_container", "create_container <prototype_element | $var> <output_container | $var>");
         all_description_.emplace("dct2", "dct2 [execution_policy] <input_image | $var> <output_image | $var>");
         all_description_.emplace("find", "find [execution_policy] <input_container | $var> <target_value | $var> [output_var | $var]");
         all_description_.emplace("help", "help [command_name]");
