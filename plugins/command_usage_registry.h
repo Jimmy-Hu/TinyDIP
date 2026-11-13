@@ -33,6 +33,10 @@ public:
         all_description_.emplace("count", "count [execution_policy] <input_data | $var> <target_value | $var> [output_var | $var]");
         all_description_.emplace("create_container", "create_container <prototype_element | $var> <output_container | $var>");
         all_description_.emplace("dct2", "dct2 [execution_policy] <input_image | $var> <output_image | $var>");
+        all_description_.emplace("dct3", "dct3 [execution_policy] <input_container | $var> <output_container | $var>");
+        all_description_.emplace("divides", "divides [execution_policy] <input1_data | $var> <input2_data | $var> <output_var | $var>");
+        all_description_.emplace("erase_element", "erase_element <input_container | $var> <output_var | $var> <index>");
+        all_description_.emplace("estimate_gaussian_params_2d", "estimate_gaussian_params_2d [execution_policy] <input_img | $var> <output_var | $var> [max_iterations=1000] [tolerance=1e-7]");
         all_description_.emplace("find", "find [execution_policy] <input_container | $var> <target_value | $var> [output_var | $var]");
         all_description_.emplace("help", "help [command_name]");
         all_description_.emplace("histogram", "histogram [execution_policy] <input_image | $var> [output_var | $var] [count_type]");
