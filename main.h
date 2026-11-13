@@ -432,6 +432,28 @@ struct generate_histograms_impl<ElementTuple, std::tuple<CountTs...>>
 template <typename ElementTuple, typename CountTuple>
 using generate_histograms_t = typename generate_histograms_impl<ElementTuple, CountTuple>::type;
 
+#ifndef TINYDIP_FULL_BUILD
+
+using histogram_count_types = tuple_unique_t<std::tuple<
+    std::size_t, int, std::ptrdiff_t, float, double
+>>;
+
+#else
+
+using histogram_count_types = tuple_unique_t<std::tuple<
+    signed char, unsigned char,
+    short, unsigned short,
+    int, unsigned int,
+    long, unsigned long,
+    long long, unsigned long long,
+    std::int8_t, std::int16_t, std::int32_t, std::int64_t,
+    std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t,
+    float, double, long double,
+    std::size_t, std::ptrdiff_t
+>>;
+
+#endif
+
 // Exhaustive Derived Type Auto-Generation
 using all_multichannel_types = tuple_map_t<multichannel_t, core_numeric_types>;
 using all_complex_types = tuple_map_t<std::complex, core_floating_point_types>;
