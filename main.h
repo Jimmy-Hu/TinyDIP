@@ -2166,15 +2166,20 @@ namespace handlers
         os << "Saved to " << output_arg << "\n";
     }
 
-    //  dct2 function implementation
+    //  dct2 template function implementation
+    template <std::ranges::input_range RangeT = std::span<const std::string_view>>
+    requires (std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string_view> or
+              std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string> or
+              std::convertible_to<std::ranges::range_value_t<RangeT>, std::string_view> or
+              std::convertible_to<std::ranges::range_value_t<RangeT>, std::string>)
     constexpr void dct2(
         Workspace& workspace,
-        std::span<const std::string_view> args,
+        const RangeT& args,
         std::ostream& os = std::cout
     )
     {
         auto transform_handler = make_meta_transform_handler<2>(
-            "dct2 [execution_policy] <input_img | $var> <output_img | $var>",
+            "dct2",
             [](const auto& filtered_args, const std::string_view policy_str, std::ostream& os)
             {
                 os << "Calculating DCT-2 for " << filtered_args[0];
