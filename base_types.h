@@ -3,13 +3,18 @@
 #ifndef TINYDIP_BASE_TYPES_H  // base_types.h header guard, follow the suggestion from https://codereview.stackexchange.com/a/293832/231235
 #define TINYDIP_BASE_TYPES_H
 
+#include <array>
 #include <cstdint>
 #include <filesystem>
 #include <cmath>
 #include <complex>
+#include <concepts>
 #include <cstdio>
 #include <cstdlib>
+#include <ostream>
 #include <string>
+#include <tuple>
+#include <type_traits>
 #include <utility>
 
 namespace TinyDIP
@@ -63,7 +68,9 @@ namespace TinyDIP
                 static_cast<std::uint8_t>(channels[2] - input.channels[2]) };
         }
 
-        friend std::ostream& operator<<(std::ostream& out, const RGB& _myStruct)
+        template<typename OStreamT = std::ostream>
+        requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
+        friend std::ostream& operator<<(OStreamT& out, const RGB& _myStruct)
         {
             out << '{' << +_myStruct.channels[0] << ", " << +_myStruct.channels[1] << ", " << +_myStruct.channels[2] << '}';
             return out;
