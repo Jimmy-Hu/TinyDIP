@@ -1740,6 +1740,17 @@ namespace TinyDIP
         return input.template cast<TargetT>();
     }
 
+    //  cast template function implementation with ExecutionPolicy
+    template<typename TargetT, class ExPo, typename ElementT>
+    requires (std::is_execution_policy_v<std::remove_cvref_t<ExPo>> &&
+              requires(const Image<ElementT>& input, ExPo&& execution_policy) {
+                  input.template cast<TargetT>(std::forward<ExPo>(execution_policy));
+              })
+    auto cast(ExPo&& execution_policy, const Image<ElementT>& input)
+    {
+        return input.template cast<TargetT>(std::forward<ExPo>(execution_policy));
+    }
+
     //  print_with_latex function implementation
     inline void print_with_latex(Image<RGB> input)
     {
