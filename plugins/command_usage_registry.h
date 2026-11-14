@@ -47,6 +47,7 @@ public:
         all_description_.emplace("grid", "grid [execution_policy] <output_bmp | $var> <width> <height> [grid_size=10]");
         all_description_.emplace("help", "help [command_name]");
         all_description_.emplace("histogram", "histogram [execution_policy] <input_image | $var> [output_var | $var] [count_type]");
+        all_description_.emplace("hsv2rgb", "hsv2rgb [execution_policy] <input_data | $var> <output_var | $var>");
         all_description_.emplace("idct2", "idct2 [execution_policy] <input_image | $var> <output_image | $var>");
         all_description_.emplace("lanczos_resample", "lanczos_resample [execution_policy] <input_image | $var> <output_image | $var> <new_width> <new_height> [a]");
         all_description_.emplace("max", "max [execution_policy] <input_data | $var> [output_var | $var]");
