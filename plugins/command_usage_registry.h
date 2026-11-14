@@ -38,6 +38,13 @@ public:
         all_description_.emplace("erase_element", "erase_element <input_container | $var> <output_var | $var> <index>");
         all_description_.emplace("estimate_gaussian_params_2d", "estimate_gaussian_params_2d [execution_policy] <input_img | $var> <output_var | $var> [max_iterations=1000] [tolerance=1e-7]");
         all_description_.emplace("find", "find [execution_policy] <input_container | $var> <target_value | $var> [output_var | $var]");
+        all_description_.emplace("gaussian_figure_2d", "gaussian_figure_2d <output_img | $var> <width> <height> <center_x> <center_y> <sigma>");
+        all_description_.emplace("get_element", "get_element <input_container | $var> <output_var | $var> <index>");
+        all_description_.emplace("get_sift_potential_keypoint", "get_sift_potential_keypoint [execution_policy] <input_img | $var> <output_var | $var> [octaves=4] [levels=5] [sigma=1.6] [k=1.414] [contrast_thresh=8.0] [edge_thresh=12.1] [resampling=bicubic]");
+        all_description_.emplace("getBplane", "getBplane [execution_policy] <input_image | $var> <output_image | $var>");
+        all_description_.emplace("getGplane", "getGplane [execution_policy] <input_image | $var> <output_image | $var>");
+        all_description_.emplace("getRplane", "getRplane [execution_policy] <input_image | $var> <output_image | $var>");
+        all_description_.emplace("grid", "grid [execution_policy] <output_bmp | $var> <width> <height> [grid_size=10]");
         all_description_.emplace("help", "help [command_name]");
         all_description_.emplace("histogram", "histogram [execution_policy] <input_image | $var> [output_var | $var] [count_type]");
         all_description_.emplace("idct2", "idct2 [execution_policy] <input_image | $var> <output_image | $var>");
