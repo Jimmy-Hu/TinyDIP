@@ -14,7 +14,9 @@
 #include "../cube_operations.h"
 #include "../timer.h"
 
-void dbmpFileToCSV(std::string_view source, std::string_view destination, std::ostream& os = std::cout)
+template<typename OStreamT = std::ostream>
+requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
+void dbmpFileToCSV(std::string_view source, std::string_view destination, OStreamT& os = std::cout)
 {
     os << "Determine the input filename " << source << " \n";
     std::filesystem::path source_path = std::string(source);
