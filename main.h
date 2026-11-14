@@ -679,8 +679,10 @@ struct Workspace
         memory_store.clear();
     }
 
-    //  list_variables function implementation
-    void list_variables(std::ostream& os) const
+    //  list_variables template function implementation
+    template <typename OStreamT = std::ostream>
+    requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
+    void list_variables(OStreamT& os) const
     {
         std::lock_guard<std::mutex> lock(mtx);
         
@@ -817,13 +819,82 @@ struct Workspace
             {
                 // Handled successfully by try_print_image_container short-circuit logic
             }
+            else if (match_any_type<master_nested_image_container_types>([&]<typename T>() -> bool
+            {
+                if (value.type() == typeid(T))
+                {
+                    print_prefix.template operator()<T>();
+                    const auto* outer_ptr = std::any_cast<T>(&value);
+                    os << ", outer count = " << std::ranges::size(*outer_ptr);
+                    if (!std::ranges::empty(*outer_ptr))
+                    {
+                        const auto& first_inner = *std::ranges::begin(*outer_ptr);
+                        os << " (inner[0] count = " << std::ranges::size(first_inner);
+                        if (!std::ranges::empty(first_inner))
+                        {
+                            os << ", first image size: ";
+                            print_size(std::ranges::begin(first_inner)->getSize());
+                        }
+                        os << ")";
+                    }
+                    return true;
+                }
+                return false;
+            }))
+            {
+                // Handled successfully by master_nested_image_container_types short-circuit logic
+            }
+            else if (match_any_type<master_nested_scalar_container_types>([&]<typename T>() -> bool
+            {
+                if (value.type() == typeid(T))
+                {
+                    print_prefix.template operator()<T>();
+                    const auto* outer_ptr = std::any_cast<T>(&value);
+                    std::print(os, ", outer count = {}, nested value = {{", std::ranges::size(*outer_ptr));
+                    bool first_outer = true;
+                    for (const auto& inner : *outer_ptr)
+                    {
+                        if (!first_outer)
+                        {
+                            std::print(os, ", ");
+                        }
+                        std::print(os, "{{");
+                        bool first_inner = true;
+                        for (const auto& elem : inner)
+                        {
+                            if (!first_inner)
+                            {
+                                std::print(os, ", ");
+                            }
+                            std::print(os, "{}", +elem);
+                            first_inner = false;
+                        }
+                        std::print(os, "}}");
+                        first_outer = false;
+                    }
+                    std::print(os, "}}");
+                    return true;
+                }
+                return false;
+            }))
+            {
+                // Handled successfully by master_nested_scalar_container_types short-circuit logic
+            }
             else if (match_any_type<master_histogram_types>([&]<typename T>() -> bool
             {
                 if (value.type() == typeid(T))
                 {
                     print_prefix.template operator()<T>();
                     const auto* hist_ptr = std::any_cast<T>(&value);
-                    std::print(os, ", bins = {}, total count = {}", hist_ptr->size(), hist_ptr->getCountSum());
+                    const auto total_count = hist_ptr->getCountSum();
+                    if constexpr (sizeof(total_count) == 1 && std::is_integral_v<decltype(total_count)>)
+                    {
+                        std::print(os, ", bins = {}, total count = {}", hist_ptr->size(), +total_count);
+                    }
+                    else
+                    {
+                        std::print(os, ", bins = {}, total count = {}", hist_ptr->size(), total_count);
+                    }
                     return true;
                 }
                 return false;
