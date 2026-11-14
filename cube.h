@@ -99,7 +99,9 @@ namespace TinyDIP
 
         std::vector<ElementT> const& getData() const noexcept { return data; }      //  expose the internal data
 
-        void print(std::string separator = "\t", std::ostream& os = std::cout) const
+        template<typename OStreamT = std::ostream>
+        requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
+        void print(std::string separator = "\t", OStreamT& os = std::cout) const
         {
             for(std::size_t z = 0; z < depth; ++z)
             {
