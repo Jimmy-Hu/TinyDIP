@@ -384,6 +384,7 @@ namespace TinyDIP
 
         //  cast template function implementation
         template<typename TargetT>
+        requires (requires(const ElementT& input) { static_cast<TargetT>(input); })
         constexpr Image<TargetT> cast() const
         {
             std::vector<TargetT> output_data;
