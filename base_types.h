@@ -134,7 +134,9 @@ namespace TinyDIP
                 channels[2] - input.channels[2] };
         }
 
-        friend std::ostream& operator<<(std::ostream& out, const HSV& _myStruct)
+        template<typename OStreamT = std::ostream>
+        requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
+        friend std::ostream& operator<<(OStreamT& out, const HSV& _myStruct)
         {
             out << '{' << +_myStruct.channels[0] << ", " << +_myStruct.channels[1] << ", " << +_myStruct.channels[2] << '}';
             return out;
