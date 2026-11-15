@@ -221,7 +221,9 @@ namespace TinyDIP
             return Point{ new_array };
         }
 
-        friend std::ostream& operator<<(std::ostream& out, const Point& _myStruct)
+        template<typename OStreamT = std::ostream>
+        requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
+        friend std::ostream& operator<<(OStreamT& out, const Point& _myStruct)
         {
             out << '{';
             for (std::size_t i = 0; i < dimension; ++i)
