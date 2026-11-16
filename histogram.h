@@ -1,6 +1,7 @@
 #ifndef Histogram_H
 #define Histogram_H
 
+#include <algorithm>
 #include <chrono>
 #include <execution>
 #include <iostream>
