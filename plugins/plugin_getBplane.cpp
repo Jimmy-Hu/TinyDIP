@@ -13,6 +13,11 @@ extern "C" TINYDIP_PLUGIN_EXPORT void register_plugin_commands(CommandRegistry& 
     constexpr auto CombinerSchema = IOSchema{ 0, 2 };
     constexpr auto IndependentSchema = IOSchema{ -1, -1 };
 
+    get_command_usage_registry().register_usage(
+        "getBplane",
+        "getBplane [execution_policy] <input_image | $var> <output_image | $var>"
+    );
+
     registry.register_command("getBplane", "Extract the Blue plane (channel 2) from a multi-channel image.", TransformerSchema,
         [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
         {
