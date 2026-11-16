@@ -81,6 +81,11 @@ namespace TinyDIP
             histogram = input;
         }
 
+        Histogram(map_type&& input)
+        {
+            histogram = std::move(input);
+        }
+
         template<class Comp>
         requires (!std::same_as<Comp, HistogramKeyLess<ElementT>>)
         Histogram(const std::map<ElementT, CountT, Comp>& input)
