@@ -103,6 +103,11 @@ namespace TinyDIP
             histogram = input;
         }
 
+        Histogram(std::vector<CountT>&& input)
+        {
+            histogram = std::move(input);
+        }
+
         //  Histogram constructor from Image
         Histogram(const Image<ElementT>& input)
         {
