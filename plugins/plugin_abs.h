@@ -10,18 +10,20 @@ namespace handlers
 {
     //  abs template function implementation
     template <
-        typename CheckingTypes = master_data_types,
+        typename CheckingTypes = tuple_cat_t<master_data_types, master_histogram_types>,
         typename OutputCheckingTypes = CheckingTypes,
-        std::ranges::input_range RangeT = std::span<const std::string_view>
+        std::ranges::input_range RangeT = std::span<const std::string_view>,
+        typename OStreamT = std::ostream
     >
-    requires (std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string_view> or
+    requires((std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string_view> or
               std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string> or
               std::convertible_to<std::ranges::range_value_t<RangeT>, std::string_view> or
-              std::convertible_to<std::ranges::range_value_t<RangeT>, std::string>)
+              std::convertible_to<std::ranges::range_value_t<RangeT>, std::string>) &&
+             std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
     constexpr auto abs(
         Workspace& workspace,
         const RangeT& args,
-        std::ostream& os = std::cout
+        OStreamT& os = std::cout
     )
     {
         auto transform_handler = make_meta_transform_handler<2, CheckingTypes, OutputCheckingTypes>(
