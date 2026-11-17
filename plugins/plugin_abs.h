@@ -162,8 +162,8 @@ using complex_image_types = tuple_cat_t<
 
 // abs(Image<complex<T>>) produces Image<T> or Image<MultiChannel<T, 3>>
 using complex_abs_output_types = tuple_cat_t<
-    image_types,
-    custom_and_multichannel_image_types
+    tuple_map_t<image_t, core_floating_point_types>,
+    tuple_map_t<image_t, tuple_map_t<multichannel_t, core_floating_point_types>>
 >;
 
 // Sliced Container Tuples
