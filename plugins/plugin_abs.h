@@ -174,4 +174,7 @@ using sequence_container_types = tuple_cat_t<
     all_array_types
 >;
 
+// Sliced Histogram Tuples
+using histogram_types = master_histogram_types;
+
 #endif // TINYDIP_PLUGIN_ABS_H
