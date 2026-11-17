@@ -28,7 +28,8 @@ namespace handlers
     {
         auto transform_handler = make_meta_transform_handler<2, CheckingTypes, OutputCheckingTypes>(
             "abs",
-            [](std::span<const std::string_view> filtered_args, const std::string_view policy_str, std::ostream& os)
+            []<typename StreamT = std::ostream>(std::span<const std::string_view> filtered_args, const std::string_view policy_str, StreamT& os)
+            requires(std::derived_from<std::remove_cvref_t<StreamT>, std::ostream>)
             {
                 std::print(os, "Calculating abs of {}", filtered_args[0]);
                 if (not std::ranges::empty(policy_str))
@@ -52,6 +53,17 @@ namespace handlers
                             else
                             {
                                 throw std::invalid_argument("Input image type does not support abs operation.");
+                            }
+                        }
+                        else if constexpr (TinyDIP::is_Histogram<DecayedDataT>::value)
+                        {
+                            if constexpr (requires { TinyDIP::abs(std::forward<DataT>(data)); })
+                            {
+                                return TinyDIP::abs(std::forward<DataT>(data));
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Input histogram type does not support abs operation.");
                             }
                         }
                         else if constexpr (std::ranges::input_range<DecayedDataT>)
@@ -86,6 +98,21 @@ namespace handlers
                                 if (not std::ranges::empty(policy_str))
                                 {
                                     std::print(os, "Warning: Execution policy requested but not supported for this image type/operation. Falling back to default.\n");
+                                }
+                                return exec_default();
+                            }
+                        }
+                        else if constexpr (TinyDIP::is_Histogram<DecayedDataT>::value)
+                        {
+                            if constexpr (requires { TinyDIP::abs(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data)); })
+                            {
+                                return TinyDIP::abs(std::forward<ExecPolicy>(exec_policy), std::forward<DataT>(data));
+                            }
+                            else
+                            {
+                                if (not std::ranges::empty(policy_str))
+                                {
+                                    std::print(os, "Warning: Execution policy requested but not supported for this histogram type/operation. Falling back to default.\n");
                                 }
                                 return exec_default();
                             }
