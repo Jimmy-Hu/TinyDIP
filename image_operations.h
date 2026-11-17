@@ -4400,13 +4400,13 @@ namespace TinyDIP
     >
     Image<OutputT> idct3_one_plane(const RangeT& input, const std::size_t plane_index)
     {
-        using ScalarT = get_scalar_type_t<ElementT>;
+        using ScalarT = get_scalar_type_t<OutputT>;
         constexpr ScalarT PI = std::numbers::pi_v<ScalarT>;
         constexpr ScalarT SQRT2 = std::numbers::sqrt2_v<ScalarT>;
 
         auto N1 = static_cast<OutputT>(input[0].getWidth());
         auto N2 = static_cast<OutputT>(input[0].getHeight());
-        auto N3 = input.size();
+        auto N3 = std::ranges::size(input);
         auto output = Image<OutputT>(input[plane_index].getWidth(), input[plane_index].getHeight());
         auto height = output.getHeight();
         auto width = output.getWidth();
