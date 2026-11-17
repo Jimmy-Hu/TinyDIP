@@ -3078,7 +3078,9 @@ namespace TinyDIP
         FloatingPointT P_x;
         FloatingPointT P_y;
 
-        friend std::ostream& operator<<(std::ostream& os, const AsymmetricSuperGaussianParameters2D& params)
+        template<typename OStreamT = std::ostream>
+        requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
+        friend std::ostream& operator<<(OStreamT& os, const AsymmetricSuperGaussianParameters2D& params)
         {
             os << "{ amplitude: " << params.amplitude
                << ", x0: " << params.x0
