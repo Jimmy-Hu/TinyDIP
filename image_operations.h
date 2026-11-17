@@ -7932,8 +7932,9 @@ namespace TinyDIP
      * operator<< overload for SiftParams template struct
      * @brief Overloads the stream insertion operator for SiftParams for easy printing.
      */
-    template<std::floating_point FloatingType>
-    std::ostream& operator<<(std::ostream& os, const SiftParams<FloatingType>& params)
+    template<std::floating_point FloatingType, typename OStreamT = std::ostream>
+    requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
+    std::ostream& operator<<(OStreamT& os, const SiftParams<FloatingType>& params)
     {
         os << "SiftParams:\n"
             << "  - Octaves Count:          " << params.octaves_count << '\n'
