@@ -1,3 +1,5 @@
+/* Developed by Jimmy Hu */
+
 #ifndef TINYDIP_LINEAR_ALGEBRA_H
 #define TINYDIP_LINEAR_ALGEBRA_H
 
@@ -5,9 +7,14 @@
 #include <cmath>
 #include <concepts>
 #include <cstddef>
+#include <execution>
 #include <numeric>
+#include <ostream>
 #include <stdexcept>
+#include <type_traits>
+#include <utility>
 #include <vector>
+#include "basic_functions.h"
 
 namespace TinyDIP
 {
