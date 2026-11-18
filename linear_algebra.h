@@ -27,39 +27,26 @@ namespace linalg
     class Matrix
     {
     public:
-        Matrix() : rows_(0), cols_(0) {}
+        constexpr Matrix() noexcept : rows_(0), cols_(0) {}
 
-        Matrix(const std::size_t rows, const std::size_t cols)
+        constexpr Matrix(const std::size_t rows, const std::size_t cols)
             : rows_(rows), cols_(cols), data_(rows * cols)
         {
         }
 
-        T& at(const std::size_t row, const std::size_t col)
+        [[nodiscard]] constexpr decltype(auto) at(const std::size_t row, const std::size_t col)
         {
             return data_[row * cols_ + col];
         }
 
-        const T& at(const std::size_t row, const std::size_t col) const
+        [[nodiscard]] constexpr decltype(auto) at(const std::size_t row, const std::size_t col) const
         {
             return data_[row * cols_ + col];
         }
 
-        std::size_t rows() const
-        {
-            return rows_;
-        }
-        
-        std::size_t cols() const
-        {
-            return cols_;
-        }
-
-        bool empty() const
-        {
-            return rows_ == 0 || cols_ == 0;
-        }
-
-        // Other utility functions can be added here (e.g., print)
+        [[nodiscard]] constexpr std::size_t rows() const noexcept { return rows_; }
+        [[nodiscard]] constexpr std::size_t cols() const noexcept { return cols_; }
+        [[nodiscard]] constexpr bool empty() const noexcept { return rows_ == 0 || cols_ == 0; }
 
     private:
         std::size_t rows_;
