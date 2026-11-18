@@ -54,12 +54,9 @@ namespace linalg
         std::vector<T> data_;
     };
 
-    /**
-     * operator<< template function implementation
-     * @brief Overloads the stream insertion operator for the Matrix class for easy printing.
-     */
-    template <typename T>
-    std::ostream& operator<<(std::ostream& os, const Matrix<T>& M)
+    template <typename T, typename OStreamT = std::ostream>
+    requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
+    std::ostream& operator<<(OStreamT& os, const Matrix<T>& M)
     {
         for (std::size_t r = 0; r < M.rows(); ++r)
         {
