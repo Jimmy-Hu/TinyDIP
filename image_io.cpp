@@ -1,6 +1,8 @@
 /* Developed by Jimmy Hu */
 
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "image_io.h"
 
 namespace TinyDIP
