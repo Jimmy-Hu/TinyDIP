@@ -138,7 +138,6 @@ namespace linalg
         const std::size_t n = A.rows();
         Matrix<ElementT> D = A; // Make a copy to modify
 
-        // Initialize eigenvectors as the identity matrix
         eigenvectors = Matrix<ElementT>(n, n);
         for(std::size_t i = 0; i < n; ++i)
         {
@@ -165,13 +164,12 @@ namespace linalg
 
             if (max_val < tolerance) break; // Convergence check
 
-            // Perform Jacobi rotation
-            ElementT app = D.at(p, p);
-            ElementT aqq = D.at(q, q);
-            ElementT apq = D.at(p, q);
-            ElementT theta = 0.5 * std::atan2(2 * apq, aqq - app);
-            ElementT c = std::cos(theta);
-            ElementT s = std::sin(theta);
+            const ElementT app = D.at(p, p);
+            const ElementT aqq = D.at(q, q);
+            const ElementT apq = D.at(p, q);
+            const ElementT theta = 0.5 * std::atan2(2 * apq, aqq - app);
+            const ElementT c = std::cos(theta);
+            const ElementT s = std::sin(theta);
 
             // Update D (the matrix being diagonalized)
             D.at(p, p) = c * c * app + s * s * aqq - 2 * s * c * apq;
