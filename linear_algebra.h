@@ -92,7 +92,7 @@ namespace linalg
      */
     template<typename ElementT>
     requires (std::floating_point<ElementT>)
-    Matrix<ElementT> multiply(const Matrix<ElementT>& A, const Matrix<ElementT>& B)
+    [[nodiscard]] constexpr Matrix<ElementT> multiply(const Matrix<ElementT>& A, const Matrix<ElementT>& B)
     {
         if (A.cols() != B.rows())
         {
