@@ -969,9 +969,8 @@ namespace TinyDIP
     }
 
     template<std::ranges::input_range T, class Proj = std::identity,
-             std::indirect_strict_weak_order<
-             std::projected<const T*, Proj>> Comp = std::ranges::less>
-    static inline auto recursive_max(const T& numbers, Comp comp = {}, Proj proj = {})
+             std::indirect_strict_weak_order<std::projected<const T*, Proj>> Comp = std::ranges::less>
+    [[nodiscard]] constexpr auto recursive_max(const T& numbers, Comp comp = {}, Proj proj = {})
     {
         auto output = recursive_max(numbers.at(0), comp, proj);
         for (auto& element : numbers)
