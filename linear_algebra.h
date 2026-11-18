@@ -77,7 +77,7 @@ namespace linalg
      */
     template<typename ElementT>
     requires (std::floating_point<ElementT>)
-    Matrix<ElementT> transpose(const Matrix<ElementT>& A)
+    [[nodiscard]] constexpr Matrix<ElementT> transpose(const Matrix<ElementT>& A)
     {
         Matrix<ElementT> A_T(A.cols(), A.rows());
         for (std::size_t r = 0; r < A.rows(); ++r)
