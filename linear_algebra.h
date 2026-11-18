@@ -124,12 +124,12 @@ namespace linalg
      */
     template<typename ElementT>
     requires (std::floating_point<ElementT>)
-    void jacobi_eigen_solver(
+    constexpr void jacobi_eigen_solver(
         const Matrix<ElementT>& A,
         std::vector<ElementT>& eigenvalues,
         Matrix<ElementT>& eigenvectors,
-        int max_iterations = 100,
-        ElementT tolerance = 1.0e-9)
+        const int max_iterations = 100,
+        const ElementT tolerance = 1.0e-9)
     {
         if (A.rows() != A.cols())
         {
