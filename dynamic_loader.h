@@ -42,16 +42,9 @@ public:
 #endif
     }
 
-    ~DynamicLibrary()
+    ~DynamicLibrary() noexcept
     {
-        if (handle_)
-        {
-#ifdef _WIN32
-            FreeLibrary(static_cast<HMODULE>(handle_));
-#else
-            dlclose(handle_);
-#endif
-        }
+        close_handle();
     }
 
     // Disable copy to maintain strict resource ownership (RAII)
@@ -68,14 +61,7 @@ public:
     {
         if (this != &other)
         {
-            if (handle_)
-            {
-#ifdef _WIN32
-                FreeLibrary(static_cast<HMODULE>(handle_));
-#else
-                dlclose(handle_);
-#endif
-            }
+            close_handle();
             handle_ = other.handle_;
             other.handle_ = nullptr;
         }
@@ -103,6 +89,19 @@ public:
     }
 
 private:
+    void close_handle() noexcept
+    {
+        if (handle_)
+        {
+#ifdef _WIN32
+            FreeLibrary(static_cast<HMODULE>(handle_));
+#else
+            dlclose(handle_);
+#endif
+            handle_ = nullptr;
+        }
+    }
+
     void* handle_{ nullptr };
 };
 
