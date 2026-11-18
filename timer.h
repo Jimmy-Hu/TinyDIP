@@ -27,16 +27,10 @@ namespace TinyDIP
             end = std::chrono::system_clock::now();
             elapsed_seconds = end - start;
             end_time = std::chrono::system_clock::to_time_t(end);
-            if (elapsed_seconds.count() != 1)
-            {
-                //std::print(std::cout, "Computation finished at {} elapsed time: {} seconds.\n", std::ctime(&end_time), elapsed_seconds.count());
-                std::cout << "Computation finished at " << std::ctime(&end_time) << " elapsed time: " << elapsed_seconds.count() << "seconds.\n";
-            }
-            else
-            {
-                //std::print(std::cout, "Computation finished at {} elapsed time: {} second.\n", std::ctime(&end_time), elapsed_seconds.count());
-                std::cout << "Computation finished at " << std::ctime(&end_time) << " elapsed time: " << elapsed_seconds.count() << "second.\n";
-            }
+            //std::print(std::cout, "Computation finished at {} elapsed time: {} {}.\n", std::ctime(&end_time), elapsed_seconds.count(), (elapsed_seconds.count() != 1) ? "seconds" : "second");
+            std::cout << "Computation finished at " << std::ctime(&end_time)
+                      << " elapsed time: " << elapsed_seconds.count()
+                      << ((elapsed_seconds.count() != 1) ? "seconds.\n" : "second.\n");
         }
 
     };
