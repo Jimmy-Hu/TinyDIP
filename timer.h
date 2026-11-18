@@ -4,6 +4,7 @@
 #define Timer_H
 
 #include <chrono>
+#include <ctime>
 #include <iostream>
 //#include <print>
 
