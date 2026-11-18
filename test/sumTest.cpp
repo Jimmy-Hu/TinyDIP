@@ -1,8 +1,12 @@
 /* Developed by Jimmy Hu */
 
+#include <cassert>
+#include <cstdlib>
 #include <execution>
-#include <stdlib.h>
+#include <numeric>
+#include <ranges>
 #include <thread>
+#include <vector>
 #include "../base_types.h"
 #include "../basic_functions.h"
 #include "../image.h"
