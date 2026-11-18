@@ -961,10 +961,9 @@ namespace TinyDIP
 
     //  recursive_max template function implementation
     template<class T, class Proj = std::identity,
-        std::indirect_strict_weak_order<
-                std::projected<const T*, Proj>> Comp = std::ranges::less>
-    requires(!std::ranges::input_range<T>)          //  non-range overloading
-    static inline T recursive_max(T inputNumber, Comp comp = {}, Proj proj = {})
+             std::indirect_strict_weak_order<std::projected<const T*, Proj>> Comp = std::ranges::less>
+    requires(!std::ranges::input_range<T>)
+    [[nodiscard]] constexpr T recursive_max(const T inputNumber, Comp comp = {}, Proj proj = {})
     {
         return std::invoke(proj, inputNumber);
     }
