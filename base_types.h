@@ -4,15 +4,19 @@
 #define TINYDIP_BASE_TYPES_H
 
 #include <array>
-#include <cstdint>
-#include <filesystem>
 #include <cmath>
 #include <complex>
 #include <concepts>
+#include <cstddef>
+#include <cstdint>
+#include <functional>
+#ifndef __POLYGEIST__
 #include <cstdio>
 #include <cstdlib>
+#include <filesystem>
 #include <ostream>
 #include <string>
+#endif
 #include <tuple>
 #include <type_traits>
 #include <utility>
