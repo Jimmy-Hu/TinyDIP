@@ -169,78 +169,47 @@ namespace TinyDIP
         return none_of(input, [](const auto& element) { return element <= 0; });
     }
 
-    template<typename ElementT>
-    constexpr bool is_width_same(const Image<ElementT>& x, const Image<ElementT>& y)
+    template<typename ElementT, std::same_as<Image<ElementT>>... RestImages>
+    requires (sizeof...(RestImages) >= 1)
+    constexpr bool is_width_same(const Image<ElementT>& first, const RestImages&... rest) noexcept
     {
-        return x.getWidth() == y.getWidth();
+        return ((first.getWidth() == rest.getWidth()) && ...);
     }
 
-    template<typename ElementT>
-    constexpr bool is_width_same(const Image<ElementT>& x, const Image<ElementT>& y, const Image<ElementT>& z)
-    {
-        return is_width_same(x, y) && is_width_same(y, z);
-    }
-
-    template<typename ElementT>
-    constexpr bool is_height_same(const Image<ElementT>& x, const Image<ElementT>& y)
-    {
-        return x.getHeight() == y.getHeight();
-    }
-
-    template<typename ElementT>
-    constexpr bool is_height_same(const Image<ElementT>& x, const Image<ElementT>& y, const Image<ElementT>& z)
-    {
-        return is_height_same(x, y) && is_height_same(y, z);
-    }
-    
-    template<typename ElementT>
-    constexpr bool is_size_same(const Image<ElementT>& x, const Image<ElementT>& y)
-    {
-        return is_width_same(x, y) && is_height_same(x, y);
-    }
-
-    template<typename ElementT>
-    constexpr bool is_size_same(const Image<ElementT>& x, const Image<ElementT>& y, const Image<ElementT>& z)
-    {
-        return is_size_same(x, y) && is_size_same(y, z);
-    }
-
-    template<typename ElementT>
-    constexpr void assert_width_same(const Image<ElementT>& x, const Image<ElementT>& y)
-    {
-        assert(is_width_same(x, y));
-    }
-
-    template<typename ElementT>
-    constexpr void assert_width_same(const Image<ElementT>& x, const Image<ElementT>& y, const Image<ElementT>& z)
+    template<typename ElementT, std::same_as<Image<ElementT>>... RestImages>
+    requires (sizeof...(RestImages) >= 1)
+    constexpr bool is_height_same(const Image<ElementT>& first, const RestImages&... rest) noexcept
     {
         assert(is_width_same(x, y, z));
     }
 
-    template<typename ElementT>
-    constexpr void assert_height_same(const Image<ElementT>& x, const Image<ElementT>& y)
+    template<typename ElementT, std::same_as<Image<ElementT>>... RestImages>
+    requires (sizeof...(RestImages) >= 1)
+    constexpr bool is_size_same(const Image<ElementT>& first, const RestImages&... rest) noexcept
     {
-        assert(is_height_same(x, y));
+        return is_width_same(first, rest...) && is_height_same(first, rest...);
     }
 
-    template<typename ElementT>
-    constexpr void assert_height_same(const Image<ElementT>& x, const Image<ElementT>& y, const Image<ElementT>& z)
+    template<typename ElementT, std::same_as<Image<ElementT>>... RestImages>
+    requires (sizeof...(RestImages) >= 1)
+    constexpr void assert_width_same(const Image<ElementT>& first, const RestImages&... rest)
     {
-        assert(is_height_same(x, y, z));
+        assert(is_width_same(first, rest...));
     }
 
-    template<typename ElementT>
-    constexpr void assert_size_same(const Image<ElementT>& x, const Image<ElementT>& y)
+    template<typename ElementT, std::same_as<Image<ElementT>>... RestImages>
+    requires (sizeof...(RestImages) >= 1)
+    constexpr void assert_height_same(const Image<ElementT>& first, const RestImages&... rest)
     {
-        assert_width_same(x, y);
-        assert_height_same(x, y);
+        assert(is_height_same(first, rest...));
     }
 
-    template<typename ElementT>
-    constexpr void assert_size_same(const Image<ElementT>& x, const Image<ElementT>& y, const Image<ElementT>& z)
+    template<typename ElementT, std::same_as<Image<ElementT>>... RestImages>
+    requires (sizeof...(RestImages) >= 1)
+    constexpr void assert_size_same(const Image<ElementT>& first, const RestImages&... rest)
     {
-        assert_size_same(x, y);
-        assert_size_same(y, z);
+        assert_width_same(first, rest...);
+        assert_height_same(first, rest...);
     }
 
     template<typename ElementT>
