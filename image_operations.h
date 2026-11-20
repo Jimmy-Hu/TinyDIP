@@ -236,26 +236,29 @@ namespace TinyDIP
 
     //  is_symmetry template function implementation
     template<typename ElementT>
-    constexpr bool is_symmetry(const Image<ElementT>& input)
+    [[nodiscard]] constexpr bool is_symmetry(const Image<ElementT>& input)
     {
         if (input.getDimensionality() != 2)
         {
             throw std::runtime_error("Input is not a matrix!");
         }
-        // Convert Image to Matrix to check symmetry
-        // Image(x, y) maps to Matrix(row, col) => Matrix(y, x)
-        // Image width is cols, height is rows
-        linalg::Matrix<ElementT> m(input.getHeight(), input.getWidth());
-    
-        for (std::size_t r = 0; r < input.getHeight(); ++r)
+        if (input.getWidth() != input.getHeight())
         {
-            for (std::size_t c = 0; c < input.getWidth(); ++c)
+            return false;
+        }
+        const std::size_t n = input.getHeight();
+        const auto elem_at = [&](const std::size_t r, const std::size_t c) -> const ElementT&
+        {
+            return input.at_without_boundary_check(c, r);
+        };
+        for (std::size_t r = 0; r < n; ++r)
+        {
+            if (!linalg::detail::is_row_symmetric<ElementT>(n, r, elem_at))
             {
-                m.at(r, c) = input.at_without_boundary_check(c, r);
+                return false;
             }
         }
-
-        return linalg::is_symmetry(m);
+        return true;
     }
 
     //  zeros template function implementation
