@@ -4,6 +4,11 @@
 #ifndef TINYDIP_PLUGIN_SIFT_COMMON_H
 #define TINYDIP_PLUGIN_SIFT_COMMON_H
 
+#include <concepts>
+#include <functional>
+#include <tuple>
+#include <type_traits>
+#include <utility>
 #include "plugin_api.h"
 
 namespace handlers
