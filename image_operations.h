@@ -180,7 +180,7 @@ namespace TinyDIP
     requires (sizeof...(RestImages) >= 1)
     constexpr bool is_height_same(const Image<ElementT>& first, const RestImages&... rest) noexcept
     {
-        assert(is_width_same(x, y, z));
+        return ((first.getHeight() == rest.getHeight()) && ...);
     }
 
     template<typename ElementT, std::same_as<Image<ElementT>>... RestImages>
