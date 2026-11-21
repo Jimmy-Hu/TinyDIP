@@ -338,7 +338,7 @@ namespace TinyDIP
     constexpr static auto generate(F gen, const Sizes& sizes)
     {
         using ElementT = std::invoke_result_t<F>;
-        auto count = std::reduce(std::ranges::cbegin(sizes), std::ranges::cend(sizes), 1, std::multiplies());
+        auto count = std::reduce(std::ranges::cbegin(sizes), std::ranges::cend(sizes), std::size_t{ 1 }, std::multiplies());
         std::vector<ElementT> element_vector(count);
         std::ranges::generate(element_vector, gen);
         Image<ElementT> image(element_vector, sizes);
