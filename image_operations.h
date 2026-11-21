@@ -169,11 +169,20 @@ namespace TinyDIP
         return none_of(input, [](const auto& element) { return element <= 0; });
     }
 
-    template<typename ElementT, std::same_as<Image<ElementT>>... RestImages>
-    requires (sizeof...(RestImages) >= 1)
-    constexpr bool is_width_same(const Image<ElementT>& first, const RestImages&... rest) noexcept
+    template<typename FirstElementT, typename... RestElementTs>
+    [[nodiscard]] constexpr bool is_width_same(
+        const Image<FirstElementT>& first,
+        const Image<RestElementTs>&... rest) noexcept
     {
-        return ((first.getWidth() == rest.getWidth()) && ...);
+        if constexpr (sizeof...(RestElementTs) == 0)
+        {
+            return true;
+        }
+        else
+        {
+            const std::size_t first_width = first.getWidth();
+            return ((first_width == rest.getWidth()) && ...);
+        }
     }
 
     template<typename ElementT, std::same_as<Image<ElementT>>... RestImages>
