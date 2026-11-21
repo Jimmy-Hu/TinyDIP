@@ -185,11 +185,20 @@ namespace TinyDIP
         }
     }
 
-    template<typename ElementT, std::same_as<Image<ElementT>>... RestImages>
-    requires (sizeof...(RestImages) >= 1)
-    constexpr bool is_height_same(const Image<ElementT>& first, const RestImages&... rest) noexcept
+    template<typename FirstElementT, typename... RestElementTs>
+    [[nodiscard]] constexpr bool is_height_same(
+        const Image<FirstElementT>& first,
+        const Image<RestElementTs>&... rest) noexcept
     {
-        return ((first.getHeight() == rest.getHeight()) && ...);
+        if constexpr (sizeof...(RestElementTs) == 0)
+        {
+            return true;
+        }
+        else
+        {
+            const std::size_t first_height = first.getHeight();
+            return ((first_height == rest.getHeight()) && ...);
+        }
     }
 
     template<typename ElementT, std::same_as<Image<ElementT>>... RestImages>
