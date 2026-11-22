@@ -171,7 +171,6 @@ namespace linalg
             const ElementT c = std::cos(theta);
             const ElementT s = std::sin(theta);
 
-            // Update D (the matrix being diagonalized)
             D.at(p, p) = c * c * app + s * s * aqq - 2 * s * c * apq;
             D.at(q, q) = s * s * app + c * c * aqq + 2 * s * c * apq;
             D.at(p, q) = D.at(q, p) = 0.0;
@@ -274,10 +273,43 @@ namespace linalg
         return inverse;
     }
 
-    /**
-     * is_symmetry template function implementation
-     * @brief Checks if a matrix is symmetric.
-     */
+    namespace detail
+    {
+        template<typename T>
+        [[nodiscard]] constexpr bool elements_symmetric(const T& val1, const T& val2, const double epsilon = 1e-6)
+        {
+            if constexpr (std::is_integral_v<T>)
+            {
+                return val1 == val2;
+            }
+            else if constexpr (arithmetic<T>)
+            {
+                return !(TinyDIP::abs(val1 - val2) > epsilon);
+            }
+            else
+            {
+                return val1 == val2;
+            }
+        }
+
+        template<typename T, typename ElemAtFn>
+        [[nodiscard]] constexpr bool is_row_symmetric(
+            const std::size_t n,
+            const std::size_t r,
+            const ElemAtFn elem_at
+        )
+        {
+            for (std::size_t c = r + 1; c < n; ++c)
+            {
+                if (!elements_symmetric<T>(elem_at(r, c), elem_at(c, r)))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
     template<typename T>
     constexpr bool is_symmetry(const Matrix<T>& mat)
     {
