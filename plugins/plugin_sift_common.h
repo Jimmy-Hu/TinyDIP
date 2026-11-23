@@ -15,8 +15,45 @@ namespace handlers
 {
     namespace detail_sift
     {
+        template <typename RawScalarT>
+        concept is_already_double_sift_scalar =
+            std::same_as<RawScalarT, double> ||
+            std::same_as<RawScalarT, TinyDIP::RGB_DOUBLE> ||
+            std::same_as<RawScalarT, TinyDIP::HSV>;
+
+        template <typename ImgT>
+        concept im2double_convertible_image = requires(ImgT&& img)
+        {
+            TinyDIP::im2double(std::move(img));
+        };
+
+        template <typename Callback, typename ImgT>
+        concept invocable_after_im2double =
+            im2double_convertible_image<ImgT> &&
+            std::invocable<Callback&, decltype(TinyDIP::im2double(std::declval<ImgT>()))>;
+
+        template <typename Callback, typename ImgT>
+        concept sift_callback_compatible_for_image =
+            TinyDIP::is_bool_data_v<ImgT> ||
+            TinyDIP::is_complex_data_v<ImgT> ||
+            (is_already_double_sift_scalar<TinyDIP::get_deep_scalar_t<ImgT>> &&
+             std::invocable<Callback&, ImgT>) ||
+            (!is_already_double_sift_scalar<TinyDIP::get_deep_scalar_t<ImgT>> &&
+             (!im2double_convertible_image<ImgT> || invocable_after_im2double<Callback, ImgT>));
+
+        template <typename Callback, typename TupleT>
+        struct is_double_elevated_sift_callback_for_tuple : std::false_type {};
+
+        template <typename Callback, typename... ImgTs>
+        struct is_double_elevated_sift_callback_for_tuple<Callback, std::tuple<ImgTs...>>
+            : std::bool_constant<(sift_callback_compatible_for_image<Callback, ImgTs> && ...)> {};
+
+        template <typename Callback, typename TupleT = master_image_types>
+        concept double_elevated_sift_callback =
+            is_double_elevated_sift_callback_for_tuple<Callback, TupleT>::value;
+
         template <
-            typename DoubleImageCallback,
+            double_elevated_sift_callback DoubleImageCallback,
             typename ImageLoaderFun = MetaImageIO::Loader,
             typename OStreamT = std::ostream
         >
@@ -43,13 +80,13 @@ namespace handlers
                 {
                     using RawScalarT = TinyDIP::get_deep_scalar_t<DecayedImageType>;
 
-                    if constexpr (std::same_as<RawScalarT, double>)
+                    if constexpr (is_already_double_sift_scalar<RawScalarT>)
                     {
-                        callback(std::forward<ImageType>(input_img));
+                        std::invoke(callback, std::forward<ImageType>(input_img));
                     }
                     else if constexpr (requires { TinyDIP::im2double(std::forward<ImageType>(input_img)); })
                     {
-                        callback(TinyDIP::im2double(std::forward<ImageType>(input_img)));
+                        std::invoke(callback, TinyDIP::im2double(std::forward<ImageType>(input_img)));
                     }
                     else
                     {
