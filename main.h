@@ -51,6 +51,14 @@ using is_std_complex = TinyDIP::is_complex<std::remove_cvref_t<T>>;
 template <typename T>
 inline constexpr bool is_std_complex_v = is_std_complex<T>::value;
 
+template <typename RangeT>
+concept string_token_range =
+    std::ranges::input_range<RangeT> &&
+    (std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string_view> ||
+     std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string> ||
+     std::convertible_to<std::ranges::range_value_t<RangeT>, std::string_view> ||
+     std::convertible_to<std::ranges::range_value_t<RangeT>, std::string>);
+
 
 //  sanitize_string_view function implementation
 //  Helper for safely sanitizing cross-platform path strings and REPL tokens natively with zero allocations
