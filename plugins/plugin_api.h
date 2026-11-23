@@ -18,7 +18,6 @@
 //  This allows the dynamic OS loader to locate the exact symbol "register_plugin_commands" natively.
 extern "C" TINYDIP_PLUGIN_EXPORT void register_plugin_commands(CommandRegistry& registry);
 
-#endif//  Helper to register a command handler taking (Workspace&, std::span<const std::string_view>, std::ostream&)
 //  Helper to register a command handler taking (Workspace&, std::span<const std::string_view>, std::ostream&)
 //  without repeating redundant wrapper lambdas or local IOSchema constants in every plugin translation unit.
 template <typename HandlerCallable>
@@ -71,3 +70,61 @@ requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
     return std::pair{ first_name, second_name };
 }
 
+template <typename ElementT, typename CallbackFun, typename OStreamT = std::ostream>
+requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
+void dispatch_target_value_or_literal(
+    const std::string_view target_arg,
+    const Workspace& workspace,
+    OStreamT& os,
+    CallbackFun&& callback)
+{
+    constexpr bool is_nested_or_image_element =
+        TinyDIP::is_Image<ElementT>::value || is_sequence_container_v<ElementT>;
+
+    if (target_arg.starts_with('$'))
+    {
+        const std::string_view var_name = target_arg.substr(1);
+        bool found = false;
+        if (const auto* exact_ptr = workspace.retrieve<ElementT>(var_name))
+        {
+            callback(*exact_ptr);
+            found = true;
+        }
+        else if constexpr (!is_nested_or_image_element)
+        {
+            found = match_any_type<master_scalar_types>(
+                [&]<typename T>() -> bool
+                {
+                    if (const auto* ptr = workspace.retrieve<T>(var_name))
+                    {
+                        callback(*ptr);
+                        return true;
+                    }
+                    return false;
+                }
+            );
+        }
+        if (!found)
+        {
+            std::print(os, "Error: Target variable not found or unsupported type: {}\n", target_arg);
+        }
+    }
+    else if constexpr (!is_nested_or_image_element)
+    {
+        try
+        {
+            ElementT parsed_target = parse_arg<ElementT>(target_arg);
+            callback(parsed_target);
+        }
+        catch (const std::exception& e)
+        {
+            std::print(os, "Error parsing target value '{}' as scalar: {}\n", target_arg, e.what());
+        }
+    }
+    else
+    {
+        std::print(os, "Error: Image or nested container target must be a memory variable starting with '$'.\n");
+    }
+}
+
+#endif // TINYDIP_PLUGIN_API_H
