@@ -46,9 +46,11 @@
 #include "timer.h"
 #include "plugins/command_usage_registry.h"
 
-template <typename T> struct is_std_complex : std::false_type {};
-template <typename T> struct is_std_complex<std::complex<T>> : std::true_type {};
-template <typename T> inline constexpr bool is_std_complex_v = is_std_complex<std::remove_cvref_t<T>>::value;
+template <typename T>
+using is_std_complex = TinyDIP::is_complex<std::remove_cvref_t<T>>;
+template <typename T>
+inline constexpr bool is_std_complex_v = is_std_complex<T>::value;
+
 
 //  sanitize_string_view function implementation
 //  Helper for safely sanitizing cross-platform path strings and REPL tokens natively with zero allocations
