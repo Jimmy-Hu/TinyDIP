@@ -52,6 +52,8 @@ namespace TinyDIP
     class Histogram
     {
     public:
+        using element_type = ElementT;
+        using count_type = CountT;
         using map_type = std::map<ElementT, CountT, HistogramKeyLess<ElementT>>;
         static constexpr bool is_dense_v = (std::same_as<ElementT, std::uint8_t>) or
                                            (std::same_as<ElementT, std::uint16_t>);
@@ -59,6 +61,12 @@ namespace TinyDIP
     private:
         static constexpr bool is_dense = is_dense_v;
         std::variant<std::vector<CountT>, map_type> histogram;
+
+        [[nodiscard]] constexpr auto& active_storage() noexcept
+        {
+            if constexpr (is_dense) { return std::get<std::vector<CountT>>(histogram); }
+            else { return std::get<map_type>(histogram); }
+        }
 
     public:
         // Histogram constructor
