@@ -72,6 +72,12 @@ namespace TinyDIP
             else { return std::get<map_type>(histogram); }
         }
 
+        [[nodiscard]] constexpr const auto& active_storage() const noexcept
+        {
+            if constexpr (is_dense) { return std::get<std::vector<CountT>>(histogram); }
+            else { return std::get<map_type>(histogram); }
+        }
+
     public:
         // Histogram constructor
         // Explicitly initialize based on ElementT type
