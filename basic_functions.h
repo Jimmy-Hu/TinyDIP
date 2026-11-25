@@ -161,19 +161,8 @@ namespace TinyDIP
 
     template <typename T> inline constexpr bool is_unsigned_data_v = is_unsigned_data<T>::value;
 
-    // ------------------------------------------------------------------------------------
-    //  bool Type Detection Traits
-    // ------------------------------------------------------------------------------------
-
-    template <typename T> struct is_bool_data : std::false_type {};
-    template <> struct is_bool_data<bool> : std::true_type {};
-    template <typename T> struct is_bool_data<TinyDIP::Image<T>> : is_bool_data<T> {};
-    template <typename T, std::size_t N> struct is_bool_data<TinyDIP::MultiChannel<T, N>> : is_bool_data<T> {};
-    template <typename T> struct is_bool_data<std::complex<T>> : is_bool_data<T> {};
-    template <typename T, typename A> struct is_bool_data<std::vector<T, A>> : is_bool_data<T> {};
-    template <typename T, typename A> struct is_bool_data<std::deque<T, A>> : is_bool_data<T> {};
-    template <typename T, typename A> struct is_bool_data<std::list<T, A>> : is_bool_data<T> {};
-    template <typename T, std::size_t N> struct is_bool_data<std::array<T, N>> : is_bool_data<T> {};
+    template <typename T>
+    struct is_bool_data : std::is_same<get_deep_scalar_t<T>, bool> {};
 
     template <typename T> inline constexpr bool is_bool_data_v = is_bool_data<T>::value;
 
