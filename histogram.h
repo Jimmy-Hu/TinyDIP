@@ -107,13 +107,8 @@ namespace TinyDIP
         template<class Comp>
         requires (!std::same_as<Comp, HistogramKeyLess<ElementT>>)
         Histogram(const std::map<ElementT, CountT, Comp>& input)
+            : histogram(std::in_place_type<map_type>, std::ranges::begin(input), std::ranges::end(input))
         {
-            map_type converted;
-            for (const auto& [k, v] : input)
-            {
-                converted.emplace(k, v);
-            }
-            histogram = std::move(converted);
         }
 
         Histogram(const std::vector<CountT>& input)
