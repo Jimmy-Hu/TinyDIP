@@ -144,20 +144,26 @@ namespace TinyDIP
     template <std::size_t N, typename T>
     struct is_MultiChannel<MultiChannel<T, N>> : std::true_type {};
 
+    template <typename T> struct get_deep_scalar { using type = std::remove_cvref_t<T>; };
+    template <typename T> struct get_deep_scalar<std::complex<T>> { using type = typename get_deep_scalar<T>::type; };
+    template <typename T> struct get_deep_scalar<TinyDIP::Image<T>> { using type = typename get_deep_scalar<T>::type; };
+    template <typename T, std::size_t N> struct get_deep_scalar<TinyDIP::MultiChannel<T, N>> { using type = typename get_deep_scalar<T>::type; };
+    template <typename T, typename A> struct get_deep_scalar<std::vector<T, A>> { using type = typename get_deep_scalar<T>::type; };
+    template <typename T, typename A> struct get_deep_scalar<std::deque<T, A>> { using type = typename get_deep_scalar<T>::type; };
+    template <typename T, typename A> struct get_deep_scalar<std::list<T, A>> { using type = typename get_deep_scalar<T>::type; };
+    template <typename T, std::size_t N> struct get_deep_scalar<std::array<T, N>> { using type = typename get_deep_scalar<T>::type; };
+
+    template <typename T> using get_deep_scalar_t = typename get_deep_scalar<std::remove_cvref_t<T>>::type;
+
     // ------------------------------------------------------------------------------------
-    //  Unsigned Type Detection Traits
+    //  Unsigned & bool & complex Type Detection Traits (Reusing get_deep_scalar_t)
     // ------------------------------------------------------------------------------------
 
-    template <typename T> struct is_unsigned_data : std::false_type {};
-    template <typename T> requires std::is_unsigned_v<T> struct is_unsigned_data<T> : std::true_type {};
-    template <> struct is_unsigned_data<TinyDIP::RGB> : std::true_type {};
-    template <typename T> struct is_unsigned_data<TinyDIP::Image<T>> : is_unsigned_data<T> {};
-    template <typename T, std::size_t N> struct is_unsigned_data<TinyDIP::MultiChannel<T, N>> : is_unsigned_data<T> {};
-    template <typename T> struct is_unsigned_data<std::complex<T>> : is_unsigned_data<T> {};
-    template <typename T, typename A> struct is_unsigned_data<std::vector<T, A>> : is_unsigned_data<T> {};
-    template <typename T, typename A> struct is_unsigned_data<std::deque<T, A>> : is_unsigned_data<T> {};
-    template <typename T, typename A> struct is_unsigned_data<std::list<T, A>> : is_unsigned_data<T> {};
-    template <typename T, std::size_t N> struct is_unsigned_data<std::array<T, N>> : is_unsigned_data<T> {};
+    template <typename T>
+    struct is_unsigned_data
+        : std::bool_constant<
+              std::is_unsigned_v<get_deep_scalar_t<T>> ||
+              std::is_same_v<get_deep_scalar_t<T>, TinyDIP::RGB>> {};
 
     template <typename T> inline constexpr bool is_unsigned_data_v = is_unsigned_data<T>::value;
 
