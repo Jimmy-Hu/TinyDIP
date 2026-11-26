@@ -86,8 +86,10 @@ namespace TinyDIP
             os << value;
         }
         
-        //  print_out_of_range function implementation
-        constexpr void print_out_of_range(std::ostream& os, std::size_t index, std::size_t count)
+        //  print_out_of_range template function implementation
+        template <typename OStreamT = std::ostream>
+        requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
+        constexpr void print_out_of_range(OStreamT& os, std::size_t index, std::size_t count)
         {
             #if defined(__cpp_lib_print)
             if constexpr (is_formattable_compat<std::size_t, char>)
