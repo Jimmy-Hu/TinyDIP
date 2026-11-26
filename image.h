@@ -124,18 +124,8 @@ namespace TinyDIP
         }
 
         template<std::same_as<int>... Sizes>
-        Image(Sizes... sizes)
+        constexpr Image(const Sizes... sizes) : Image(static_cast<std::size_t>(sizes)...)
         {
-            size.reserve(sizeof...(sizes));
-            (size.emplace_back(sizes), ...);
-            image_data.resize(
-                std::reduce(
-                    std::ranges::cbegin(size),
-                    std::ranges::cend(size),
-                    std::size_t{1},
-                    std::multiplies<>()
-                )
-            );
         }
 
         //  Image constructor
