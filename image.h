@@ -103,11 +103,12 @@ namespace TinyDIP
     }
 
     //  is_streamable concept
-    //  Concept to check if a type supports the << operator with std::ostream
-    template<typename T>
-    concept is_streamable = requires(std::ostream & os, const T & val)
+    //  Concept to check if a type supports the << operator with an output stream
+    template<typename T, typename OStreamT = std::ostream>
+    concept is_streamable = std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream> &&
+    requires(OStreamT& os, const T& val)
     {
-        { os << val } -> std::same_as<std::ostream&>;
+        { os << val } -> std::convertible_to<std::ostream&>;
     };
 
 
