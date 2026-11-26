@@ -72,8 +72,9 @@ namespace TinyDIP
 #endif
 
         //  print_value template function implementation
-        template <typename T>
-        constexpr void print_value(std::ostream& os, const T& value)
+        template <typename T, typename OStreamT = std::ostream>
+        requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
+        constexpr void print_value(OStreamT& os, const T& value)
         {
             #if defined(__cpp_lib_print)
             if constexpr (is_formattable_compat<T, char>)
