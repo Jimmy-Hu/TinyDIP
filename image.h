@@ -845,6 +845,25 @@ namespace TinyDIP
             (function(indexInput), ...);
         }
 
+        template<std::ranges::input_range Indices>
+        requires(std::integral<std::ranges::range_value_t<Indices>>)
+        constexpr void checkBoundaryRange(const Indices& indexInput) const
+        {
+            std::size_t i = 0;
+            for (const auto& idx : indexInput)
+            {
+                if (i >= size.size() || static_cast<std::size_t>(idx) >= size[i])
+                {
+                    throw std::out_of_range("Given index out of range!");
+                }
+                ++i;
+            }
+            if (i != size.size())
+            {
+                throw std::runtime_error("Dimensionality mismatched!");
+            }
+        }
+
         //  checkBoundaryTuple template function implementation
         template<class TupleT>
         requires(TinyDIP::is_tuple<TupleT>::value)
