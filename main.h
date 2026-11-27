@@ -484,54 +484,52 @@ using master_histogram_types = generate_histograms_t<
     histogram_count_types
 >;
 
-// Master Scalar Tuple (Exhaustively includes ALL valid scalar and container output types)
-using master_scalar_types = tuple_cat_t<
-    core_numeric_types,
-    all_custom_scalar_types,
-    all_multichannel_types,
-    all_complex_types,
-    all_complex_multichannel_types,
-    all_vector_types,
-    all_deque_types,
-    all_list_types,
-    all_array_types,
-// Leaf Scalar Tuple (All non-container scalar & pixel element types)
-using leaf_scalar_types = tuple_cat_t<
-    core_numeric_types,
-    non_numeric_leaf_scalar_types
->;
-
-    all_gaussian_params_types
->;
-
-// Master Image Tuple (Exhaustively includes ALL valid image structures)
-using master_image_types = tuple_cat_t<
-    tuple_map_t<image_t, core_numeric_types>,
-    tuple_map_t<image_t, all_custom_scalar_types>,
-    tuple_map_t<image_t, all_multichannel_types>,
-    tuple_map_t<image_t, all_complex_types>,
-    tuple_map_t<image_t, all_complex_multichannel_types>
->;
-
-// Master Data Tuple (Exhaustively includes ALL valid image structures AND containers)
-using master_data_types = tuple_cat_t<
-    master_image_types,
+using sequence_container_types = tuple_cat_t<
     all_vector_types,
     all_deque_types,
     all_list_types,
     all_array_types
 >;
 
-// Distinct tuple exclusively tailored for segregating complex formatting logic natively
-using complex_scalar_types_for_printing = tuple_cat_t<
+// Non-numeric Leaf Scalar Tuple (Custom RGB/HSV, MultiChannel, and std::complex pixel types)
+using non_numeric_leaf_scalar_types = tuple_cat_t<
     all_custom_scalar_types,
     all_multichannel_types,
     all_complex_types,
-    all_complex_multichannel_types,
-    all_vector_types,
-    all_deque_types,
-    all_list_types,
-    all_array_types,
+    all_complex_multichannel_types
+>;
+
+// 1D Vectors of Non-Numeric Pixel/Complex Element Types (e.g., std::vector<TinyDIP::RGB> from Histogram argmax/argmin)
+using all_pixel_vector_types = tuple_map_t<std::vector, non_numeric_leaf_scalar_types>;
+
+// Leaf Scalar Tuple (All non-container scalar & pixel element types)
+using leaf_scalar_types = tuple_cat_t<
+    core_numeric_types,
+    non_numeric_leaf_scalar_types
+>;
+
+// Master Scalar Tuple (Exhaustively includes ALL valid scalar and container output types)
+using master_scalar_types = tuple_cat_t<
+    leaf_scalar_types,
+    sequence_container_types,
+    all_pixel_vector_types,
+    all_gaussian_params_types
+>;
+
+// Master Image Tuple (Exhaustively includes ALL valid image structures)
+using master_image_types = tuple_map_t<image_t, leaf_scalar_types>;
+
+// Master Data Tuple (Exhaustively includes ALL valid image structures AND containers)
+using master_data_types = tuple_cat_t<
+    master_image_types,
+    sequence_container_types
+>;
+
+// Distinct tuple exclusively tailored for segregating complex formatting logic natively
+using complex_scalar_types_for_printing = tuple_cat_t<
+    non_numeric_leaf_scalar_types,
+    sequence_container_types,
+    all_pixel_vector_types,
     all_gaussian_params_types
 >;
 
@@ -555,10 +553,10 @@ using master_nested_image_container_types = tuple_cat_t<
     tuple_map_t<std::list, all_vector_image_types>
 >;
 
-//  2-level nested scalar container types (e.g., std::vector<std::vector<T>>)
+//  2-level nested scalar & pixel container types (e.g., std::vector<std::vector<T>>, std::vector<std::vector<TinyDIP::RGB>>)
 using master_nested_scalar_container_types = tuple_map_t<
     std::vector,
-    tuple_cat_t<all_vector_types, all_deque_types, all_list_types, all_array_types>
+    tuple_cat_t<sequence_container_types, all_pixel_vector_types>
 >;
 
 //  Master 2-level nested container registry
