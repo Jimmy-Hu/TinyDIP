@@ -174,17 +174,21 @@ namespace TinyDIP
         requires(std::convertible_to<std::ranges::range_value_t<Range>, ElementT>) and
                 ((std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>) or
                  (std::same_as<std::ranges::range_value_t<Sizes>, int>))
-        Image(const Range& input, const Sizes& sizes)
+        constexpr Image(const Range& input, const Sizes& sizes)
         {
-            if (std::ranges::empty(input))
+            if (std::ranges::empty(sizes))
+            {
+                throw std::runtime_error("Image size vector is empty!");
+            }
+            size.resize(std::ranges::size(sizes));
+            std::transform(std::ranges::cbegin(sizes), std::ranges::cend(sizes), std::ranges::begin(size), [](const auto& element) { return static_cast<std::size_t>(element); });
+            const std::size_t expected_count = count();
+            if (std::ranges::empty(input) && expected_count != 0)
             {
                 throw std::runtime_error("Input vector is empty!");
             }
-            size.resize(std::ranges::size(sizes));
-            std::transform(std::ranges::cbegin(sizes), std::ranges::cend(sizes), std::ranges::begin(size), [&](auto&& element) { return static_cast<std::size_t>(element); });
-            image_data = std::vector(std::ranges::cbegin(input), std::ranges::cend(input));
-            auto count = std::reduce(std::ranges::cbegin(sizes), std::ranges::cend(sizes), std::size_t{1}, std::multiplies());
-            if (std::ranges::size(image_data) != count) 
+            image_data.assign(std::ranges::cbegin(input), std::ranges::cend(input));
+            if (std::ranges::size(image_data) != expected_count)
             {
                 throw std::runtime_error("Image data input and the given size are mismatched!");
             }
