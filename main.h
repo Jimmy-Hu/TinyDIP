@@ -1167,6 +1167,12 @@ public:
 private:
     std::multimap<std::string, CommandInfo> commands;
 
+    [[nodiscard]] const CommandInfo* find_first_command_info(const std::string_view command_name) const
+    {
+        const auto range = commands.equal_range(std::string(command_name));
+        return (range.first != range.second) ? &(range.first->second) : nullptr;
+    }
+
 public:
     void register_command(const std::string_view name, const std::string_view description, const IOSchema schema, CommandHandler handler)
     {
