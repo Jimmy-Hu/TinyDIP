@@ -657,6 +657,68 @@ constexpr std::string_view get_type_name()
 #endif
 }
 
+template <typename TupleT, typename ExtraRegistrar = void(*)(int)>
+inline auto build_canonical_type_alias_map(ExtraRegistrar&& extra_registrar = nullptr)
+{
+    using VariantT = make_type_identity_variant_t<TupleT>;
+    std::map<std::string, VariantT, std::less<>> m;
+
+    auto add = [&]<typename T>(const std::initializer_list<std::string_view> names)
+    {
+        if constexpr (std::constructible_from<VariantT, std::type_identity<T>>)
+        {
+            for (const std::string_view raw_name : names)
+            {
+                std::string key = canonicalize_target_type_key(raw_name);
+                if (key.empty())
+                {
+                    continue;
+                }
+                m.emplace(key, std::type_identity<T>{});
+                if (key.find(' ') != std::string::npos)
+                {
+                    std::string underscored = key;
+                    std::ranges::replace(underscored, ' ', '_');
+                    m.emplace(std::move(underscored), std::type_identity<T>{});
+                }
+            }
+        }
+    };
+
+    for_each_type<TupleT>(
+        [&]<typename EachT>()
+        {
+            add.template operator()<EachT>({
+                typeid(EachT).name(),
+                get_type_name<EachT>()
+            });
+        }
+    );
+
+    add.template operator()<std::int8_t>({"int8", "int8_t", "schar"});
+    add.template operator()<unsigned char>({"uint8", "uint8_t", "uchar", "grayscale"});
+    add.template operator()<short>({"short", "int16", "int16_t", "signed short"});
+    add.template operator()<unsigned short>({"ushort", "uint16", "uint16_t"});
+    add.template operator()<int>({"int", "int32", "int32_t", "signed int"});
+    add.template operator()<unsigned int>({"uint", "uint32", "uint32_t"});
+    add.template operator()<long>({"long", "signed long"});
+    add.template operator()<unsigned long>({"ulong"});
+    add.template operator()<long long>({"llong", "long long"});
+    add.template operator()<unsigned long long>({"ullong", "unsigned long long"});
+    add.template operator()<std::size_t>({"size_t", "uint64", "uint64_t"});
+    add.template operator()<std::ptrdiff_t>({"ptrdiff_t", "int64", "int64_t", "llong"});
+    add.template operator()<float>({"float", "float32", "fp32"});
+    add.template operator()<double>({"double", "float64", "fp64"});
+    add.template operator()<long double>({"ldouble", "float128"});
+
+    if constexpr (std::invocable<ExtraRegistrar, decltype(add)&>)
+    {
+        extra_registrar(add);
+    }
+
+    return m;
+}
+
 //  execute_type_action template function implementation
 template <typename TargetT, typename TupleT, typename FallbackFun, std::size_t I = 0>
 constexpr decltype(auto) execute_type_action(TupleT&& action_map, FallbackFun&& fallback)
