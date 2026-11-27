@@ -119,7 +119,7 @@ namespace TinyDIP
         Image() = default;
 
         template<std::same_as<std::size_t>... Sizes>
-        Image(Sizes... sizes): size{sizes...}, image_data((1 * ... * sizes))
+        constexpr Image(const Sizes... sizes) : size{ sizes... }, image_data((1 * ... * sizes))
         {
         }
 
