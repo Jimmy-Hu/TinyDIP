@@ -141,67 +141,33 @@ namespace TinyDIP
             image_data.resize(count());
         }
 
-        //  Image constructor
-        #ifdef __cpp_lib_containers_ranges
-            template<std::ranges::input_range Range,
-                     std::same_as<std::size_t>... Sizes>
-            requires(std::convertible_to<std::ranges::range_value_t<Range>, ElementT>)
-            Image(Range&& input, Sizes... sizes):
-                size{sizes...}, image_data(std::from_range, std::forward<Range>(input))
+        //  Image constructor (Unified forwarding/const range + variadic sizes)
+        template<std::ranges::input_range Range, std::same_as<std::size_t>... Sizes>
+        requires(
+            (sizeof...(Sizes) > 0) &&
+            (!std::same_as<std::remove_cvref_t<Range>, Image<ElementT>>) &&
+            std::convertible_to<std::ranges::range_value_t<Range>, ElementT>
+        )
+        constexpr Image(Range&& input, const Sizes... sizes) : size{ sizes... }
+        {
+            const std::size_t expected_count = (std::size_t{ 1 } * ... * sizes);
+            if (std::ranges::empty(input) && expected_count != 0)
             {
-                if (std::ranges::size(image_data) != (1 * ... * sizes)) 
-                {
-                    throw std::runtime_error("Image data input and the given size are mismatched!");
-                }
+                throw std::runtime_error("Input vector is empty!");
             }
-        #else
-            template<std::ranges::input_range Range,
-                     std::same_as<std::size_t>... Sizes>
-            requires(std::convertible_to<std::ranges::range_value_t<Range>, ElementT>)
-            Image(const Range&& input, Sizes... sizes):
-                size{sizes...}, image_data(std::ranges::begin(input), std::ranges::end(input))
+            if constexpr (std::same_as<std::remove_cvref_t<Range>, std::vector<ElementT>>)
             {
-                if (std::ranges::size(image_data) != (1 * ... * sizes)) 
-                {
-                    throw std::runtime_error("Image data input and the given size are mismatched!");
-                }
+                image_data = std::forward<Range>(input);
             }
-        #endif
-
-        //  Image constructor
-        #ifdef __cpp_lib_containers_ranges
-            template<std::ranges::input_range Range, std::same_as<std::size_t>... Sizes>
-            requires(std::convertible_to<std::ranges::range_value_t<Range>, ElementT>)
-            Image(const Range& input, Sizes... sizes) :
-                size{ sizes... }
+            else
             {
-                if (std::ranges::empty(input))
-                {
-                    throw std::runtime_error("Input vector is empty!");
-                }
-                image_data = std::vector(std::from_range, input);
-                if (std::ranges::size(image_data) != (1 * ... * sizes)) 
-                {
-                    throw std::runtime_error("Image data input and the given size are mismatched!");
-                }
+                image_data.assign(std::ranges::begin(input), std::ranges::end(input));
             }
-        #else
-            template<std::ranges::input_range Range, std::same_as<std::size_t>... Sizes>
-            requires(std::convertible_to<std::ranges::range_value_t<Range>, ElementT>)
-            Image(const Range& input, Sizes... sizes):
-                size{sizes...}
+            if (std::ranges::size(image_data) != expected_count)
             {
-                if (std::ranges::empty(input))
-                {
-                    throw std::runtime_error("Input vector is empty!");
-                }
-                image_data = std::vector(std::ranges::begin(input), std::ranges::end(input));
-                if (std::ranges::size(image_data) != (1 * ... * sizes)) 
-                {
-                    throw std::runtime_error("Image data input and the given size are mismatched!");
-                }
+                throw std::runtime_error("Image data input and the given size are mismatched!");
             }
-        #endif
+        }
 
         //  Image constructor
         template<std::ranges::input_range Range, std::ranges::input_range Sizes>
