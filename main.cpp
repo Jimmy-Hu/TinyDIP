@@ -1163,8 +1163,12 @@ int main(int argc, char* argv[])
                 handlers::read(workspace, args, os);
             }
         },
-        CommandBundle{"remove", "Remove memory variables from the workspace (or 'all' to clear).", IndependentSchema, handlers::remove },
-        CommandBundle{"rename", "Rename a memory variable in the workspace.", IndependentSchema, handlers::rename },
+        CommandBundle{"remove", "Remove memory variables from the workspace (or 'all' to clear).", IndependentSchema,
+            [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
+            {
+                handlers::remove(workspace, args, os);
+            }
+        },
         CommandBundle{"save_workspace", "Save all memory variables to a directory bundle.", IndependentSchema,
             [](Workspace& workspace, std::span<const std::string_view> args, std::ostream& os)
             {
