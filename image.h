@@ -131,22 +131,14 @@ namespace TinyDIP
         //  Image constructor
         template<std::ranges::input_range Sizes>
         requires(std::same_as<std::ranges::range_value_t<Sizes>, std::size_t>)
-        Image(const Sizes& sizes)
+        constexpr Image(const Sizes& sizes)
         {
             if (std::ranges::empty(sizes))
             {
                 throw std::runtime_error("Image size vector is empty!");
             }
-            size.resize(std::ranges::size(sizes));
-            std::transform(std::ranges::cbegin(sizes), std::ranges::cend(sizes), std::ranges::begin(size), [&](auto&& element) { return element; });
-            image_data.resize(
-                std::reduce(
-                    std::ranges::cbegin(sizes),
-                    std::ranges::cend(sizes),
-                    std::size_t{1},
-                    std::multiplies<>()
-                )
-            );
+            size.assign(std::ranges::cbegin(sizes), std::ranges::cend(sizes));
+            image_data.resize(count());
         }
 
         //  Image constructor
