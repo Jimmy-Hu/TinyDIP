@@ -1724,10 +1724,13 @@ struct MetaScalarHandler
     SetupFun setup_fun_;
 
     template <
-        typename ImageLoaderFun = MetaImageIO::Loader
+        typename ImageLoaderFun = MetaImageIO::Loader,
+        typename OStreamT = std::ostream
     >
-    requires (std::invocable<ImageLoaderFun, const std::string_view, Workspace&>)
-    constexpr void operator()(Workspace& workspace, std::span<const std::string_view> args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}) const
+    requires(std::invocable<ImageLoaderFun, const std::string_view, Workspace&> &&
+             std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream> &&
+             std::invocable<SetupFun, const ArgsContainer&, const std::string_view, OStreamT&>)
+    constexpr void operator()(Workspace& workspace, std::span<const std::string_view> args, OStreamT& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}) const
     {
         const std::string_view policy_str = extract_policy_string(args);
         const ArgsContainer filtered_args = args_filter<ArgsContainer>(args);
