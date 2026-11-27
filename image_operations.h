@@ -7372,8 +7372,8 @@ namespace TinyDIP
             const std::size_t target_width,
             const std::size_t target_height)
         {
-            FloatingType width_percentage = static_cast<FloatingType>(std::get<0>(input_location)) / static_cast<FloatingType>(input_width);
-            FloatingType height_percentage = static_cast<FloatingType>(std::get<1>(input_location)) / static_cast<FloatingType>(input_height);
+            const FloatingType width_percentage = static_cast<FloatingType>(std::get<0>(input_location)) / static_cast<FloatingType>(input_width);
+            const FloatingType height_percentage = static_cast<FloatingType>(std::get<1>(input_location)) / static_cast<FloatingType>(input_height);
             return Point<2>{
                 static_cast<std::size_t>(width_percentage * static_cast<FloatingType>(target_width)),
                 static_cast<std::size_t>(height_percentage * static_cast<FloatingType>(target_height))
