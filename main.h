@@ -88,11 +88,7 @@ constexpr bool iequals(const std::string_view a, const std::string_view b)
 }
 
 //  Helper to reassemble brace-enclosed multi-channel tokens (e.g., "{0,", "0,", "0}" -> "{0, 0, 0}")
-template <std::ranges::input_range RangeT>
-requires (std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string_view> or
-          std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string> or
-          std::convertible_to<std::ranges::range_value_t<RangeT>, std::string_view> or
-          std::convertible_to<std::ranges::range_value_t<RangeT>, std::string>)
+template <string_token_range RangeT>
 constexpr std::vector<std::string> merge_braced_args(const RangeT& args)
 {
     const auto raw_filtered = args_filter(args);
