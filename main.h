@@ -1190,7 +1190,9 @@ public:
         return std::nullopt;
     }
 
-    void list_commands(std::ostream& os = std::cout) const
+    template <typename OStreamT = std::ostream>
+    requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
+    void list_commands(OStreamT& os = std::cout) const
     {
         os << "Available Commands:\n";
         for (const auto &[name, info] : TinyDIP::to_map(commands))
