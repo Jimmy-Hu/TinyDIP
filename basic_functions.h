@@ -431,15 +431,6 @@ namespace TinyDIP
     template <typename T>
     concept arithmetic = std::is_arithmetic_v<T> or is_complex<T>::value;
 
-    namespace execution
-    {
-        enum class hardware_parallel_unroll_policy : int { tag };
-        enum class hardware_pipelined_policy : int { tag };
-
-        inline constexpr hardware_parallel_unroll_policy hw_unroll = hardware_parallel_unroll_policy::tag;
-        inline constexpr hardware_pipelined_policy hw_pipe = hardware_pipelined_policy::tag;
-    }
-
     constexpr bool is_integer()
     {
         return false;
