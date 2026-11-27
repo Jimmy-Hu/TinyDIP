@@ -19,7 +19,7 @@ namespace handlers
     {
         if (std::ranges::size(args) < 2)
         {
-            os << "Usage: sift_generate_octave <input_img | $var> <output_var | $var> [levels=5] [initial_sigma=1.6] [k=1.414]\n";
+            print_command_usage(os, "sift_generate_octave");
             return;
         }
 
