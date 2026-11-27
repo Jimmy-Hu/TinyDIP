@@ -67,6 +67,64 @@ constexpr bool match_any(const std::string_view target, const RangeT& container)
     return std::ranges::find(std::ranges::begin(container), std::ranges::end(container), target) != std::ranges::end(container);
 }
 
+inline constexpr std::array<std::string_view, 4> standard_execution_policies = { "seq", "par", "par_unseq", "unseq" };
+
+constexpr bool is_execution_policy_token(const std::string_view sv)
+{
+    return match_any(sv, standard_execution_policies);
+}
+
+//  extract_policy_string template function implementation
+//  Helper to gracefully extract an execution policy from CLI arguments natively
+template <string_token_range RangeT>
+constexpr std::string_view extract_policy_string(const RangeT& args)
+{
+    for (const auto& arg : args)
+    {
+        const std::string_view sv(arg);
+        if (is_execution_policy_token(sv))
+        {
+            return sv;
+        }
+    }
+    return "";
+}
+
+//  args_filter template function implementation
+//  Helper to gracefully filter out execution policies from CLI arguments natively
+template <typename ArgsContainer = std::vector<std::string_view>, string_token_range RangeT = std::span<const std::string_view>>
+constexpr ArgsContainer args_filter(const RangeT& args)
+{
+    ArgsContainer filtered_args;
+
+    if constexpr (std::ranges::sized_range<RangeT> && requires { filtered_args.reserve(1); })
+    {
+        filtered_args.reserve(std::ranges::size(args));
+    }
+
+    for (const auto& arg : args)
+    {
+        const std::string_view sv(arg);
+        if (!is_execution_policy_token(sv))
+        {
+            if constexpr (requires { filtered_args.emplace_back(sv); })
+            {
+                filtered_args.emplace_back(sv);
+            }
+            else if constexpr (requires { filtered_args.push_back(sv); })
+            {
+                filtered_args.push_back(sv);
+            }
+            else
+            {
+                filtered_args.insert(std::ranges::end(filtered_args), typename ArgsContainer::value_type(sv));
+            }
+        }
+    }
+
+    return filtered_args;
+}
+
 //  sanitize_string_view function implementation
 //  Helper for safely sanitizing cross-platform path strings and REPL tokens natively with zero allocations
 constexpr std::string_view sanitize_string_view(std::string_view sv)
@@ -1571,21 +1629,6 @@ constexpr std::string_view extract_policy_string(const RangeT& args)
         }
     }
     return "";
-}
-
-//  args_filter template function implementation
-//  Helper to gracefully filter out execution policies from CLI arguments natively
-//  Upgraded to a highly generalized, container-agnostic template returning any requested sequence type
-template <typename ArgsContainer = std::vector<std::string_view>>
-constexpr ArgsContainer args_filter(const std::span<const std::string_view> args)
-{
-    constexpr std::array<std::string_view, 4> policies = {"seq", "par", "par_unseq", "unseq"};
-    ArgsContainer filtered_args;
-    
-    // Safely evaluate if the container natively supports memory reservation with SFINAE
-    if constexpr (requires { filtered_args.reserve(1); })
-    {
-        filtered_args.reserve(std::ranges::size(args));
 }
 
 //  store_or_print_scalar_any template function implementation
