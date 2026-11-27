@@ -5,6 +5,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+env:
+  CLEAN_MICROSOFT_APT: "sudo rm -f /etc/apt/sources.list.d/microsoft*.list /etc/apt/sources.list.d/microsoft*.sources && (sudo grep -rl 'packages.microsoft.com' /etc/apt/sources.list.d/ 2>/dev/null | xargs -r sudo rm -f || true) && (sudo sed -i '/packages\\.microsoft\\.com/d' /etc/apt/sources.list 2>/dev/null || true)"
+
 jobs:
   build-snap-linux:
     name: Linux x86 (Snap Publish)
@@ -14,6 +17,7 @@ jobs:
 
     - name: Install Dependencies
       run: |
+        ${{ env.CLEAN_MICROSOFT_APT }}
         sudo apt-get update
         sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev gcc-14 g++-14 libstdc++-14-dev
 
@@ -68,15 +72,16 @@ jobs:
 
     - name: Install Dependencies
       run: |
+        ${{ env.CLEAN_MICROSOFT_APT }}
         sudo apt-get update
         sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev flex bison libgmp-dev libmpfr-dev libmpc-dev
 
     - name: Cache Custom GCC
       id: cache-gcc
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: /opt/gcc-15.2.0
-        key: gcc-15.2.0-source-build-${{ runner.os }}-v1
+        key: gcc-15.2.0-source-build-${{ runner.os }}-${{ env.ImageOS }}-v1
 
     - name: Compile GCC 15.2.0 from Source
       if: steps.cache-gcc.outputs.cache-hit != 'true'
@@ -180,6 +185,7 @@ jobs:
 
     - name: Install Dependencies
       run: |
+        ${{ env.CLEAN_MICROSOFT_APT }}
         sudo apt-get update
         sudo apt-get install -y build-essential cmake libopencv-dev libtbb-dev libomp-dev linux-tools-common linux-tools-generic linux-tools-azure gcc-14 g++-14
         sudo apt-get install -y "linux-tools-$(uname -r)" "linux-cloud-tools-$(uname -r)" || true
