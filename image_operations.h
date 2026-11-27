@@ -21,20 +21,6 @@
 
 namespace TinyDIP
 {
-    
-    enum BoundaryCondition {
-        constant,
-        mirror,
-        replicate
-    };
-
-    template<typename T>
-    concept image_element_standard_floating_point_type =
-        std::same_as<double, T>
-        or std::same_as<float, T>
-        or std::same_as<long double, T>
-        ;
-
     // image_random_access_range concept definition
     // Concept combining random access range, is_Image validation, and underlying type constraints
     template <typename RangeT>
