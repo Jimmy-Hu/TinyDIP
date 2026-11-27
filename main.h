@@ -495,6 +495,12 @@ using master_scalar_types = tuple_cat_t<
     all_deque_types,
     all_list_types,
     all_array_types,
+// Leaf Scalar Tuple (All non-container scalar & pixel element types)
+using leaf_scalar_types = tuple_cat_t<
+    core_numeric_types,
+    non_numeric_leaf_scalar_types
+>;
+
     all_gaussian_params_types
 >;
 
