@@ -194,20 +194,18 @@ namespace TinyDIP
             }
         }
 
-        Image(const std::vector<std::vector<ElementT>>& input)
+        constexpr Image(const std::vector<std::vector<ElementT>>& input)
         {
             if (std::ranges::empty(input))
             {
                 throw std::runtime_error("Input vector is empty!");
             }
-            size.reserve(2);
-            size.emplace_back(std::ranges::size(input[0]));
-            size.emplace_back(std::ranges::size(input));
-            for (auto& rows : input)
+            size = { std::ranges::size(input[0]), std::ranges::size(input) };
+            image_data.reserve(size[0] * size[1]);
+            for (const auto& rows : input)
             {
-                image_data.insert(std::ranges::end(image_data), std::ranges::begin(rows), std::ranges::end(rows));    //  flatten
+                image_data.insert(std::ranges::end(image_data), std::ranges::begin(rows), std::ranges::end(rows));
             }
-            return;
         }
 
         //  at template function implementation
