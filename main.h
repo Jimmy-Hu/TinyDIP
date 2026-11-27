@@ -1839,19 +1839,18 @@ struct MetaTransformHandler
     SetupFun setup_fun_;
 
     template <
-        std::ranges::input_range RangeT,
+        string_token_range RangeT,
         typename ImageLoaderFun = MetaImageIO::Loader,
-        typename ImageSaverFun = MetaImageIO::Saver
+        typename ImageSaverFun = MetaImageIO::Saver,
+        typename OStreamT = std::ostream
     >
-    requires ((std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string_view> or
-               std::same_as<std::remove_cvref_t<std::ranges::range_value_t<RangeT>>, std::string> or
-               std::convertible_to<std::ranges::range_value_t<RangeT>, std::string_view> or
-               std::convertible_to<std::ranges::range_value_t<RangeT>, std::string>) and
-              std::invocable<ImageLoaderFun, const std::string_view, Workspace&> &&
-              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> &&
-              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<double>&&> &&
-              std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::HSV>&&>)
-    constexpr void operator()(Workspace& workspace, const RangeT& args, std::ostream& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
+    requires(std::invocable<ImageLoaderFun, const std::string_view, Workspace&> &&
+             std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::RGB>&&> &&
+             std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<double>&&> &&
+             std::invocable<ImageSaverFun, const std::string_view, Workspace&, TinyDIP::Image<TinyDIP::HSV>&&> &&
+             std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream> &&
+             std::invocable<SetupFun, const ArgsContainer&, const std::string_view, OStreamT&>)
+    constexpr void operator()(Workspace& workspace, const RangeT& args, OStreamT& os = std::cout, ImageLoaderFun&& image_loader_fun = ImageLoaderFun{}, ImageSaverFun&& image_saver_fun = ImageSaverFun{}) const
     {
         const std::string_view policy_str = extract_policy_string(args);
         const ArgsContainer filtered_args = args_filter<ArgsContainer>(args);
