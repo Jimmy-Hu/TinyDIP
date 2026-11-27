@@ -1514,12 +1514,17 @@ concept supports_standard_execution_policies =
 
 //  dispatch_policy_string template function implementation
 //  Helper to dispatch execution policy string to std::execution policies
-template <supports_standard_execution_policies PolicyFun, std::invocable DefaultFun>
+template <
+    supports_standard_execution_policies PolicyFun,
+    std::invocable DefaultFun,
+    typename OStreamT = std::ostream
+>
+requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
 constexpr std::any dispatch_policy_string(
     const std::string_view policy_str,
     PolicyFun&& policy_fun,
     DefaultFun&& default_fun,
-    std::ostream& os)
+    OStreamT& os)
 {
     if (policy_str == "par")
     {
