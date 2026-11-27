@@ -231,17 +231,7 @@ namespace TinyDIP
         requires(std::integral<std::ranges::range_value_t<Indices>>)
         constexpr decltype(auto) at(const Indices& indexInput) const
         {
-            std::size_t i = 0;
-            // Iterate using ranges to universally support both continuous (std::vector) and discrete (std::list) ranges
-            for (const auto& idx : indexInput)
-            {
-                // Boundary check MUST be >= to prevent array overflow segmentation faults
-                if (static_cast<std::size_t>(idx) >= size[i])
-                {
-                    throw std::out_of_range("Given index out of range!");
-                }
-                ++i;
-            }
+            checkBoundaryRange(indexInput);
             return at_without_boundary_check(indexInput);
         }
 
