@@ -31,6 +31,28 @@ namespace TinyDIP
     // Create a convenient instance for users to import and use.
     inline constexpr auto_execution_policy auto_exec;
 
+    namespace execution
+    {
+        enum class hardware_parallel_unroll_policy : int { tag };
+        enum class hardware_pipelined_policy : int { tag };
+
+        inline constexpr hardware_parallel_unroll_policy hw_unroll = hardware_parallel_unroll_policy::tag;
+        inline constexpr hardware_pipelined_policy hw_pipe = hardware_pipelined_policy::tag;
+    }
+
+    enum BoundaryCondition {
+        constant,
+        mirror,
+        replicate
+    };
+
+    template<typename T>
+    concept image_element_standard_floating_point_type =
+        std::same_as<double, T>
+        or std::same_as<float, T>
+        or std::same_as<long double, T>
+        ;
+
     /**
      * get_underlying_real_type struct implementation
      * @brief A type trait to get the underlying real type.
@@ -51,36 +73,86 @@ namespace TinyDIP
     template<typename T>
     using get_underlying_real_type_t = typename get_underlying_real_type<T>::type;
 
+    namespace base_types_detail
+    {
+        template<typename PixelT, std::size_t N, typename BinaryOp>
+        [[nodiscard]] constexpr PixelT apply_channel3_op(
+            const PixelT& lhs,
+            const PixelT& rhs,
+            const BinaryOp op
+        ) noexcept
+        {
+            static_assert(N == 3);
+            using ChanT = std::remove_cvref_t<decltype(lhs.channels[0])>;
+            return PixelT{
+                static_cast<ChanT>(op(lhs.channels[0], rhs.channels[0])),
+                static_cast<ChanT>(op(lhs.channels[1], rhs.channels[1])),
+                static_cast<ChanT>(op(lhs.channels[2], rhs.channels[2]))
+            };
+        }
+
+        template<typename T, std::size_t N, typename BinaryOp>
+        [[nodiscard]] constexpr std::array<T, N> apply_array_op(
+            const std::array<T, N>& lhs,
+            const std::array<T, N>& rhs,
+            const BinaryOp op
+        ) noexcept(noexcept(static_cast<T>(op(std::declval<const T&>(), std::declval<const T&>()))))
+        {
+            std::array<T, N> output{};
+            for (std::size_t i = 0; i < N; ++i)
+            {
+                output[i] = static_cast<T>(op(lhs[i], rhs[i]));
+            }
+            return output;
+        }
+
+        #ifndef __POLYGEIST__
+        template<typename OStreamT, typename ElemRange>
+        constexpr std::ostream& print_braced_3(OStreamT& out, const ElemRange& elems)
+        {
+            out << '{' << +elems[0] << ", " << +elems[1] << ", " << +elems[2] << '}';
+            return out;
+        }
+
+        template<typename OStreamT, typename ElemRange>
+        constexpr std::ostream& print_braced_n(OStreamT& out, const ElemRange& elems, const std::size_t count)
+        {
+            out << '{';
+            for (std::size_t i = 0; i < count; ++i)
+            {
+                out << +elems[i] << ", ";
+            }
+            out << '}';
+            return out;
+        }
+        #endif
+    }
+
     //  RGB struct implementation
     struct RGB
     {
         std::uint8_t channels[3];
 
-        inline RGB operator+(const RGB& input) const
+        [[nodiscard]] constexpr RGB operator+(const RGB& input) const noexcept
         {
-            return RGB{
-                static_cast<std::uint8_t>(input.channels[0] + channels[0]),
-                static_cast<std::uint8_t>(input.channels[1] + channels[1]),
-                static_cast<std::uint8_t>(input.channels[2] + channels[2]) };
+            return base_types_detail::apply_channel3_op<RGB, 3>(input, *this, std::plus<>{});
         }
 
-        inline RGB operator-(const RGB& input) const
+        [[nodiscard]] constexpr RGB operator-(const RGB& input) const noexcept
         {
-            return RGB{
-                static_cast<std::uint8_t>(channels[0] - input.channels[0]),
-                static_cast<std::uint8_t>(channels[1] - input.channels[1]),
-                static_cast<std::uint8_t>(channels[2] - input.channels[2]) };
+            return base_types_detail::apply_channel3_op<RGB, 3>(*this, input, std::minus<>{});
         }
 
+        #ifndef __POLYGEIST__
         template<typename OStreamT = std::ostream>
         requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
         friend std::ostream& operator<<(OStreamT& out, const RGB& _myStruct)
         {
-            out << '{' << +_myStruct.channels[0] << ", " << +_myStruct.channels[1] << ", " << +_myStruct.channels[2] << '}';
-            return out;
+            return base_types_detail::print_braced_3(out, _myStruct.channels);
         }
+        #endif
 
-        bool operator==(const RGB& other) const = default;
+        constexpr bool operator==(const RGB& other) const noexcept = default;
     };
 
     //  RGB_DOUBLE struct implementation
@@ -88,31 +160,26 @@ namespace TinyDIP
     {
         double channels[3];
 
-        inline RGB_DOUBLE operator+(const RGB_DOUBLE& input) const
+        [[nodiscard]] constexpr RGB_DOUBLE operator+(const RGB_DOUBLE& input) const noexcept
         {
-            return RGB_DOUBLE{
-                input.channels[0] + channels[0],
-                input.channels[1] + channels[1],
-                input.channels[2] + channels[2] };
+            return base_types_detail::apply_channel3_op<RGB_DOUBLE, 3>(input, *this, std::plus<>{});
         }
 
-        inline RGB_DOUBLE operator-(const RGB_DOUBLE& input) const
+        [[nodiscard]] constexpr RGB_DOUBLE operator-(const RGB_DOUBLE& input) const noexcept
         {
-            return RGB_DOUBLE{
-                channels[0] - input.channels[0],
-                channels[1] - input.channels[1],
-                channels[2] - input.channels[2] };
+            return base_types_detail::apply_channel3_op<RGB_DOUBLE, 3>(*this, input, std::minus<>{});
         }
 
+        #ifndef __POLYGEIST__
         template<typename OStreamT = std::ostream>
         requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
         friend std::ostream& operator<<(OStreamT& out, const RGB_DOUBLE& _myStruct)
         {
-            out << '{' << +_myStruct.channels[0] << ", " << +_myStruct.channels[1] << ", " << +_myStruct.channels[2] << '}';
-            return out;
+            return base_types_detail::print_braced_3(out, _myStruct.channels);
         }
+        #endif
 
-        bool operator==(const RGB_DOUBLE& other) const = default;
+        constexpr bool operator==(const RGB_DOUBLE& other) const noexcept = default;
     };
 
     using GrayScale = std::uint8_t;
@@ -122,39 +189,33 @@ namespace TinyDIP
     {
         double channels[3];    //  Range: 0 <= H < 360, 0 <= S <= 1, 0 <= V <= 255
 
-        inline HSV operator+(const HSV& input) const
+        [[nodiscard]] constexpr HSV operator+(const HSV& input) const noexcept
         {
-            return HSV{
-                input.channels[0] + channels[0],
-                input.channels[1] + channels[1],
-                input.channels[2] + channels[2] };
+            return base_types_detail::apply_channel3_op<HSV, 3>(input, *this, std::plus<>{});
         }
 
-        inline HSV operator-(const HSV& input) const
+        [[nodiscard]] constexpr HSV operator-(const HSV& input) const noexcept
         {
-            return HSV{
-                channels[0] - input.channels[0],
-                channels[1] - input.channels[1],
-                channels[2] - input.channels[2] };
+            return base_types_detail::apply_channel3_op<HSV, 3>(*this, input, std::minus<>{});
         }
 
+        #ifndef __POLYGEIST__
         template<typename OStreamT = std::ostream>
         requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
         friend std::ostream& operator<<(OStreamT& out, const HSV& _myStruct)
         {
-            out << '{' << +_myStruct.channels[0] << ", " << +_myStruct.channels[1] << ", " << +_myStruct.channels[2] << '}';
-            return out;
+            return base_types_detail::print_braced_3(out, _myStruct.channels);
         }
+        #endif
 
         //  For applying as the key to std::map
-        bool operator<(const HSV& other) const
+        [[nodiscard]] constexpr bool operator<(const HSV& other) const noexcept
         {
-            // Compare channels lexicographically
             return std::tie(channels[0], channels[1], channels[2])
                 < std::tie(other.channels[0], other.channels[1], other.channels[2]);
         }
 
-        bool operator==(const HSV& other) const = default;
+        constexpr bool operator==(const HSV& other) const noexcept = default;
     };
 
     //  MultiChannel struct implementation
@@ -163,40 +224,26 @@ namespace TinyDIP
     {
         std::array<ElementT, channel_count> channels;
 
-        inline MultiChannel operator+(const MultiChannel& input) const
+        [[nodiscard]] constexpr MultiChannel operator+(const MultiChannel& input) const
         {
-            std::array<ElementT, channel_count> channels_output;
-            for(std::size_t i = 0; i < channels.size(); ++i)
-            {
-                channels_output[i] = channels[i] + input.channels[i];
-            }
-            return MultiChannel{channels_output};
+            return MultiChannel{ base_types_detail::apply_array_op(channels, input.channels, std::plus<>{}) };
         }
 
-        inline MultiChannel operator-(const MultiChannel& input) const
+        [[nodiscard]] constexpr MultiChannel operator-(const MultiChannel& input) const
         {
-            std::array<ElementT, channel_count> channels_output;
-            for(std::size_t i = 0; i < channels.size(); ++i)
-            {
-                channels_output[i] = channels[i] - input.channels[i];
-            }
-            return MultiChannel{channels_output};
+            return MultiChannel{ base_types_detail::apply_array_op(channels, input.channels, std::minus<>{}) };
         }
 
+        #ifndef __POLYGEIST__
         template<typename OStreamT = std::ostream>
         requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
         friend std::ostream& operator<<(OStreamT& out, const MultiChannel& _myStruct)
         {
-            out << '{';
-            for(std::size_t i = 0; i < channel_count; ++i)
-            {
-                out << +_myStruct.channels[i] << ", ";
-            }
-            out << '}';
-            return out;
+            return base_types_detail::print_braced_n(out, _myStruct.channels, channel_count);
         }
+        #endif
 
-        bool operator==(const MultiChannel& other) const = default;
+        constexpr bool operator==(const MultiChannel& other) const = default;
     };
 
     //  Point struct implementation
@@ -205,40 +252,29 @@ namespace TinyDIP
     {
         std::array<std::size_t, dimension> p;
 
-        inline Point operator+(const Point& input) const
+        [[nodiscard]] constexpr Point operator+(const Point& input) const noexcept
         {
-            std::array<std::size_t, dimension> new_array;
-            for (std::size_t i = 0; i < p.size(); ++i)
-            {
-                new_array[i] = p[i] + input.p[i];
-            }
-            return Point{ new_array };
+            return Point{ base_types_detail::apply_array_op(p, input.p, std::plus<>{}) };
         }
 
-        inline Point operator-(const Point& input) const
+        [[nodiscard]] constexpr Point operator-(const Point& input) const noexcept
         {
-            std::array<std::size_t, dimension> new_array;
-            for (std::size_t i = 0; i < p.size(); ++i)
-            {
-                new_array[i] = p[i] - input.p[i];
-            }
-            return Point{ new_array };
+            return Point{ base_types_detail::apply_array_op(p, input.p, std::minus<>{}) };
         }
 
+        #ifndef __POLYGEIST__
         template<typename OStreamT = std::ostream>
         requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
         friend std::ostream& operator<<(OStreamT& out, const Point& _myStruct)
         {
-            out << '{';
-            for (std::size_t i = 0; i < dimension; ++i)
-            {
-                out << +_myStruct.p[i] << ", ";
-            }
-            out << '}';
-            return out;
+            return base_types_detail::print_braced_n(out, _myStruct.p, dimension);
         }
+        #endif
+
+        constexpr bool operator==(const Point& other) const noexcept = default;
     };
 
+    #ifndef __POLYGEIST__
     struct BMPIMAGE
     {
         std::filesystem::path FILENAME;
@@ -248,5 +284,6 @@ namespace TinyDIP
         std::uint8_t FILLINGBYTE;
         std::uint8_t* IMAGE_DATA;
     };
+    #endif
 }
 #endif
