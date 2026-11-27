@@ -1580,28 +1580,98 @@ constexpr ArgsContainer args_filter(const std::span<const std::string_view> args
     if constexpr (requires { filtered_args.reserve(1); })
     {
         filtered_args.reserve(std::ranges::size(args));
-    }
-    
-    for (const auto& arg : args)
+}
+
+//  store_or_print_scalar_any template function implementation
+//  Shared scalar result handler for MetaScalarHandler and distance commands
+template <typename OStreamT = std::ostream>
+requires(std::derived_from<std::remove_cvref_t<OStreamT>, std::ostream>)
+void store_or_print_scalar_any(
+    std::any& scalar_result_any,
+    const std::string_view output_arg,
+    const std::string_view op_name,
+    const std::string_view capitalized_op_name,
+    Workspace& workspace,
+    OStreamT& os)
+{
+    if (!scalar_result_any.has_value())
     {
-        if (!match_any(arg, policies))
+        return;
+    }
+
+    auto handle_result = [&]<typename ScalarT>() -> bool
+    {
+        if (scalar_result_any.type() == typeid(ScalarT))
         {
-            if constexpr (requires { filtered_args.emplace_back(arg); })
+            auto& scalar_result = std::any_cast<ScalarT&>(scalar_result_any);
+            if (!std::ranges::empty(output_arg))
             {
-                filtered_args.emplace_back(arg);
-            }
-            else if constexpr (requires { filtered_args.push_back(arg); })
-            {
-                filtered_args.push_back(arg);
+                if (output_arg.starts_with('$'))
+                {
+                    workspace.store(output_arg.substr(1), scalar_result);
+                    os << "Saved " << op_name << " result to " << output_arg << "\n";
+                }
+                else
+                {
+                    os << "Error: Output must be a memory variable starting with '$'.\n";
+                }
             }
             else
             {
-                filtered_args.insert(std::ranges::end(filtered_args), arg);
+                if constexpr (is_sequence_container_v<ScalarT>)
+                {
+                    os << capitalized_op_name << " result: ";
+                    print_sequence_braced(os, scalar_result);
+                    os << "\n";
+                }
+                else if constexpr (requires { os << scalar_result; })
+                {
+                    os << capitalized_op_name << " result: " << promote_byte_for_print(scalar_result) << "\n";
+                }
+                else
+                {
+                    os << capitalized_op_name << " result evaluated successfully (Non-printable complex type).\n";
+                }
             }
+            return true;
         }
+        return false;
+    };
+
+    auto handle_nested_result = [&]<typename NestedT>() -> bool
+    {
+        if (scalar_result_any.type() == typeid(NestedT))
+        {
+            auto& nested_result = std::any_cast<NestedT&>(scalar_result_any);
+            if (!std::ranges::empty(output_arg))
+            {
+                if (output_arg.starts_with('$'))
+                {
+                    workspace.store(output_arg.substr(1), nested_result);
+                    os << "Saved " << op_name << " result to " << output_arg << "\n";
+                }
+                else
+                {
+                    os << "Error: Output must be a memory variable starting with '$'.\n";
+                }
+            }
+            else
+            {
+                os << capitalized_op_name << " result: ";
+                print_nested_scalar_braced(os, nested_result);
+                os << "\n";
+            }
+            return true;
+        }
+        return false;
+    };
+
+    if (!match_any_type<master_scalar_types>(handle_result) &&
+        !match_any_type<master_nested_scalar_container_types>(handle_nested_result))
+    {
+        os << "Error: Output type from processor is unknown or unsupported. Type Name: ["
+           << scalar_result_any.type().name() << "]\n";
     }
-    
-    return filtered_args;
 }
 
 //  --------------------------------------------------------------------------
